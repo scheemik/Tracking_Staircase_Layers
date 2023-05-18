@@ -62,7 +62,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = False
+dark_mode = True
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -1512,7 +1512,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             else:
                 ax.set_title(plt_title)
                 ax.set_xlabel(xlabel)
-            # ax.set_title(plt_title)
+            ax.set_title(plt_title)
             if use_same_y_axis:
                 # If in the far left column
                 if i%cols == 0:

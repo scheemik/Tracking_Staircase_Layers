@@ -75,33 +75,7 @@ def list_data_files(file_path):
     return data_files
 
 ################################################################################
-
-def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
-    """
-    Finds ITP data files for all instruments available and formats them into netcdfs
-
-    science_data_file_path      string of the filepath where the data is stored
-    format                      which version of the data files to use
-                                    either 'cormat' or 'final'
-    """
-    # Declare file path
-    main_dir = science_data_file_path+'ITPs/'
-    # Search the provided file path
-    if os.path.isdir(main_dir):
-        ITP_dirs = os.listdir(main_dir)
-        # Remove .DS_Store directory from list
-        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
-    else:
-        print(main_dir, " is not a directory")
-        exit(0)
-    # Read in data for all ITPs available
-    for itp in ITP_dirs:
-        # Get just the number for the itp
-        itp_number = ''.join(filter(str.isdigit, itp))
-        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
-    #
-
-################################################################################
+# Main function to set up netcdf and make all the variables
 
 def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     """
@@ -115,7 +89,14 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     """
     print('Reading',source,instrmt_name)
     # Select the corresponding read function for the provided data source
-    if source == 'ITP':
+    if source == 'AIDJEX':
+        read_data_file  = read_AIDJEX_data_file
+        attribution     = 'Moritz, Richard. 2020. Salinity, Temperature, Depth profiler data at AIDJEX stations April 1975 through April 1976, Version 1. Boulder, Colorado USA. CanWIN: Canadian Watershed Information Network. https://doi.org/10.34992/4xak-8r05 [Date Accessed: 2023-05-18].'
+        source_url      = 'https://canwin-datahub.ad.umanitoba.ca/data/dataset/aidjex'
+        og_vert         = 'depth'
+        og_temp         = 'iT'
+        og_salt         = 'SP'
+    elif source == 'ITP':
         read_data_file  = read_ITP_data_file
         attribution    = 'The Ice-Tethered Profiler data were collected and made available by the Ice-Tethered Profiler Program (Toole et al., 2011; Krishfield et al., 2008) based at the Woods Hole Oceanographic Institution'
         source_url      = 'https://www.whoi.edu/itp'
@@ -555,14 +536,84 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     ds.to_netcdf(out_file, 'w')
 
 ################################################################################
+# Helper functions
 
-black_list = {'BigBear': [531, 535, 537, 539, 541, 543, 545, 547, 549],
-              'BlueFox': [94, 308, 310],
-              'Caribou': [],
-              'Snowbird': [443],
-              'Seacat': ['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
+
+def find_geo_region(lon, lat):
+    """
+    Returns a string of the geographical region of the Arctic Ocean in which
+    the coordinates are located. Region boundaries based on:
+    Peralta-Ferriz and Woodgate (2015), doi:10.1016/j.pocean.2014.12.005
+
+    lon         longitude value
+    lat         latitude value
+    """
+    if isinstance(lon, type(None)) or isinstance(lat, type(None)):
+        return 'error'
+    # Chukchi Sea
+    elif (lon > -180) & (lon < -155) & (lat > 68) & (lat < 76):
+        return 'CS'
+    # Southern Beaufort Sea
+    elif (lon > -155) & (lon < -120) & (lat > 68) & (lat < 72):
+        return 'SBS'
+    # Canada Basin
+    elif (lon > -155) & (lon < -130) & (lat > 72) & (lat < 84):
+        return 'CB'
+    # Makarov Basin part 1
+    elif (lon > 50) & (lon < 180) & (lat > 83.5) & (lat < 90):
+        return 'MB'
+    # Makarov Basin part 2
+    elif (lon > 141) & (lon < 180) & (lat > 78) & (lat < 90):
+        return 'MB'
+    # Eurasian Basin part 1
+    elif (lon > 30) & (lon < 140) & (lat > 82) & (lat < 90):
+        return 'EB'
+    # Eurasian Basin part 2
+    elif (lon > 110) & (lon < 140) & (lat > 78) & (lat < 82):
+        return 'EB'
+    # Barents Sea part 1
+    elif (lon > 15) & (lon < 60) & (lat > 75) & (lat < 80):
+        return 'BS'
+    # Barents Sea part 2
+    elif (lon > 15) & (lon < 55) & (lat > 67) & (lat < 75):
+        return 'BS'
+    else:
+        return False
 
 ################################################################################
+# ITP functions
+################################################################################
+
+def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
+    """
+    Finds ITP data files for all instruments available and formats them into netcdfs
+
+    science_data_file_path      string of the filepath where the data is stored
+    format                      which version of the data files to use
+                                    either 'cormat' or 'final'
+    """
+    # Declare file path
+    main_dir = science_data_file_path+'ITPs/'
+    # Search the provided file path
+    if os.path.isdir(main_dir):
+        ITP_dirs = os.listdir(main_dir)
+        # Remove .DS_Store directory from list
+        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
+    else:
+        print(main_dir, " is not a directory")
+        exit(0)
+    # Read in data for all ITPs available
+    for itp in ITP_dirs:
+        # Get just the number for the itp
+        itp_number = ''.join(filter(str.isdigit, itp))
+        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
+    #
 
 def read_ITP_data_file(file_path, file_name, instrmt):
     """
@@ -769,62 +820,142 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
 
 ################################################################################
 
-def isfloat(num):
-    try:
-        float(num)
-        return True
-    except ValueError:
-        return False
+black_list = {'BigBear': [531, 535, 537, 539, 541, 543, 545, 547, 549],
+              'BlueFox': [94, 308, 310],
+              'Caribou': [],
+              'Snowbird': [443],
+              'Seacat': ['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
 
-def find_geo_region(lon, lat):
-    """
-    Returns a string of the geographical region of the Arctic Ocean in which
-    the coordinates are located. Region boundaries based on:
-    Peralta-Ferriz and Woodgate (2015), doi:10.1016/j.pocean.2014.12.005
+################################################################################
+# AIDJEX functions
+################################################################################
 
-    lon         longitude value
-    lat         latitude value
+def make_all_AIDJEX_netcdfs(science_data_file_path):
     """
-    if isinstance(lon, type(None)) or isinstance(lat, type(None)):
-        return 'error'
-    # Chukchi Sea
-    elif (lon > -180) & (lon < -155) & (lat > 68) & (lat < 76):
-        return 'CS'
-    # Southern Beaufort Sea
-    elif (lon > -155) & (lon < -120) & (lat > 68) & (lat < 72):
-        return 'SBS'
-    # Canada Basin
-    elif (lon > -155) & (lon < -130) & (lat > 72) & (lat < 84):
-        return 'CB'
-    # Makarov Basin part 1
-    elif (lon > 50) & (lon < 180) & (lat > 83.5) & (lat < 90):
-        return 'MB'
-    # Makarov Basin part 2
-    elif (lon > 141) & (lon < 180) & (lat > 78) & (lat < 90):
-        return 'MB'
-    # Eurasian Basin part 1
-    elif (lon > 30) & (lon < 140) & (lat > 82) & (lat < 90):
-        return 'EB'
-    # Eurasian Basin part 2
-    elif (lon > 110) & (lon < 140) & (lat > 78) & (lat < 82):
-        return 'EB'
-    # Barents Sea part 1
-    elif (lon > 15) & (lon < 60) & (lat > 75) & (lat < 80):
-        return 'BS'
-    # Barents Sea part 2
-    elif (lon > 15) & (lon < 55) & (lat > 67) & (lat < 75):
-        return 'BS'
+    Finds AIDJEX data files for all 4 instruments and formats them into netcdfs
+
+    science_data_file_path      string of the filepath where the data is stored
+    """
+    # Declare file path
+    main_dir = science_data_file_path+'AIDJEX/AIDJEX/'
+    # Read in data for all 4 AIDJEX stations
+    station_names = ['BigBear', 'BlueFox', 'Caribou', 'Snowbird']
+    for station in station_names:
+        read_instrmt('AIDJEX', station, main_dir+station, 'netcdfs/AIDJEX_'+station+'.nc')
+    #
+
+def read_AIDJEX_data_file(file_path, file_name, instrmt):
+    """
+    Reads certain data from an AIDJEX profile file
+    Returns a dictionary with specific information
+
+    file_path           string of a file path to the containing directory
+    file_name           string of the file name of a specific file
+    instrmt             string of the name of this instrmt
+    """
+    # Assuming file name format instrmt_YYY where the profile number,
+    #   YYY, is always 3 digits
+    prof_no = int(''.join(filter(str.isdigit, file_name)))
+    # Check to make sure this one isn't on the black list
+    if prof_no in black_list[instrmt]:
+        on_black_list = True
     else:
-        return False
+        on_black_list = False
+    #
+    # Declare variables
+    # print('Loading in',file_name)
+    lon = None
+    lat = None
+    # Read data file in as a pandas data object
+    #   The arguments used are specific to how the AIDJEX files are formatted
+    #   Reading in the file one line at a time because the number of items
+    #       on each line is inconsistent between files
+    dat0 = pd.read_table(file_path+'/'+file_name, header=None, nrows=1, engine='python', delim_whitespace=True).iloc[0]
+    dat1 = pd.read_table(file_path+'/'+file_name, header=0, nrows=1, engine='python', delim_whitespace=True).iloc[0]
+    #   The date this profile was taken
+    date_string = dat0[3]
+    #   The time this profile was taken
+    time_string = str(dat0[4]).zfill(4)
+    #   Assuming date is in format d/MON/YYYY where d can have 1 or 2 digits,
+    #       MON is the first three letters of the month, and YYYY is the year
+    #   Assuming time is in format HMM where H can have 1 or 2 digits originally
+    #       but is 2 digits because of zfill(4) and MM is the minutes of the hour
+    try:
+        date = str(datetime.strptime(date_string+' '+time_string, r'%d/%b/%Y %H%M'))
+    except:
+        date = None
+        print('Failed to format date for', file_name)
+    #   Longitude and Latitude
+    if ('Lat' in dat1[0]) or ('lat' in dat1[0]):
+        lat = float(dat1[1])
+    if ('Lon' in dat1[2]) or ('lon' in dat1[2]):
+        lon = float(dat1[3])
+    #       Check to make sure the lon and lat values are valid
+    if lat == 99.9999 and lon == 99.9999:
+        lat = None
+        lon = None
+    # Determine the region
+    reg = find_geo_region(lon, lat)
+    # Read in data from the file
+    dat = pd.read_table(file_path+'/'+file_name,header=3,skipfooter=0,engine='python',delim_whitespace=True)
+    # If it finds the correct column headers, put data into arrays
+    if 'Depth(m)' and 'Temp(C)' and 'Sal(PPT)' in dat.columns:
+        depth0 = dat['Depth(m)'][:].values
+        iT0    = dat['Temp(C)'][:].values
+        SP0    = dat['Sal(PPT)'][:].values
+        # Calculate pressure from depth using GSW which expects negative depth values, zero being the surface
+        #   Requires a latitude to work, but sometimes `lat` is None, so use an average
+        if isinstance(lat, type(None)):
+            press0 = gsw.p_from_z(-depth0, 75)
+            # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
+            pf_vert_len = len(press0)
+            SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [75]*pf_vert_len)
+            print('Using a fake latitude value of 75 for profile',prof_no)
+        else:
+            press0 = gsw.p_from_z(-depth0, lat)
+            # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
+            pf_vert_len = len(press0)
+            SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
+        CT1 = gsw.CT_from_t(SA1, iT0, press0)
+        PT1 = gsw.pt0_from_t(SA1, iT0, press0)
+        # Doesn't matter the direction of data collection for AIDJEX, so mark
+        #   all profiles as up-casts
+        up_cast = True
+        # Create output dictionary for this profile
+        out_dict = {'prof_no': prof_no,
+                    'black_list': on_black_list,
+                    'dt_start': date,
+                    'dt_end': None,
+                    'lon': lon,
+                    'lat': lat,
+                    'region':reg,
+                    'up_cast': up_cast,
+                    'press': press0,
+                    'depth': depth0,
+                    'iT': iT0,
+                    'CT': CT1,
+                    'PT': PT1,
+                    'SP': SP0,
+                    'SA': SA1
+                    }
+        #
+        # Return all the relevant values
+        return out_dict
+    else:
+        return None
+
 
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
-read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
+# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
+# read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
 
-## These will make all the netcdfs for a certain source (takes a long time)
+## These will make all the netcdfs for the ITPs available (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
+
+## These will make all the netcdfs for AIDJEX
+make_all_AIDJEX_netcdfs(science_data_file_path)
 
 exit(0)
 

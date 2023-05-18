@@ -116,6 +116,9 @@ ITP3_pfs3  = {'ITP_3':ITP3_some_pfs_3}
 
 ITP2_pfs1  = {'ITP_2':ITP2_some_pfs}
 
+# AIDJEX camps
+AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
+
 ################################################################################
 # Create data filtering objects
 print('- Creating data filtering objects')
@@ -131,18 +134,20 @@ dfs_test = ahf.Data_Filters(date_range=['2005/08/25 00:00:00','2005/10/31 00:00:
 print('- Creating data sets')
 ################################################################################
 
-ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
+# ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
 
 ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
 ds_ITP2_pfs = ahf.Data_Set(ITP2_pfs, dfs0)
 
 ds_ITP2_some_pfs = ahf.Data_Set(ITP2_pfs, dfs0)
 
-ds_ITP3_all = ahf.Data_Set(ITP3_all, dfs0)
-ds_ITP3_some_pfs0 = ahf.Data_Set(ITP3_pfs0, dfs0)
-ds_ITP3_some_pfs1 = ahf.Data_Set(ITP3_pfs1, dfs0)
-ds_ITP3_some_pfs2 = ahf.Data_Set(ITP3_pfs2, dfs0)
-ds_ITP3_some_pfs3 = ahf.Data_Set(ITP3_pfs3, dfs0)
+# ds_ITP3_all = ahf.Data_Set(ITP3_all, dfs0)
+# ds_ITP3_some_pfs0 = ahf.Data_Set(ITP3_pfs0, dfs0)
+# ds_ITP3_some_pfs1 = ahf.Data_Set(ITP3_pfs1, dfs0)
+# ds_ITP3_some_pfs2 = ahf.Data_Set(ITP3_pfs2, dfs0)
+# ds_ITP3_some_pfs3 = ahf.Data_Set(ITP3_pfs3, dfs0)
+
+ds_AIDJEX_BigBear_all = ahf.Data_Set(AIDJEX_BigBear_all, dfs0)
 
 ################################################################################
 # Create profile filtering objects
@@ -150,7 +155,7 @@ print('- Creating profile filtering objects')
 ################################################################################
 
 pfs_0 = ahf.Profile_Filters()
-pfs_1 = ahf.Profile_Filters(p_range=T2008_p_range)
+pfs_1 = ahf.Profile_Filters(SP_range=ITP2_S_range)
 
 test_p_range = [200,400]
 pfs_maw_10  = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=10)
@@ -169,6 +174,9 @@ print('- Creating plotting parameter objects')
 
 ### Test plots
 pp_xy_default = ahf.Plot_Parameters()
+
+pp_clstr_test = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, legend=True, add_grid=True)
+
 pp_test0 = ahf.Plot_Parameters(x_vars=['alpha'], y_vars=['beta'], clr_map='clr_all_same', legend=True, extra_args={'b_a_w_plt':True, 'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':100})
 pp_og_ma_la_pf = ahf.Plot_Parameters(x_vars=['CT', 'ma_CT'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':[185], 'plt_noise':True, 'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':210}, ax_lims=T2008_fig4_y_lims)
 pp_test1 = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='clr_all_same', extra_args={'b_a_w_plt':False, 'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':T2008_m_pts, 'plot_slopes':True}, legend=True)
@@ -266,8 +274,10 @@ print('- Creating analysis group objects')
 ################################################################################
 
 ## Test Analysis Groups
-# my_group0 = ahf.Analysis_Group(ds_ITP13_all, pfs_ITP13, pp_test0)
-# my_group0 = ahf.Analysis_Group(ds_ITP2_all, pfs_T2008, pp_test0)
+# my_group0 = ahf.Analysis_Group(ds_ITP2_all, pfs_1, pp_xy_default)
+# my_group1 = ahf.Analysis_Group(ds_AIDJEX_BigBear_all, pfs_1, pp_xy_default)
+my_group0 = ahf.Analysis_Group(ds_ITP2_all, pfs_1, pp_clstr_test)
+my_group1 = ahf.Analysis_Group(ds_AIDJEX_BigBear_all, pfs_1, pp_clstr_test)
 # my_group1 = ahf.Analysis_Group(ds_ITP2_all, pfs_T2008, pp_ca_SP_CT)
 # my_group0 = ahf.Analysis_Group(ds_ITP3_all, pfs_Lu2022, pp_test0)
 # my_group0 = ahf.Analysis_Group(ds_ITP3_all, pfs_0, pp_test0)
@@ -446,7 +456,7 @@ if False:
 # print('- Creating outputs')
 ################################################################################
 
-# ahf.make_figure([group_T2008_fig4])#, filename='test.pickle')
+ahf.make_figure([my_group0, my_group1])#, filename='test.pickle')
 # ahf.make_figure([group_salt_nir])
 # ahf.make_figure([group_ps_n_pfs])
 # ahf.make_figure([my_group1])#, filename='test.pickle')

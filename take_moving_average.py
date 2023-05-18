@@ -28,8 +28,9 @@ c3 = 100
 ################################################################################
 # Select the netcdfs to modify
 ncs_to_modify = [
-                 'netcdfs/ITP_2.nc',
-                 'netcdfs/ITP_3.nc'
+                #  'netcdfs/ITP_2.nc',
+                #  'netcdfs/ITP_3.nc',
+                 'netcdfs/AIDJEX_BigBear.nc'
                  ]
 
 # Loop through the netcdfs to modify

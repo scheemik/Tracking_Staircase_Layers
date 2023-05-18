@@ -59,7 +59,18 @@ ITP3_clstr_dict = {'netcdf_to_load':'netcdfs/ITP_3.nc',
                    'm_pts':580
                    }
 
-for clstr_dict in [ITP2_clstr_dict, ITP3_clstr_dict]:
+## AIDJEX BigBear
+ABB_clstr_dict =  {'netcdf_to_load':'netcdfs/AIDJEX_BigBear.nc',
+                   'sources_dict':{'AIDJEX_BigBear':'all'},
+                   'data_filters':dfs0,
+                   'SP_range':[34.05,34.75],
+                   'cl_x_var':'SP',
+                   'cl_y_var':'la_CT',
+                   'm_pts':70
+                   }
+
+# for clstr_dict in [ITP2_clstr_dict, ITP3_clstr_dict]:
+for clstr_dict in [ABB_clstr_dict]:
     # Find the netcdf to use
     my_nc = clstr_dict['netcdf_to_load']
     print('Reading',my_nc)
