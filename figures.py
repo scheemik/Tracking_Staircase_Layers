@@ -43,7 +43,7 @@ import analysis_helper_functions as ahf
 ### Filters for reproducing plots from Timmermans et al. 2008
 ITP2_p_range = [185,300]
 ITP2_S_range = [34.05,34.75]
-T2008_m_pts = 170
+ITP2_m_pts = 170
 # Timmermans 2008 Figure 4 depth range
 T2008_fig4_y_lims = {'y_lims':[260,220]}
 # Timmermans 2008 Figure 4 shows profile 185
@@ -83,8 +83,14 @@ Lu2022_m_pts = 580
 # Make dictionaries for what data to load in and analyze
 ################################################################################
 
+# All profiles from all sources in this study
+all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_2':'all','ITP_3':'all'}
+
 # All profiles from all ITPs in this study
 all_ITPs = {'ITP_2':'all','ITP_3':'all'}
+
+# All profiles from all AIDJEX camps
+all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
 
 # All profiles from certain ITPs
 ITP2_all  = {'ITP_2':'all'}
@@ -100,6 +106,9 @@ ITP3_pfs2  = {'ITP_3':ITP3_some_pfs_2}
 
 # AIDJEX camps
 AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
+AIDJEX_BlueFox_all = {'AIDJEX_BlueFox':'all'}
+AIDJEX_Caribou_all = {'AIDJEX_Caribou':'all'}
+AIDJEX_Snowbird_all = {'AIDJEX_Snowbird':'all'}
 
 ################################################################################
 # Create data filtering objects
@@ -113,12 +122,11 @@ dfs0 = ahf.Data_Filters()
 print('- Creating data sets')
 ################################################################################
 
+ds_all_sources = ahf.Data_Set(all_sources, dfs0)
 ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
+ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs0)
 
 ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
-
-ds_ITP3_all = ahf.Data_Set(ITP3_all, dfs0)
-ds_ITP3_some_pfs2 = ahf.Data_Set(ITP3_pfs2, dfs0)
 
 ds_AIDJEX_BigBear_all = ahf.Data_Set(AIDJEX_BigBear_all, dfs0)
 
@@ -132,6 +140,10 @@ pfs_1 = ahf.Profile_Filters(SP_range=ITP2_S_range)
 
 pfs_ITP2  = ahf.Profile_Filters(SP_range=ITP2_S_range)
 pfs_ITP3 = ahf.Profile_Filters(SP_range=Lu2022_S_range)
+
+pfs_subs = ahf.Profile_Filters(SP_range=ITP2_S_range, subsample=True)
+pfs_regrid = ahf.Profile_Filters(SP_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
+pfs_ss_rg = ahf.Profile_Filters(SP_range=ITP2_S_range, subsample=True, regrid_TS=['CT',0.01,'SP',0.005])
 
 ################################################################################
 # Create plotting parameter objects
@@ -152,55 +164,34 @@ group_regrid = ahf.Analysis_Group(ds_ITP2_all, pfs_regrid, pp_regrid)
 
 pp_clstr_test = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, legend=True, add_grid=True)
 
-### Figure 2, but with S_A instead of S_P
-## Using ITP2, reproducing figures from Timmermans et al. 2008
-# The actual clustering done for reproducing figures from Timmermans et al. 2008
-pp_2T2008_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, ax_lims={'x_lims':[34.2169,34.9171]}, legend=True, add_grid=False)
-# Reproducing Timmermans et al. 2008 Figure 4, with cluster coloring and 2 extra profiles
-pp_2T2008_fig4  = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':T2008_fig4_pfs, 'plt_noise':True, 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, legend=True, ax_lims=T2008_fig4_y_lims, add_grid=True)
-# Reproducing Timmermans et al. 2008 Figure 5a, but with cluster coloring
-pp_2T2008_fig5a = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_slopes':False, 'isopycnals':0, 'place_isos':'manual', 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, ax_lims={'x_lims':[34.2169,34.9171], 'y_lims':[-1.3,0.5]}, legend=True, add_grid=False)
-# Reproducing Timmermans et al. 2008 Figure 6a, but with cluster coloring
-pp_2T2008_fig6a = ahf.Plot_Parameters(x_vars=['BSA'], y_vars=['aCT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_slopes':True, 'isopycnals':True, 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, ax_lims={'x_lims':[0.026967,0.027007], 'y_lims':[-13e-6,3e-6]}, legend=True, add_grid=False)
-
-### Figure 4, but with S_A
-## Evaluating clusterings with the overlap ratio and lateral density ratio
-pp_2salt_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False, 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, legend=False)
-pp_2salt_R_L = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False, 'plot_slopes':True, 'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170}, legend=False)
-
-## Reproducing figures from Timmermans et al. 2008
-## The actual clustering done for reproducing figures from Timmermans et al. 2008
-# pp_T2008_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False},  legend=False)
-# pp_T2008_clstr2 = ahf.Plot_Parameters(x_vars=['v1_SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'cl_x_var':'v1_SP', 'cl_y_var':'la_CT', 'm_pts':T2008_m_pts}, legend=True)
-
 ################################################################################
 ### Figures for paper
 
 ### Figure 1
-## Map of ITP drifts for ITP2 and ITP3
-pp_ITP_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt')
-pp_ITP_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'}, legend=False, add_grid=False)
+## Map of ITP drifts for all sources
+pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Western_Arctic'})
+pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'}, legend=False, add_grid=False)
 
 ### Figure 2
-## Using ITP2, reproducing figures from Timmermans et al. 2008
-# The actual clustering done for reproducing figures from Timmermans et al. 2008
-pp_T2008_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False}, ax_lims=T2008_fig5a_x_lims, legend=False, add_grid=False)
-# Reproducing Timmermans et al. 2008 Figure 4, with cluster coloring and 2 extra profiles
-pp_T2008_fig4  = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':T2008_fig4_pfs, 'plt_noise':True}, legend=True, ax_lims=T2008_fig4_y_lims, add_grid=True)
-# Reproducing Timmermans et al. 2008 Figure 5a, but with cluster coloring
-pp_T2008_fig5a = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_slopes':False, 'isopycnals':0, 'place_isos':'auto'}, ax_lims=T2008_fig5a_ax_lims, legend=False, add_grid=False)
-# Reproducing Timmermans et al. 2008 Figure 6a, but with cluster coloring
-pp_T2008_fig6a = ahf.Plot_Parameters(x_vars=['BSP'], y_vars=['aCT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_slopes':True, 'isopycnals':True}, ax_lims=T2008_fig6a_ax_lims, legend=False, add_grid=False)
-## For ITP3
-# The actual clustering done for reproducing figures from Lu et al. 2022
-pp_Lu2022_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, legend=True, add_grid=False)
-# Plotting clusters back in regular CT vs SP space
-pp_Lu2022_CT_SP = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_slopes':False, 'isopycnals':0, 'place_isos':'auto'}, legend=False, add_grid=False)
+## Plotting a TS diagram of both ITP and AIDJEX data
+# TS diagram of all sources, colored by source
+pp_TS_by_source = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_by_source')
+pp_TS_by_instrmt = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_by_instrmt')
+
+test_mpts = 65
+pp_ITP2_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+pp_ITP2_clstr_og = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
 
 ### Figure 3
-## Parameter sweep across \ell and m_pts for ITP2, Timmermans et al. 2008
-pp_ITP2_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':T2008_m_pts, 'cl_ps_tuple':[20,455,10]}, legend=False, add_grid=False)
-pp_ITP2_ps_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':T2008_m_pts, 'cl_ps_tuple':[10,271,10]}, legend=False, add_grid=False)
+## Parameter sweep across \ell and m_pts for ITP2 subsampled
+ITP2_ss_mpts = 65
+pp_ITP2_ss_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,220,5]})
+pp_ITP2_ss_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,271,10]})
+## Parameter sweep across \ell and m_pts for AIDJEX
+AIDJEX_mpts = 500
+pp_AIDJEX_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[300,700,20]})
+pp_AIDJEX_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[10,210,10]})
+
 ## Parameter sweep across \ell and m_pts for ITP3, Lu et al. 2022
 pp_ITP3_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[800,1001,10]}, legend=False, add_grid=False)
 pp_ITP3_ps_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[10,210,10]}, legend=False, add_grid=False)
@@ -235,100 +226,72 @@ print('- Creating analysis group objects')
 ## Test Analysis Groups
 my_group0 = ahf.Analysis_Group(ds_ITP2_all, pfs_1, pp_clstr_test)
 my_group1 = ahf.Analysis_Group(ds_AIDJEX_BigBear_all, pfs_1, pp_clstr_test)
-ahf.make_figure([my_group0, my_group1])#, filename='test.pickle')
+# ahf.make_figure([my_group0, my_group1])#, filename='test.pickle')
 ## Test figures
-
-### Figure 2, but using S_A
-## Using ITP2, reproducing figures from Timmermans et al. 2008
-if False:
-    print('')
-    print('- Creating Figure 2')
-    # Make the subplot groups
-    group_2T2008_clstr = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2T2008_clstr, plot_title='')
-    group_2T2008_fig4  = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2T2008_fig4, plot_title='')
-    group_2T2008_fig5a = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2T2008_fig5a, plot_title='')
-    group_2T2008_fig6a = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2T2008_fig6a, plot_title='')
-    # Make the figure
-    #   Remember, adding isopycnals means it will prompt you to place the in-line labels manually
-    ahf.make_figure([group_2T2008_fig5a, group_2T2008_fig4, group_2T2008_clstr, group_2T2008_fig6a])#, filename='Figure_2_SA.png')
-    # ahf.make_figure([group_2T2008_clstr])
-    # ahf.make_figure([group_2T2008_fig4])
-    # ahf.make_figure([group_2T2008_fig5a])
-    # ahf.make_figure([group_2T2008_fig6a])
-### Figure 4, but using S_A
-## Evaluating clusterings with the overlap ratio and lateral density ratio
-# For the reproduction of Timmermans et al. 2008
-if False:
-    print('')
-    print('- Creating Figure 4')
-    # Make the subplot groups
-    group_2salt_nir = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2salt_nir, plot_title='')
-    group_2salt_R_L = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_2salt_R_L, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_2salt_nir, group_2salt_R_L], filename='Figure_4_SA.png')
 
 ################################################################################
 ### Figures for paper
 
 ### Figure 1
-## Map of ITP drifts for ITP2 and ITP3
+## Map of ITP drifts for all sources
 if False:
     print('')
     print('- Creating Figure 1')
     # Make the subplot groups
-    group_ITP_map = ahf.Analysis_Group(ds_all_ITPs, pfs_0, pp_ITP_map, plot_title='')
-    group_ITP_map_full_Arctic = ahf.Analysis_Group(ds_all_ITPs, pfs_0, pp_ITP_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources, pfs_0, pp_map, plot_title='')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources, pfs_0, pp_map_full_Arctic, plot_title='')
     # Make the figure
-    ahf.make_figure([group_ITP_map_full_Arctic, group_ITP_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
     # Find the maximum distance between any two profiles for each data set in the group
-    # ahf.find_max_distance([group_ITP_map])
+    # ahf.find_max_distance([group_map])
 
 ### Figure 2
-## Using ITP2, reproducing figures from Timmermans et al. 2008
+## Plotting a TS diagram of both ITP and AIDJEX data
 if False:
     print('')
     print('- Creating Figure 2')
     # Make the subplot groups
-    group_T2008_clstr = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_T2008_clstr, plot_title='')
-    group_T2008_fig4  = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_T2008_fig4, plot_title='')
-    group_T2008_fig5a = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_T2008_fig5a, plot_title='')
-    group_T2008_fig6a = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_T2008_fig6a, plot_title='')
+    group_TS_all_sources = ahf.Analysis_Group(ds_all_sources, pfs_ITP2, pp_TS_by_source, plot_title='')
+    group_TS_all_AIDJEX  = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_TS_by_instrmt, plot_title='')
     # Make the figure
-    #   Remember, adding isopycnals means it will prompt you to place the in-line labels manually
-    ahf.make_figure([group_T2008_fig5a, group_T2008_fig4, group_T2008_clstr, group_T2008_fig6a])#, filename='Figure_2.png')
-    # ahf.make_figure([group_T2008_clstr])
-    # ahf.make_figure([group_T2008_fig4])
-    # ahf.make_figure([group_T2008_fig5a])
-    # ahf.make_figure([group_T2008_fig6a])
-## The actual clustering done for reproducing figures from Lu et al. 2022
-if False:
-    print('')
-    print('- Creating Figure 2, for ITP3')
-    # Make the subplot groups
-    group_Lu2022_clstr = ahf.Analysis_Group(ds_ITP3_all, pfs_ITP3, pp_Lu2022_clstr)
-    group_Lu2022_CT_SP = ahf.Analysis_Group(ds_ITP3_all, pfs_ITP3, pp_Lu2022_CT_SP)
-    # Make the figure
-    ahf.make_figure([group_Lu2022_clstr,group_Lu2022_CT_SP], use_same_y_axis=False)
-    # ahf.make_figure([group_Lu2022_CT_SP])
+    ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX])#, filename='Figure_2.png')
+    # ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_2.png')
 
 ### Figure 3
-## Parameter sweep across \ell and m_pts for ITP2
+## Parameter sweep across \ell and m_pts
+# For ITP2 ss
 if False:
     print('')
     print('- Creating Figure 3')
     # Make the subplot groups
-    group_ps_ell = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_ITP2_ps_ell, plot_title='')
-    group_ps_m_pts = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_ITP2_ps_m_pts, plot_title='')
+    group_ITP2_ss_mpts = ahf.Analysis_Group(ds_ITP2_all, pfs_subs, pp_ITP2_ss_mpts, plot_title='ITP2 Subsampled')
+    group_ITP2_ss_ell  = ahf.Analysis_Group(ds_ITP2_all, pfs_subs, pp_ITP2_ss_ell, plot_title='ITP2 Subsampled')
     # Make the figure
-    ahf.make_figure([group_ps_ell, group_ps_m_pts], use_same_y_axis=False, filename='Figure_3.pickle')
-## Parameter sweep across \ell and m_pts for ITP3
+    ahf.make_figure([group_ITP2_ss_mpts, group_ITP2_ss_ell], filename='Figure_3.pickle')
+# For AIDJEX
+if True:
+    print('')
+    print('- Creating Figure 3')
+    # Make the subplot groups
+    group_AIDJEX_mpts = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_AIDJEX_mpts, plot_title='AIDJEX')
+    group_AIDJEX_ell  = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_AIDJEX_ell, plot_title='AIDJEX')
+    # Make the figure
+    ahf.make_figure([group_AIDJEX_mpts, group_AIDJEX_ell], filename='Figure_3.pickle')
+
+### Figure 3-1
+## Plotting test clusterings
 if False:
     print('')
+    print('- Creating Figure 3')
     # Make the subplot groups
-    group_ps_ell = ahf.Analysis_Group(ds_ITP3_all, pfs_ITP3, pp_ITP3_ps_ell)
-    group_ps_m_pts = ahf.Analysis_Group(ds_ITP3_all, pfs_ITP3, pp_ITP3_ps_m_pts)
+    # group_ITP2_og = ahf.Analysis_Group(ds_ITP2_all, pfs_ITP2, pp_ITP2_clstr, plot_title='Original')
+    group_ITP2_ss = ahf.Analysis_Group(ds_ITP2_all, pfs_subs, pp_ITP2_clstr, plot_title='Subsampled')
+    group_ITP2_ss2 = ahf.Analysis_Group(ds_ITP2_all, pfs_subs, pp_ITP2_clstr_og, plot_title='Subsampled')
+    # group_ITP2_rg = ahf.Analysis_Group(ds_ITP2_all, pfs_regrid, pp_ITP2_clstr, plot_title='Regridded')
+    # group_ITP2_ss_rg = ahf.Analysis_Group(ds_ITP2_all, pfs_ss_rg, pp_ITP2_clstr, plot_title='Subsampled & Regridded')
     # Make the figure
-    ahf.make_figure([group_ps_ell, group_ps_m_pts], use_same_y_axis=False, filename='ITP3_param_sweep.pickle')
+    # ahf.make_figure([group_ITP2_og, group_ITP2_ss, group_ITP2_rg])#, group_ITP2_ss_rg])#, filename='Figure_3.png')
+    ahf.make_figure([group_ITP2_ss, group_ITP2_ss2])#, group_ITP2_ss_rg])#, filename='Figure_3.png')
 
 ### Figure 4
 ## Evaluating clusterings with the overlap ratio and lateral density ratio

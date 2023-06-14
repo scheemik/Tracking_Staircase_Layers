@@ -70,9 +70,8 @@ def keep_every(vert, n_pts):
 ################################################################################
 # Select the netcdf to modify
 ncs_to_modify = [
-                 # 'netcdfs/ITP_1.nc',
                  'netcdfs/ITP_2.nc',
-                 # 'netcdfs/ITP_3.nc'
+                 'netcdfs/ITP_3.nc'
                  ]
 
 # Loop through the netcdfs to modify

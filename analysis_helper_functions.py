@@ -1376,7 +1376,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     # Define number of rows and columns based on number of subplots
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
     n_row_col_dict = {'1':[1,1, 0.8, 1.25], '2':[1,2, 0.5, 1.25], '2.5':[2,1, 0.8, 1.25],
-                      '3':[3,1, 0.3, 1.70], '4':[2,2, 0.7, 2.00],
+                      '3':[1,3, 0.2, 1.50], '4':[2,2, 0.7, 2.00],
                       '5':[2,3, 0.5, 2.00], '6':[2,3, 0.5, 2.00],
                       '7':[2,4, 0.4, 2.00], '8':[2,4, 0.4, 2.00],
                       '9':[3,3, 0.8, 2.00]}
