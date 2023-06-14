@@ -21,6 +21,16 @@ science_data_file_path/
             ...
         ...
 
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions in source code must retain the accompanying copyright notice, this list of conditions, and the following disclaimer.
+    2. Redistributions in binary form must reproduce the accompanying copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3. Names of the copyright holders must not be used to endorse or promote products derived from this software without prior written permission from the copyright holders.
+    4. If any files are modified, you must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
+
+Disclaimer
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import numpy as np
@@ -49,9 +59,6 @@ science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
 me_string = 'Mikhail Schee, University of Toronto'
 doi = 'No DOI yet'
 
-# Sizes of netcdf dimensions (because netcdfs can't do ragged arrays)
-max_l_count = 200       # Maximum number of detected layers that will be stored
-
 ################################################################################
 # Loading in data
 
@@ -75,7 +82,33 @@ def list_data_files(file_path):
     return data_files
 
 ################################################################################
-# Main function to set up netcdf and make all the variables
+
+def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
+    """
+    Finds ITP data files for all instruments available and formats them into netcdfs
+
+    science_data_file_path      string of the filepath where the data is stored
+    format                      which version of the data files to use
+                                    either 'cormat' or 'final'
+    """
+    # Declare file path
+    main_dir = science_data_file_path+'ITPs/'
+    # Search the provided file path
+    if os.path.isdir(main_dir):
+        ITP_dirs = os.listdir(main_dir)
+        # Remove .DS_Store directory from list
+        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
+    else:
+        print(main_dir, " is not a directory")
+        exit(0)
+    # Read in data for all ITPs available
+    for itp in ITP_dirs:
+        # Get just the number for the itp
+        itp_number = ''.join(filter(str.isdigit, itp))
+        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
+    #
+
+################################################################################
 
 def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     """
@@ -176,7 +209,6 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     # Make a blank array for each dimension
     Time_blank = [None]*len(list_of_datetimes_start)
     Vertical_blank = [[None]*max_vert_count]*len(list_of_datetimes_start)
-    Layer_blank = [[None]*max_l_count]*len(list_of_datetimes_start)
 
     # Define variables with data and attributes
     nc_vars = {
@@ -492,15 +524,6 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'long_name':'An index of vertical position (depth or pressure)',
                             'dtype':'int64'
                         }
-                ),
-               'Layer':(
-                        ['Layer'],
-                        np.arange(max_l_count),
-                        {
-                            'units':'N/A',
-                            'long_name':'An index for detected layers',
-                            'dtype':'int64'
-                        }
                 )
     }
     #
@@ -536,84 +559,8 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     ds.to_netcdf(out_file, 'w')
 
 ################################################################################
-# Helper functions
-
-def isfloat(num):
-    try:
-        float(num)
-        return True
-    except ValueError:
-        return False
-
-def find_geo_region(lon, lat):
-    """
-    Returns a string of the geographical region of the Arctic Ocean in which
-    the coordinates are located. Region boundaries based on:
-    Peralta-Ferriz and Woodgate (2015), doi:10.1016/j.pocean.2014.12.005
-
-    lon         longitude value
-    lat         latitude value
-    """
-    if isinstance(lon, type(None)) or isinstance(lat, type(None)):
-        return 'error'
-    # Chukchi Sea
-    elif (lon > -180) & (lon < -155) & (lat > 68) & (lat < 76):
-        return 'CS'
-    # Southern Beaufort Sea
-    elif (lon > -155) & (lon < -120) & (lat > 68) & (lat < 72):
-        return 'SBS'
-    # Canada Basin
-    elif (lon > -155) & (lon < -130) & (lat > 72) & (lat < 84):
-        return 'CB'
-    # Makarov Basin part 1
-    elif (lon > 50) & (lon < 180) & (lat > 83.5) & (lat < 90):
-        return 'MB'
-    # Makarov Basin part 2
-    elif (lon > 141) & (lon < 180) & (lat > 78) & (lat < 90):
-        return 'MB'
-    # Eurasian Basin part 1
-    elif (lon > 30) & (lon < 140) & (lat > 82) & (lat < 90):
-        return 'EB'
-    # Eurasian Basin part 2
-    elif (lon > 110) & (lon < 140) & (lat > 78) & (lat < 82):
-        return 'EB'
-    # Barents Sea part 1
-    elif (lon > 15) & (lon < 60) & (lat > 75) & (lat < 80):
-        return 'BS'
-    # Barents Sea part 2
-    elif (lon > 15) & (lon < 55) & (lat > 67) & (lat < 75):
-        return 'BS'
-    else:
-        return False
 
 ################################################################################
-# ITP functions
-################################################################################
-
-def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
-    """
-    Finds ITP data files for all instruments available and formats them into netcdfs
-
-    science_data_file_path      string of the filepath where the data is stored
-    format                      which version of the data files to use
-                                    either 'cormat' or 'final'
-    """
-    # Declare file path
-    main_dir = science_data_file_path+'ITPs/'
-    # Search the provided file path
-    if os.path.isdir(main_dir):
-        ITP_dirs = os.listdir(main_dir)
-        # Remove .DS_Store directory from list
-        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
-    else:
-        print(main_dir, " is not a directory")
-        exit(0)
-    # Read in data for all ITPs available
-    for itp in ITP_dirs:
-        # Get just the number for the itp
-        itp_number = ''.join(filter(str.isdigit, itp))
-        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
-    #
 
 def read_ITP_data_file(file_path, file_name, instrmt):
     """
@@ -945,13 +892,62 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         return None
 
 
+
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
+
+def find_geo_region(lon, lat):
+    """
+    Returns a string of the geographical region of the Arctic Ocean in which
+    the coordinates are located. Region boundaries based on:
+    Peralta-Ferriz and Woodgate (2015), doi:10.1016/j.pocean.2014.12.005
+
+    lon         longitude value
+    lat         latitude value
+    """
+    if isinstance(lon, type(None)) or isinstance(lat, type(None)):
+        return 'error'
+    # Chukchi Sea
+    elif (lon > -180) & (lon < -155) & (lat > 68) & (lat < 76):
+        return 'CS'
+    # Southern Beaufort Sea
+    elif (lon > -155) & (lon < -120) & (lat > 68) & (lat < 72):
+        return 'SBS'
+    # Canada Basin
+    elif (lon > -155) & (lon < -130) & (lat > 72) & (lat < 84):
+        return 'CB'
+    # Makarov Basin part 1
+    elif (lon > 50) & (lon < 180) & (lat > 83.5) & (lat < 90):
+        return 'MB'
+    # Makarov Basin part 2
+    elif (lon > 141) & (lon < 180) & (lat > 78) & (lat < 90):
+        return 'MB'
+    # Eurasian Basin part 1
+    elif (lon > 30) & (lon < 140) & (lat > 82) & (lat < 90):
+        return 'EB'
+    # Eurasian Basin part 2
+    elif (lon > 110) & (lon < 140) & (lat > 78) & (lat < 82):
+        return 'EB'
+    # Barents Sea part 1
+    elif (lon > 15) & (lon < 60) & (lat > 75) & (lat < 80):
+        return 'BS'
+    # Barents Sea part 2
+    elif (lon > 15) & (lon < 55) & (lat > 67) & (lat < 75):
+        return 'BS'
+    else:
+        return False
+
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
-# read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
+read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
+read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
 
-## These will make all the netcdfs for the ITPs available (takes a long time)
+## These will make all the netcdfs for a certain source (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
 
 ## These will make all the netcdfs for AIDJEX

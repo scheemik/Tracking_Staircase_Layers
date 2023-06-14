@@ -4,6 +4,17 @@ Created: 2022-03-31
 
 This script contains helper functions which filter data and create figures
 
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions in source code must retain the accompanying copyright notice, this list of conditions, and the following disclaimer.
+    2. Redistributions in binary form must reproduce the accompanying copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3. Names of the copyright holders must not be used to endorse or promote products derived from this software without prior written permission from the copyright holders.
+    4. If any files are modified, you must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
+
+Disclaimer
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 
 import numpy as np
@@ -36,8 +47,6 @@ from scipy import interpolate
 from scipy import stats
 # For making clusters
 import hdbscan
-# For computing Adjusted Rand Index
-from sklearn import metrics
 # For calculating the distance between pairs of (latitude, longitude)
 from geopy.distance import geodesic
 # For calculating Orthogonal Distance Regression for Total Least Squares
@@ -88,24 +97,24 @@ if dark_mode:
     plt.style.use('dark_background')
     std_clr = 'w'
     alt_std_clr = 'yellow'
-    noise_clr = 'w'#D7642C'
-    cnt_clr = '#db6d00'#'r'
+    noise_clr = 'w'
+    cnt_clr = '#db6d00'
     clr_ocean = 'k'
     clr_land  = 'grey'
     clr_lines = 'w'
     clstr_clrs = jackson_clr[[2,14,4,6,7,9,13]]
-    # clstr_clrs = jackson_clr[[2,14,4,6,7,12,13]]
     bathy_clrs = ['#000040','k']
 else:
     std_clr = 'k'
     alt_std_clr = 'olive'
-    noise_clr = 'k'#D7642C'
-    cnt_clr = "#ffff6d"#'k'
+    noise_clr = 'k'
+    cnt_clr = "#ffff6d"
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
     clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
     bathy_clrs = ['w','#b6dbff']
+
 # Define bathymetry colors
 n_bathy = 5
 cm0 = mpl.colors.LinearSegmentedColormap.from_list("Custom", bathy_clrs, N=n_bathy)
@@ -143,28 +152,16 @@ big_map_mrkr  = 80
 sml_map_mrkr  = 5
 cent_mrk_size = 50
 pf_mrk_size   = 15
-layer_mrk_size= 10
 std_marker = '.'
 map_marker = '.' #'x'
 map_ln_wid = 0.5
 l_cap_size = 3.0
-l_marker   = '+'
 
 # The magnitude limits for axis ticks before they use scientific notation
 sci_lims = (-2,3)
 
 #   Get list of standard colors
-mpl_clrs = plt.rcParams['axes.prop_cycle'].by_key()['color']
-#   Color-blind friendly color schemes by Paul Tol
-#       See: https://personal.sron.nl/~pault/#sec:qualitative
-#   Vibrant qualitative color scheme
-ptc_bright = ['#4477AA','#66CCEE','#228833','#CCBB44','#EE6677','#AA3377']
-#   Vibrant qualitative color scheme
-ptc_vibrnt = ['#0077BB','#33BBEE','#009988','#EE7733','#CC3311','#EE3377']
-#   Muted qualitative color scheme
-ptc_muted  = ['#332288','#88CCEE','#44AA99','#117733','#999933','#DDCC77','#CC6677','#882255','#AA4499']
-
-mpl_clrs = clstr_clrs
+distinct_clrs = clstr_clrs
 #   Make list of marker and fill styles
 unit_star_3 = mpl.path.Path.unit_regular_star(3)
 unit_star_4 = mpl.path.Path.unit_regular_star(4)
@@ -172,15 +169,10 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 # Define array of linestyles to cycle through
 l_styles = ['-', '--', '-.', ':']
 
-# Set random seed
-rand_seq = np.random.RandomState(1234567)
-
 # A list of variables for which the y-axis should be inverted so the surface is up
 y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA']
-# A list of the variables on the `Layer` dimension
-layer_vars = []
-# A list of the variables that don't have the `Vertical` or `Layer` dimensions
-pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'R_rho', 'p_theta_max', 's_theta_max', 'theta_max']
+# A list of the per profile variables
+pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'R_rho']
 # A list of the variables on the `Vertical` dimension
 vertical_vars = ['press', 'depth', 'iT', 'CT', 'PT', 'SP', 'v1_SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'v2_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
 # Make lists of clustering variables
@@ -202,7 +194,7 @@ nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
 clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + cmm_vars + nir_vars
 # For parameter sweeps of clustering
 #   Independent variables
-clstr_ps_ind_vars = ['m_pts', 'n_pfs', 'maw_size']
+clstr_ps_ind_vars = ['m_pts', 'n_pfs', 'ell_size']
 #   Dependent variables
 clstr_ps_dep_vars = ['DBCV', 'n_clusters']
 clstr_ps_vars = clstr_ps_ind_vars + clstr_ps_dep_vars
@@ -264,6 +256,7 @@ class Analysis_Group:
     profile_filters     A custom Profile_Filters object with filters to apply to
                         all individual profiles in the xarrays
     plt_params          A custom Plot_Parameters object
+    plot_title          A string to use as the title for this subplot
     """
     def __init__(self, data_set, profile_filters, plt_params, plot_title=None):
         self.data_set = data_set
@@ -283,11 +276,13 @@ class Profile_Filters:
     that filter will not be applied. All these are ignored when plotting 'by_pf'
 
     p_range             [p_min, p_max] where the values are floats in dbar
-                          or, "Shibley2017" to follow their method of selecting a range
     d_range             [d_min, d_max] where the values are floats in m
     *T_range            [T_min, T_max] where the values are floats in degrees C
     S*_range            [S_min, S_max] where the values are floats in g/kg
     subsample           True/False whether to apply the subsample mask to the profiles
+    regrid_TS           [1st_var_str, Delta_1st_var, 2nd_var_str, Delta_2nd_var], a pair of 
+                            [var, Delta_var] where you specify the variable then the value
+                            of the spacing to regrid that value to
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     """
     def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, subsample=False, regrid_TS=None, m_avg_win=None):
@@ -310,10 +305,9 @@ class Plot_Parameters:
 
     plot_type       A string of the kind of plot to make from these options:
                         'xy', 'map', 'profiles'
-    plot_scale      A string specifying either 'by_pf', 'by_vert', or 'by_layer'
+    plot_scale      A string specifying either 'by_pf' or 'by_vert'
                     which will determine whether to add one data point per
-                    profile, per vertical observation, or per detected layer,
-                    respectively
+                    profile or per vertical observation, respectively
     x_vars          A list of strings of the variables to plot on the x axis
     y_vars          A list of strings of the variables to plot on the y axis
                     Note: 'xy' and 'profiles' expect both x_vars and y_vars and
@@ -326,11 +320,13 @@ class Plot_Parameters:
                       'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ma_iT', 'ma_CT', 'ma_PT', 
                       'ma_SP', 'ma_SA', 'ma_sigma', 'ss_mask', 'la_iT', 'la_CT', 
                       'la_PT', 'la_SA','la_sigma'
-                    Accepted 'by_layer' vars: ???
-    legend          True/False whether to add a legend on this plot. Default:True
-    add_grid        True/False whether to add a grid on this plot. Default:True
-    ax_lims         An optional dictionary of the limits on the axes for the final plot
-                      Ex: {'x_lims':[x_min,x_max], 'y_lims':[y_min,y_max]}
+    clr_map         A string to determine what color map to use in the plot
+                    'xy' can use 'clr_all_same', 'clr_by_source',
+                      'clr_by_instrmt', 'density_hist', 'cluster', or any
+                      regular variable
+                    'map' can use 'clr_all_same', 'clr_by_source',
+                      'clr_by_instrmt', or any 'by_pf' regular variable
+                    'profiles' can use 'clr_all_same' or any regular variable
     first_dfs       A list of booleans of whether to take the first differences
                       of the plot_vars before analysis. Defaults to all False
                     'xy' and 'profiles' expect a list of 2, ex: [True, False]
@@ -339,13 +335,10 @@ class Plot_Parameters:
                       of the plot_vars before analysis. Defaults to all False
                     'xy' and 'profiles' expect a list of 2, ex: [True, False]
                     'map' and ignores this parameter
-    clr_map         A string to determine what color map to use in the plot
-                    'xy' can use 'clr_all_same', 'clr_by_source',
-                      'clr_by_instrmt', 'density_hist', 'cluster', or any
-                      regular variable
-                    'map' can use 'clr_all_same', 'clr_by_source',
-                      'clr_by_instrmt', or any 'by_pf' regular variable
-                    'profiles' can use 'clr_all_same' or any regular variable
+    legend          True/False whether to add a legend on this plot. Default:True
+    add_grid        True/False whether to add a grid on this plot. Default:True
+    ax_lims         An optional dictionary of the limits on the axes for the final plot
+                      Ex: {'x_lims':[x_min,x_max], 'y_lims':[y_min,y_max]}
     extra_args      A general use argument for passing extra info for the plot
                     'map' expects a dictionary following this format:
                         {'map_extent':'Canada_Basin'}
@@ -372,7 +365,7 @@ class Plot_Parameters:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_ps_tuple':[100,410,50]}
                         where var0 and var1 are as specified above, 'cl_ps_tuple' is
                         the [start,stop,step] for the xvar can be 'm_pts', 'min_samps'
-                        'n_pfs' or 'maw_size', and yvar(s) must be 'DBCV' or 'n_clusters'
+                        'n_pfs' or 'ell_size', and yvar(s) must be 'DBCV' or 'n_clusters'
                         Optional: {'z_var':'m_pts', 'z_list':[90,120,240]} where
                         z_var can be any variable that var0 can be
                     To plot isopycnal contour lines add {'isopycnals':X} where X is the 
@@ -382,7 +375,7 @@ class Plot_Parameters:
                         {'place_isos':'manual'}, otherwise they will be placed 
                         automatically
     """
-    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['iT'], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
+    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
         # Add all the input parameters to the object
         self.plot_type = plot_type
         self.plot_scale = plot_scale
@@ -536,7 +529,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                     plot_vars.append(pp.extra_args[key])
                     re_run_clstr = True
                 if key == 'z_var':
-                    if pp.extra_args[key] == 'maw_size':
+                    if pp.extra_args[key] == 'ell_size':
                         # Make sure the parameter sweeps run correctly 
                         vars_to_keep.append('press')
                 # If adding isopycnals, make sure to keep press, SA, and iT to use with the 
@@ -594,7 +587,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append('PT')
                 vars_to_keep.append('beta_PT')
                 vars_to_keep.append('SP')
-            elif var == 'maw_size':
+            elif var == 'ell_size':
                 vars_to_keep.append('press')
             # Check for variables that have underscores, ie. profile cluster
             #   average variables and local anomalies
@@ -622,7 +615,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 foo = 2
         # Add vars for the profile filters, if applicable
         scale = pp.plot_scale
-        if scale == 'by_vert' or scale == 'by_layer':
+        if scale == 'by_vert':
             if not isinstance(profile_filters.p_range, type(None)):
                 vars_to_keep.append('press')
             if not isinstance(profile_filters.d_range, type(None)):
@@ -836,39 +829,6 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Append the filtered dataframe to the list
             output_dfs.append(df)
         #
-    elif plot_scale == 'by_layer':
-        for ds in arr_of_ds:
-            ds = calc_extra_vars(ds, vars_to_keep)
-            # Convert to a pandas data frame
-            df = ds[vars_to_keep].to_dataframe()
-            # Add a notes column
-            df['notes'] = ''
-            # Remove rows where the plot variables are null
-            for var in pp.x_vars+pp.y_vars:
-                if var in vars_to_keep:
-                    df = df[df[var].notnull()]
-            # Add expedition and instrument columns
-            df['source'] = ds.Expedition
-            df['instrmt'] = ds.Instrument
-            ## Filters on each profile separately
-            df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
-            # Find a value of the Vertical dimension that is included in all profiles
-            try:
-                df.reset_index(inplace=True, level=['Vertical'])
-                v_vals = df['Vertical'].values
-                print('\t- Dropping Vertical dimension')
-                for pf_no in df['prof_no'].values:
-                    v_vals = list(set(v_vals) & set(df[df['prof_no']==pf_no]['Vertical'].values))
-                # Avoid the nan's on the edges, find a value in the middle of the array
-                v_med = v_vals[len(v_vals)//2]
-                # Drop dimension by just taking the rows where Vertical = v_med
-                df = df[df['Vertical']==v_med]
-            except:
-                foo = 2
-            #
-            # Append the filtered dataframe to the list
-            output_dfs.append(df)
-        #
     elif plot_scale == 'by_pf':
         for ds in arr_of_ds:
             # Convert to a pandas data frame
@@ -879,7 +839,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ## Filters on each profile separately
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
             # Drop dimensions, if needed
-            if 'Vertical' in df.index.names or 'Layer' in df.index.names:
+            if 'Vertical' in df.index.names:
                 # Drop duplicates along the `Time` dimension
                 #   (need to make the index `Time` a column first)
                 df.reset_index(level=['Time'], inplace=True)
@@ -1225,15 +1185,12 @@ def get_axis_label(var_key, var_attr_dicts):
                  'BSP':r'$\beta S_P$',
                  'BSt':r'$\beta_{PT} S_P$',
                  'BSA':r'$\beta S_A$',
-                 'p_theta_max':r'$p(\theta_{max})$ (dbar)',
-                 's_theta_max':r'$S(\theta_{max})$ (g/kg)',
-                 'theta_max':r'$\theta_{max}$ ($^\circ$C)',
                 #  'distance':r'Along-path distance (km)',
                  'm_pts':r'Minimum density threshold $m_{pts}$',
                  'DBCV':'Relative validity measure (DBCV)',
                  'n_clusters':'Number of clusters',
                  'cRL':r'Lateral density ratio $R_L$',
-                 'cRl':r'Lateral density ratio $R_L$ with PT'
+                 'cRl':r'Lateral density ratio $R_L$ with $\theta$'
                 }
     if var_key in ax_labels.keys():
         return ax_labels[var_key]
@@ -1249,7 +1206,9 @@ def txt_summary(groups_to_summarize, filename=None):
     Takes in a list of Analysis_Group objects. Analyzes and outputs summary info
     for each one.
 
-    groups_to_plot  A list of Analysis_Group objects
+    groups_to_plot      A list of Analysis_Group objects
+    filename            The file to write the output to. If none, it will print
+                            the output to the console
     """
     # Loop over all Analysis_Group objects
     i = 0
@@ -1405,6 +1364,14 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
 
     groups_to_plot  A list of Analysis_Group objects, one for each subplot
                     Each Analysis_Group contains the info to create each subplot
+    filename        The filename in which to save the figure
+                        only accepts .png or .pickle filenames
+    use_same_x_axis     True/False whether to force subplots to share x axis
+                        ranges if they have the same variable
+    use_same_y_axis     True/False whether to force subplots to share y axis
+                        ranges if they have the same variable
+    row_col_list        [rows, cols, f_ratio, f_size], if none given, will use 
+                        the defaults specified below in n_row_col_dict
     """
     # Define number of rows and columns based on number of subplots
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
@@ -1520,7 +1487,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.set_ylabel(ylabel)
                 # Invert y-axis if specified
                 if i == 0 and invert_y_axis:
-                    ax.invert_yaxis()
+                    # ax.invert_yaxis()
                     print('\t- Inverting y-axis')
             else:
                 ax.set_ylabel(ylabel)
@@ -1585,7 +1552,7 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
     fig_size     size scale factor, 1 changes nothing, 2 makes it very big
     share_x_axis bool whether the subplots should share their x axes
     share_y_axis bool whether the subplots should share their y axes
-    projection   projection type for the subplots
+    prjctn       projection type for the subplots
     """
     # Set aspect ratio of overall figure
     w, h = mpl.figure.figaspect(fig_ratio)
@@ -1704,11 +1671,11 @@ def get_var_color(var):
             'BSt':'darkturquoise',
             'BSA':'darkturquoise'
             }
-    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'p_theta_max']:
+    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth']:
         return std_clr
-    elif var in ['iT', 'CT', 'PT', 'theta_max', 'alpha']:
+    elif var in ['iT', 'CT', 'PT', 'alpha']:
         return 'lightcoral'
-    elif var in ['SP', 'SA', 's_theta_max', 'beta']:
+    elif var in ['SP', 'SA', 'beta']:
         return 'cornflowerblue'
     elif var in ['sigma']:
         return 'mediumpurple'
@@ -1741,11 +1708,11 @@ def get_color_map(cmap_var):
              'R_rho':'ocean',
              'density_hist':'inferno'
              }
-    if cmap_var in ['press', 'depth', 'p_theta_max']:
+    if cmap_var in ['press', 'depth']:
         return 'cividis'
-    elif cmap_var in ['iT', 'CT', 'PT', 'theta_max', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
+    elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
         return 'Reds'
-    elif cmap_var in ['SP', 'SA', 's_theta_max', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
+    elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
         return 'Blues'
     elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
         return 'Purples'
@@ -1789,6 +1756,12 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
 ################################################################################
 
 def format_sci_notation(x, ndp=2):
+    """
+    Formats a number into scientific notation
+
+    x       The number to format
+    ndp     The number of decimal places
+    """
     s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
     m, e = s.split('e')
     # Check to see whether it's outside the scientific notation exponent limits
@@ -1799,7 +1772,15 @@ def format_sci_notation(x, ndp=2):
 
 ################################################################################
 
-def add_h_scale_bar(ax, ax_lims, extent_ratio=0.003, unit="", tw_clr=False):
+def add_h_scale_bar(ax, ax_lims, unit="", tw_clr=False):
+    """
+    Adds a horizontal scale bar to a plot
+
+    ax          The axis on which to add the legend
+    ax_lims     The limits on the horizontal axis range
+    unit        A string of the units of the horizontal axis
+    tw_clr      The color of the twin axis, if necessary
+    """
     h_bar_clr = std_clr
     # Find distance between ticks
     ax_ticks = np.array(ax.get_xticks())
@@ -1866,7 +1847,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         extra_args = pp.extra_args
         if 'isopycnals' in extra_args.keys():
             isopycnals = extra_args['isopycnals']
-            if not isinstance(isopycnals, type(None)):
+            if not isinstance(isopycnals, type(None)) and not isopycnals is False:
                 add_isos = True
         if 'place_isos' in extra_args.keys():
             place_isos = extra_args['place_isos']
@@ -1932,7 +1913,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             #
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map=clr_map, legend=pp.legend)
-            heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=mrk_size, marker=std_marker, zorder=5)
+            # If there aren't that many points, make the markers bigger
+            if len(df[x_key]) < 1000:
+                m_size = map_mrk_size
+            else: 
+                m_size = mrk_size
+            heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -1942,8 +1928,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
                 # Add backing x to distinguish from main axis
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=mrk_size*10, marker='x', zorder=3)
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=mrk_size, marker=std_marker, zorder=4)
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
                 tw_ax_y.set_xlabel(pp.xlabels[1])
                 # Change color of the axis label on the twin axis
                 tw_ax_y.xaxis.label.set_color(tw_clr)
@@ -1956,8 +1942,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
                 # Add backing x to distinguish from main axis
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=mrk_size*10, marker='x', zorder=3)
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=mrk_size, marker=std_marker, zorder=4)
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
                 # Invert y-axis if specified
                 if tw_y_key in y_invert_vars:
                     tw_ax_x.invert_yaxis()
@@ -2011,8 +1997,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df[y_key] = mpl.dates.date2num(df[y_key])
             # Drop duplicates
             df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
+            # If there aren't that many points, make the markers bigger
+            if len(df[x_key]) < 1000:
+                m_size = map_mrk_size
+            else: 
+                m_size = mrk_size
             # Plot every point the same color, size, and marker
-            ax.scatter(df[x_key], df[y_key], color=std_clr, s=mrk_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
             if plot_slopes:
                 # Mark outliers
                 mark_outliers(ax, df, x_key, y_key)
@@ -2040,7 +2031,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_clr = get_var_color(tw_x_key)
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=mrk_size, marker=std_marker, alpha=mrk_alpha)
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=mrk_alpha)
                 tw_ax_y.set_xlabel(pp.xlabels[1])
                 # Change color of the ticks on the twin axis
                 tw_ax_y.tick_params(axis='x', colors=tw_clr)
@@ -2048,7 +2039,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_clr = get_var_color(tw_y_key)
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=mrk_size, marker=std_marker, alpha=mrk_alpha)
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=mrk_alpha)
                 # Invert y-axis if specified
                 if tw_y_key in y_invert_vars:
                     tw_ax_x.invert_yaxis()
@@ -2078,11 +2069,16 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     sources_list.append(s)
             # The pandas version of 'unique()' preserves the original order
             sources_list = pd.unique(pd.Series(sources_list))
+            # If there aren't that many points, make the markers bigger
+            if len(df[x_key]) < 1000:
+                m_size = map_mrk_size
+            else: 
+                m_size = mrk_size
             i = 0
             lgnd_hndls = []
             for source in sources_list:
                 # Decide on the color, don't go off the end of the array
-                my_clr = mpl_clrs[i%len(mpl_clrs)]
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
                 these_dfs = []
                 for df in a_group.data_frames:
                     these_dfs.append(df[df['source'] == source])
@@ -2093,7 +2089,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if y_key in ['dt_start', 'dt_end']:
                     this_df[y_key] = mpl.dates.date2num(this_df[y_key])
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=mrk_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = source+': '+str(len(this_df[x_key]))+' points'
@@ -2120,6 +2116,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
         elif clr_map == 'clr_by_instrmt':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+            # If there aren't that many points, make the markers bigger
+            if len(df[x_key]) < 1000:
+                m_size = map_mrk_size
+            else: 
+                m_size = mrk_size
             i = 0
             lgnd_hndls = []
             # Loop through each data frame, the same as looping through instrmts
@@ -2133,9 +2134,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Get instrument name
                 s_instrmt = np.unique(df['source-instrmt'])[0]
                 # Decide on the color, don't go off the end of the array
-                my_clr = mpl_clrs[i%len(mpl_clrs)]
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(df[x_key], df[y_key], color=my_clr, s=mrk_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(df[x_key], df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = s_instrmt+': '+str(len(df[x_key]))+' points'
@@ -2394,7 +2395,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             lgnd_hndls = []
             for source in sources_list:
                 # Decide on the color, don't go off the end of the array
-                my_clr = mpl_clrs[i%len(mpl_clrs)]
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
                 these_dfs = []
                 for df in a_group.data_frames:
                     these_dfs.append(df[df['source'] == source])
@@ -2440,7 +2441,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Get instrument name
                 s_instrmt = np.unique(df['source-instrmt'])[0]
                 # Decide on the color, don't go off the end of the array
-                my_clr = mpl_clrs[i%len(mpl_clrs)]
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
                 ax.scatter(df['lon'], df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=map_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
                 # Find first and last profile, based on entry
@@ -2504,6 +2505,7 @@ def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=
     x_key       The string of the name for the x data on the main axis
     y_key       The string of the name for the y data on the main axis
     p_ref       Value of pressure to reference the isopycnals to. Default is surface (0 dbar)
+    place_isos  How to place the isopycnals, either 'auto' or 'manual'
     tw_x_key    The string of the name for the x data on the twin axis
     tw_ax_y     The twin y axis on which to format
     tw_y_key    The string of the name for the y data on the twin axis
@@ -2596,11 +2598,18 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
     to produce a subplot of individual profiles. Returns the x and y labels and
     the subplot title
 
-    x_key           String
-    ax              The axis on which to make the plot
-    a_group         A Analysis_Group object containing the info to create this subplot
-    pp              The Plot_Parameters object for a_group
-    clr_map
+    x_key       The string of the name for the x data on the main axis
+    y_key       The string of the name for the y data on the main axis
+    ax          The axis on which to make the plot
+    a_group     A Analysis_Group object containing the info to create this subplot
+    pp          The Plot_Parameters object for a_group
+    clr_map     A string to determine what color map to use in the plot
+    legend      True/False whether to add a legend
+    df          A pandas dataframe
+    txk         Twin x variable key
+    tay         Twin y axis
+    tyk         Twin y variable key
+    tax         Twin x axis
     """
     # Find the histogram parameters, if given
     if not isinstance(pp.extra_args, type(None)):
@@ -2734,7 +2743,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         lgnd_hndls = []
         for source in sources_list:
             # Decide on the color, don't go off the end of the array
-            my_clr = mpl_clrs[i%len(mpl_clrs)]
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
             these_dfs = []
             for df in a_group.data_frames:
                 these_dfs.append(df[df['source'] == source])
@@ -2785,7 +2794,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Get instrument name
             s_instrmt = np.unique(df['source-instrmt'])[0]
             # Decide on the color, don't go off the end of the array
-            my_clr = mpl_clrs[i%len(mpl_clrs)]
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
             # Plot the histogram
@@ -2828,7 +2837,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         df = df[df[var_key].notnull()]
         # Clusters are labeled starting from 0, so total number of clusters is
         #   the largest label plus 1
-        n_clusters  = df['cluster'].max()+1
+        n_clusters  = int(df['cluster'].max()+1)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
@@ -2836,7 +2845,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         # Loop through each cluster
         for i in range(n_clusters):
             # Decide on the color and symbol, don't go off the end of the arrays
-            my_clr = mpl_clrs[i%len(mpl_clrs)]
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
             # Get relevant data
             this_clstr_df = df[df.cluster == i]
@@ -2874,7 +2883,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         n_noise_pts = len(df_noise)
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[var_key]))+' points')
-        m_pts_patch = mpl.patches.Patch(color='none', label='min(pts/cluster): '+str(m_pts))
+        m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts))
         n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{clusters}$: '+str(n_clusters), marker='*', linewidth=0)
         n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
         rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
@@ -2897,8 +2906,9 @@ def get_hist_params(df, h_key, n_h_bins=25):
     """
     Returns the needed information to make a histogram
 
-    df      A pandas data frame of the data to plot
-    h_key   A string of the column header to plot
+    df          A pandas data frame of the data to plot
+    h_key       A string of the column header to plot
+    n_h_bins    The number of histogram bins to use
     """
     if isinstance(n_h_bins, type(None)):
         n_h_bins = 25
@@ -2928,8 +2938,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     the subplot title
 
     ax              The axis on which to make the plot
-    a_group         A Analysis_Group object containing the info to create this subplot
+    a_group         An Analysis_Group object containing the info to create this subplot
     pp              The Plot_Parameters object for a_group
+    clr_map         A string to determine what color map to use in the plot
     """
     # Find extra arguments, if given
     legend = pp.legend
@@ -2945,7 +2956,6 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     if scale == 'by_pf':
         print('Cannot use',pp.plot_type,'with plot scale by_pf')
         exit(0)
-    # Declare variables related to plotting detected layers
     clr_map = pp.clr_map
     ## Make a plot of the given profiles vs. the vertical
     # Set the main x and y data keys
@@ -3060,23 +3070,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     #     print('Plotting',len(pfs_in_this_df),'profiles')
     # Loop through each profile to create a list of dataframes
     for pf_no in pfs_in_this_df:
-        # print('')
-        # print('profile:',pf_no)
         # Get just the part of the dataframe for this profile
         pf_df = df[df['prof_no']==pf_no]
-        if scale == 'by_vert':
-            # Drop `Layer` dimension to reduce size of data arrays
-            #   (need to make the index `Vertical` a column first)
-            pf_df_v = pf_df.reset_index(level=['Vertical'])
-            pf_df_v.drop_duplicates(inplace=True, subset=['Vertical'])
-        elif scale == 'by_layer':
-            # Drop `Vertical` dimension to reduce size of data arrays
-            #   (need to make the index `Layer` a column first)
-            pf_df_v = pf_df.reset_index(level=['Layer'])
-            pf_df_v.drop_duplicates(inplace=True, subset=['Layer'])
-            # Technically, this profile dataframe isn't `Vertical` but
-            #   it works as is, so I'll keep the variable name
-        profile_dfs.append(pf_df_v)
+        profile_dfs.append(pf_df)
     #
     # Check to see whether any profiles were actually loaded
     n_pfs = len(profile_dfs)
@@ -3231,7 +3227,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Loop through each cluster
             for i in cluster_numbers:
                 # Decide on the color and symbol, don't go off the end of the arrays
-                my_clr = mpl_clrs[i%len(mpl_clrs)]
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
                 # print('\t\tcluster:',i,'my_clr:',my_clr,'my_mkr:',my_mkr)
                 # Get relevant data
@@ -3290,6 +3286,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
 ################################################################################
 
 def get_cluster_args(pp):
+    """
+    Finds cluster-realted variables in the extra_args dictionary
+
+    pp              The Plot_Parameters object for a_group
+    """
     # Get the dictionary stored in extra_args
     cluster_plt_dict = pp.extra_args
     # print('cluster_plt_dict:',cluster_plt_dict)
@@ -3321,7 +3322,7 @@ def get_cluster_args(pp):
     try:
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
     except:
-        b_a_w_plt = True
+        b_a_w_plt = False
     return m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt
 
 ################################################################################
@@ -3332,6 +3333,7 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob' and a
     rough measure of the DBCV score from `relative_validity_`
 
+    run_group   The Analysis_Group object to run HDBSCAN on
     df          A pandas data frame with x_key and y_key as equal length columns
     x_key       String of the name of the column to use on the x-axis
     y_key       String of the name of the column to use on the y-axis
@@ -3682,9 +3684,10 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
     df              A pandas data frame
     x_key           A string of the variable from df to use on the x axis
     y_key           A string of the variable from df to use on the y axis
-    find_all        True/False as whether to find outliers in both cRL and cor_SP
+    find_all        True/False as whether to find outliers in both cRL and nir_SP
     threshold       The threshold zscore for which to consider an outlier
     mrk_clr         The color in which to mark the outliers
+    mk_size         The size of the marker to use to mark the outliers
     """
     print('\t- Marking outliers')
     # Find outliers
@@ -3720,6 +3723,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
     df              A pandas data frame output from HDBSCAN_
     x_key           String of the name of the column to use on the x-axis
     y_key           String of the name of the column to use on the y-axis
+    cl_x_var        String of the name of the column used on x-axis of clustering
+    cl_y_var        String of the name of the column used on y-axis of clustering
     clr_map         String of the name of the colormap to use (ex: 'clusters')
     m_pts          An integer, the minimum number of points for a cluster
     min_samp        An integer, number of points in neighborhood for a core point
@@ -3814,9 +3819,6 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
         mrk_outliers = True
     else:
         mrk_outliers = False
-    # Check whether to change the marker size
-    # if 'pca_' in x_key or 'pca_' in y_key:
-    #     m_size = layer_mrk_size
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
     # Which colormap?
@@ -3828,7 +3830,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
         # Loop through each cluster
         for i in range(n_clusters):
             # Decide on the color and symbol, don't go off the end of the arrays
-            my_clr = mpl_clrs[i%len(mpl_clrs)]
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
@@ -3955,7 +3957,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
             #
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
-        m_pts_patch = mpl.patches.Patch(color='none', label='min(pts/cluster): '+str(m_pts))
+        m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts))
         n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{clusters}$: '+str(n_clusters), marker='*', linewidth=0)
         n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
         rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
@@ -3989,6 +3991,9 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     included in the data set
 
     ax              The axis on which to plot
+    tw_ax_x         The twin x axis on which to plot
+    a_group         An Analysis_Group object containing the info to create this subplot
+    plt_title       A string to use as the title of this subplot
     """
     ## Get relevant parameters for the plot
     pp = a_group.plt_params
@@ -4060,15 +4065,15 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
             zlabel = None
             this_df = df.copy()
             # Set parameters based on variables selected
-            #   NOTE: need to run `maw_size` BEFORE `n_pfs`
-            if x_key == 'maw_size':
+            #   NOTE: need to run `ell_size` BEFORE `n_pfs`
+            if x_key == 'ell_size':
                 # Need to apply moving average window to original data, before
                 #   the data filters were applied, so make a new Analysis_Group
                 a_group.profile_filters.m_avg_win = x
                 new_a_group = Analysis_Group(a_group.data_set, a_group.profile_filters, a_group.plt_params)
                 this_df = pd.concat(new_a_group.data_frames)
                 xlabel = r'$\ell$ (dbar)'
-            if z_key == 'maw_size':
+            if z_key == 'ell_size':
                 # Need to apply moving average window to original data, before
                 #   the data filters were applied, so make a new Analysis_Group
                 a_group.profile_filters.m_avg_win = z_list[i]
@@ -4147,7 +4152,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
             # Change color of the ticks on the twin axis
             tw_ax_x.tick_params(axis='y', colors=alt_std_clr)
             # Add gridlines
-            tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
+            # tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
         f = open(sweep_txt_file,'a')
         f.write('\n')
         f.close()

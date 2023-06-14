@@ -2,16 +2,20 @@
 Author: Mikhail Schee
 Created: 2023-03-13
 
-This script will take in the name of a csv file and plot the data within it.
+This script will plot average temperature and salinity data from two csv files.
 I specifically made this to compare my clustering results to those of Lu et al.
 2022 with the functions I made in `analysis_helper_functions.py`
 
-Usage:
-    compare_to_Lu2022.py LU2022_CSV MY_CSV
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-Options:
-    LU2022_CSV          # filepath of the csv with data from Lu et al. 2022
-    MY_CSV              # filepath of the csv with data from my study
+    1. Redistributions in source code must retain the accompanying copyright notice, this list of conditions, and the following disclaimer.
+    2. Redistributions in binary form must reproduce the accompanying copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3. Names of the copyright holders must not be used to endorse or promote products derived from this software without prior written permission from the copyright holders.
+    4. If any files are modified, you must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
+
+Disclaimer
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -19,12 +23,9 @@ import analysis_helper_functions as ahf
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 import gsw
 import dill as pl
-# Parse input parameters
-from docopt import docopt
-args = docopt(__doc__)
-Lu2022_csv = args['LU2022_CSV'] # filepath of the csv with data from Lu et al. 2022
-my_csv     = args['MY_CSV']     # filepath of the csv with data from my study
 
+Lu2022_csv = 'outputs/Lu2022_Table_A1.csv'
+my_csv = 'outputs/ITP3_cluster_table.csv'
 # Try to load the specified csvs
 print('- Loading '+Lu2022_csv)
 try:
@@ -159,7 +160,6 @@ def plot_comparison(ax, Lu2022_df, my_df, pp):
     # Set the main x and y data keys
     x_key = pp.x_vars[0]
     y_key = pp.y_vars[0]
-    print('x_key:',x_key,'y_key:',y_key)
     # Get the axis labels
     xlabel = get_axis_label(x_key)
     ylabel = get_axis_label(y_key)
@@ -207,4 +207,4 @@ def plot_comparison(ax, Lu2022_df, my_df, pp):
 ################################################################################
 
 pp_Lu2022 = ahf.Plot_Parameters(x_vars=['ca_SP'], y_vars=['ca_CT'], clr_map='clr_all_same')
-make_figure(Lu2022_df, my_df, pp_Lu2022, filename='Figure_7_dark.pickle')
+make_figure(Lu2022_df, my_df, pp_Lu2022)#, filename='Figure_7.pickle')
