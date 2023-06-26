@@ -40,6 +40,8 @@ cluster_data.py
 # For custom analysis functions
 import analysis_helper_functions as ahf
 
+JOIS_S_range = [34.1, 34.76]
+
 ### Filters for reproducing plots from Timmermans et al. 2008
 ITP2_p_range = [185,300]
 ITP2_S_range = [34.05,34.75]
@@ -85,9 +87,11 @@ Lu2022_m_pts = 580
 
 # All profiles from all sources in this study
 all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_2':'all','ITP_3':'all'}
+all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
 
 # All profiles from all ITPs in this study
 all_ITPs = {'ITP_2':'all','ITP_3':'all'}
+all_JOIS = {'ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
 
 # All profiles from all AIDJEX camps
 all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
@@ -124,6 +128,7 @@ print('- Creating data sets')
 
 ds_all_sources = ahf.Data_Set(all_sources, dfs0)
 ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
+ds_all_JOIS = ahf.Data_Set(all_JOIS, dfs0)
 ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs0)
 
 ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
@@ -138,8 +143,12 @@ print('- Creating profile filtering objects')
 pfs_0 = ahf.Profile_Filters()
 pfs_1 = ahf.Profile_Filters(SP_range=ITP2_S_range)
 
+# AIDJEX Operation Area
+pfs_AOA = ahf.Profile_Filters(lon_range=[-152.8,-133.7],lat_range=[72.6,77.3])
+
 pfs_ITP2  = ahf.Profile_Filters(SP_range=ITP2_S_range)
 pfs_ITP3 = ahf.Profile_Filters(SP_range=Lu2022_S_range)
+pfs_JOIS  = ahf.Profile_Filters(lon_range=[-152.8,-133.7],lat_range=[72.6,77.3],SP_range=JOIS_S_range)
 
 pfs_subs = ahf.Profile_Filters(SP_range=ITP2_S_range, subsample=True)
 pfs_regrid = ahf.Profile_Filters(SP_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
@@ -169,24 +178,36 @@ pp_clstr_test = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clust
 
 ### Figure 1
 ## Map of ITP drifts for all sources
-pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Western_Arctic'})
-pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'}, legend=False, add_grid=False)
+pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'AIDJEX_focus'})
+pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'Full_Arctic'}, legend=False, add_grid=False)
+pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'AIDJEX_focus'})
 
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
 # TS diagram of all sources, colored by source
+pp_TS_clr_all_same = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_all_same')
 pp_TS_by_source = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_by_source')
 pp_TS_by_instrmt = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_by_instrmt')
+
+pp_LA_TS = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='press')
 
 test_mpts = 65
 pp_ITP2_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
 pp_ITP2_clstr_og = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+
+JOIS_mpts = 170
+pp_JOIS_clstrd = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':JOIS_mpts, 'b_a_w_plt':True})
+pp_JOIS_clstr_TS = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':JOIS_mpts, 'b_a_w_plt':True})
 
 ### Figure 3
 ## Parameter sweep across \ell and m_pts for ITP2 subsampled
 ITP2_ss_mpts = 65
 pp_ITP2_ss_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,220,5]})
 pp_ITP2_ss_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,271,10]})
+## Parameter sweep across \ell and m_pts for JOIS
+JOIS_mpts = 170
+pp_JOIS_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':JOIS_mpts, 'cl_ps_tuple':[10,440,10]})
+pp_JOIS_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':JOIS_mpts, 'cl_ps_tuple':[10,271,10]})
 ## Parameter sweep across \ell and m_pts for AIDJEX
 AIDJEX_mpts = 500
 pp_AIDJEX_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[300,700,20]})
@@ -233,7 +254,7 @@ my_group1 = ahf.Analysis_Group(ds_AIDJEX_BigBear_all, pfs_1, pp_clstr_test)
 ### Figures for paper
 
 ### Figure 1
-## Map of ITP drifts for all sources
+## Map of drifts for all sources
 if False:
     print('')
     print('- Creating Figure 1')
@@ -244,6 +265,35 @@ if False:
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
     # Find the maximum distance between any two profiles for each data set in the group
     # ahf.find_max_distance([group_map])
+## Map of drifts for all AIDJEX stations
+if False:
+    print('')
+    print('- Creating Figure 1')
+    # Make the subplot groups
+    group_map = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_map, plot_title='')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_map_full_Arctic, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+    # Find the maximum distance between any two profiles for each data set in the group
+    # ahf.find_max_distance([group_map])
+## Map of drifts for selected ITPs
+if False:
+    print('')
+    print('- Creating Figure 1')
+    # Make the subplot groups
+    group_map = ahf.Analysis_Group(ds_all_JOIS, pfs_AOA, pp_map, plot_title='')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources, pfs_0, pp_map_full_Arctic, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map, group_map_full_Arctic], use_same_x_axis=False, use_same_y_axis=False)
+## Map of drifts colored by date
+if False:
+    print('')
+    print('- Creating Figure 1')
+    # Make the subplot groups
+    group_AIDJEX_map = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_map_by_date, plot_title='')
+    group_ITPs_map = ahf.Analysis_Group(ds_all_JOIS, pfs_AOA, pp_map_by_date, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_AIDJEX_map, group_ITPs_map], use_same_x_axis=False, use_same_y_axis=False)
 
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
@@ -256,6 +306,33 @@ if False:
     # Make the figure
     ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX])#, filename='Figure_2.png')
     # ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_2.png')
+## Plotting a TS diagram of both ITP and AIDJEX data
+if False:
+    print('')
+    print('- Creating Figure 2')
+    # Make the subplot groups
+    # group_TS_all_AIDJEX = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_TS_by_instrmt, plot_title='')
+    # group_TS_all_JOIS = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_TS_by_instrmt, plot_title='')
+    # # Make the figure
+    # ahf.make_figure([group_TS_all_AIDJEX, group_TS_all_JOIS])#, filename='Figure_2.png')
+    # ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_2.png')
+    group_TS_all_JOIS = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_LA_TS, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_TS_all_JOIS])
+## Plotting clusters of both ITP and AIDJEX data
+if False:
+    print('')
+    print('- Creating Figure 2')
+    # Make the subplot groups
+    # group_TS_all_AIDJEX = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_TS_by_instrmt, plot_title='')
+    # group_TS_all_JOIS = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_TS_by_instrmt, plot_title='')
+    # # Make the figure
+    # ahf.make_figure([group_TS_all_AIDJEX, group_TS_all_JOIS])#, filename='Figure_2.png')
+    # ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_2.png')
+    group_JOIS_clstrd = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_JOIS_clstrd, plot_title='')
+    group_JOIS_clstr_TS = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_JOIS_clstr_TS, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_JOIS_clstrd, group_JOIS_clstr_TS])
 
 ### Figure 3
 ## Parameter sweep across \ell and m_pts
@@ -268,8 +345,17 @@ if False:
     group_ITP2_ss_ell  = ahf.Analysis_Group(ds_ITP2_all, pfs_subs, pp_ITP2_ss_ell, plot_title='ITP2 Subsampled')
     # Make the figure
     ahf.make_figure([group_ITP2_ss_mpts, group_ITP2_ss_ell], filename='Figure_3.pickle')
-# For AIDJEX
+# For JOIS
 if True:
+    print('')
+    print('- Creating Figure 3')
+    # Make the subplot groups
+    group_JOIS_mpts = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_JOIS_mpts, plot_title='JOIS')
+    group_JOIS_ell  = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_JOIS_ell, plot_title='JOIS')
+    # Make the figure
+    ahf.make_figure([group_JOIS_mpts, group_JOIS_ell], filename='Figure_3.pickle')
+# For AIDJEX
+if False:
     print('')
     print('- Creating Figure 3')
     # Make the subplot groups

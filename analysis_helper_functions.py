@@ -239,10 +239,12 @@ class Data_Filters:
     date_range          ['start_date','end_date'] where the dates are strings in
                         the format 'YYYY/MM/DD' or None to keep all profiles
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, date_range=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
+        self.lon_range = lon_range
+        self.lat_range = lat_range
         self.date_range = date_range
 
 ################################################################################
@@ -279,13 +281,15 @@ class Profile_Filters:
     d_range             [d_min, d_max] where the values are floats in m
     *T_range            [T_min, T_max] where the values are floats in degrees C
     S*_range            [S_min, S_max] where the values are floats in g/kg
+    lon_range           [lon_min,lon_max] where the values are floats in degrees
+    lat_range           [lat_min,lat_max] where the values are floats in degrees
     subsample           True/False whether to apply the subsample mask to the profiles
     regrid_TS           [1st_var_str, Delta_1st_var, 2nd_var_str, Delta_2nd_var], a pair of 
                             [var, Delta_var] where you specify the variable then the value
                             of the spacing to regrid that value to
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, subsample=False, regrid_TS=None, m_avg_win=None):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, subsample=False, regrid_TS=None, m_avg_win=None):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -293,6 +297,8 @@ class Profile_Filters:
         self.PT_range = PT_range
         self.SP_range = SP_range
         self.SA_range = SA_range
+        self.lon_range = lon_range
+        self.lat_range = lat_range
         self.subsample = subsample
         self.regrid_TS = regrid_TS
         self.m_avg_win = m_avg_win
@@ -616,6 +622,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         # Add vars for the profile filters, if applicable
         scale = pp.plot_scale
         if scale == 'by_vert':
+            if not isinstance(profile_filters.lon_range, type(None)):
+                vars_to_keep.append('lon')
+            if not isinstance(profile_filters.lat_range, type(None)):
+                vars_to_keep.append('lat')
             if not isinstance(profile_filters.p_range, type(None)):
                 vars_to_keep.append('press')
             if not isinstance(profile_filters.d_range, type(None)):
@@ -926,6 +936,20 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
     SP_key              A string of the practical salinity variable to filter
     SA_key              A string of the absolute salinity variable to filter
     """
+    #   Filter to a certain longitude range
+    if not isinstance(profile_filters.lon_range, type(None)):
+        # Get endpoints of longitude range
+        l_max = max(profile_filters.lon_range)
+        l_min = min(profile_filters.lon_range)
+        # Filter the data frame to the specified longitude range
+        df = df[(df['lon'] < l_max) & (df['lon'] > l_min)]
+    #   Filter to a certain latitude range
+    if not isinstance(profile_filters.lat_range, type(None)):
+        # Get endpoints of latitude range
+        l_max = max(profile_filters.lat_range)
+        l_min = min(profile_filters.lat_range)
+        # Filter the data frame to the specified latitude range
+        df = df[(df['lat'] < l_max) & (df['lat'] > l_min)]
     #   Filter to a certain pressure range
     if not isinstance(profile_filters.p_range, type(None)):
         # Get endpoints of pressure range
@@ -2272,6 +2296,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             ex_S = 69
             ex_E = -165
             ex_W = -124
+        elif map_extent == 'AIDJEX_focus':
+            cent_lon = -137
+            ex_N = 78
+            ex_S = 69
+            ex_E = -155
+            ex_W = -124
         else:
             cent_lon = -120
             ex_N = 90
@@ -2284,7 +2314,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         ax = fig.add_subplot(ax_pos, projection=ccrs.NorthPolarStereo(central_longitude=cent_lon))
         ax.set_extent([ex_E, ex_W, ex_S, ex_N], ccrs.PlateCarree())
         #   Add ocean first, then land. Otherwise the ocean covers the land shapes
-        ax.add_feature(cartopy.feature.OCEAN, color=bathy_clrs[0])
+        # ax.add_feature(cartopy.feature.OCEAN, color=bathy_clrs[0])
         ax.add_feature(cartopy.feature.LAND, color=clr_land, alpha=0.5)
         # Make bathymetry features
         bathy_0200 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_K_200',scale='10m')
@@ -2294,10 +2324,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
         bathy_4000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_G_4000',scale='10m')
         bathy_5000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_F_5000',scale='10m')
         # Add bathymetry lines
-        ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
-        ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
-        ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
-        ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
+        # ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
+        # ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
+        # ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
+        # ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
         # ax.add_feature(bathy_4000, facecolor=bathy_clrs[5], zorder=5)
         # ax.add_feature(bathy_5000, facecolor=bathy_clrs[6], zorder=6)
         #   Add gridlines to show longitude and latitude
@@ -2308,11 +2338,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
         gl.ylabel_style = {'size':8, 'color':clr_lines, 'zorder':7}
         #   Plotting the coastlines takes a really long time
         # ax.coastlines()
-        # Add bounding box for Canada Basin
+        # Add bounding box
+        bbox = 'CB' # for Canada Basin
+        bbox = 'AOA' # for AIDJEX Operation Area
         #   Don't plot outside the extent chosen
         if map_extent == 'Canada_Basin':
-            # Only the Eastern boundary appears in this extent
-            # ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+            if bbox == 'CB':
+                # Only the Eastern boundary appears in this extent
+                ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
             # Add bathymetry lines
             ax.add_feature(bathy_0200, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=1)
             ax.add_feature(bathy_1000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=2)
@@ -2321,18 +2354,44 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # ax.add_feature(bathy_4000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=5)
             # ax.add_feature(bathy_5000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=6)
         elif map_extent == 'Western_Arctic':
-            CB_lons = np.linspace(-130, -155, 50)
-            # Northern boundary does not appear
-            ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-            ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-            ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            if bbox == 'CB':
+                CB_lons = np.linspace(-130, -155, 50)
+                # Northern boundary does not appear
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'AOA':
+                AJ_lons = np.linspace(-133.7, -152.8, 50)
+                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+        elif map_extent == 'AIDJEX_focus':
+            if bbox == 'CB':
+                CB_lons = np.linspace(-130, -155, 50)
+                # Northern boundary does not appear
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'AOA':
+                AJ_lons = np.linspace(-133.7, -152.8, 50)
+                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         else:
-            CB_lons = np.linspace(-130, -155, 50)
-            ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-            ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-            ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-            ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary# Only the Eastern boundary appears in this extent
-            ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+            if bbox == 'CB':
+                CB_lons = np.linspace(-130, -155, 50)
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'AOA':
+                AJ_lons = np.linspace(-133.7, -152.8, 50)
+                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         # Determine the color mapping to be used
         if clr_map in a_group.vars_to_keep:
             # Make sure it isn't a vertical variable
