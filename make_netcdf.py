@@ -149,6 +149,9 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     list_of_lats            = []
     list_of_regs            = []
     list_of_up_casts        = []
+    list_of_CT_maxs         = []
+    list_of_press_CT_maxs   = []
+    list_of_SA_CT_maxs      = []
     list_of_press_arrs      = []
     list_of_depth_arrs      = []
     list_of_iT_arrs         = []
@@ -181,6 +184,9 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                     list_of_lats.append(out_dict['lat'])
                     list_of_regs.append(out_dict['region'])
                     list_of_up_casts.append(out_dict['up_cast'])
+                    list_of_CT_maxs.append(out_dict['CT_max'])
+                    list_of_press_CT_maxs.append(out_dict['press_CT_max'])
+                    list_of_SA_CT_maxs.append(out_dict['SA_CT_max'])
                     list_of_press_arrs.append(out_dict['press'])
                     list_of_depth_arrs.append(out_dict['depth'])
                     list_of_iT_arrs.append(out_dict['iT'])
@@ -293,6 +299,33 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'units':'N/A',
                             'label':'Upcast or Downcast',
                             'long_name':'Profile taken with instrument going up(True) or down(False)'
+                        }
+                ),
+                'CT_max':(
+                        ['Time'],
+                        list_of_CT_maxs,
+                        {
+                            'units':'degrees Celcius',
+                            'label':'$\Theta_{max}$ ($^\circ$C)',
+                            'long_name':'Maximum Conservative Temperature'
+                        }
+                ),
+                'press_CT_max':(
+                        ['Time'],
+                        list_of_press_CT_maxs,
+                        {
+                            'units':'dbar',
+                            'label':'$p(\Theta_{max})$ (dbar)',
+                            'long_name':'Pressure at Maximum Conservative Temperature'
+                        }
+                ),
+                'SA_CT_max':(
+                        ['Time'],
+                        list_of_SA_CT_maxs,
+                        {
+                            'units':'g/kg',
+                            'label':'$S_A(\Theta_{max})$ (g/kg)',
+                            'long_name':'Absolute Salinity at Maximum Conservative Temperature'
                         }
                 ),
                 'R_rho':(
@@ -666,6 +699,11 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             up_cast = False
         else:
             up_cast = True
+        # Get the index of the maximum conservative temperature
+        try:
+            i_CT_max = np.nanargmax(CT1)
+        except:
+            i_CT_max = 0
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -675,6 +713,9 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
                     'lat': lat,
                     'region': reg,
                     'up_cast': up_cast,
+                    'CT_max':CT1[i_CT_max],
+                    'press_CT_max':press0[i_CT_max],
+                    'SA_CT_max':SA1[i_CT_max],
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -890,8 +931,6 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         return out_dict
     else:
         return None
-
-
 
 def isfloat(num):
     try:

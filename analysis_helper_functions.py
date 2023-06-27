@@ -170,9 +170,9 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
 # A list of the per profile variables
-pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'R_rho']
+pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
 vertical_vars = ['press', 'depth', 'iT', 'CT', 'PT', 'SP', 'v1_SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'v2_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
 # Make lists of clustering variables
@@ -511,10 +511,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         # Check the plot scale
         #   This will include all the measurements within each profile
         if plt_params.plot_scale == 'by_vert':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
         #   This will only include variables with 1 value per profile
         elif plt_params.plot_scale == 'by_pf':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'R_rho']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
         # print('vars_to_keep:')
         # print(vars_to_keep)
         return vars_to_keep
@@ -525,6 +525,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         if pp.plot_type == 'map':
             vars_to_keep.append('lon')
             vars_to_keep.append('lat')
+        if pp.plot_type == 'profiles':
+            vars_to_keep.append('CT_max')
+            vars_to_keep.append('press_CT_max')
+            vars_to_keep.append('SA_CT_max')
         # Add all the plotting variables
         re_run_clstr = False
         plot_vars = pp.x_vars+pp.y_vars+[pp.clr_map]
@@ -1511,7 +1515,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.set_ylabel(ylabel)
                 # Invert y-axis if specified
                 if i == 0 and invert_y_axis:
-                    # ax.invert_yaxis()
+                    ax.invert_yaxis()
                     print('\t- Inverting y-axis')
             else:
                 ax.set_ylabel(ylabel)
@@ -3071,6 +3075,19 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Check whether to run the clustering algorithm
     #   Need to run the clustering algorithm BEFORE filtering to specified range
     cluster_this = False
+    # Set the keys for CT max markers
+    if x_key == 'CT':
+        CT_max_key = 'CT_max'
+    elif x_key == 'SA':
+        CT_max_key = 'SA_CT_max'
+    else:
+        CT_max_key = None
+    if tw_x_key == 'CT':
+        tw_CT_max_key = 'CT_max'
+    elif tw_x_key == 'SA':
+        tw_CT_max_key = 'SA_CT_max'
+    else:
+        tw_CT_max_key = None
     #   Find all the plotting variables
     plot_vars = [x_key,y_key,tw_x_key,tw_y_key,clr_map]
     for var in plot_vars:
@@ -3154,6 +3171,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         if i == 0:
             # Pull data to plot
             xvar = pf_df[x_key]
+            # Find CT max if applicable
+            CT_max = np.unique(np.array(pf_df[CT_max_key].values))
             # Find upper and lower bounds of first profile, for reference points
             xvar_low  = min(xvar)
             xvar_high = max(xvar)
@@ -3166,6 +3185,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Find upper and lower bounds of first profile for twin axis
             if tw_x_key:
                 tvar = pf_df[tw_x_key]
+                tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values))
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
                 tw_span   = abs(twin_high - twin_low)
@@ -3177,12 +3197,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 right_bound = xvar_high - norm_pf_diff*xv_span
                 tw_left_bound = twin_low + norm_pf_diff*tw_span
                 # Find index of largest x value
-                # xvar_max_idx = np.argmax(xvar)
+                # CT_max_idx = np.argmax(xvar)
                 # Find value of twin profile at that index
                 # tw_xvar_max = tvar[xvar_max_idx]
                 tw_x_pad = tw_span/15
             else:
                 tvar = None
+                tw_CT_max = None
                 right_bound = xvar_high
             #
         # Adjust the starting points of each subsequent profile
@@ -3195,6 +3216,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             old_xv_span = xv_span
             # Find array of data for this profile
             xvar = pf_df[x_key] - min(pf_df[x_key]) + old_xvar_low
+            CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key]) + old_xvar_low
             # Find new upper and lower bounds of profile
             xvar_high = max(xvar)
             xvar_low  = min(xvar)
@@ -3202,9 +3224,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             xv_span = abs(xvar_high - xvar_low)
             if tw_x_key:
                 xvar = xvar + old_xv_span*0.8
+                CT_max = CT_max + old_xv_span*0.8
                 xvar_high = max(xvar)
                 xvar_low = min(xvar)
                 tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
+                tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
                 # 
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
@@ -3222,8 +3246,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 # tw_xvar_max = tvar[xvar_max_idx]
             else:
                 tvar = None
+                tw_CT_max = None
                 # Shift things over
                 xvar = xvar + old_xv_span*0.45
+                CT_max = CT_max + old_xv_span*0.45
                 xvar_low = min(xvar)
                 xvar_high = max(xvar)
                 right_bound = xvar_high
@@ -3260,10 +3286,16 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
             # Plot every point the same color, size, and marker
             # ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+            # Plot maximum
+            press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
+            print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
+            ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
                 # tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+                print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
+                tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
