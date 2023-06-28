@@ -100,6 +100,9 @@ all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'al
 ITP2_all  = {'ITP_2':'all'}
 ITP3_all  = {'ITP_3':'all'}
 ITP35_all = {'ITP_35':'all'}
+ITP41_all = {'ITP_41':'all'}
+ITP42_all = {'ITP_42':'all'}
+ITP43_all = {'ITP_43':'all'}
 
 # A list of many profiles to plot from ITP3
 start_pf = 1331
@@ -121,6 +124,8 @@ print('- Creating data filtering objects')
 ################################################################################
 
 dfs0 = ahf.Data_Filters()
+dfs1 = ahf.Data_Filters(min_press_CT_max=350)
+dfs2 = ahf.Data_Filters(min_press_CT_max=400)
 
 ################################################################################
 # Create data sets by combining filters and the data to load in
@@ -128,16 +133,36 @@ print('- Creating data sets')
 ################################################################################
 
 # ds_all_sources = ahf.Data_Set(all_sources, dfs0)
-# ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
-# ds_all_JOIS = ahf.Data_Set(all_JOIS, dfs0)
-# ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs0)
-# 
-# ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
-# 
-# ds_AIDJEX_BigBear_all = ahf.Data_Set(AIDJEX_BigBear_all, dfs0)
 
-ds_ITP35_all = ahf.Data_Set(ITP35_all, dfs0)
-ds_ITP35_some_pfs = ahf.Data_Set(ITP35_pfs, dfs0)
+## ITP
+
+# ds_all_ITPs = ahf.Data_Set(all_ITPs, dfs0)
+ds_all_JOIS = ahf.Data_Set(all_JOIS, dfs1)
+
+# ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
+
+# Data Sets without filtering based on CT_max
+# ds_ITP35_all  = ahf.Data_Set(ITP35_all, dfs0)
+# ds_ITP41_all  = ahf.Data_Set(ITP41_all, dfs0)
+# ds_ITP42_all  = ahf.Data_Set(ITP42_all, dfs0)
+# ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs0)
+
+# Data Sets filtered based on CT_max
+# ds_ITP35_dfs1 = ahf.Data_Set(ITP35_all, dfs1)
+# ds_ITP41_dfs1 = ahf.Data_Set(ITP41_all, dfs1)
+# ds_ITP42_dfs1 = ahf.Data_Set(ITP42_all, dfs1)
+# ds_ITP43_dfs1 = ahf.Data_Set(ITP43_all, dfs1)
+# 
+# ds_ITP35_some_pfs = ahf.Data_Set(ITP35_pfs, dfs0)
+
+## AIDJEX
+
+ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs2)
+
+ds_AIDJEX_BigBear_all  = ahf.Data_Set(AIDJEX_BigBear_all, dfs2)
+ds_AIDJEX_BlueFox_all  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs2)
+ds_AIDJEX_Caribou_all  = ahf.Data_Set(AIDJEX_Caribou_all, dfs2)
+ds_AIDJEX_Snowbird_all = ahf.Data_Set(AIDJEX_Snowbird_all, dfs2)
 
 ################################################################################
 # Create profile filtering objects
@@ -196,7 +221,8 @@ pp_TS_by_instrmt = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cl
 pp_LA_TS = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['la_CT'], clr_map='press')
 
 pp_CT_max = ahf.Plot_Parameters(x_vars=['CT_max'], y_vars=['press_CT_max'], clr_map='prof_no')
-pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='prof_no')
+pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='CT_max')
+pp_SA_CT_max_hist = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['hist'], clr_map='clr_all_same')
 
 test_mpts = 65
 pp_ITP2_clstr = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SP', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
@@ -304,16 +330,17 @@ if False:
 
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
-if False:
+if True:
     print('')
     print('- Creating Figure 2')
     # Make the subplot groups
-    group_TS_all_sources = ahf.Analysis_Group(ds_all_sources, pfs_ITP2, pp_TS_by_source, plot_title='')
-    group_TS_all_AIDJEX  = ahf.Analysis_Group(ds_all_AIDJEX, pfs_ITP2, pp_TS_by_instrmt, plot_title='')
+    # group_TS_all_sources = ahf.Analysis_Group(ds_all_sources, pfs_ITP2, pp_TS_by_source, plot_title='')
+    group_TS_all_JOIS = ahf.Analysis_Group(ds_all_JOIS, pfs_0, pp_TS_by_instrmt, plot_title='JOIS ITPs')
+    group_TS_all_AIDJEX  = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_TS_by_instrmt, plot_title='AIDJEX')
     # Make the figure
-    ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX])#, filename='Figure_2.png')
+    ahf.make_figure([group_TS_all_AIDJEX, group_TS_all_JOIS])#, filename='Figure_2.png')
     # ahf.make_figure([group_TS_all_sources, group_TS_all_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_2.png')
-## Plotting a TS diagram of both ITP and AIDJEX data
+## Plotting a LA_TS diagram of both ITP and AIDJEX data
 if False:
     print('')
     print('- Creating Figure 2')
@@ -340,15 +367,36 @@ if False:
     group_JOIS_clstr_TS = ahf.Analysis_Group(ds_all_JOIS, pfs_JOIS, pp_JOIS_clstr_TS, plot_title='')
     # Make the figure
     ahf.make_figure([group_JOIS_clstrd, group_JOIS_clstr_TS])
-## Plotting CT_max data for profiles
-if True:
+## Plotting CT_max data with min_press_CT_max limit
+if False:
     print('')
     print('- Creating Figure 2')
+    # # Make the subplot groups
+    # group_ITP35_CT_max = ahf.Analysis_Group(ds_ITP35_dfs1, pfs_0, pp_SA_CT_max)
+    # group_ITP41_CT_max = ahf.Analysis_Group(ds_ITP41_dfs1, pfs_0, pp_SA_CT_max)
+    # group_ITP42_CT_max = ahf.Analysis_Group(ds_ITP42_dfs1, pfs_0, pp_SA_CT_max)
+    # group_ITP43_CT_max = ahf.Analysis_Group(ds_ITP43_dfs1, pfs_0, pp_SA_CT_max)
+    # # Make the figure
+    # ahf.make_figure([group_ITP35_CT_max, group_ITP41_CT_max, group_ITP42_CT_max, group_ITP43_CT_max])
     # Make the subplot groups
-    group_CT_max_scatter = ahf.Analysis_Group(ds_ITP35_all, pfs_JOIS, pp_CT_max)
-    group_SA_CT_max_scatter = ahf.Analysis_Group(ds_ITP35_all, pfs_JOIS, pp_SA_CT_max)
+    group_BB_CT_max = ahf.Analysis_Group(ds_AIDJEX_BigBear_all, pfs_0, pp_SA_CT_max)
+    group_BF_CT_max = ahf.Analysis_Group(ds_AIDJEX_BlueFox_all, pfs_0, pp_SA_CT_max)
+    group_Ca_CT_max = ahf.Analysis_Group(ds_AIDJEX_Caribou_all, pfs_0, pp_SA_CT_max)
+    group_Sn_CT_max = ahf.Analysis_Group(ds_AIDJEX_Snowbird_all, pfs_0, pp_SA_CT_max)
     # Make the figure
-    ahf.make_figure([group_CT_max_scatter, group_SA_CT_max_scatter])
+    ahf.make_figure([group_BB_CT_max, group_BF_CT_max, group_Ca_CT_max, group_Sn_CT_max])
+## Histogram of CT_max data
+if False:
+    print('')
+    print('- Creating Figure 2')
+    # # Make the subplot groups
+    # group_JOIS_SA_CT_max_hist = ahf.Analysis_Group(ds_all_JOIS, pfs_0, pp_SA_CT_max_hist, plot_title=r'JOIS ITPs, $p(\Theta_{max})>350$ dbar')
+    # # Make the figure
+    # ahf.make_figure([group_JOIS_SA_CT_max_hist])
+    # Make the subplot groups
+    group_AIDJEX_SA_CT_max_hist = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_SA_CT_max_hist, plot_title=r'AIDJEX')
+    # Make the figure
+    ahf.make_figure([group_AIDJEX_SA_CT_max_hist])
 
 ### Figure 3
 ## Parameter sweep across \ell and m_pts

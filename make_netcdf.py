@@ -783,6 +783,11 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         # `final` formatted profiles are sorted, so no way to tell which direction
         #   They were taken in. So, just mark all as up-casts
         up_cast = True
+        # Get the index of the maximum conservative temperature
+        try:
+            i_CT_max = np.nanargmax(CT1)
+        except:
+            i_CT_max = 0
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -792,6 +797,9 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
                     'lat': lat,
                     'region': reg,
                     'up_cast': up_cast,
+                    'CT_max':CT1[i_CT_max],
+                    'press_CT_max':press0[i_CT_max],
+                    'SA_CT_max':SA1[i_CT_max],
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -909,6 +917,11 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         # Doesn't matter the direction of data collection for AIDJEX, so mark
         #   all profiles as up-casts
         up_cast = True
+        # Get the index of the maximum conservative temperature
+        try:
+            i_CT_max = np.nanargmax(CT1)
+        except:
+            i_CT_max = 0
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -918,6 +931,9 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
                     'lat': lat,
                     'region':reg,
                     'up_cast': up_cast,
+                    'CT_max':CT1[i_CT_max],
+                    'press_CT_max':press0[i_CT_max],
+                    'SA_CT_max':SA1[i_CT_max],
                     'press': press0,
                     'depth': depth0,
                     'iT': iT0,
@@ -986,16 +1002,16 @@ def find_geo_region(lon, lat):
 # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
 # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
 # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
-read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
-read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
-read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
-read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
+# read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
+# read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
+# read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
+# read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
 
 ## These will make all the netcdfs for a certain source (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
 
 ## These will make all the netcdfs for AIDJEX
-# make_all_AIDJEX_netcdfs(science_data_file_path)
+make_all_AIDJEX_netcdfs(science_data_file_path)
 
 exit(0)
 

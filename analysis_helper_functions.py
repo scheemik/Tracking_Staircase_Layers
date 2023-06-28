@@ -238,14 +238,17 @@ class Data_Filters:
                         Eurasian Basin, or 'BS' for Barents Sea
     date_range          ['start_date','end_date'] where the dates are strings in
                         the format 'YYYY/MM/DD' or None to keep all profiles
+    min_press_CT_max    The minimum value for the pressure at the conservative
+                        temperature maximum, above which profiles will be kept
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press_CT_max=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
         self.lon_range = lon_range
         self.lat_range = lat_range
         self.date_range = date_range
+        self.min_press_CT_max = min_press_CT_max
 
 ################################################################################
 
@@ -490,6 +493,9 @@ def apply_data_filters(xarrays, data_filters):
             except:
                 end_date_range   = datetime.strptime(data_filters.date_range[1], r'%Y/%m/%d')
             ds = ds.sel(Time=slice(start_date_range, end_date_range))
+        #   Filter based on the minimum value of pressure at CT_max
+        if not isinstance(data_filters.min_press_CT_max, type(None)):
+            ds = ds.where(ds.press_CT_max>=data_filters.min_press_CT_max, drop=True)#.squeeze()
         #
         output_arrs.append(ds)
     return output_arrs
@@ -1699,7 +1705,7 @@ def get_var_color(var):
             'BSt':'darkturquoise',
             'BSA':'darkturquoise'
             }
-    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth']:
+    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_CT_max']:
         return std_clr
     elif var in ['iT', 'CT', 'PT', 'alpha']:
         return 'lightcoral'
@@ -1707,9 +1713,9 @@ def get_var_color(var):
         return 'cornflowerblue'
     elif var in ['sigma']:
         return 'mediumpurple'
-    elif var in ['ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
+    elif var in ['CT_max', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
         return 'tab:red'
-    elif var in ['ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
+    elif var in ['SA_CT_max', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
         return 'tab:blue'
     elif var in ['ma_sigma', 'la_sigma']:
         return 'tab:purple'
@@ -1736,11 +1742,11 @@ def get_color_map(cmap_var):
              'R_rho':'ocean',
              'density_hist':'inferno'
              }
-    if cmap_var in ['press', 'depth']:
+    if cmap_var in ['press', 'depth', 'press_CT_max']:
         return 'cividis'
-    elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
+    elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
         return 'Reds'
-    elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
+    elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
         return 'Blues'
     elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
         return 'Purples'
