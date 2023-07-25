@@ -60,55 +60,6 @@ me_string = 'Mikhail Schee, University of Toronto'
 doi = 'No DOI yet'
 
 ################################################################################
-# Loading in data
-
-def list_data_files(file_path):
-    """
-    Creates a list of all data files within a containing folder
-
-    file_path       The path to the folder containing the data files
-    """
-    # Search the provided file path
-    if os.path.isdir(file_path):
-        data_files = os.listdir(file_path)
-        # Remove .DS_Store directory from list
-        if '.DS_Store' in data_files: data_files.remove('.DS_Store')
-        # Restrict to just unique instruments (there shouldn't be any duplicates hopefully)
-        data_files = np.unique(data_files)
-    else:
-        print(file_path, " is not a directory")
-        data_files = None
-    #
-    return data_files
-
-################################################################################
-
-def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
-    """
-    Finds ITP data files for all instruments available and formats them into netcdfs
-
-    science_data_file_path      string of the filepath where the data is stored
-    format                      which version of the data files to use
-                                    either 'cormat' or 'final'
-    """
-    # Declare file path
-    main_dir = science_data_file_path+'ITPs/'
-    # Search the provided file path
-    if os.path.isdir(main_dir):
-        ITP_dirs = os.listdir(main_dir)
-        # Remove .DS_Store directory from list
-        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
-    else:
-        print(main_dir, " is not a directory")
-        exit(0)
-    # Read in data for all ITPs available
-    for itp in ITP_dirs:
-        # Get just the number for the itp
-        itp_number = ''.join(filter(str.isdigit, itp))
-        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
-    #
-
-################################################################################
 
 def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     """
@@ -127,6 +78,13 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
         attribution     = 'Moritz, Richard. 2020. Salinity, Temperature, Depth profiler data at AIDJEX stations April 1975 through April 1976, Version 1. Boulder, Colorado USA. CanWIN: Canadian Watershed Information Network. https://doi.org/10.34992/4xak-8r05 [Date Accessed: 2023-05-18].'
         source_url      = 'https://canwin-datahub.ad.umanitoba.ca/data/dataset/aidjex'
         og_vert         = 'depth'
+        og_temp         = 'iT'
+        og_salt         = 'SP'
+    elif source == 'SHEBA':
+        read_data_file  = read_SHEBA_data_file
+        attribution     = 'Need to look this up'
+        source_url      = 'URL'
+        og_vert         = 'press'
         og_temp         = 'iT'
         og_salt         = 'SP'
     elif source == 'ITP':
@@ -593,6 +551,63 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
 
 ################################################################################
 
+black_list = {'BigBear': [531, 535, 537, 539, 541, 543, 545, 547, 549],
+              'BlueFox': [94, 308, 310],
+              'Caribou': [],
+              'Snowbird': [443],
+              'Seacat': ['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
+
+################################################################################
+# Loading in data
+
+def list_data_files(file_path):
+    """
+    Creates a list of all data files within a containing folder
+
+    file_path       The path to the folder containing the data files
+    """
+    # Search the provided file path
+    if os.path.isdir(file_path):
+        data_files = os.listdir(file_path)
+        # Remove .DS_Store directory from list
+        if '.DS_Store' in data_files: data_files.remove('.DS_Store')
+        # Restrict to just unique instruments (there shouldn't be any duplicates hopefully)
+        data_files = np.unique(data_files)
+    else:
+        print(file_path, " is not a directory")
+        data_files = None
+    #
+    return data_files
+
+################################################################################
+# ITP functions
+################################################################################
+
+def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
+    """
+    Finds ITP data files for all instruments available and formats them into netcdfs
+
+    science_data_file_path      string of the filepath where the data is stored
+    format                      which version of the data files to use
+                                    either 'cormat' or 'final'
+    """
+    # Declare file path
+    main_dir = science_data_file_path+'ITPs/'
+    # Search the provided file path
+    if os.path.isdir(main_dir):
+        ITP_dirs = os.listdir(main_dir)
+        # Remove .DS_Store directory from list
+        if '.DS_Store' in ITP_dirs: ITP_dirs.remove('.DS_Store')
+    else:
+        print(main_dir, " is not a directory")
+        exit(0)
+    # Read in data for all ITPs available
+    for itp in ITP_dirs:
+        # Get just the number for the itp
+        itp_number = ''.join(filter(str.isdigit, itp))
+        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
+    #
+
 ################################################################################
 
 def read_ITP_data_file(file_path, file_name, instrmt):
@@ -815,12 +830,209 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         return None
 
 ################################################################################
+# SHEBA functions
+################################################################################
 
-black_list = {'BigBear': [531, 535, 537, 539, 541, 543, 545, 547, 549],
-              'BlueFox': [94, 308, 310],
-              'Caribou': [],
-              'Snowbird': [443],
-              'Seacat': ['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
+def make_SHEBA_netcdfs(science_data_file_path):
+    """
+    Finds SHEBA data files for all instruments available and formats them into netcdfs
+
+    science_data_file_path      string of the filepath where the data is stored
+    """
+    # Declare file path
+    main_dir = science_data_file_path+'SHEBA/dataset_13_524/Ice_Camp_Ocean_Seacat_CTD_Data-Deep/'
+    # Only one instrument, so just read it in
+    read_instrmt('SHEBA', 'Seacat', main_dir, 'netcdfs/SHEBA_Seacat.nc')
+    #
+
+def read_SHEBA_data_file(file_path, file_name, instrmt):
+    """
+    Reads certain data from an AIDJEX profile file
+    Returns a dictionary with specific information
+
+    file_path           string of a file path to the containing directory
+    file_name           string of the file name of a specific file
+    instrmt             string of the name of this instrmt
+    """
+    # All relevant SHEBA Seacat data files have headers with the extension `.HDR`
+    #   Only start the reading process if you get one of those
+    if not '.HDR' in file_name:
+        return None
+    # Set the header file (the one with all the meta data)
+    header_file = file_name
+    # print('Reading in the header file:',header_file)
+    # Set the profile ID (the part without `.HDR`)
+    prof_no = header_file.replace('.HDR', '')
+    # See if there exists data files with that profile ID
+    file_list = os.listdir(file_path)
+    data_files = None
+    for file in file_list:
+        if prof_no.lower() in file.lower():
+            # Don't set the data file to be the .HDR or .UP file
+            if not '.HDR' in file:
+                data_file = file
+            #
+        #
+    #
+    # Check to make sure this one isn't on the black list
+    if prof_no in black_list[instrmt]:
+        on_black_list = True
+        # I'm not sure what the issue is exactly, but if I attempt to load any
+        #   profile on the black list anyway, the code crashes. So just skip them
+        return None
+    else:
+        on_black_list = False
+    #
+    # Read in header file as an array, each line of the file for each index
+    #   Need to use 'rb' to avoid issues with UnicodeDecodeError
+    with open(file_path+'/'+header_file, 'rb') as read_file:
+        dat0 = read_file.readlines()
+    # Declare variables
+    # print(header_file)
+    lon = None
+    lat = None
+    date = None
+    date_regex = {r'(\d+/\d+/\d+)': "%m/%d/%y",
+                  r'(\d+\s[A-Z,a-z]{3}\s\d{4})': "%d %b %Y",
+                  r'(\d+\s[A-Z,a-z]{3}\s\d{2})': "%d %b %y"}
+    max_cols = 0
+    # Set arbitrary values that are greater than the number of columns you could have
+    t_index = 99
+    s_index = 99
+    p_index = 99
+    # Take relevant lines and put them into variables
+    for line in dat0:
+        # Convert to string
+        line_str = str(line)
+        # Find all the numbers in the line
+        line_nmbrs = []
+        # Find all whitespace-separated substrings
+        line_ss = []
+        for ss in line_str.split():
+            ss_strp = ss.rstrip('\\n\'').strip()
+            line_ss.append(ss_strp)
+            if isfloat(ss_strp):
+                line_nmbrs.append(ss_strp)
+        # Search for a date value, as long as one hasn't been found yet
+        if isinstance(date, type(None)):
+            # Make sure not to accidentally take the upload date
+            if not 'upload' in line_str.lower():
+                # Try all the different regular expressions listed above
+                for key in date_regex.keys():
+                    # If a regex matches, store the date and stop looking (break)
+                    match = re.search(key, line_str)
+                    if not isinstance(match, type(None)):
+                        # Find the date the profile was taken
+                        try:
+                            date = str(datetime.strptime(match.group(0), date_regex[key]))
+                            break
+                        except:
+                            continue
+        if len(line_nmbrs) > 0:
+            # Find latitude and longitude
+            if 'latitude' in line_str.lower():
+                if len(line_nmbrs) == 2:
+                    lat = float(line_nmbrs[0]) + float(line_nmbrs[1])/100
+                else:
+                    lat = float(line_nmbrs[0])
+                # print('Latitude:',lat)
+            if 'longitude' in line_str.lower():
+                if len(line_nmbrs) == 2:
+                    lon = -float(line_nmbrs[0]) + float(line_nmbrs[1])/100
+                else:
+                    lon = -float(line_nmbrs[0])
+                # print('Longitude:',lon)
+            # Find the headers of each column
+            if 'name' in line_str.lower():
+                if 'temperature' in line_str.lower():
+                    t_index = int(line_nmbrs[0])
+                elif 'salinity' in line_str.lower():
+                    s_index = int(line_nmbrs[0])
+                elif 'pressure' in line_str.lower() or 'depth' in line_str.lower():
+                    p_index = int(line_nmbrs[0])
+                # Find the total number of columns in the data file
+                if int(line_nmbrs[0]) > max_cols:
+                    max_cols = int(line_nmbrs[0])
+            #
+        #
+    #
+    # If those columns weren't found, skip this profile
+    if t_index + s_index + p_index > 99:
+        return None
+    # Determine the region
+    reg = find_geo_region(lon, lat)
+    #
+    # Create an empty list to capture data from file
+    dat = []
+    # Read data file in as a pandas data object
+    #   The arguments used are specific to how the SHEBA files are formatted
+    # print('Reading in the data file:',data_file)
+    # Read in data file as an array, each line of the file for each index
+    #   Need to use 'rb' to avoid issues with UnicodeDecodeError
+    with open(file_path+'/'+data_file, 'rb') as read_file:
+        # Skip the header
+        for _ in range(1):
+            next(read_file)
+        for line in read_file:
+            # If the row can be converted into an array of floats,
+            #   add it to the dat list
+            try:
+                line_list = np.array(line.split(), dtype='float')
+                dat.append(line_list)
+                # Add note as to whether the pressure is increasing or decreasing
+            except:
+                continue
+        #
+    # Convert the data into a 2D array
+    data = np.array(dat)
+    if len(dat) < 1:
+        return None
+    # If the correct column headers were found, put data into arrays
+    press0 = data[:,p_index]
+    iT0  = data[:,t_index]
+    SP0  = data[:,s_index]
+    # Convert to SA and CT to follow vdB21a
+    pf_vert_len = len(press0)
+    SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
+    CT1 = gsw.CT_from_t(SA1, iT0, press0)
+    PT1 = gsw.pt0_from_t(SA1, iT0, press0)
+    # Convert to depth from pressure
+    depth = gsw.z_from_p(press0, [lat]*pf_vert_len)
+    # Get the index of the maximum conservative temperature
+    try:
+        i_CT_max = np.nanargmax(CT1)
+    except:
+        i_CT_max = 0
+    # If there is data to be put into a dictionary...
+    if len(press0) > 1:
+        # Many SHEBA profiles contain both up and down casts, so just mark
+        #   all as up-casts
+        up_cast = True
+        # Create output dictionary for this profile
+        out_dict = {'prof_no': prof_no,
+                    'black_list': on_black_list,
+                    'dt_start': date,
+                    'dt_end': None,
+                    'lon': lon,
+                    'lat': lat,
+                    'region':reg,
+                    'up_cast': up_cast,
+                    'CT_max':CT1[i_CT_max],
+                    'press_CT_max':press0[i_CT_max],
+                    'SA_CT_max':SA1[i_CT_max],
+                    'press': press0,
+                    'depth': depth,
+                    'iT': iT0,
+                    'CT': CT1,
+                    'PT': PT1,
+                    'SP': SP0,
+                    'SA': SA1
+                    }
+        #
+        # Return all the relevant values
+        return out_dict
+    else:
+        return None
 
 ################################################################################
 # AIDJEX functions
@@ -1002,16 +1214,24 @@ def find_geo_region(lon, lat):
 # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
 # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
 # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
+read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
+read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
+read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_32.nc')
+read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_33.nc')
+read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_34.nc')
 # read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
 # read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
 # read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
 # read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
 
-## These will make all the netcdfs for a certain source (takes a long time)
+## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
 
-## These will make all the netcdfs for AIDJEX
-make_all_AIDJEX_netcdfs(science_data_file_path)
+## This will make all the netcdfs for SHEBA
+# make_SHEBA_netcdfs(science_data_file_path)
+
+## This will make all the netcdfs for AIDJEX
+# make_all_AIDJEX_netcdfs(science_data_file_path)
 
 exit(0)
 
