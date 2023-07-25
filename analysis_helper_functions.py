@@ -174,7 +174,13 @@ y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'pca_depth', 'ca_d
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
-vertical_vars = ['press', 'depth', 'iT', 'CT', 'PT', 'SP', 'v1_SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'v2_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+vertical_vars = ['press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+# Add variable modifiers for profile variables
+max_prefix = 'max_' # maximum
+max_vars   = [ f'{max_prefix}{var}'  for var in vertical_vars]
+min_prefix = 'min_' # maximum
+min_vars   = [ f'{min_prefix}{var}'  for var in vertical_vars]
+pf_vars = pf_vars + max_vars + min_vars
 # Make lists of clustering variables
 pca_prefix = 'pca_' # profile cluster average
 pca_vars   = [ f'{pca_prefix}{var}' for var in vertical_vars]
@@ -188,7 +194,7 @@ cs_prefix  = 'cs_'  # cluster span
 cs_vars    = [ f'{cs_prefix}{var}'  for var in vertical_vars]
 cmm_prefix = 'cmm_' # cluster min/max
 cmm_vars   = [ f'{cmm_prefix}{var}'  for var in vertical_vars]
-nir_prefix = 'nir_' # normalized inter-cluster range, with max-min instead of stdv
+nir_prefix = 'nir_' # normalized inter-cluster range
 nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
 # Make a complete list of cluster-related variables
 clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + cmm_vars + nir_vars
@@ -616,8 +622,11 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 #   the prefix) to the list of variables to keep
                 if var in clstr_vars:
                     vars_to_keep.append(var_str)
+                # Add very specific variables to the list, without prefixes
+                if prefix in ['max', 'min']:
+                    vars_to_keep.append(var_str)
                 # Add very specific variables directly to the list, including prefixes
-                if prefix in ['la', 'v1', 'v2']:
+                if prefix in ['la']:
                     vars_to_keep.append(var)
                     vars_to_keep.append(var_str)
                 #
@@ -856,6 +865,25 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Add expedition and instrument columns
             df['source'] = ds.Expedition
             df['instrmt'] = ds.Instrument
+            # Calculate extra variables, as needed
+            for var in plot_vars:
+                if 'max' in var:
+                    # Split the prefix from the original variable (assumes an underscore split)
+                    split_var = var.split('_', 1)
+                    prefix = split_var[0]
+                    var_str = split_var[1]
+                    # Get list of profiles
+                    pfs = np.unique(np.array(df['prof_no']))
+                    # Loop across each profile
+                    for pf in pfs:
+                        # Find the data for just that profile
+                        data_pf = df[df['prof_no'] == pf]
+                        # Find the maximum for that profile
+                        this_pf_max = max(data_pf[var_str])
+                        # Fill this profile's max_var with that value
+                        df.loc[df['prof_no']==pf, var] = this_pf_max
+                    # 
+                #
             ## Filters on each profile separately
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
             # Drop dimensions, if needed
@@ -1046,14 +1074,6 @@ def calc_extra_vars(ds, vars_to_keep):
                 # Calculate the local anomaly of this variable
                 ds[this_var] = ds[var] - ds['ma_'+var]
             #
-            if prefix == 'v1':
-                # Calculate the local anomaly of this variable
-                ds[this_var] = ds[var] * 1.1
-            #
-            if prefix == 'v2':
-                # Calculate the local anomaly of this variable
-                ds[this_var] = (ds[var] - ds['ma_'+var]) * 1.1
-            #
         #
     return ds
 
@@ -1180,15 +1200,15 @@ def get_axis_label(var_key, var_attr_dicts):
         return r"$\Theta'$ ($^\circ$C)"
         # return 'Local anomaly of '+ var_attr_dicts[0][var_str]['label']
     # Check for local anomaly variables
-    elif 'v1_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[3:]
-        return 'Stretched '+ var_attr_dicts[0][var_str]['label']
+    elif 'max_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Maximum '+ var_attr_dicts[0][var_str]['label']
     # Check for local anomaly variables
-    elif 'v2_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[3:]
-        return 'Stretched local anomaly of '+ var_attr_dicts[0][var_str]['label']
+    elif 'min_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Minimum '+ var_attr_dicts[0][var_str]['label']
     # Check for cluster average variables
     elif 'ca_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -2462,6 +2482,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             sources_list = pd.unique(pd.Series(sources_list))
             i = 0
             lgnd_hndls = []
+            notes_string = ''
             for source in sources_list:
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
