@@ -38,17 +38,20 @@ c3 = 100
 ################################################################################
 # Select the netcdfs to modify
 ncs_to_modify = [
-                #  'netcdfs/AIDJEX_BigBear.nc',
-                #  'netcdfs/AIDJEX_BlueFox.nc',
-                #  'netcdfs/AIDJEX_Caribou.nc',
-                #  'netcdfs/AIDJEX_Snowbird.nc',
-                 'netcdfs/ITP_1.nc',
+                 'netcdfs/AIDJEX_BigBear.nc',
+                 'netcdfs/AIDJEX_BlueFox.nc',
+                 'netcdfs/AIDJEX_Caribou.nc',
+                 'netcdfs/AIDJEX_Snowbird.nc',
+                #  'netcdfs/ITP_1.nc',
                 #  'netcdfs/ITP_2.nc',
                 #  'netcdfs/ITP_3.nc',
+                 'netcdfs/ITP_33.nc',
+                 'netcdfs/ITP_34.nc',
                  'netcdfs/ITP_35.nc',
                  'netcdfs/ITP_41.nc',
                  'netcdfs/ITP_42.nc',
-                 'netcdfs/ITP_43.nc'
+                 'netcdfs/ITP_43.nc',
+                 'netcdfs/SHEBA_Seacat.nc'
                  ]
 
 # Loop through the netcdfs to modify

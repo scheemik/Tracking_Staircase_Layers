@@ -107,6 +107,7 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     list_of_lats            = []
     list_of_regs            = []
     list_of_up_casts        = []
+    list_of_press_maxs      = []
     list_of_CT_maxs         = []
     list_of_press_CT_maxs   = []
     list_of_SA_CT_maxs      = []
@@ -142,6 +143,7 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                     list_of_lats.append(out_dict['lat'])
                     list_of_regs.append(out_dict['region'])
                     list_of_up_casts.append(out_dict['up_cast'])
+                    list_of_press_maxs.append(out_dict['press_max'])
                     list_of_CT_maxs.append(out_dict['CT_max'])
                     list_of_press_CT_maxs.append(out_dict['press_CT_max'])
                     list_of_SA_CT_maxs.append(out_dict['SA_CT_max'])
@@ -257,6 +259,15 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'units':'N/A',
                             'label':'Upcast or Downcast',
                             'long_name':'Profile taken with instrument going up(True) or down(False)'
+                        }
+                ),
+                'press_max':(
+                        ['Time'],
+                        list_of_press_maxs,
+                        {
+                            'units':'dbar',
+                            'label':'$p_{max}$ (dbar)',
+                            'long_name':'Maximum Pressure'
                         }
                 ),
                 'CT_max':(
@@ -701,6 +712,8 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         press0 = dat['pr_filt'].flatten()
         iT0  = dat['te_adj'].flatten()
         SP0  = dat['sa_adj'].flatten()
+        # Find maximum pressure value
+        press_max = max(press0)
         # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
         pf_vert_len = len(press0)
         SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
@@ -728,6 +741,7 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
                     'lat': lat,
                     'region': reg,
                     'up_cast': up_cast,
+                    'press_max': press_max,
                     'CT_max':CT1[i_CT_max],
                     'press_CT_max':press0[i_CT_max],
                     'SA_CT_max':SA1[i_CT_max],
@@ -788,6 +802,8 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         press0 = dat['%pressure(dbar)'][:].values
         iT0  = dat['temperature(C)'][:].values
         SP0  = dat['salinity'][:].values
+        # Find maximum pressure value
+        press_max = max(press0)
         # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
         pf_vert_len = len(press0)
         SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
@@ -812,6 +828,7 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
                     'lat': lat,
                     'region': reg,
                     'up_cast': up_cast,
+                    'press_max': press_max,
                     'CT_max':CT1[i_CT_max],
                     'press_CT_max':press0[i_CT_max],
                     'SA_CT_max':SA1[i_CT_max],
@@ -991,7 +1008,9 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
     press0 = data[:,p_index]
     iT0  = data[:,t_index]
     SP0  = data[:,s_index]
-    # Convert to SA and CT to follow vdB21a
+    # Find maximum pressure value
+    press_max = max(press0)
+    # Convert to SA and CT
     pf_vert_len = len(press0)
     SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
     CT1 = gsw.CT_from_t(SA1, iT0, press0)
@@ -1015,8 +1034,9 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
                     'dt_end': None,
                     'lon': lon,
                     'lat': lat,
-                    'region':reg,
+                    'region': reg,
                     'up_cast': up_cast,
+                    'press_max': press_max,
                     'CT_max':CT1[i_CT_max],
                     'press_CT_max':press0[i_CT_max],
                     'SA_CT_max':SA1[i_CT_max],
@@ -1111,20 +1131,22 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         depth0 = dat['Depth(m)'][:].values
         iT0    = dat['Temp(C)'][:].values
         SP0    = dat['Sal(PPT)'][:].values
-        # Calculate pressure from depth using GSW which expects negative depth values, zero being the surface
+        # Converting requires both a longitude and a latitude
+        if isinstance(lon, type(None)):
+            lon = -145.3498
         #   Requires a latitude to work, but sometimes `lat` is None, so use an average
         if isinstance(lat, type(None)):
-            press0 = gsw.p_from_z(-depth0, 75)
-            # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
-            pf_vert_len = len(press0)
-            SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [75]*pf_vert_len)
-            print('Using a fake latitude value of 75 for profile',prof_no)
-        else:
-            press0 = gsw.p_from_z(-depth0, lat)
-            # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
-            pf_vert_len = len(press0)
-            SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
+            lat = 76.3519
+        # print('Using a lat =',lat,'and lon =',lon,'for profile',prof_no)
+        # Calculate pressure from depth using GSW which expects negative depth values, zero being the surface
+        press0 = gsw.p_from_z(-depth0, lat)
+        # Find maximum pressure value
+        press_max = max(press0)
+        pf_vert_len = len(press0)
+        # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
+        SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
         CT1 = gsw.CT_from_t(SA1, iT0, press0)
+        # print('Number of non-nan SA1 values:',np.count_nonzero(~np.isnan(SA1)))
         PT1 = gsw.pt0_from_t(SA1, iT0, press0)
         # Doesn't matter the direction of data collection for AIDJEX, so mark
         #   all profiles as up-casts
@@ -1141,8 +1163,9 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
                     'dt_end': None,
                     'lon': lon,
                     'lat': lat,
-                    'region':reg,
+                    'region': reg,
                     'up_cast': up_cast,
+                    'press_max': press_max,
                     'CT_max':CT1[i_CT_max],
                     'press_CT_max':press0[i_CT_max],
                     'SA_CT_max':SA1[i_CT_max],
@@ -1214,24 +1237,25 @@ def find_geo_region(lon, lat):
 # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
 # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
 # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
-read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
-read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
-read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_32.nc')
+# read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
+# read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
+# read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_32.nc')
 read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_33.nc')
 read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_34.nc')
-# read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
-# read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
-# read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
-# read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
+read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
+read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
+read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
+read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
 
 ## This will make all the netcdfs for SHEBA
-# make_SHEBA_netcdfs(science_data_file_path)
+make_SHEBA_netcdfs(science_data_file_path)
 
 ## This will make all the netcdfs for AIDJEX
-# make_all_AIDJEX_netcdfs(science_data_file_path)
+make_all_AIDJEX_netcdfs(science_data_file_path)
+# read_instrmt('AIDJEX', 'BigBear', science_data_file_path+'AIDJEX/AIDJEX/BigBear', 'netcdfs/AIDJEX_BigBear.nc')
 
 exit(0)
 

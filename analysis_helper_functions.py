@@ -244,16 +244,18 @@ class Data_Filters:
                         Eurasian Basin, or 'BS' for Barents Sea
     date_range          ['start_date','end_date'] where the dates are strings in
                         the format 'YYYY/MM/DD' or None to keep all profiles
+    min_press           The minimum value of pressure to keep a profile
     min_press_CT_max    The minimum value for the pressure at the conservative
                         temperature maximum, above which profiles will be kept
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press_CT_max=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
         self.lon_range = lon_range
         self.lat_range = lat_range
         self.date_range = date_range
+        self.min_press = min_press
         self.min_press_CT_max = min_press_CT_max
 
 ################################################################################
@@ -499,6 +501,10 @@ def apply_data_filters(xarrays, data_filters):
             except:
                 end_date_range   = datetime.strptime(data_filters.date_range[1], r'%Y/%m/%d')
             ds = ds.sel(Time=slice(start_date_range, end_date_range))
+        #   Filter based on the maximum value of pressure in a profile
+        if not isinstance(data_filters.min_press, type(None)):
+            ds = ds.where(ds.press_max>=data_filters.min_press, drop=True)#.squeeze()
+        #
         #   Filter based on the minimum value of pressure at CT_max
         if not isinstance(data_filters.min_press_CT_max, type(None)):
             ds = ds.where(ds.press_CT_max>=data_filters.min_press_CT_max, drop=True)#.squeeze()
@@ -3108,13 +3114,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     elif x_key == 'SA':
         CT_max_key = 'SA_CT_max'
     else:
-        CT_max_key = None
+        CT_max_key = False
     if tw_x_key == 'CT':
         tw_CT_max_key = 'CT_max'
     elif tw_x_key == 'SA':
         tw_CT_max_key = 'SA_CT_max'
     else:
-        tw_CT_max_key = None
+        tw_CT_max_key = False
     #   Find all the plotting variables
     plot_vars = [x_key,y_key,tw_x_key,tw_y_key,clr_map]
     for var in plot_vars:
@@ -3190,7 +3196,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # Pull the dataframe for this profile
         pf_df = profile_dfs[i]
         # Make a label for this profile
-        pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(int(pf_df['prof_no'][0]))
+        try:
+            pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(int(pf_df['prof_no'][0]))
+        except:
+            pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(pf_df['prof_no'][0])
         # Decide on marker and line styles, don't go off the end of the array
         mkr     = mpl_mrks[i%len(mpl_mrks)]
         l_style = l_styles[i%len(l_styles)]
@@ -3199,7 +3208,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Pull data to plot
             xvar = pf_df[x_key]
             # Find CT max if applicable
-            CT_max = np.unique(np.array(pf_df[CT_max_key].values))
+            if CT_max_key:
+                CT_max = np.unique(np.array(pf_df[CT_max_key].values))
             # Find upper and lower bounds of first profile, for reference points
             xvar_low  = min(xvar)
             xvar_high = max(xvar)
@@ -3212,7 +3222,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Find upper and lower bounds of first profile for twin axis
             if tw_x_key:
                 tvar = pf_df[tw_x_key]
-                tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values))
+                if tw_CT_max_key:
+                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values))
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
                 tw_span   = abs(twin_high - twin_low)
@@ -3243,7 +3254,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             old_xv_span = xv_span
             # Find array of data for this profile
             xvar = pf_df[x_key] - min(pf_df[x_key]) + old_xvar_low
-            CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key]) + old_xvar_low
+            if CT_max_key:
+                CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key]) + old_xvar_low
             # Find new upper and lower bounds of profile
             xvar_high = max(xvar)
             xvar_low  = min(xvar)
@@ -3251,11 +3263,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             xv_span = abs(xvar_high - xvar_low)
             if tw_x_key:
                 xvar = xvar + old_xv_span*0.8
-                CT_max = CT_max + old_xv_span*0.8
+                if CT_max_key:
+                    CT_max = CT_max + old_xv_span*0.8
                 xvar_high = max(xvar)
                 xvar_low = min(xvar)
                 tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
-                tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
+                if tw_CT_max_key:
+                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
                 # 
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
@@ -3276,7 +3290,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 tw_CT_max = None
                 # Shift things over
                 xvar = xvar + old_xv_span*0.45
-                CT_max = CT_max + old_xv_span*0.45
+                if CT_max_key:
+                    CT_max = CT_max + old_xv_span*0.45
                 xvar_low = min(xvar)
                 xvar_high = max(xvar)
                 right_bound = xvar_high
@@ -3314,15 +3329,17 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Plot every point the same color, size, and marker
             # ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
             # Plot maximum
-            press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
-            print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
-            ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+            if CT_max_key:
+                press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
+                print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
+                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
                 # tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
-                print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
-                tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+                if CT_max_key:
+                    print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
+                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
