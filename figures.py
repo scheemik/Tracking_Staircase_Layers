@@ -42,7 +42,8 @@ import analysis_helper_functions as ahf
 
 # BGOS_S_range = [34.1, 34.76]
 BGOS_S_range = [34.366, 34.9992]
-AIDJEX_S_range = [34.366,35.0223]
+LHW_S_range = [34.366, 35.5]
+AIDJEX_S_range = [34.366, 35.0223]
 
 ### Filters for reproducing plots from Timmermans et al. 2008
 ITP2_p_range = [185,300]
@@ -132,7 +133,7 @@ AIDJEX_BigBear_blacklist = {'AIDJEX_BigBear':[531, 535, 537, 539, 541, 543, 545,
 AIDJEX_BlueFox_blacklist = {'AIDJEX_BlueFox':[94, 308, 310]}
 AIDJEX_Snowbird_blacklist = {'AIDJEX_Snowbird':[443]}
 
-AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22, 28, 30, 32]}
+AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22]}#, 28, 30, 32]}
 
 ## SHEBA
 
@@ -161,7 +162,8 @@ print('- Creating data sets')
 
 ## ITP
 
-ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs1)
+# ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs_all)
+ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
 
 # ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
@@ -189,7 +191,8 @@ ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 
 ## AIDJEX
 
-ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+# ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
+ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 
 # ds_AIDJEX_BigBear_all  = ahf.Data_Set(AIDJEX_BigBear_all, dfs2)
 # ds_AIDJEX_BlueFox_all  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs2)
@@ -204,7 +207,8 @@ ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 
 ## SHEBA
 
-# ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
+# ds_all_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
+ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
 # ds_SHEBA_Seacat_blacklist = ahf.Data_Set(SHEBA_Seacat_blacklist, dfs_all)
 # ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs_all)
 
@@ -221,8 +225,9 @@ pfs_2 = ahf.Profile_Filters(p_range=[400,225])
 pfs_AOA = ahf.Profile_Filters(lon_range=[-152.9,-133.7],lat_range=[72.6,77.4])
 
 pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
-pfs_ITP3 = ahf.Profile_Filters(SA_range=Lu2022_S_range)
+pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
 pfs_BGOS  = ahf.Profile_Filters(lon_range=[-152.9,-133.7],lat_range=[72.6,77.4],SA_range=BGOS_S_range)
+pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
 
 pfs_subs = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True)
 pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
@@ -333,7 +338,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_BGOS_max_press_hist, group_BGOS_mp_max_press_hist])
 ## Histograms of CT_max data
-if True:
+if False:
     print('')
     print('- Creating histograms of pressure at temperature max in each profile')
     # Make the Plot Parameters
@@ -398,7 +403,31 @@ if False:
     # ahf.find_max_distance([group_all])
     # ahf.find_max_distance([group_selected])
 
-
+## TS diagrams
+# ITP TS diagrams
+if False:
+    print('')
+    print('- Creating TS plots to compare full profiles vs. filtered to p<pCT_max')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+    # Make the subplot groups
+    group_BGOS_full_pfs = ahf.Analysis_Group(ds_all_BGOS, pfs_AOA, pp_TS, plot_title=r'BGOS ITPs full')
+    # group_BGOS_filtered = ahf.Analysis_Group(ds_all_BGOS, pfs_BGOS, pp_TS, plot_title=r'BGOS ITPs SA: 34.366 - 35.5')
+    group_BGOS_filtered = ahf.Analysis_Group(ds_all_BGOS, pfs_BGOS_fltrd, pp_TS, plot_title=r'BGOS ITPs filtered')
+    # # Make the figure
+    ahf.make_figure([group_BGOS_full_pfs, group_BGOS_filtered], use_same_x_axis=False, use_same_y_axis=False)
+# TS diagrams for AIDJEX, SHEBA, and BGOS datasets
+if True:
+    print('')
+    print('- Creating TS plots of all datasets')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+    # Make the subplot groups
+    group_AIDJEX_TS = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_TS, plot_title=r'AIDJEX')
+    group_SHEBA_TS  = ahf.Analysis_Group(ds_SHEBA, pfs_fltrd, pp_TS, plot_title=r'SHEBA')
+    group_BGOS_TS   = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_TS, plot_title=r'BGOS ITPs')
+    # # Make the figure
+    ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
 
 ### Figure 2

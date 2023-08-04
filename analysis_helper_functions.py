@@ -294,13 +294,14 @@ class Profile_Filters:
     S*_range            [S_min, S_max] where the values are floats in g/kg
     lon_range           [lon_min,lon_max] where the values are floats in degrees
     lat_range           [lat_min,lat_max] where the values are floats in degrees
+    lt_pCT_max          True/False whether to only keep points with p < p(CT_max)
     subsample           True/False whether to apply the subsample mask to the profiles
     regrid_TS           [1st_var_str, Delta_1st_var, 2nd_var_str, Delta_2nd_var], a pair of 
                             [var, Delta_var] where you specify the variable then the value
                             of the spacing to regrid that value to
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, subsample=False, regrid_TS=None, m_avg_win=None):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, regrid_TS=None, m_avg_win=None):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -310,6 +311,7 @@ class Profile_Filters:
         self.SA_range = SA_range
         self.lon_range = lon_range
         self.lat_range = lat_range
+        self.lt_pCT_max = lt_pCT_max
         self.subsample = subsample
         self.regrid_TS = regrid_TS
         self.m_avg_win = m_avg_win
@@ -665,6 +667,9 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append('SP')
             if not isinstance(profile_filters.SA_range, type(None)):
                 vars_to_keep.append('SA')
+            if profile_filters.lt_pCT_max:
+                vars_to_keep.append('press')
+                vars_to_keep.append('press_CT_max')
             if profile_filters.subsample:
                 vars_to_keep.append('ss_mask')
             #
@@ -726,8 +731,22 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Add expedition and instrument columns
             df['source'] = ds.Expedition
             df['instrmt'] = ds.Instrument
-            ## Filters on each profile separately
+            ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
+            # Filter to just pressures above p(CT_max)
+            if profile_filters.lt_pCT_max:
+                # Get list of profiles
+                pfs = np.unique(np.array(df['prof_no']))
+                # Loop across each profile
+                new_dfs = []
+                for pf in pfs:
+                    # Find the data for just that profile
+                    data_pf = df[df['prof_no'] == pf]
+                    # Filter the data frame to p < p(CT_max)
+                    data_pf = data_pf[data_pf['press'] < data_pf['press_CT_max'].values[0]]
+                    new_dfs.append(data_pf)
+                # Re-form the dataframe
+                df = pd.concat(new_dfs)
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # Figure out which salinity and temperature variable to re-grid
@@ -890,7 +909,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                         df.loc[df['prof_no']==pf, var] = this_pf_max
                     # 
                 #
-            ## Filters on each profile separately
+            ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
             # Drop dimensions, if needed
             if 'Vertical' in df.index.names:
@@ -2397,11 +2416,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
             elif bbox == 'AOA':
-                AJ_lons = np.linspace(-133.7, -152.8, 50)
-                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                AJ_lons = np.linspace(-133.7, -152.9, 50)
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         elif map_extent == 'AIDJEX_focus':
             if bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
@@ -2410,11 +2429,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
             elif bbox == 'AOA':
-                AJ_lons = np.linspace(-133.7, -152.8, 50)
-                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                AJ_lons = np.linspace(-133.7, -152.9, 50)
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         else:
             if bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
@@ -2423,11 +2442,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
             elif bbox == 'AOA':
-                AJ_lons = np.linspace(-133.7, -152.8, 50)
-                ax.plot(AJ_lons, 77.3*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                AJ_lons = np.linspace(-133.7, -152.9, 50)
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.8,-152.8], [72.6, 77.3], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         # Determine the color mapping to be used
         if clr_map in a_group.vars_to_keep:
             # Make sure it isn't a vertical variable
