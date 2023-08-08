@@ -192,12 +192,12 @@ ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 ## AIDJEX
 
 # ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
-ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+# ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 
-# ds_AIDJEX_BigBear_all  = ahf.Data_Set(AIDJEX_BigBear_all, dfs2)
-# ds_AIDJEX_BlueFox_all  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs2)
-# ds_AIDJEX_Caribou_all  = ahf.Data_Set(AIDJEX_Caribou_all, dfs2)
-# ds_AIDJEX_Snowbird_all = ahf.Data_Set(AIDJEX_Snowbird_all, dfs2)
+# ds_AIDJEX_BigBear  = ahf.Data_Set(AIDJEX_BigBear_all, dfs1)
+# ds_AIDJEX_BlueFox  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs2)
+# ds_AIDJEX_Caribou  = ahf.Data_Set(AIDJEX_Caribou_all, dfs2)
+# ds_AIDJEX_Snowbird = ahf.Data_Set(AIDJEX_Snowbird_all, dfs2)
 
 # ds_AIDJEX_BigBear_blacklist = ahf.Data_Set(AIDJEX_BigBear_blacklist, dfs_all)
 # ds_AIDJEX_BlueFox_blacklist = ahf.Data_Set(AIDJEX_BlueFox_blacklist, dfs_all)
@@ -208,7 +208,7 @@ ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 ## SHEBA
 
 # ds_all_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
-ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
+# ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
 # ds_SHEBA_Seacat_blacklist = ahf.Data_Set(SHEBA_Seacat_blacklist, dfs_all)
 # ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs_all)
 
@@ -403,6 +403,19 @@ if False:
     # ahf.find_max_distance([group_all])
     # ahf.find_max_distance([group_selected])
 
+## Subsampling ITP data
+# Histograms of the first differences for data sets
+if False:
+    print('')
+    print('- Creating histograms of first differences in pressures')
+    # Make the Plot Parameters
+    pp_first_diff_press = ahf.Plot_Parameters(x_vars=['press'], y_vars=['hist'], clr_map='clr_all_same', first_dfs=[True,False])
+    # Make the subplot groups
+    # group_AIDJEX_press_hist = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_first_diff_press, plot_title=r'AIDJEX')
+    group_AIDJEX_press_hist = ahf.Analysis_Group(ds_AIDJEX, pfs_BGOS, pp_first_diff_press, plot_title=r'AIDJEX')
+    # # Make the figure
+    ahf.make_figure([group_AIDJEX_press_hist])#, use_same_x_axis=False, use_same_y_axis=False)
+
 ## TS diagrams
 # ITP TS diagrams
 if False:
@@ -417,19 +430,50 @@ if False:
     # # Make the figure
     ahf.make_figure([group_BGOS_full_pfs, group_BGOS_filtered], use_same_x_axis=False, use_same_y_axis=False)
 # TS diagrams for AIDJEX, SHEBA, and BGOS datasets
-if True:
+if False:
     print('')
     print('- Creating TS plots of all datasets')
     # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':100, 'clr_ext':'max', 'xy_bins':250})
     # Make the subplot groups
     group_AIDJEX_TS = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_TS, plot_title=r'AIDJEX')
-    group_SHEBA_TS  = ahf.Analysis_Group(ds_SHEBA, pfs_fltrd, pp_TS, plot_title=r'SHEBA')
+    # group_SHEBA_TS  = ahf.Analysis_Group(ds_SHEBA, pfs_fltrd, pp_TS, plot_title=r'SHEBA')
     group_BGOS_TS   = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_TS, plot_title=r'BGOS ITPs')
     # # Make the figure
-    ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
+    # ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
+    ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
+
+## Clustering parameter sweeps
+## Parameter sweep for BGOS ITP data
+if True:
+    print('')
+    print('- Creating clustering parameter sweep for BGOS ITP data')
+    test_mpts = 500
+    # Make the Plot Parameters
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[50,801,20]})
+    pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
+    # Make the subplot groups
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_mpts_param_sweep)
+    group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep)
+    # # Make the figure
+    ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep.pickle')
+
+## Clustering Results
+# AIDJEX clustering
+if False:
+    print('')
+    print('- Creating clustering plot of AIDJEX data')
+    test_mpts = 300
+    # Make the Plot Parameters
+    pp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+    # Make the subplot groups
+    group_AIDJEX_BB_clstrs = ahf.Analysis_Group(ds_AIDJEX_BigBear, pfs_fltrd, pp_clstrs)
+    group_AIDJEX_clstrs = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_clstrs, plot_title=r'AIDJEX')
+    # # Make the figure
+    ahf.make_figure([group_AIDJEX_BB_clstrs, group_AIDJEX_clstrs])
 
 
+exit(0)
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
 # TS diagram of all sources, colored by source

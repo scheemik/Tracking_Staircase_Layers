@@ -225,8 +225,8 @@ class Data_Set:
         # Load just the relevant profiles into the xarrays
         self.sources_dict = sources_dict
         self.data_filters = data_filters
-        xarrs, self.var_attr_dicts = list_xarrays(sources_dict)
-        self.arr_of_ds = apply_data_filters(xarrs, data_filters)
+        self.xarrs, self.var_attr_dicts = list_xarrays(sources_dict)
+        self.arr_of_ds = apply_data_filters(self.xarrs, data_filters)
 
 ################################################################################
 
@@ -731,12 +731,14 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Add expedition and instrument columns
             df['source'] = ds.Expedition
             df['instrmt'] = ds.Instrument
+            print(ds.Expedition,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
             # Filter to just pressures above p(CT_max)
             if profile_filters.lt_pCT_max:
                 # Get list of profiles
                 pfs = np.unique(np.array(df['prof_no']))
+                # print(ds.Expedition,ds.Instrument,pfs)
                 # Loop across each profile
                 new_dfs = []
                 for pf in pfs:
@@ -777,11 +779,15 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 pfs = np.unique(np.array(df['prof_no']))
                 # Take first differences in x variables
                 if first_dfs[0]:
+                    # for var in pp.x_vars:
+                    #     dvar = 'd_'+var
+                    #     df[dvar] = np.nan
                     # Loop across each profile
                     new_dfs = []
                     for pf in pfs:
                         # Find the data for just that profile
                         data_pf = df[df['prof_no'] == pf]
+                        # print(data_pf)
                         # Loop across all x variables
                         for var in pp.x_vars:
                             # Replace the plot variable names
@@ -798,7 +804,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                         # Remove rows with null values (one per profile because of diff())
                         df = df[df[dvar].notnull()]
                     #
-                # Take finite differences in y variables
+                # Take first differences in y variables
                 if len(first_dfs)==2 and first_dfs[1]:
                     # Loop across each profile
                     new_dfs = []
@@ -1330,6 +1336,43 @@ def txt_summary(groups_to_summarize, filename=None):
     else:
         for line in lines:
             print(line)
+
+################################################################################
+
+def print_profile_filters(pfs):
+    """
+    Returns a human readable string of all the profile filters in the given object
+
+    pfs         A Profile_Filters object
+    """
+    return_string = ''
+    if not isinstance(pfs.p_range, type(None)): 
+        return_string += ('Pressure range: ['+str(pfs.p_range[0])+', '+str(pfs.p_range[1])+'] ')
+    if not isinstance(pfs.d_range, type(None)): 
+        return_string += ('Depth range: ['+str(pfs.d_range[0])+', '+str(pfs.d_range[1])+'] ')
+    if not isinstance(pfs.iT_range, type(None)): 
+        return_string += ('iT range: ['+str(pfs.iT_range[0])+', '+str(pfs.iT_range[1])+'] ')
+    if not isinstance(pfs.CT_range, type(None)): 
+        return_string += ('CT range: ['+str(pfs.CT_range[0])+', '+str(pfs.CT_range[1])+'] ')
+    if not isinstance(pfs.PT_range, type(None)): 
+        return_string += ('PT range: ['+str(pfs.PT_range[0])+', '+str(pfs.PT_range[1])+'] ')
+    if not isinstance(pfs.SP_range, type(None)): 
+        return_string += ('SP range: ['+str(pfs.SP_range[0])+', '+str(pfs.SP_range[1])+'] ')
+    if not isinstance(pfs.SA_range, type(None)): 
+        return_string += ('SA range: ['+str(pfs.SA_range[0])+', '+str(pfs.SA_range[1])+'] ')
+    if not isinstance(pfs.lon_range, type(None)): 
+        return_string += ('Longitude range: ['+str(pfs.lon_range[0])+', '+str(pfs.lon_range[1])+'] ')
+    if not isinstance(pfs.lat_range, type(None)): 
+        return_string += ('Latitude range: ['+str(pfs.lat_range[0])+', '+str(pfs.lat_range[1])+'] ')
+    if pfs.lt_pCT_max: 
+        return_string += ('Pressures less than p(CT_max) ')
+    if pfs.subsample: 
+        return_string += ('Subsampled ')
+    if not isinstance(pfs.regrid_TS, type(None)): 
+        return_string += ('Regrid: d'+str(pfs.regrid_TS[0])+'='+str(pfs.regrid_TS[1])+', d'+str(pfs.regrid_TS[2])+'='+str(pfs.regrid_TS[3])+' ')
+    if not isinstance(pfs.m_avg_win, type(None)): 
+        return_string += ('Moving average window: ['+str(pfs.m_avg_win)+' ')
+    return return_string
 
 ################################################################################
 
