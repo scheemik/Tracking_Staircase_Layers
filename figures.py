@@ -177,15 +177,17 @@ ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 # ds_ITP33_all  = ahf.Data_Set(ITP33_all, dfs_all)
 # ds_ITP34_all  = ahf.Data_Set(ITP34_all, dfs_all)
 # ds_ITP35_all  = ahf.Data_Set(ITP35_all, dfs_all)
-# ds_ITP41_all  = ahf.Data_Set(ITP41_all, dfs0)
-# ds_ITP42_all  = ahf.Data_Set(ITP42_all, dfs0)
-# ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs0)
+# ds_ITP41_all  = ahf.Data_Set(ITP41_all, dfs_all)
+# ds_ITP42_all  = ahf.Data_Set(ITP42_all, dfs_all)
+# ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs_all)
 
 # Data Sets filtered based on CT_max
-# ds_ITP35_dfs1 = ahf.Data_Set(ITP35_all, dfs1)
-# ds_ITP41_dfs1 = ahf.Data_Set(ITP41_all, dfs1)
-# ds_ITP42_dfs1 = ahf.Data_Set(ITP42_all, dfs1)
-# ds_ITP43_dfs1 = ahf.Data_Set(ITP43_all, dfs1)
+# ds_ITP33 = ahf.Data_Set(ITP33_all, dfs1)
+# ds_ITP34 = ahf.Data_Set(ITP34_all, dfs1)
+# ds_ITP35 = ahf.Data_Set(ITP35_all, dfs1)
+# ds_ITP41 = ahf.Data_Set(ITP41_all, dfs1)
+# ds_ITP42 = ahf.Data_Set(ITP42_all, dfs1)
+# ds_ITP43 = ahf.Data_Set(ITP43_all, dfs1)
 # 
 # ds_ITP35_some_pfs0 = ahf.Data_Set(ITP35_pfs0, dfs0)
 # ds_ITP35_some_pfs1 = ahf.Data_Set(ITP35_pfs1, dfs0)
@@ -231,6 +233,7 @@ pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
 pfs_BGOS  = ahf.Profile_Filters(lon_range=[-152.9,-133.7],lat_range=[72.6,77.4],SA_range=BGOS_S_range)
 pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
+pfs_fltrd_ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
 
 pfs_subs = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True)
 pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
@@ -418,6 +421,17 @@ if False:
     group_AIDJEX_press_hist = ahf.Analysis_Group(ds_AIDJEX, pfs_BGOS, pp_first_diff_press, plot_title=r'AIDJEX')
     # # Make the figure
     ahf.make_figure([group_AIDJEX_press_hist])#, use_same_x_axis=False, use_same_y_axis=False)
+# Comparing BGOS to ssBGOS
+if True:
+    print('')
+    print('- Creating TS plots to compare full profiles vs. subsampled')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+    # Make the subplot groups
+    group_BGOS_full = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_TS, plot_title=r'BGOS ITPs full')
+    group_BGOS_ss = ahf.Analysis_Group(ds_BGOS, pfs_fltrd_ss, pp_TS, plot_title=r'BGOS ITPs subsampled, every 4')
+    # # Make the figure
+    ahf.make_figure([group_BGOS_full, group_BGOS_ss])
 
 ## TS diagrams
 # ITP TS diagrams
@@ -448,7 +462,7 @@ if False:
 
 ## Clustering parameter sweeps
 ## Parameter sweep for BGOS ITP data
-if True:
+if False:
     print('')
     print('- Creating clustering parameter sweep for BGOS ITP data')
     test_mpts = 670
@@ -510,6 +524,11 @@ if False:
 
 
 exit(0)
+
+
+
+
+
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
 # TS diagram of all sources, colored by source

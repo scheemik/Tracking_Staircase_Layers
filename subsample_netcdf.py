@@ -63,6 +63,7 @@ def keep_every(vert, n_pts):
     keep_these = ss_mask[::n_pts]
     # Unmask every n_pts point
     keep_these[:] = 1
+    # print('in keep_every(), ss_mask:',ss_mask)
     return ss_mask
 
 ################################################################################
@@ -70,18 +71,27 @@ def keep_every(vert, n_pts):
 ################################################################################
 # Select the netcdf to modify
 ncs_to_modify = [
-                 'netcdfs/ITP_2.nc',
-                 'netcdfs/ITP_3.nc'
+                #  'netcdfs/ITP_1.nc',
+                #  'netcdfs/ITP_2.nc',
+                #  'netcdfs/ITP_3.nc',
+                 'netcdfs/ITP_33.nc',
+                 'netcdfs/ITP_34.nc',
+                 'netcdfs/ITP_35.nc',
+                 'netcdfs/ITP_41.nc',
+                 'netcdfs/ITP_42.nc',
+                 'netcdfs/ITP_43.nc',
+                #  'netcdfs/SHEBA_Seacat.nc'
                  ]
 
 # Loop through the netcdfs to modify
 for my_nc in ncs_to_modify:
     print('Reading',my_nc)
+    print('ss scheme:', ss_scheme)
     # Load in with xarray
     ds = xr.load_dataset(my_nc)
 
+    # Define global attributes to print
     gattrs_to_print = ['Last modified', 'Last modification', 'Sub-sample scheme']
-
     print('')
     for attr in gattrs_to_print:
         print('\t',attr+':',ds.attrs[attr])
@@ -94,20 +104,24 @@ for my_nc in ncs_to_modify:
 
     # Loop over all the profiles
     if ss_scheme == 'AIDJEX_PDF':
+        ss_scheme_str = ss_scheme
         for i in range(len(ds[vert_var].values)):
             # Add subsample mask for this profile
             ds['ss_mask'][i] = AIDJEX_PDF(ds[vert_var].values[i])
     elif ss_scheme == 'Keep every':
+        ss_scheme_str = ss_scheme + ' '+str(n_pts)+' points'
         for i in range(len(ds[vert_var].values)):
             # Add subsample mask for this profile
             ds['ss_mask'][i] = keep_every(ds[vert_var].values[i], n_pts)
-        ss_scheme += ' '+str(n_pts)+' point'
-    # print('ss_mask:',ds['ss_mask'].values)
+    else:
+        print('Sub-sample scheme \"',ss_scheme,'\" not supported')
+        exit(0)
+    # print('ds[ss_mask]:',ds['ss_mask'].values)
 
     # Update the global variables:
     ds.attrs['Last modified'] = str(datetime.now())
     ds.attrs['Last modification'] = 'Modified sub-sample scheme'
-    ds.attrs['Sub-sample scheme'] = ss_scheme
+    ds.attrs['Sub-sample scheme'] = ss_scheme_str
 
     # Write out to netcdf
     print('Writing data to',my_nc)
@@ -115,6 +129,7 @@ for my_nc in ncs_to_modify:
 
     # Load in with xarray
     ds2 = xr.load_dataset(my_nc)
+    # print('ds2[ss_mask]:',ds2['ss_mask'].values)
 
     for attr in gattrs_to_print:
         print('\t',attr+':',ds2.attrs[attr])
