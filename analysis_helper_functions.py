@@ -572,7 +572,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                             vars_to_keep.append('SA')
                         if not 'iT' in vars_to_keep:
                             vars_to_keep.append('iT')
-                        #
+                # If adding extra variables to keep
+                if key == 'extra_vars_to_keep':
+                    for var in pp.extra_args[key]:
+                        vars_to_keep.append(var)
                     #
                 #
             #
@@ -729,16 +732,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 if var in vars_to_keep:
                     df = df[df[var].notnull()]
             # Add expedition and instrument columns
-            df['source'] = ds.Expedition
+            df['source'] = ds.Source
             df['instrmt'] = ds.Instrument
-            print(ds.Expedition,ds.Instrument)
+            print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
             # Filter to just pressures above p(CT_max)
             if profile_filters.lt_pCT_max:
                 # Get list of profiles
                 pfs = np.unique(np.array(df['prof_no']))
-                # print(ds.Expedition,ds.Instrument,pfs)
+                # print(ds.Source,ds.Instrument,pfs)
                 # Loop across each profile
                 new_dfs = []
                 for pf in pfs:

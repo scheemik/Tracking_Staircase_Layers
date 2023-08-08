@@ -533,10 +533,10 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     nc_attrs = {        # Note: can't store datetime objects in netcdfs
                 'Title':'Arctic Ocean Profile Data',
                 'Creation date':str(datetime.now()),
-                'Expedition':source,
+                'Source':source,
                 'Instrument':instrmt_name,
                 'Data Attribution':attribution,
-                'Source':source_url,
+                'Data Source':source_url,
                 'Data Organizer':me_string,
                 'Reference':doi,
                 'Last modified':str(datetime.now()),

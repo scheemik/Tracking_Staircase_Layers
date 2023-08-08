@@ -101,6 +101,8 @@ all_BGOS = {'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42'
 
 # All profiles from all AIDJEX camps
 all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
+# Pre-clustered AIDJEX file
+all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
 
 # All profiles from certain ITPs
 ITP2_all  = {'ITP_2':'all'}
@@ -192,7 +194,8 @@ ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 ## AIDJEX
 
 # ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
-# ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+ds_AIDJEX_clstrd = ahf.Data_Set(all_AIDJEX_clstrd, dfs1)
 
 # ds_AIDJEX_BigBear  = ahf.Data_Set(AIDJEX_BigBear_all, dfs1)
 # ds_AIDJEX_BlueFox  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs2)
@@ -445,12 +448,12 @@ if False:
 
 ## Clustering parameter sweeps
 ## Parameter sweep for BGOS ITP data
-if True:
+if False:
     print('')
     print('- Creating clustering parameter sweep for BGOS ITP data')
     test_mpts = 500
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[50,801,20]})
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[50,500,20]}) #[50,711,20]
     pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
     group_mpts_param_sweep = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_mpts_param_sweep)
@@ -460,17 +463,20 @@ if True:
 
 ## Clustering Results
 # AIDJEX clustering
-if False:
+if True:
     print('')
     print('- Creating clustering plot of AIDJEX data')
-    test_mpts = 300
+    test_mpts = 30
     # Make the Plot Parameters
-    pp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
     # Make the subplot groups
-    group_AIDJEX_BB_clstrs = ahf.Analysis_Group(ds_AIDJEX_BigBear, pfs_fltrd, pp_clstrs)
-    group_AIDJEX_clstrs = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_clstrs, plot_title=r'AIDJEX')
+    # group_AIDJEX_BB_clstrs = ahf.Analysis_Group(ds_AIDJEX_BigBear, pfs_fltrd, pp_clstrs)
+    group_AIDJEX_live_clstr = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_live_clstr, plot_title=r'AIDJEX live clustering')
+    group_AIDJEX_pre_clstrd = ahf.Analysis_Group(ds_AIDJEX_clstrd, pfs_fltrd, pp_pre_clstrd, plot_title=r'AIDJEX clusters from file')
     # # Make the figure
-    ahf.make_figure([group_AIDJEX_BB_clstrs, group_AIDJEX_clstrs])
+    # ahf.make_figure([group_AIDJEX_BB_clstrs, group_AIDJEX_clstrs])
+    ahf.make_figure([group_AIDJEX_live_clstr, group_AIDJEX_pre_clstrd])
 
 
 exit(0)
