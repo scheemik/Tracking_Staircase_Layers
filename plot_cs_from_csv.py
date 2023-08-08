@@ -67,7 +67,7 @@ l_styles = ['-', '--', '-.', ':']
 # Plotting functions ###########################################################
 ################################################################################
 
-def make_figure(df, pp, filename=None, use_same_y_axis=None):
+def make_figure(df, pp, title=None, filename=None, use_same_y_axis=None):
     """
     Takes in a list of Analysis_Group objects, one for each subplot. Determines
     the needed arrangement of subplots, then passes one Analysis_Group object to
@@ -78,7 +78,7 @@ def make_figure(df, pp, filename=None, use_same_y_axis=None):
     filename        A string of the file to which to output the plot 
     """
     fig, ax = ahf.set_fig_axes([1], [1], fig_ratio=0.8, fig_size=1.25)
-    xlabel, ylabel, plt_title, ax = make_subplot(ax, df, pp, fig)
+    xlabel, ylabel, plt_title, ax = make_subplot(ax, df, pp, fig, title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     # If axes limits given, limit axes
@@ -111,7 +111,7 @@ def make_figure(df, pp, filename=None, use_same_y_axis=None):
 
 ################################################################################
 
-def make_subplot(ax, df, pp, fig):
+def make_subplot(ax, df, pp, fig, title):
     """
     Takes in an Analysis_Group object which has the data and plotting parameters
     to produce a subplot. Returns the x and y labels and the subplot title
@@ -120,6 +120,7 @@ def make_subplot(ax, df, pp, fig):
     df              A pandas DataFrame
     pp              A custom Plot Parameters object
     fig             The figure in which ax is contained
+    title           String of the plot title
     """
     ## Make a standard x vs. y scatter plot
     # Set the main x and y data keys
@@ -133,7 +134,7 @@ def make_subplot(ax, df, pp, fig):
         tw_y_key = None
         tw_ax_x  = None
     # Add a standard title
-    plt_title = 'ITP3'
+    plt_title = title
     # Plot the parameter sweep
     xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title)
     return xlabel, ylabel, plt_title, ax
@@ -169,8 +170,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
     # Get a list of the column headings from the dataframe
     # Check to make sure the x, y, and z keys are in the dataframe
     # Set x and y labels
-    if x_key == 'maw_size':
-        xlabel = r'Moving average window $\ell_{maw}$ (dbar)'
+    if x_key == 'ell_size':
+        xlabel = r'Moving average window $\ell$ (dbar)'
     elif x_key == 'm_pts':
         xlabel = r'Minimum density threshold $m_{pts}$'
     if y_key == 'DBCV':
@@ -188,8 +189,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
     # Loop through the different z values in the list
     for i in range(len(z_list)):
         # Set z label
-        if z_key == 'maw_size':
-            zlabel = r'$\ell_{maw}=$'+str(z_list[i])+' dbar'
+        if z_key == 'ell_size':
+            zlabel = r'$\ell=$'+str(z_list[i])+' dbar'
         elif z_key == 'm_pts':
             zlabel = r'$m_{pts}=$: '+str(m_pts)
         # Plot main axis
@@ -208,5 +209,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
 
 ################################################################################
 
-pp_ITP3_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'maw_size', 'z_list':[100]})
-make_figure(df, pp_ITP3_ps_m_pts, filename='ITP3_test_sweep.pickle')
+# pp_ITP3_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'ell_size', 'z_list':[100]})
+# make_figure(df, pp_ITP3_ps_m_pts, filename='ITP3_test_sweep.pickle')
+
+pp_BGOS_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'ell_size', 'z_list':[100]})
+make_figure(df, pp_BGOS_ps_m_pts, title='BGOS', filename='BGOS_test_sweep.pickle')
