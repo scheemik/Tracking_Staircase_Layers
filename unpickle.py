@@ -19,7 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 Usage:
     unpickle.py PICKLE
 
-Options:
+Arguments:
     PICKLE          # filepath of the pickle to unpickle
 """
 import matplotlib.pyplot as plt
