@@ -422,7 +422,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_AIDJEX_press_hist])#, use_same_x_axis=False, use_same_y_axis=False)
 # Comparing BGOS to ssBGOS
-if True:
+if False:
     print('')
     print('- Creating TS plots to compare full profiles vs. subsampled')
     # Make the Plot Parameters
@@ -474,6 +474,19 @@ if False:
     group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep)
     # # Make the figure
     ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOS.pickle')
+## Parameter sweep for BGOSss ITP data
+if False:
+    print('')
+    print('- Creating clustering parameter sweep for BGOSss ITP data')
+    test_mpts = 100
+    # Make the Plot Parameters
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[50,721,10]}) #[50,711,20]
+    pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
+    # Make the subplot groups
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_BGOS, pfs_fltrd_ss, pp_mpts_param_sweep, plot_title='BGOSss')
+    group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd_ss, pp_ell_param_sweep, plot_title='BGOSss')
+    # # Make the figure
+    ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOSss.pickle')
 ## Parameter sweep for AIDJEX data
 if False:
     print('')
