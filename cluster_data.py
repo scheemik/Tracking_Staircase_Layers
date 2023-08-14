@@ -40,35 +40,12 @@ import analysis_helper_functions as ahf
 # Main execution
 ################################################################################
 
-gattrs_to_print =  ['Last modified',
-                    'Last modification',
-                    'Last clustered',
-                    'Clustering x-axis',
-                    'Clustering y-axis',
-                    'Clustering m_pts',
-                    'Clustering filters',
-                    'Clustering DBCV']
-
-gattrs_to_copy = {        # Note: can't store datetime objects in netcdfs
-                'Title':'',
-                'Source':'',
-                'Instrument':'',
-                'Data Attribution':'',
-                'Data Source':'',
-                'Data Organizer':'',
-                'Reference':'',
-                'Original vertical measure':'',
-                'Original temperature measure':'',
-                'Original salinity measure':'',
-                'Sub-sample scheme':'None',
-                'Moving average window':'None'
-                 }
-
 dfs0 = ahf.Data_Filters()
 dfs1 = ahf.Data_Filters(min_press=400)
 
 LHW_S_range = [34.366, 35.5]
 pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
+pfs_fltrd_ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
 
 ## Reproducing figures from Timmermans et al. 2008
 ITP2_clstr_dict = {#'netcdf_file':'netcdfs/ITP_2.nc',
@@ -81,7 +58,7 @@ ITP2_clstr_dict = {#'netcdf_file':'netcdfs/ITP_2.nc',
                    }
 
 ## Reproducing figures from Lu et al. 2022
-ITP3_clstr_dict = {'netcdf_file':'netcdfs/ITP_3.nc',
+ITP3_clstr_dict = {#'netcdf_file':'netcdfs/ITP_3.nc',
                    'sources_dict':{'ITP_3':'all'},
                    'data_filters':dfs0,
                    'SP_range':[34.21,34.82],
@@ -101,17 +78,60 @@ ABB_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_BigBear.nc',
                    }
 
 ## AIDJEX
-AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_all.nc',
+AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_500_ell_010.nc',
                    'sources_dict':{'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'},
                    'data_filters':dfs1,
                    'pfs_object':pfs_fltrd,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
-                   'm_pts':30
+                   'm_pts':500
+                   }
+
+## BGOS
+BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_440_ell_010.nc',
+                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_fltrd,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'm_pts':440
+                   }
+
+## BGOSss
+BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_260_ell_010.nc',
+                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_fltrd_ss,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'm_pts':260
                    }
 
 # for clstr_dict in [ITP2_clstr_dict]:#, ITP3_clstr_dict]:
-for clstr_dict in [AJX_clstr_dict]:
+for clstr_dict in [AJX_clstr_dict, BGOSss_clstr_dict, BGOS_clstr_dict]:
+    gattrs_to_print =  ['Last modified',
+                        'Last modification',
+                        'Last clustered',
+                        'Clustering x-axis',
+                        'Clustering y-axis',
+                        'Clustering m_pts',
+                        'Clustering filters',
+                        'Clustering DBCV']
+
+    gattrs_to_copy = {        # Note: can't store datetime objects in netcdfs
+                    'Title':'',
+                    'Source':'',
+                    'Instrument':'',
+                    'Data Attribution':'',
+                    'Data Source':'',
+                    'Data Organizer':'',
+                    'Reference':'',
+                    'Original vertical measure':'',
+                    'Original temperature measure':'',
+                    'Original salinity measure':'',
+                    'Sub-sample scheme':'',
+                    'Moving average window':''
+                    }
     # Find the netcdf to which to write the clustering results
     try:
         my_nc = clstr_dict['netcdf_file']
@@ -120,11 +140,27 @@ for clstr_dict in [AJX_clstr_dict]:
     # Make new netcdf to store clustering results
     if my_nc != False:
         # Will make a new netcdf to store the clustering results
+        ds_var_info = {}
+        # ds_coord_info = {}
         # Create data set object
         ds_object = ahf.Data_Set(clstr_dict['sources_dict'], clstr_dict['data_filters'])
         # Copy down the global attributes to put into the new netcdf later
         # Loop through each dataset (one for each instrument)
         for ds in ds_object.arr_of_ds:
+            # Loop through the variables to get the information
+            # print(ds.variables)
+            # exit(0)
+            for var in ds.variables:
+                var_ = ds.variables[var]
+                # print('Variable:',var,'attrs:',var_.attrs)
+                ds_var_info[var] = var_.attrs
+            # print(ds_var_info)
+            # print('')
+            # print(ds.coords)
+            # for coord in ds.coords:
+            #     coord_ = ds.coords[coord]
+            #     print(coord_.attrs)
+            # exit(0)
             # Loop through each of that dataset's global attributes
             for attr in ds.attrs:
                 # See if it's an attribute we want to copy
@@ -142,7 +178,7 @@ for clstr_dict in [AJX_clstr_dict]:
         # Create profile filter object
         pfs_object = clstr_dict['pfs_object']
         # Create plot parameters object
-        pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':['BL_yn', 'up_cast', 'lon', 'lat', 'press_max', 'press_CT_max', 'ma_CT']}, legend=True)
+        pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':['BL_yn', 'up_cast', 'lon', 'lat', 'press_max', 'press_CT_max', 'alpha', 'beta', 'ma_CT']}, legend=True)
         # Create analysis group
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
         # Make a figure to run clustering algorithm and check results
@@ -163,25 +199,33 @@ for clstr_dict in [AJX_clstr_dict]:
         # print('len(group_test_clstr.data_frames):',len(dfs))
         # exit(0)
         # Loop through each dataframe each (avoiding index collisions)
-        for df in dfs:
-            # Get list of instruments
-            instrmts = np.unique(np.array(df['instrmt']))
-            # Need to make the `Time` values unique for each instrument
-            # Can only change values of columns, not indexes, so reset Time
-            df.reset_index(inplace=True, level='Time')
-            # Loop across each instrument
-            i = 0
-            for instrmt in instrmts:
-                i += 1
-                # Add i seconds to all the time values
-                df.loc[df['instrmt'] == instrmt, ['Time']] = df.loc[df['instrmt'] == instrmt, ['Time']] + np.timedelta64(i, 's')
-        new_df = pd.concat(dfs)
-        # Make `Time` and index again
-        new_df = new_df.set_index('Time', append=True)
-        # Turn `Vertical` on and then off again as index to reset index order
-        new_df.reset_index(inplace=True, level='Vertical')
-        new_df = new_df.set_index('Vertical', append=True)
+        if False:
+        # if 'AIDJEX' in gattrs_to_copy['Source']:
+            print('Avoiding index collisions')
+            for df in dfs:
+                # Get list of instruments
+                instrmts = np.unique(np.array(df['instrmt']))
+                # Need to make the `Time` values unique for each instrument
+                # Can only change values of columns, not indexes, so reset Time
+                df.reset_index(inplace=True, level='Time')
+                # Loop across each instrument
+                i = 0
+                for instrmt in instrmts:
+                    i += 1
+                    # Add i seconds to all the time values
+                    df.loc[df['instrmt'] == instrmt, ['Time']] = df.loc[df['instrmt'] == instrmt, ['Time']] + np.timedelta64(i, 's')
+            new_df = pd.concat(dfs)
+            # Make `Time` and index again
+            new_df = new_df.set_index('Time', append=True)
+            # Turn `Vertical` on and then off again as index to reset index order
+            new_df.reset_index(inplace=True, level='Vertical')
+            new_df = new_df.set_index('Vertical', append=True)
+        else:
+            print('Avoiding index collisions for ITPSs by adding `instrmt` as an index')
+            new_df = pd.concat(dfs)
+            new_df = new_df.set_index('instrmt', append=True)
         # print(new_df)
+        # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())
         # exit(0)
         # Convert back to xarray dataset
@@ -199,6 +243,10 @@ for clstr_dict in [AJX_clstr_dict]:
         ds.attrs['Clustering m_pts'] = clstr_dict['m_pts']
         ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
         ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
+        # Add the variable attributes back in
+        for var in ds.variables:
+            if var in ds_var_info.keys():
+                ds.variables[var].attrs = ds_var_info[var]
         # Write out to netcdf
         print('Writing data to',my_nc)
         ds.to_netcdf(my_nc, 'w')
@@ -273,102 +321,102 @@ for clstr_dict in [AJX_clstr_dict]:
 
 
 
-
-    exit(0)
-    # Load in with xarray
-    xarrs, var_attr_dicts = ahf.list_xarrays(clstr_dict['sources_dict'])
-    if len(xarrs) == 1:
-        ds = xarrs[0]
-    else: 
-        # Find the maximum length of the `Vertical` dimension between all xarrays
-        max_vertical = 0
-        for i in range(len(xarrs)):
-            this_vertical = xarrs[i].dims['Vertical']
-            print(this_vertical)
-            max_vertical = max(max_vertical, this_vertical)
-        print('max_vertical:',max_vertical)
-        # exit(0)
-        print(xarrs[0])
-        print('')
-        # Get the list of variables that just have the `Time` dimension
-        list_of_time_vars = []
-        for var in xarrs[0].variables:
-            these_dims = xarrs[0][var].dims
-            if these_dims == ('Time',):
-                # print(var,xarrs[0][var].dims)
-                list_of_time_vars.append(var)
-        list_of_time_vars.remove('Time')
-        # print(list_of_time_vars)
-        # Convert to a pandas data frame
-        test_df = xarrs[0].to_dataframe()
-        # print('test_df:')
-        # print(test_df)
-        print('')
-        # Convert back to xarray
-        test_ds = test_df.to_xarray()
-        # Reset the variables to have jus the dimensions they did originally
-        for var in list_of_time_vars:
-            test_ds[var] = test_ds[var].isel(Vertical=0, drop=True)
-        print('test_ds:')
-        print(test_ds)
-        # print(xarrs[0].dims)
-        # Concatonate the xarrays
-        # ds = xr.concat(xarrs)
-        # print('')
-        # print('ds to df:')
-        # print(ds.dims)
-        # print(ds.to_dataframe())
-        exit(0)
-
-    # Convert a subset of the dataset to a dataframe
-    og_df = ds[['cluster', 'clst_prob']].squeeze().to_dataframe()
-    # Get the original dimensions of the data to reshape the arrays later
-    len0 = len(og_df.index.get_level_values(0).unique())
-    len1 = len(og_df.index.get_level_values(1).unique())
-    # print('Dataframe from netcdf, selected columns:')
-    # print(og_df)
-    # print('')
-    # print('Dataframe from netcdf, non-NaN rows:')
-    # print(og_df[~og_df.isnull().any(axis=1)])
-    # print('')
-    # See the variables before
-    for attr in gattrs_to_print:
-        print('\t',attr+':',ds.attrs[attr])
-
-    
-
-    print('making changes')
-    # Pull the now modified dataframe from the analysis group
-    new_df = group_test_clstr.data_frames[0][['cluster','clst_prob']]
-    # print('Dataframe from plotting, selected columns:')
-    # print(new_df)
-    # print('')
-    # print('Dataframe from plotting, non-NaN rows:')
-    # print(new_df[~new_df.isnull().any(axis=1)])
-    # Update the original dataframe from the netcdf with the filtered dataframe from plotting
-    og_df.update(new_df)
-    # print('Dataframe from netcdf, updated:')
-    # print(og_df)
-    # print('')
-    # print('Dataframe from netcdf, non-NaN rows:')
-    # print(og_df[~og_df.isnull().any(axis=1)])
-    # Put the clustering variables back into the dataset
-    ds['cluster'].values   = og_df['cluster'].values.reshape((len0, len1))
-    ds['clst_prob'].values = og_df['clst_prob'].values.reshape((len0, len1))
-    # Update the global variables:
-    ds.attrs['Last modified'] = str(datetime.now())
-    ds.attrs['Last modification'] = 'Updated clustering'
-    ds.attrs['Last clustered'] = str(datetime.now())
-    ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
-    ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
-    ds.attrs['Clustering m_pts'] = clstr_dict['m_pts']
-    ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
-    ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
-    # Write out to netcdf
-    print('Writing data to',my_nc)
-    ds.to_netcdf(my_nc, 'w')
-    # Load in with xarray
-    ds2 = xr.load_dataset(my_nc)
-    # See the variables after
-    for attr in gattrs_to_print:
-        print('\t',attr+':',ds2.attrs[attr])
+# 
+#     exit(0)
+#     # Load in with xarray
+#     xarrs, var_attr_dicts = ahf.list_xarrays(clstr_dict['sources_dict'])
+#     if len(xarrs) == 1:
+#         ds = xarrs[0]
+#     else: 
+#         # Find the maximum length of the `Vertical` dimension between all xarrays
+#         max_vertical = 0
+#         for i in range(len(xarrs)):
+#             this_vertical = xarrs[i].dims['Vertical']
+#             print(this_vertical)
+#             max_vertical = max(max_vertical, this_vertical)
+#         print('max_vertical:',max_vertical)
+#         # exit(0)
+#         print(xarrs[0])
+#         print('')
+#         # Get the list of variables that just have the `Time` dimension
+#         list_of_time_vars = []
+#         for var in xarrs[0].variables:
+#             these_dims = xarrs[0][var].dims
+#             if these_dims == ('Time',):
+#                 # print(var,xarrs[0][var].dims)
+#                 list_of_time_vars.append(var)
+#         list_of_time_vars.remove('Time')
+#         # print(list_of_time_vars)
+#         # Convert to a pandas data frame
+#         test_df = xarrs[0].to_dataframe()
+#         # print('test_df:')
+#         # print(test_df)
+#         print('')
+#         # Convert back to xarray
+#         test_ds = test_df.to_xarray()
+#         # Reset the variables to have jus the dimensions they did originally
+#         for var in list_of_time_vars:
+#             test_ds[var] = test_ds[var].isel(Vertical=0, drop=True)
+#         print('test_ds:')
+#         print(test_ds)
+#         # print(xarrs[0].dims)
+#         # Concatonate the xarrays
+#         # ds = xr.concat(xarrs)
+#         # print('')
+#         # print('ds to df:')
+#         # print(ds.dims)
+#         # print(ds.to_dataframe())
+#         exit(0)
+# 
+#     # Convert a subset of the dataset to a dataframe
+#     og_df = ds[['cluster', 'clst_prob']].squeeze().to_dataframe()
+#     # Get the original dimensions of the data to reshape the arrays later
+#     len0 = len(og_df.index.get_level_values(0).unique())
+#     len1 = len(og_df.index.get_level_values(1).unique())
+#     # print('Dataframe from netcdf, selected columns:')
+#     # print(og_df)
+#     # print('')
+#     # print('Dataframe from netcdf, non-NaN rows:')
+#     # print(og_df[~og_df.isnull().any(axis=1)])
+#     # print('')
+#     # See the variables before
+#     for attr in gattrs_to_print:
+#         print('\t',attr+':',ds.attrs[attr])
+# 
+#     
+# 
+#     print('making changes')
+#     # Pull the now modified dataframe from the analysis group
+#     new_df = group_test_clstr.data_frames[0][['cluster','clst_prob']]
+#     # print('Dataframe from plotting, selected columns:')
+#     # print(new_df)
+#     # print('')
+#     # print('Dataframe from plotting, non-NaN rows:')
+#     # print(new_df[~new_df.isnull().any(axis=1)])
+#     # Update the original dataframe from the netcdf with the filtered dataframe from plotting
+#     og_df.update(new_df)
+#     # print('Dataframe from netcdf, updated:')
+#     # print(og_df)
+#     # print('')
+#     # print('Dataframe from netcdf, non-NaN rows:')
+#     # print(og_df[~og_df.isnull().any(axis=1)])
+#     # Put the clustering variables back into the dataset
+#     ds['cluster'].values   = og_df['cluster'].values.reshape((len0, len1))
+#     ds['clst_prob'].values = og_df['clst_prob'].values.reshape((len0, len1))
+#     # Update the global variables:
+#     ds.attrs['Last modified'] = str(datetime.now())
+#     ds.attrs['Last modification'] = 'Updated clustering'
+#     ds.attrs['Last clustered'] = str(datetime.now())
+#     ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
+#     ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
+#     ds.attrs['Clustering m_pts'] = clstr_dict['m_pts']
+#     ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
+#     ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
+#     # Write out to netcdf
+#     print('Writing data to',my_nc)
+#     ds.to_netcdf(my_nc, 'w')
+#     # Load in with xarray
+#     ds2 = xr.load_dataset(my_nc)
+#     # See the variables after
+#     for attr in gattrs_to_print:
+#         print('\t',attr+':',ds2.attrs[attr])

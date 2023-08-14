@@ -614,7 +614,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append('alpha')
                 vars_to_keep.append('CT')
                 vars_to_keep.append('beta')
-                vars_to_keep.append('SP')
+                vars_to_keep.append('SA')
             elif var == 'cRl':
                 vars_to_keep.append('alpha_PT')
                 vars_to_keep.append('PT')
@@ -720,6 +720,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             #   If the m_avg_win is not None, take the moving average of the data
             if not isinstance(profile_filters.m_avg_win, type(None)):
                 df = take_m_avg(df, profile_filters.m_avg_win, vars_to_keep)
+                ds.attrs['Moving average window'] = str(profile_filters.m_avg_win)+' dbar'
             #   True/False, apply the subsample mask to the profiles
             if profile_filters.subsample:
                 # `ss_mask` is null for the points that should be masked out
@@ -731,10 +732,10 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             for var in plot_vars:
                 if var in vars_to_keep:
                     df = df[df[var].notnull()]
-            # Add expedition and instrument columns
+            # Add source and instrument columns
             df['source'] = ds.Source
             df['instrmt'] = ds.Instrument
-            print(ds.Source,ds.Instrument)
+            # print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
             # Filter to just pressures above p(CT_max)
@@ -896,8 +897,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
         for ds in arr_of_ds:
             # Convert to a pandas data frame
             df = ds[vars_to_keep].to_dataframe()
-            # Add expedition and instrument columns
-            df['source'] = ds.Expedition
+            # Add source and instrument columns
+            df['source'] = ds.Source
             df['instrmt'] = ds.Instrument
             # Calculate extra variables, as needed
             for var in plot_vars:
@@ -1441,41 +1442,54 @@ def find_max_distance(groups_to_analyze):
                         Each Analysis_Group contains a list of dataframes
     """
     for ag in groups_to_analyze:
-        for df in ag.data_frames:
-            # Drop duplicates in lat/lon to have just one row per profile
-            df.drop_duplicates(subset=['lon','lat'], keep='first', inplace=True)
-            # Get source and instrument for this df
-            this_source = df['source'].values[0]
-            this_instrmt = df['instrmt'].values[0]
-            # Get arrays of values
-            prof_nos = df['prof_no'].values
-            lon_vals = df['lon'].values
-            lat_vals = df['lat'].values
-            # Find the number of profiles
-            n_pfs = len(prof_nos)
-            # Placeholders to store the largest span between any two profiles
-            max_span = 0
-            ms_i = None
-            ms_i_latlon = None
-            ms_j = None
-            ms_j_latlon = None
-            # Nested loop over the profiles, only the upper triangle
-            #   Don't need to double-count, comparing profiles twice
-            for i in range(n_pfs):
-                for j in range(i+1,n_pfs):
-                    i_lat_lon = (lat_vals[i], lon_vals[i])
-                    j_lat_lon = (lat_vals[j], lon_vals[j])
-                    this_span = geodesic(i_lat_lon, j_lat_lon).km
-                    if this_span > max_span:
-                        max_span = this_span
-                        ms_i = prof_nos[i] 
-                        ms_i_latlon = i_lat_lon
-                        ms_j = prof_nos[j]
-                        ms_j_latlon = j_lat_lon
-                    # print('i:',i,'j:',j,'i_pf:',prof_nos[i],'j_pf:',prof_nos[j],'this_span:',this_span,'max_span:',max_span)
-                #
+        df = pd.concat(ag.data_frames)
+        # Drop duplicates in lat/lon to have just one row per profile
+        df.drop_duplicates(subset=['lon','lat','instrmt'], keep='first', inplace=True)
+        # Get source and instrument for this df
+        this_source = df['source'].values[0]
+        this_instrmt = df['instrmt'].values[0]
+        this_title = add_std_title(ag)
+        # Get arrays of values
+        prof_nos = df['prof_no'].values
+        lon_vals = df['lon'].values
+        lat_vals = df['lat'].values
+        try:
+            dt_starts = [datetime.strptime(date, r'%Y-%m-%d %H:%M:%S').date() for date in df['dt_start'].values]
+        except:
+            dt_starts = [datetime.strptime(date, r'%Y/%m/%d').date() for date in df['dt_start'].values]
+        # Find the maximum and minimum datetimes
+        dt_max_i = np.argmax(dt_starts)
+        dt_max = dt_starts[dt_max_i] # max(dt_starts)
+        dt_min_i = np.argmin(dt_starts)
+        dt_min = dt_starts[dt_min_i] # min(dt_starts)
+        dt_span = dt_max - dt_min
+        print('For ' + this_title + ', dt_span: ' + str(dt_span) + ' between profiles ' + str(prof_nos[dt_min_i]) + ' on ' + str(dt_min) + ' and ' + str(prof_nos[dt_max_i]) + ' on ' + str(dt_max))
+        # Find the number of profiles
+        n_pfs = len(prof_nos)
+        # Placeholders to store the largest span between any two profiles
+        max_span = 0
+        ms_i = None
+        ms_i_latlon = None
+        ms_j = None
+        ms_j_latlon = None
+        # Nested loop over the profiles, only the upper triangle
+        #   Don't need to double-count, comparing profiles twice
+        for i in range(n_pfs):
+            for j in range(i+1,n_pfs):
+                i_lat_lon = (lat_vals[i], lon_vals[i])
+                j_lat_lon = (lat_vals[j], lon_vals[j])
+                this_span = geodesic(i_lat_lon, j_lat_lon).km
+                if this_span > max_span:
+                    max_span = this_span
+                    ms_i = prof_nos[i] 
+                    ms_i_latlon = i_lat_lon
+                    ms_j = prof_nos[j]
+                    ms_j_latlon = j_lat_lon
+                # print('i:',i,'j:',j,'i_pf:',prof_nos[i],'j_pf:',prof_nos[j],'this_span:',this_span,'max_span:',max_span)
             #
-            print('For',this_source,this_instrmt,'max_span:',max_span,'km between profiles',ms_i,'at',ms_i_latlon,'and',ms_j,'at',ms_j_latlon)
+        #
+        print_string = r'For %s, max_span: %.3f km between profiles %s at %.3f N, %.3f E and %s at %.3f N, %.3f E'%(this_title, max_span, ms_i, ms_i_latlon[0], ms_i_latlon[1], ms_j, ms_j_latlon[0], ms_j_latlon[1])
+        print(print_string)
 
 ################################################################################
 # Admin plotting functions #####################################################
@@ -2105,7 +2119,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check for cluster-based variables
             if x_key in clstr_vars or y_key in clstr_vars:
                 m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
+                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
             else:
                 # Check whether to plot slopes
                 try:
@@ -2294,7 +2308,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check for cluster-based variables
             if x_key in clstr_vars or y_key in clstr_vars:
                 m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
+                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
             # Format the dates if necessary
             if x_key in ['dt_start', 'dt_end']:
                 df[x_key] = mpl.dates.date2num(df[x_key])
@@ -2993,7 +3007,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
     elif clr_map == 'cluster':
         # Run clustering algorithm
         m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
         # Remove rows where the plot variables are null
         df = df[df[var_key].notnull()]
         # Clusters are labeled starting from 0, so total number of clusters is
@@ -3194,7 +3208,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         #
     if cluster_this:
         m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         try:
@@ -3530,8 +3544,8 @@ def get_cluster_args(pp):
 def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[None]):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
-    dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob' and a
-    rough measure of the DBCV score from `relative_validity_`
+    dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
+    rough measure of the DBCV score from `relative_validity_`, and the ell_size
 
     run_group   The Analysis_Group object to run HDBSCAN on
     df          A pandas data frame with x_key and y_key as equal length columns
@@ -3543,6 +3557,17 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
     """
     # print('-- in HDBSCAN')
     # print('-- df columns:',df.columns.values.tolist())
+    # Find the value of ell, the moving average window
+    ell_sizes = []
+    for ds in run_group.data_set.arr_of_ds:
+        this_ell = ds.attrs['Moving average window']
+        # Remove non-numeric characters from the string
+        this_ell = re.sub("[^0-9^.]", "", this_ell)
+        # Add to list as an integer
+        ell_sizes.append(int(this_ell))
+    if len(ell_sizes) > 1:
+        print('\t- ell_sizes:',np.unique(ell_sizes))
+    ell_size = ell_sizes[0]
     # If run_group == None, then run the algorithm again
     if isinstance(run_group, type(None)):
         re_run = True
@@ -3558,6 +3583,7 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
                        'Clustering x-axis':[],
                        'Clustering y-axis':[],
                        'Clustering m_pts':[],
+                       'Moving average window':[],
                        'Clustering filters':[],
                        'Clustering DBCV':[]}
         # Get the global clustering attributes from each dataset
@@ -3576,10 +3602,10 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
             print('-- `Last clustered` attr is `Never`, re_run:',re_run)
     print('\t- Re-run HDBSCAN:',re_run)
     if re_run:
-        print('\t- Running HDBSCAN')
         print('\t\tClustering x-axis:',x_key)
         print('\t\tClustering y-axis:',y_key)
         print('\t\tClustering m_pts: ',m_pts)
+        print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
         hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_pts, min_samples=min_samp, cluster_selection_method='leaf')
@@ -3601,14 +3627,16 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
         if not isinstance(run_group, type(None)):
             run_group.data_frames = [df]
             run_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = rel_val
-        return df, rel_val
+        return df, rel_val, m_pts, ell_size
     else:
         # Use the clustering results that are already in the dataframe
         print('\t- Using clustering results from file')
         print('\t\tClustering x-axis:',gcattr_dict['Clustering x-axis'])
         print('\t\tClustering y-axis:',gcattr_dict['Clustering y-axis'])
+        m_pts = int(gcattr_dict['Clustering m_pts'][0])
         print('\t\tClustering m_pts: ',gcattr_dict['Clustering m_pts'])
-        print('\t\tClustering filters:  ',gcattr_dict['Clustering filters'])
+        print('\t\tMoving average window:',gcattr_dict['Moving average window'])
+        print('\t\tClustering filters:',gcattr_dict['Clustering filters'])
         print('\t\tClustering DBCV:  ',gcattr_dict['Clustering DBCV'])
         # Determine whether there are any new variables to calculate
         new_cl_vars = list(set(extra_cl_vars) & set(clstr_vars))
@@ -3618,7 +3646,7 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
         if len(new_cl_vars) > 0:
             print('\t\tCalculating extra clustering variables')
             df = calc_extra_cl_vars(df, new_cl_vars)
-        return df, gcattr_dict['Clustering DBCV'][0]
+        return df, gcattr_dict['Clustering DBCV'][0], m_pts, ell_size
 
 ################################################################################
 
@@ -3826,7 +3854,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 alphas = df_this_cluster['alpha'].values
                 temps  = df_this_cluster['CT'].values
                 betas  = df_this_cluster['beta'].values
-                salts  = df_this_cluster['SP'].values
+                salts  = df_this_cluster['SA'].values
                 # Calculate variables needed
                 aTs = alphas * temps
                 BSs = betas * salts
@@ -3894,8 +3922,8 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
     df = find_outliers(df, [x_key, y_key], threshold)
     # If finding outliers in nir or R_L, find outliers in the other as well
     if x_key == 'cRL' and find_all == True:
-        df = find_outliers(df, ['nir_SP', y_key], threshold)
-        df.loc[df['out_nir_SP']==True, 'out_'+x_key] = True
+        df = find_outliers(df, ['nir_SA', y_key], threshold)
+        df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
     #
     # for i in range(len(df)):
     #     this_row = df.loc[df['cluster']==i]
@@ -3952,7 +3980,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
     else:
         plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
-    df, rel_val = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
+    df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
     n_clusters = int(df['cluster'].max()+1)
@@ -4157,7 +4185,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
             #
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
-        m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts))
+        m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
         n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{clusters}$: '+str(n_clusters), marker='*', linewidth=0)
         n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
         rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
@@ -4309,7 +4337,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     min_s = z_list[i]
                 zlabel = 'Minimum samples: '+str(min_s)
             # Run the HDBSCAN algorithm on the provided dataframe
-            new_df, rel_val = HDBSCAN_(None, this_df, cl_x_var, cl_y_var, m_pts, min_samp=min_s)
+            new_df, rel_val, m_pts, ell = HDBSCAN_(None, this_df, cl_x_var, cl_y_var, m_pts, min_samp=min_s)
             # Record outputs to plot
             if y_key == 'DBCV':
                 # relative_validity_ is a rough measure of DBCV
