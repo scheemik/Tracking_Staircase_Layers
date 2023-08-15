@@ -1667,7 +1667,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename:
-            plt.savefig('outputs/'+filename, dpi=1000)
+            plt.savefig('outputs/'+filename, dpi=400)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -2373,6 +2373,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if y_key in ['dt_start', 'dt_end']:
                 df[y_key] = mpl.dates.date2num(df[y_key])
             m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            print('plot_slopes c:',plot_slopes)
             invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
@@ -3532,6 +3533,7 @@ def get_cluster_args(pp):
         plot_slopes = cluster_plt_dict['plot_slopes']
     except:
         plot_slopes = False
+    print('plot_slopes b:',plot_slopes)
     # Check whether or not the box and whisker plots were called for
     try:
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
@@ -4005,13 +4007,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
         df.drop_duplicates(subset=[y_key], keep='first', inplace=True)
         plot_centroid = False
         m_size = cent_mrk_size
-        plot_slopes = False
+        # plot_slopes = False
     if 'cRL' in [x_key, y_key]:
         # Drop duplicates to have just one row per cluster
         df.drop_duplicates(subset=['cRL'], keep='first', inplace=True)
         plot_centroid = False
         m_size = cent_mrk_size
-        plot_slopes = False
+        # plot_slopes = False
     if 'cRl' in [x_key, y_key]:
         # Drop duplicates to have just one row per cluster
         df.drop_duplicates(subset=['cRl'], keep='first', inplace=True)
@@ -4042,6 +4044,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
         y_key = 'cmm_mid'
         plot_centroid = False
         plot_slopes = False
+    print('plot_slopes a:',plot_slopes)
     # Look for outliers
     if 'nir' in x_key or 'cRL' in x_key or 'ca' in x_key:
         mrk_outliers = True
@@ -4090,7 +4093,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
                 # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
-            if plot_slopes:
+            if plot_slopes and 'cRL' not in [x_key, y_key]:
                 # Find the slope of the ordinary least-squares of the points for this cluster
                 # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
                 # Find the slope of the total least-squares of the points for this cluster
@@ -4126,7 +4129,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
             y_span = abs(y_bnds[1] - y_bnds[0])
             if x_key == 'cRL':
                 # Plot polynomial fit line
-                if True:
+                print('\t- Adding 2nd degrees polynomial fit line:',plot_slopes)
+                if plot_slopes:
                     # Get the data without the outliers
                     x_data = df[df['out_'+x_key] == False][x_key].astype('float')
                     y_data = df[df['out_'+x_key] == False][y_key].astype('float')
@@ -4155,9 +4159,11 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
                     ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
                     # Add annotation to say what the line is
                     line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
-                    ax.annotate(line_label, xy=(x_mean+0.5*x_stdv,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    ann_x_loc = x_mean+0.5*x_stdv
+                    ann_x_loc = min(x_bnds) + (1/30)*x_span
+                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
                     # Limit the y axis
-                    ax.set_ylim((y_bnds[1],y_bnds[0]))
+                    ax.set_ylim((y_bnds[0],y_bnds[1]))
                 # Plot exponential fit line
                 if False:
                     # Get the data without the outliers

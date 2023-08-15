@@ -93,7 +93,7 @@ Lu2022_m_pts = 580
 
 # All profiles from all sources in this study
 # all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_2':'all','ITP_3':'all'}
-all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','SHEBA_Seacat':'all','ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
+all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all','SHEBA_Seacat':'all'}
 
 # All profiles from all ITPs in this study
 all_ITPs = {'ITP_2':'all','ITP_3':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
@@ -104,9 +104,14 @@ all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'al
 
 # Pre-clustered files
 all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
+#   ell = 10
 AIDJEX_m500_e010 = {'AIDJEX_mpts_500_ell_010':'all'}
 BGOS_m440_e010 = {'BGOS_mpts_440_ell_010':'all'}
 BGOSss_m260_e010 = {'BGOSss_mpts_260_ell_010':'all'}
+#   ell = 100
+AIDJEX_m300_e100 = {'AIDJEX_mpts_300_ell_100':'all'}
+BGOS_m360_e100 = {'BGOS_mpts_360_ell_100':'all'}
+BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
 
 # All profiles from certain ITPs
 ITP2_all  = {'ITP_2':'all'}
@@ -169,7 +174,7 @@ print('- Creating data sets')
 ## ITP
 
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs_all)
-# ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
+ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
 
@@ -201,7 +206,7 @@ print('- Creating data sets')
 ## AIDJEX
 
 # ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
-# ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 
 # ds_AIDJEX_BigBear  = ahf.Data_Set(AIDJEX_BigBear_all, dfs1)
 # ds_AIDJEX_BlueFox  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs1)
@@ -222,9 +227,14 @@ print('- Creating data sets')
 # ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs_all)
 
 # Pre-clustered
-ds_AIDJEX_m500_e010 = ahf.Data_Set(AIDJEX_m500_e010, dfs_all)
-ds_BGOS_m440_e010 = ahf.Data_Set(BGOS_m440_e010, dfs_all)
-ds_BGOSss_m260_e010 = ahf.Data_Set(BGOSss_m260_e010, dfs_all)
+#   ell = 10
+# ds_AIDJEX_m500_e010 = ahf.Data_Set(AIDJEX_m500_e010, dfs_all)
+# ds_BGOS_m440_e010 = ahf.Data_Set(BGOS_m440_e010, dfs_all)
+# ds_BGOSss_m260_e010 = ahf.Data_Set(BGOSss_m260_e010, dfs_all)
+#   ell = 100
+# ds_AIDJEX_m300_e100 = ahf.Data_Set(AIDJEX_m300_e100, dfs_all)
+# ds_BGOS_m360_e100 = ahf.Data_Set(BGOS_m360_e100, dfs_all)
+# ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -330,6 +340,16 @@ if False:
     group_SHEBA_TS = ahf.Analysis_Group(ds_SHEBA, pfs_2, pp_TS)
     # Make the figure
     ahf.make_figure([group_SHEBA_TS])
+## TS plot of all sources
+if False:
+    print('')
+    print('- Creating TS plot of all sources')
+    # Make the Plot Parameters
+    pp_CT_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_source')
+    # Make the Analysis Group
+    group_CT_SA_plot = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_CT_SA)
+    # Make the figure
+    ahf.make_figure([group_CT_SA_plot])
 ## Example profiles from all sources
 if False:
     print('')
@@ -475,6 +495,27 @@ if False:
     group_test4 = ahf.Analysis_Group(ds_BGOS, pfs_fltrd4, pp_test, plot_title=r'ell = 150')
     # # Make the figure
     ahf.make_figure([group_test1, group_test2, group_test3, group_test4], use_same_y_axis=False)
+# Plots in la_CT vs. SA space for ell=10 and ell=100
+if False:
+    print('')
+    print('- Creating plots in la_CT--SA space with different values of ell')
+    # Make profile filters
+    pfs_ell_010 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
+    pfs_ell_100 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
+    #   Subsampled versions
+    pfs_ell_010ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
+    pfs_ell_100ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100, subsample=True)
+    # Make the Plot Parameters
+    pp_test = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_by_instrmt')
+    # Make the subplot groups
+    group_AIDJEX_ell_010 = ahf.Analysis_Group(ds_AIDJEX, pfs_ell_010, pp_test, plot_title=r'AIDJEX ell = 10')
+    group_AIDJEX_ell_100 = ahf.Analysis_Group(ds_AIDJEX, pfs_ell_100, pp_test, plot_title=r'AIDJEX ell = 100')
+    group_BGOS_ell_010 = ahf.Analysis_Group(ds_BGOS, pfs_ell_010, pp_test, plot_title=r'BGOS ell = 10')
+    group_BGOS_ell_100 = ahf.Analysis_Group(ds_BGOS, pfs_ell_100, pp_test, plot_title=r'BGOS ell = 100')
+    group_BGOSss_ell_010 = ahf.Analysis_Group(ds_BGOS, pfs_ell_010ss, pp_test, plot_title=r'BGOSss ell = 10')
+    group_BGOSss_ell_100 = ahf.Analysis_Group(ds_BGOS, pfs_ell_100ss, pp_test, plot_title=r'BGOSss ell = 100')
+    # # Make the figure
+    ahf.make_figure([group_AIDJEX_ell_010, group_BGOS_ell_010, group_BGOSss_ell_010, group_AIDJEX_ell_100, group_BGOS_ell_100, group_BGOSss_ell_100], use_same_x_axis=False, use_same_y_axis=False, filename='AIDJEX_BGOS-ss_la_CT_vs_SA_ell_010_and_100.png')
 
 ## Subsampling ITP data
 # Histograms of the first differences for data sets
@@ -635,54 +676,47 @@ if False:
 
 ### Pre-clustered files
 ## la_CT vs. SA plots
+# Make the Plot Parameters
+pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
+pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
+pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
 # AIDJEX clustering
 if False:
     print('')
-    print('- Creating plot of pre-clustered AIDJEX data')
-    # Make the Plot Parameters
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
-    pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
-    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False})
+    print('- Creating plots of pre-clustered AIDJEX data')
+    # this_ds = ds_AIDJEX_m500_e010
+    this_ds = ds_AIDJEX_m300_e100
     # Make the subplot groups
-    group_AIDJEX_pre_clstrd = ahf.Analysis_Group(ds_AIDJEX_m500_e010, pfs_0, pp_pre_clstrd, plot_title=r'AIDJEX clusters from file')
-    group_AIDJEX_nir_SA = ahf.Analysis_Group(ds_AIDJEX_m500_e010, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
-    group_AIDJEX_cRL = ahf.Analysis_Group(ds_AIDJEX_m500_e010, pfs_0, pp_cRL, plot_title=r'AIDJEX')
+    group_AIDJEX_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'AIDJEX clusters from file')
+    group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
+    group_AIDJEX_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'AIDJEX')
     # # Make the figure
-    ahf.make_figure([group_AIDJEX_pre_clstrd])
+    ahf.make_figure([group_AIDJEX_pre_clstrd, group_AIDJEX_nir_SA, group_AIDJEX_cRL], use_same_y_axis=False)
 # BGOS clustering
 if False:
     print('')
-    print('- Creating plot of pre-clustered BGOS data')
-    # Make the Plot Parameters
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
+    print('- Creating plots of pre-clustered BGOS data')
+    # this_ds = ds_BGOS_m440_e010
+    this_ds = ds_BGOS_m360_e100
     # Make the subplot groups
-    group_BGOS_pre_clstrd = ahf.Analysis_Group(ds_BGOS_m440_e010, pfs_0, pp_pre_clstrd, plot_title=r'BGOS clusters from file')
+    group_BGOS_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'BGOS clusters from file')
+    group_BGOS_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'BGOS')
+    group_BGOS_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'BGOS')
     # # Make the figure
-    ahf.make_figure([group_BGOS_pre_clstrd])
+    ahf.make_figure([group_BGOS_pre_clstrd, group_BGOS_nir_SA, group_BGOS_cRL])
 # BGOSss clustering
 if False:
     print('')
     print('- Creating plot of pre-clustered BGOSss data')
-    # Make the Plot Parameters
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
+    # this_ds = ds_BGOSss_m260_e010
+    this_ds = ds_BGOSss_m220_e100
     # Make the subplot groups
-    group_BGOSss_pre_clstrd = ahf.Analysis_Group(ds_BGOSss_m260_e010, pfs_0, pp_pre_clstrd, plot_title=r'BGOSss clusters from file')
+    group_BGOSss_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'BGOSss clusters from file')
+    group_BGOSss_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'BGOSss')
+    group_BGOSss_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'BGOSss')
     # # Make the figure
-    ahf.make_figure([group_BGOSss_pre_clstrd])
-## R_L and IR_SA vs press
-# AIDJEX evaluation
-if True:
-    print('')
-    print('- Creating plot of pre-clustered AIDJEX data')
-    # Make the Plot Parameters
-    pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
-    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False})
-    # Make the subplot groups
-    group_AIDJEX_nir_SA = ahf.Analysis_Group(ds_AIDJEX_m500_e010, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
-    group_AIDJEX_cRL = ahf.Analysis_Group(ds_AIDJEX_m500_e010, pfs_0, pp_cRL, plot_title=r'AIDJEX')
-    # # Make the figure
-    ahf.make_figure([group_AIDJEX_nir_SA, group_AIDJEX_cRL])
-# BGOS clustering
+    ahf.make_figure([group_BGOSss_pre_clstrd, group_BGOSss_nir_SA, group_BGOSss_cRL])
+#
 
 
 exit(0)
