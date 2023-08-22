@@ -94,6 +94,14 @@ AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_300_ell_100.nc',
                    'cl_y_var':'la_CT',
                    'm_pts':300
                    }
+AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_490_ell_050.nc',
+                   'sources_dict':{'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_fltrd,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'm_pts':490
+                   }
 
 ## BGOS
 BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_440_ell_010.nc',
@@ -112,6 +120,14 @@ BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_360_ell_100.nc',
                    'cl_y_var':'la_CT',
                    'm_pts':360
                    }
+BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_280_ell_050.nc',
+                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_fltrd,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'm_pts':280
+                   }
 
 ## BGOSss
 BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_260_ell_010.nc',
@@ -129,6 +145,14 @@ BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_220_ell_100.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'm_pts':220
+                   }
+BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_340_ell_050.nc',
+                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_fltrd_ss,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'm_pts':340
                    }
 
 # for clstr_dict in [ITP2_clstr_dict]:#, ITP3_clstr_dict]:

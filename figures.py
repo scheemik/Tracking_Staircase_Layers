@@ -108,6 +108,10 @@ all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
 AIDJEX_m500_e010 = {'AIDJEX_mpts_500_ell_010':'all'}
 BGOS_m440_e010 = {'BGOS_mpts_440_ell_010':'all'}
 BGOSss_m260_e010 = {'BGOSss_mpts_260_ell_010':'all'}
+#   ell = 10
+AIDJEX_m490_e050 = {'AIDJEX_mpts_490_ell_050':'all'}
+BGOS_m280_e050 = {'BGOS_mpts_280_ell_050':'all'}
+BGOSss_m340_e050 = {'BGOSss_mpts_340_ell_050':'all'}
 #   ell = 100
 AIDJEX_m300_e100 = {'AIDJEX_mpts_300_ell_100':'all'}
 BGOS_m360_e100 = {'BGOS_mpts_360_ell_100':'all'}
@@ -133,6 +137,10 @@ ITP35_pfs0 = {'ITP_35':ITP35_some_pfs0}
 ITP35_pfs1 = {'ITP_35':ITP35_some_pfs1}
 ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 
+# Example profiles
+Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
+ex_pfs1 = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all', 'SHEBA_Seacat':['SH31200','SH31900']}
+
 ## AIDJEX
 
 AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
@@ -150,7 +158,8 @@ AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22]}#, 28, 
 
 all_SHEBA = {'SHEBA_Seacat':'all'}
 SHEBA_Seacat_blacklist = {'SHEBA_Seacat':['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
-SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
+# SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
+SHEBA_example_profile = {'SHEBA_Seacat':['SH31200','SH31900']}
 
 ################################################################################
 # Create data filtering objects
@@ -171,10 +180,14 @@ print('- Creating data sets')
 # ds_all_sources_up   = ahf.Data_Set(all_sources, dfs0)
 # ds_all_sources_pmin = ahf.Data_Set(all_sources, dfs1)
 
+## Example profiles
+# ds_all_sources_ex_pfs = ahf.Data_Set(Coincident_pfs0, dfs_all)
+ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+
 ## ITP
 
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs_all)
-ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
+# ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
 
@@ -206,7 +219,7 @@ ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 ## AIDJEX
 
 # ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
-ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
+# ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 
 # ds_AIDJEX_BigBear  = ahf.Data_Set(AIDJEX_BigBear_all, dfs1)
 # ds_AIDJEX_BlueFox  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs1)
@@ -224,13 +237,17 @@ ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
 # ds_all_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
 # ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
 # ds_SHEBA_Seacat_blacklist = ahf.Data_Set(SHEBA_Seacat_blacklist, dfs_all)
-# ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs_all)
+ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs1)
 
 # Pre-clustered
 #   ell = 10
 # ds_AIDJEX_m500_e010 = ahf.Data_Set(AIDJEX_m500_e010, dfs_all)
 # ds_BGOS_m440_e010 = ahf.Data_Set(BGOS_m440_e010, dfs_all)
 # ds_BGOSss_m260_e010 = ahf.Data_Set(BGOSss_m260_e010, dfs_all)
+#   ell = 50
+# ds_AIDJEX_m490_e050 = ahf.Data_Set(AIDJEX_m490_e050, dfs_all)
+# ds_BGOS_m280_e050 = ahf.Data_Set(BGOS_m280_e050, dfs_all)
+# ds_BGOSss_m340_e050 = ahf.Data_Set(BGOSss_m340_e050, dfs_all)
 #   ell = 100
 # ds_AIDJEX_m300_e100 = ahf.Data_Set(AIDJEX_m300_e100, dfs_all)
 # ds_BGOS_m360_e100 = ahf.Data_Set(BGOS_m360_e100, dfs_all)
@@ -246,13 +263,21 @@ pfs_1 = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_2 = ahf.Profile_Filters(p_range=[400,225])
 
 # AIDJEX Operation Area
-pfs_AOA = ahf.Profile_Filters(lon_range=[-152.9,-133.7],lat_range=[72.6,77.4])
+lon_AOA = [-150.9,-133.7]
+lat_AOA = [72.6,77.4]
+pfs_AOA = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA)
+
+# Finding coincident profiles
+lon_coin = [-148.9,-147.8]
+lat_coin = [74.9,75.5]
+pfs_coin = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin)
+pfs_coin_fltrd = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin, SA_range=LHW_S_range, lt_pCT_max=True)
 
 pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
-pfs_BGOS  = ahf.Profile_Filters(lon_range=[-152.9,-133.7],lat_range=[72.6,77.4],SA_range=BGOS_S_range)
-pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
-pfs_fltrd_ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
+pfs_BGOS  = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA,SA_range=BGOS_S_range)
+pfs_fltrd = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True)
+pfs_fltrd_ss = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
 
 pfs_subs = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True)
 pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
@@ -351,6 +376,18 @@ if False:
     # Make the figure
     ahf.make_figure([group_CT_SA_plot])
 ## Example profiles from all sources
+if True:
+    print('')
+    print('- Creating figure of example profiles')
+    # Make the Plot Parameters
+    pp_pfs = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':[330,240]})
+    # Make the Analysis Group
+    # group_example_profiles = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_0, pp_pfs)
+    # group_example_profiles = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_fltrd, pp_pfs)
+    group_example_profiles = ahf.Analysis_Group(ds_SHEBA_example_profile, pfs_0, pp_pfs)
+    # Make the figure
+    ahf.make_figure([group_example_profiles])
+## Example profiles from SHEBA
 if False:
     print('')
     print('- Creating figure of example profiles')
@@ -437,6 +474,16 @@ if False:
     # Find the maximum distance between any two profiles for each data set in the group
     # ahf.find_max_distance([group_all])
     # ahf.find_max_distance([group_selected])
+## Map to find coincident profiles (or as close as I can get)
+if False:
+    print('')
+    print('- Creating map to find example profiles')
+    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'AIDJEX_focus'})
+    # Make the subplot groups
+    # group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_coin, pp_map, plot_title='Profiles used in study, filtered to small area')
+    group_selected = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_0, pp_map, plot_title='Example profiles')
+    # Make the figure
+    ahf.make_figure([group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
 ### Date and Distance spans
 ## Maps of BGOS ITPs by date
 if False:
@@ -482,10 +529,10 @@ if False:
 if False:
     print('')
     print('- Creating plots in la_CT--SA space with different values of ell')
-    pfs_fltrd1 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
-    pfs_fltrd2 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=50)
-    pfs_fltrd3 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
-    pfs_fltrd4 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=150)
+    pfs_fltrd1 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
+    pfs_fltrd2 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=50)
+    pfs_fltrd3 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
+    pfs_fltrd4 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=150)
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_by_instrmt')
     # Make the subplot groups
@@ -500,11 +547,11 @@ if False:
     print('')
     print('- Creating plots in la_CT--SA space with different values of ell')
     # Make profile filters
-    pfs_ell_010 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
-    pfs_ell_100 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
+    pfs_ell_010 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
+    pfs_ell_100 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
     #   Subsampled versions
-    pfs_ell_010ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
-    pfs_ell_100ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100, subsample=True)
+    pfs_ell_010ss = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=10)
+    pfs_ell_100ss = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100, subsample=True)
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_by_instrmt')
     # Make the subplot groups
@@ -542,6 +589,16 @@ if False:
     ahf.make_figure([group_BGOS_full, group_BGOS_ss])
 
 ## TS diagrams
+# Test TS diagrams
+if False:
+    print('')
+    print('- Creating test TS plots')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_source')
+    # Make the subplot groups
+    group_test0 = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_fltrd, pp_TS)
+    # # Make the figure
+    ahf.make_figure([group_test0], use_same_x_axis=False, use_same_y_axis=False)
 # ITP TS diagrams
 if False:
     print('')
@@ -575,8 +632,8 @@ if False:
     print('- Creating clustering parameter sweep for BGOS ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[50,721,10]}) #[50,711,20]
-    pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,721,10]}) #[50,711,20]
+    # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
     group_mpts_param_sweep = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_mpts_param_sweep, plot_title='BGOS')
     # group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep, plot_title='BGOS')
@@ -615,7 +672,7 @@ if False:
 if False:
     print('')
     print('- Creating clustering plot of AIDJEX data')
-    pfs_fltrd1 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
+    pfs_fltrd1 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
     test_mpts = 470
     # Make the Plot Parameters
     pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':100, 'b_a_w_plt':True})
@@ -647,7 +704,7 @@ if False:
 if False:
     print('')
     print('- Creating clustering plot of BGOS data')
-    pfs_fltrd1 = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
+    pfs_fltrd1 = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, m_avg_win=100)
     # Make the Plot Parameters
     pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':360, 'b_a_w_plt':True})
     pp_live_clstr2 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':360, 'b_a_w_plt':True})
@@ -685,7 +742,8 @@ if False:
     print('')
     print('- Creating plots of pre-clustered AIDJEX data')
     # this_ds = ds_AIDJEX_m500_e010
-    this_ds = ds_AIDJEX_m300_e100
+    this_ds = ds_AIDJEX_m490_e050
+    # this_ds = ds_AIDJEX_m300_e100
     # Make the subplot groups
     group_AIDJEX_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'AIDJEX clusters from file')
     group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
@@ -697,7 +755,8 @@ if False:
     print('')
     print('- Creating plots of pre-clustered BGOS data')
     # this_ds = ds_BGOS_m440_e010
-    this_ds = ds_BGOS_m360_e100
+    this_ds = ds_BGOS_m280_e050
+    # this_ds = ds_BGOS_m360_e100
     # Make the subplot groups
     group_BGOS_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'BGOS clusters from file')
     group_BGOS_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'BGOS')
@@ -709,7 +768,8 @@ if False:
     print('')
     print('- Creating plot of pre-clustered BGOSss data')
     # this_ds = ds_BGOSss_m260_e010
-    this_ds = ds_BGOSss_m220_e100
+    this_ds = ds_BGOSss_m340_e050
+    # this_ds = ds_BGOSss_m220_e100
     # Make the subplot groups
     group_BGOSss_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'BGOSss clusters from file')
     group_BGOSss_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'BGOSss')

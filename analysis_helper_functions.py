@@ -741,7 +741,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Filter to just pressures above p(CT_max)
             if profile_filters.lt_pCT_max:
                 # Get list of profiles
-                pfs = np.unique(np.array(df['prof_no']))
+                pfs = list(set(df['prof_no'].values))
+                # pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # print(ds.Source,ds.Instrument,pfs)
                 # Loop across each profile
                 new_dfs = []
@@ -780,7 +781,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             first_dfs = pp.first_dfs
             if any(first_dfs):
                 # Get list of profiles
-                pfs = np.unique(np.array(df['prof_no']))
+                pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # Take first differences in x variables
                 if first_dfs[0]:
                     # for var in pp.x_vars:
@@ -837,7 +838,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             finit_dfs = pp.finit_dfs
             if any(finit_dfs):
                 # Get list of profiles
-                pfs = np.unique(np.array(df['prof_no']))
+                pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # Take finite differences in x variables
                 if finit_dfs[0]:
                     # Find y variable
@@ -908,7 +909,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     prefix = split_var[0]
                     var_str = split_var[1]
                     # Get list of profiles
-                    pfs = np.unique(np.array(df['prof_no']))
+                    pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                     # Loop across each profile
                     for pf in pfs:
                         # Find the data for just that profile
@@ -941,6 +942,12 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             output_dfs.append(df)
         #
     #
+    if True:
+        # Output a list of all the profiles this dataset contains
+        for df in output_dfs:
+            list_of_pfs = np.unique(df['prof_no'].values)
+            print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
+            # print(df)
     return output_dfs
 
 ################################################################################
@@ -2271,7 +2278,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     df[y_key] = mpl.dates.date2num(df[y_key])
                 df['source-instrmt'] = df['source']+' '+df['instrmt']
                 # Get instrument name
-                s_instrmt = np.unique(df['source-instrmt'])[0]
+                try:
+                    s_instrmt = np.unique(df['source-instrmt'])[0]
+                except:
+                    continue
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
@@ -2615,7 +2625,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     else:
                         mrk_s = sml_map_mrkr
                 # Get instrument name
-                s_instrmt = np.unique(df['source-instrmt'])[0]
+                try:
+                    s_instrmt = np.unique(df['source-instrmt'])[0]
+                except:
+                    continue
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
@@ -2968,7 +2981,10 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         for df in a_group.data_frames:
             df['source-instrmt'] = df['source']+' '+df['instrmt']
             # Get instrument name
-            s_instrmt = np.unique(df['source-instrmt'])[0]
+            try:
+                s_instrmt = np.unique(df['source-instrmt'])[0]
+            except:
+                continue
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
@@ -3248,20 +3264,28 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         except:
             plt_noise = True
     # Find the unique profiles for this instrmt
-    pfs_in_this_df = np.unique(np.array(df['prof_no']))
+    #   Make sure to match the variable type
+    pfs_in_this_df = []
+    for pf_no in df['prof_no'].values:
+        if pf_no not in pfs_in_this_df:
+            pfs_in_this_df.append(pf_no)
+    # var_type = type(df['prof_no'][0])
+    # print(var_type)
+    # pfs_in_this_df = np.unique(np.array(df['prof_no'], dtype=type('')))
     print('\t- Profiles to plot:',pfs_in_this_df)
     # Make sure you're not trying to plot too many profiles
-    # if len(pfs_in_this_df) > 15:
-    #     print('You are trying to plot',len(pfs_in_this_df),'profiles')
-    #     print('That is too many. Try to plot less than 15')
-    #     exit(0)
-    # else:
-    #     print('Plotting',len(pfs_in_this_df),'profiles')
+    if len(pfs_in_this_df) > 15:
+        print('You are trying to plot',len(pfs_in_this_df),'profiles')
+        print('That is too many. Try to plot less than 15')
+        exit(0)
+    else:
+        print('Plotting',len(pfs_in_this_df),'profiles')
     # Loop through each profile to create a list of dataframes
     for pf_no in pfs_in_this_df:
         # Get just the part of the dataframe for this profile
         pf_df = df[df['prof_no']==pf_no]
         profile_dfs.append(pf_df)
+        # print(pf_df)
     #
     # Check to see whether any profiles were actually loaded
     n_pfs = len(profile_dfs)
@@ -3276,10 +3300,16 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # Pull the dataframe for this profile
         pf_df = profile_dfs[i]
         # Make a label for this profile
-        try:
-            pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(int(pf_df['prof_no'][0]))
-        except:
-            pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(pf_df['prof_no'][0])
+        if len(pf_df) > 1:
+            try:
+                pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(int(pf_df['prof_no'][0]))
+            except:
+                pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(pf_df['prof_no'][0])
+        elif len(pf_df) == 1:
+            try:
+                pf_label = pf_df['source']+pf_df['instrmt']+'-'+str(int(pf_df['prof_no']))
+            except:
+                pf_label = pf_df['source']+pf_df['instrmt']+'-'+str(pf_df['prof_no'])
         # Decide on marker and line styles, don't go off the end of the array
         mkr     = mpl_mrks[i%len(mpl_mrks)]
         l_style = l_styles[i%len(l_styles)]
@@ -3543,7 +3573,7 @@ def get_cluster_args(pp):
 
 ################################################################################
 
-def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[None]):
+def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[None], param_sweep=False):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
@@ -3571,9 +3601,11 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
         print('\t- ell_sizes:',np.unique(ell_sizes))
     ell_size = ell_sizes[0]
     # If run_group == None, then run the algorithm again
-    if isinstance(run_group, type(None)):
+    if param_sweep:
+    # if isinstance(run_group, type(None)):
         re_run = True
-        print('-- run_group is None, re_run:',re_run)
+        # print('-- run_group is None, re_run:',re_run)
+        print('-- Parameter sweep, re_run:',re_run)
     # Check to make sure there is actually a 'cluster' column in the dataframe
     elif not 'cluster' in df.columns.values.tolist():
         re_run = True
@@ -3626,7 +3658,8 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
             print('\t\tCalculating extra clustering variables')
             df = calc_extra_cl_vars(df, new_cl_vars)
         # Write this dataframe and DBCV value back to the analysis group
-        if not isinstance(run_group, type(None)):
+        if not param_sweep:
+        # if not isinstance(run_group, type(None)):
             run_group.data_frames = [df]
             run_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = rel_val
         return df, rel_val, m_pts, ell_size
@@ -4269,12 +4302,12 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     # If limiting the number of pfs, find total number of pfs in the given df
     #   In the multi-index of df, level 0 is 'Time'
     if x_key == 'n_pfs':
-        pf_nos = np.unique(np.array(df['prof_no'].values))
+        pf_nos = np.unique(np.array(df['prof_no'].values, dtype=type('')))
         number_of_pfs = len(pf_nos)
         print('\tNumber of profiles:',number_of_pfs)
         x_var_array = x_var_array[x_var_array <= number_of_pfs]
     if z_key == 'n_pfs':
-        pf_nos = np.unique(np.array(df['prof_no'].values))
+        pf_nos = np.unique(np.array(df['prof_no'].values, dtype=type('')))
         number_of_pfs = len(pf_nos)
         print('\tNumber of profiles:',number_of_pfs)
         z_list = np.array(z_list)
@@ -4343,7 +4376,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     min_s = z_list[i]
                 zlabel = 'Minimum samples: '+str(min_s)
             # Run the HDBSCAN algorithm on the provided dataframe
-            new_df, rel_val, m_pts, ell = HDBSCAN_(None, this_df, cl_x_var, cl_y_var, m_pts, min_samp=min_s)
+            new_df, rel_val, m_pts, ell = HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, param_sweep=True)
             # Record outputs to plot
             if y_key == 'DBCV':
                 # relative_validity_ is a rough measure of DBCV
