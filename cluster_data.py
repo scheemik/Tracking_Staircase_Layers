@@ -155,8 +155,8 @@ BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_340_ell_050.nc',
                    'm_pts':340
                    }
 
-# for clstr_dict in [ITP2_clstr_dict]:#, ITP3_clstr_dict]:
-for clstr_dict in [AJX_clstr_dict, BGOSss_clstr_dict, BGOS_clstr_dict]:
+for clstr_dict in [BGOS_clstr_dict]:#, ITP3_clstr_dict]:
+# for clstr_dict in [AJX_clstr_dict, BGOSss_clstr_dict, BGOS_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -247,31 +247,30 @@ for clstr_dict in [AJX_clstr_dict, BGOSss_clstr_dict, BGOS_clstr_dict]:
         # print('len(group_test_clstr.data_frames):',len(dfs))
         # exit(0)
         # Loop through each dataframe each (avoiding index collisions)
-        if False:
         # if 'AIDJEX' in gattrs_to_copy['Source']:
-            print('Avoiding index collisions')
-            for df in dfs:
-                # Get list of instruments
-                instrmts = np.unique(np.array(df['instrmt']))
-                # Need to make the `Time` values unique for each instrument
-                # Can only change values of columns, not indexes, so reset Time
-                df.reset_index(inplace=True, level='Time')
-                # Loop across each instrument
-                i = 0
-                for instrmt in instrmts:
-                    i += 1
-                    # Add i seconds to all the time values
-                    df.loc[df['instrmt'] == instrmt, ['Time']] = df.loc[df['instrmt'] == instrmt, ['Time']] + np.timedelta64(i, 's')
-            new_df = pd.concat(dfs)
-            # Make `Time` and index again
-            new_df = new_df.set_index('Time', append=True)
-            # Turn `Vertical` on and then off again as index to reset index order
-            new_df.reset_index(inplace=True, level='Vertical')
-            new_df = new_df.set_index('Vertical', append=True)
-        else:
-            print('Avoiding index collisions for ITPSs by adding `instrmt` as an index')
-            new_df = pd.concat(dfs)
-            new_df = new_df.set_index('instrmt', append=True)
+            # print('Avoiding index collisions')
+            # for df in dfs:
+            #     # Get list of instruments
+            #     instrmts = np.unique(np.array(df['instrmt']))
+            #     # Need to make the `Time` values unique for each instrument
+            #     # Can only change values of columns, not indexes, so reset Time
+            #     df.reset_index(inplace=True, level='Time')
+            #     # Loop across each instrument
+            #     i = 0
+            #     for instrmt in instrmts:
+            #         i += 1
+            #         # Add i seconds to all the time values
+            #         df.loc[df['instrmt'] == instrmt, ['Time']] = df.loc[df['instrmt'] == instrmt, ['Time']] + np.timedelta64(i, 's')
+            # new_df = pd.concat(dfs)
+            # # Make `Time` and index again
+            # new_df = new_df.set_index('Time', append=True)
+            # # Turn `Vertical` on and then off again as index to reset index order
+            # new_df.reset_index(inplace=True, level='Vertical')
+            # new_df = new_df.set_index('Vertical', append=True)
+        #else:
+        print('Avoiding index collisions for ITPSs by adding `instrmt` as an index')
+        new_df = pd.concat(dfs)
+        new_df = new_df.set_index('instrmt', append=True)
         # print(new_df)
         # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())

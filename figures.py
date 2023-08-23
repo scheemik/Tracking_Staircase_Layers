@@ -139,7 +139,7 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 
 # Example profiles
 Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
-ex_pfs1 = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all','ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all', 'SHEBA_Seacat':['SH31200','SH31900']}
+ex_pfs1 = {'AIDJEX_BigBear':[389], 'ITP_33':[313], 'SHEBA_Seacat':['SH31200']}
 
 ## AIDJEX
 
@@ -160,6 +160,21 @@ all_SHEBA = {'SHEBA_Seacat':'all'}
 SHEBA_Seacat_blacklist = {'SHEBA_Seacat':['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
 # SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
 SHEBA_example_profile = {'SHEBA_Seacat':['SH31200','SH31900']}
+
+## filtered out by p_max > 400 dbar
+
+pmax_lt_400_AIDJEX_BigBear = {'AIDJEX_BigBear':[14]}
+pmax_lt_400_AIDJEX_BlueFox = {'AIDJEX_BlueFox':[30, 144, 168, 262, 431]}
+pmax_lt_400_AIDJEX_Caribou = {'AIDJEX_Caribou':[39, 47, 55, 63, 71, 79, 83, 91, 96, 98, 102, 104, 105, 113, 117, 123, 125, 128, 136, 144, 152, 159, 163, 169, 177, 185, 231, 440, 552, 610, 687, 694, 700, 704, 722, 727, 852]}
+pmax_lt_400_AIDJEX_Snowbird = {'AIDJEX_Snowbird':[320, 369, 404, 412, 414]}
+# ITP 33 had none filtered out
+# ITP 34 had none filtered out
+pmax_lt_400_ITP_35 = {'ITP_35':
+    [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
+pmax_lt_400_ITP_41 = {'ITP_41':[1393, 1395, 1397, 1399, 1401, 1403, 1405, 1407, 1409, 1411, 1413, 1417, 1419, 1423, 1425, 1427, 1429, 1431, 1433, 1435, 1439, 1441, 1443, 1445, 1447, 1449, 1451, 1453, 1457, 1459, 1461, 1463, 1465, 1467, 1469, 1471, 1473, 1477, 1479]}
+pmax_lt_400_ITP_42 = {'ITP_42':[203, 204, 205, 206, 207, 208, 209]}
+# ITP 43 had none filtered out
+pmax_lt_400_SHEBA_Seacat = {'SHEBA_Seacat':['CT205515', 'SH12200', 'SH14400', 'SH17400', 'SH17701', 'SH12900']}
 
 ################################################################################
 # Create data filtering objects
@@ -182,7 +197,7 @@ print('- Creating data sets')
 
 ## Example profiles
 # ds_all_sources_ex_pfs = ahf.Data_Set(Coincident_pfs0, dfs_all)
-ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs1)
 
 ## ITP
 
@@ -237,7 +252,17 @@ ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
 # ds_all_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
 # ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
 # ds_SHEBA_Seacat_blacklist = ahf.Data_Set(SHEBA_Seacat_blacklist, dfs_all)
-ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs1)
+# ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs1)
+
+## filtered out by p_max > 400 dbar
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_BigBear, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_BlueFox, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_Caribou, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_Snowbird, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_35, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_41, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_42, dfs0)
+# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_SHEBA_Seacat, dfs0)
 
 # Pre-clustered
 #   ell = 10
@@ -263,7 +288,7 @@ pfs_1 = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_2 = ahf.Profile_Filters(p_range=[400,225])
 
 # AIDJEX Operation Area
-lon_AOA = [-150.9,-133.7]
+lon_AOA = [-152.9,-133.7]
 lat_AOA = [72.6,77.4]
 pfs_AOA = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA)
 
@@ -272,6 +297,12 @@ lon_coin = [-148.9,-147.8]
 lat_coin = [74.9,75.5]
 pfs_coin = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin)
 pfs_coin_fltrd = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin, SA_range=LHW_S_range, lt_pCT_max=True)
+
+# Finding close example profiles
+lon_ex_pfs = [-145.2,-144.53]
+lat_ex_pfs = [75.962,76.06]
+pfs_ex_pfs = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs)
+pfs_ex_pfs_fltrd = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs, SA_range=LHW_S_range, lt_pCT_max=True)
 
 pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
@@ -355,6 +386,18 @@ if False:
     group_AIDJEX_missing_ll = ahf.Analysis_Group(ds_AIDJEX_missing_ll, pfs_0, pp_pfs, plot_title='BigBear lat-lon errors')
     # Make the figure
     ahf.make_figure([group_AIDJEX_missing_ll])
+## Profiles filtered out by p_max > 400 dbar
+if False:
+    print('')
+    print('- Creating figure for profiles eliminated by p_max > 400 dbar filter')
+    # Make the Plot Parameters
+    # pp_pfs = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles')
+    pp_pfs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press')
+    # Make the Analysis Group
+    group_pmax_lt_400 = ahf.Analysis_Group(ds_pmax_lt_400, pfs_0, pp_pfs, plot_title='Profiles with p_max < 400 dbar')
+    # Make the figure
+    ahf.make_figure([group_pmax_lt_400])
+
 ## SHEBA TS plot
 if False:
     print('')
@@ -380,11 +423,11 @@ if True:
     print('')
     print('- Creating figure of example profiles')
     # Make the Plot Parameters
-    pp_pfs = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':[330,240]})
+    pp_pfs = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles')#, ax_lims={'y_lims':[330,240]})
     # Make the Analysis Group
-    # group_example_profiles = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_0, pp_pfs)
+    group_example_profiles = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_0, pp_pfs)
     # group_example_profiles = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_fltrd, pp_pfs)
-    group_example_profiles = ahf.Analysis_Group(ds_SHEBA_example_profile, pfs_0, pp_pfs)
+    # group_example_profiles = ahf.Analysis_Group(ds_SHEBA_example_profile, pfs_0, pp_pfs)
     # Make the figure
     ahf.make_figure([group_example_profiles])
 ## Example profiles from SHEBA
@@ -420,6 +463,18 @@ if False:
     group_AIDJEX_press_CT_max_hist = ahf.Analysis_Group(ds_all_AIDJEX, pfs_AOA, pp_press_CT_max_hist, plot_title=r'AIDJEX')
     # # Make the figure
     ahf.make_figure([group_BGOS_press_CT_max_hist, group_AIDJEX_press_CT_max_hist])
+## Plots of SA_CT_max vs press_CT_max
+if False:
+    print('')
+    print('- Creating plots of the info about CT_max')
+    # Make the Plot Parameters
+    pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='CT_max')
+    # Make the subplot groups
+    group_AIDJEX = ahf.Analysis_Group(ds_AIDJEX, pfs_AOA, pp_SA_CT_max, plot_title=r'AIDJEX')
+    group_SHEBA  = ahf.Analysis_Group(ds_SHEBA, pfs_AOA, pp_SA_CT_max, plot_title=r'SHEBA')
+    group_BGOS   = ahf.Analysis_Group(ds_BGOS, pfs_AOA, pp_SA_CT_max, plot_title=r'BGOS')
+    # # Make the figure
+    ahf.make_figure([group_AIDJEX, group_SHEBA, group_BGOS])
 
 ### Figure 1
 ## Maps
@@ -462,6 +517,18 @@ if False:
     group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map, plot_title='')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+## Map of select profiles from all sources within AOA within selected ranges
+if False:
+    print('')
+    print('- Creating a map of select profiles from all sources within AOA filtered')
+    # Make plot parameter objects
+    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'AIDJEX_focus', 'extra_vars_to_keep':['SA','press']})
+    pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'Full_Arctic', 'extra_vars_to_keep':['SA','press']}, legend=False, add_grid=False)
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
 ## Maps comparing available profiles to selected profiles
 if False:
     print('')
@@ -481,7 +548,7 @@ if False:
     pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'AIDJEX_focus'})
     # Make the subplot groups
     # group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_coin, pp_map, plot_title='Profiles used in study, filtered to small area')
-    group_selected = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_0, pp_map, plot_title='Example profiles')
+    group_selected = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_ex_pfs, pp_map, plot_title='Example profiles')
     # Make the figure
     ahf.make_figure([group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
 ### Date and Distance spans
@@ -616,14 +683,15 @@ if False:
     print('')
     print('- Creating TS plots of all datasets')
     # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':100, 'clr_ext':'max', 'xy_bins':250})
-    # Make the subplot groups
-    group_AIDJEX_TS = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_TS, plot_title=r'AIDJEX')
-    # group_SHEBA_TS  = ahf.Analysis_Group(ds_SHEBA, pfs_fltrd, pp_TS, plot_title=r'SHEBA')
-    group_BGOS_TS   = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_TS, plot_title=r'BGOS ITPs')
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+    # pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':100, 'clr_ext':'max', 'xy_bins':250})
+    # Make the subplot groups pfs_fltrd pfs_AOA
+    group_AIDJEX_TS = ahf.Analysis_Group(ds_AIDJEX, pfs_AOA, pp_TS, plot_title=r'AIDJEX')
+    group_SHEBA_TS  = ahf.Analysis_Group(ds_SHEBA, pfs_AOA, pp_TS, plot_title=r'SHEBA')
+    group_BGOS_TS   = ahf.Analysis_Group(ds_BGOS, pfs_AOA, pp_TS, plot_title=r'BGOS ITPs')
     # # Make the figure
-    # ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
-    ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
+    ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
+    # ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
 ## Clustering parameter sweeps
 ## Parameter sweep for BGOS ITP data
@@ -746,10 +814,11 @@ if False:
     # this_ds = ds_AIDJEX_m300_e100
     # Make the subplot groups
     group_AIDJEX_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd, plot_title=r'AIDJEX clusters from file')
-    group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
-    group_AIDJEX_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'AIDJEX')
+    # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
+    # group_AIDJEX_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'AIDJEX')
     # # Make the figure
-    ahf.make_figure([group_AIDJEX_pre_clstrd, group_AIDJEX_nir_SA, group_AIDJEX_cRL], use_same_y_axis=False)
+    # ahf.make_figure([group_AIDJEX_pre_clstrd, group_AIDJEX_nir_SA, group_AIDJEX_cRL], use_same_y_axis=False)
+    ahf.make_figure([group_AIDJEX_pre_clstrd], use_same_y_axis=False)
 # BGOS clustering
 if False:
     print('')

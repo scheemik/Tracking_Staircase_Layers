@@ -505,7 +505,14 @@ def apply_data_filters(xarrays, data_filters):
             ds = ds.sel(Time=slice(start_date_range, end_date_range))
         #   Filter based on the maximum value of pressure in a profile
         if not isinstance(data_filters.min_press, type(None)):
+            if False:
+                pf_list = list(set(ds.prof_no.values))
             ds = ds.where(ds.press_max>=data_filters.min_press, drop=True)#.squeeze()
+            if False:
+                pf_list2 = list(set(ds.prof_no.values))
+                # Find the eliminated profiles
+                elim_list = [x for x in pf_list if x not in pf_list2]
+                print('p_max filter, # of profiles before:',len(pf_list),'after:',len(pf_list2),'difference:',len(pf_list)-len(pf_list2))#,'-',elim_list)
         #
         #   Filter based on the minimum value of pressure at CT_max
         if not isinstance(data_filters.min_press_CT_max, type(None)):
@@ -945,9 +952,18 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
     if True:
         # Output a list of all the profiles this dataset contains
         for df in output_dfs:
-            list_of_pfs = np.unique(df['prof_no'].values)
+            if True:
+                list_of_pfs = list(set((df['prof_no'].values)))
+            else:
+                list_of_pfs = []
+                for instrmt in list(set(df['instrmt'].values)):
+                    print('this instrmt:',instrmt)
+                    these_pfs = list(set(df[df['instrmt']==instrmt]['prof_no'].values))
+                    print('these pfs:',these_pfs)
+                    list_of_pfs.append(these_pfs)
             print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
             # print(df)
+        # exit(0)
     return output_dfs
 
 ################################################################################
@@ -1030,6 +1046,8 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         l_min = min(profile_filters.lat_range)
         # Filter the data frame to the specified latitude range
         df = df[(df['lat'] < l_max) & (df['lat'] > l_min)]
+    # Find number of profiles before
+    pf_list0 = list(set(df['prof_no'].values))
     #   Filter to a certain pressure range
     if not isinstance(profile_filters.p_range, type(None)):
         # Get endpoints of pressure range
@@ -1079,6 +1097,12 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         s_min = min(profile_filters.SA_range)
         # Filter the data frame to the specified absolute salinity range
         df = df[(df[SA_key] < s_max) & (df[SA_key] > s_min)]
+    # Find number of profiles after
+    pf_list1 = list(set(df['prof_no'].values))
+    if len(pf_list0) != len(pf_list1):
+        # Find the eliminated profiles
+        elim_list = [x for x in pf_list0 if x not in pf_list1]
+        print('profile ranges filter, # of profiles before:',len(pf_list0),'after:',len(pf_list1),'difference:',len(pf_list0)-len(pf_list1),'-',elim_list)
     return df
 
 ################################################################################
