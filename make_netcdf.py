@@ -59,6 +59,11 @@ science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
 me_string = 'Mikhail Schee, University of Toronto'
 doi = 'No DOI yet'
 
+# Choose pressure value
+#   The value of CT_max (and therefore press_CT_max and SA_CT_max) must occur
+#   at a pressure greater than this value
+press_CT_max_threshold = 5
+
 ################################################################################
 
 def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
@@ -729,7 +734,10 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             up_cast = True
         # Get the index of the maximum conservative temperature
         try:
-            i_CT_max = np.nanargmax(CT1)
+            # Get just the part of the CT1 array where press0 is greater
+            #   than press_CT_max_threshold
+            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
+            i_CT_max = np.nanargmax(temp_CT)
         except:
             i_CT_max = 0
         # Create output dictionary for this profile
@@ -816,7 +824,10 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         up_cast = True
         # Get the index of the maximum conservative temperature
         try:
-            i_CT_max = np.nanargmax(CT1)
+            # Get just the part of the CT1 array where press0 is greater
+            #   than press_CT_max_threshold
+            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
+            i_CT_max = np.nanargmax(temp_CT)
         except:
             i_CT_max = 0
         # Create output dictionary for this profile
@@ -1019,7 +1030,10 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
     depth = gsw.z_from_p(press0, [lat]*pf_vert_len)
     # Get the index of the maximum conservative temperature
     try:
-        i_CT_max = np.nanargmax(CT1)
+        # Get just the part of the CT1 array where press0 is greater
+        #   than press_CT_max_threshold
+        temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
+        i_CT_max = np.nanargmax(temp_CT)
     except:
         i_CT_max = 0
     # If there is data to be put into a dictionary...
@@ -1153,7 +1167,10 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         up_cast = True
         # Get the index of the maximum conservative temperature
         try:
-            i_CT_max = np.nanargmax(CT1)
+            # Get just the part of the CT1 array where press0 is greater
+            #   than press_CT_max_threshold
+            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
+            i_CT_max = np.nanargmax(temp_CT)
         except:
             i_CT_max = 0
         # Create output dictionary for this profile
@@ -1240,12 +1257,13 @@ def find_geo_region(lon, lat):
 # read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
 # read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
 # read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_32.nc')
-read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_33.nc')
-read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_34.nc')
-read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
-read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
-read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
-read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
+
+# read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_33.nc')
+# read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_34.nc')
+# read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
+# read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
+# read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
+# read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
@@ -1254,7 +1272,7 @@ read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netc
 make_SHEBA_netcdfs(science_data_file_path)
 
 ## This will make all the netcdfs for AIDJEX
-make_all_AIDJEX_netcdfs(science_data_file_path)
+# make_all_AIDJEX_netcdfs(science_data_file_path)
 # read_instrmt('AIDJEX', 'BigBear', science_data_file_path+'AIDJEX/AIDJEX/BigBear', 'netcdfs/AIDJEX_BigBear.nc')
 
 exit(0)
