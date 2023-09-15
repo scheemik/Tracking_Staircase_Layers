@@ -1252,7 +1252,7 @@ def find_geo_region(lon, lat):
 
 ## Read instrument makes a netcdf for just the given instrument
 # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
-# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
+read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
 # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
 # read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
 # read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
@@ -1269,7 +1269,7 @@ def find_geo_region(lon, lat):
 # make_all_ITP_netcdfs(science_data_file_path)
 
 ## This will make all the netcdfs for SHEBA
-make_SHEBA_netcdfs(science_data_file_path)
+# make_SHEBA_netcdfs(science_data_file_path)
 
 ## This will make all the netcdfs for AIDJEX
 # make_all_AIDJEX_netcdfs(science_data_file_path)

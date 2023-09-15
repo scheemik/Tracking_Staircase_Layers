@@ -170,7 +170,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -339,6 +339,7 @@ class Plot_Parameters:
                       'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ma_iT', 'ma_CT', 'ma_PT', 
                       'ma_SP', 'ma_SA', 'ma_sigma', 'ss_mask', 'la_iT', 'la_CT', 
                       'la_PT', 'la_SA','la_sigma'
+    z_vars          A list of strings of the variables to plot on the z axis
     clr_map         A string to determine what color map to use in the plot
                     'xy' can use 'clr_all_same', 'clr_by_source',
                       'clr_by_instrmt', 'density_hist', 'cluster', or any
@@ -369,7 +370,7 @@ class Plot_Parameters:
                         number of histogram bins to use: {'n_h_bins':25}, if not
                         given, it will use that default value
                     'profiles' plots will accept optional arguments such as:
-                        {'pfs_to_plot':[183,185,187]}
+                        {'pfs_to_plot':[183,185,187], 'shift_pfs':True}
                         Note: the code narrows to these profiles just before
                         plotting, so use this argument instead of narrowing earlier
                         in the Data_Set object if you want to plot by 'cluster'
@@ -394,14 +395,16 @@ class Plot_Parameters:
                         {'place_isos':'manual'}, otherwise they will be placed 
                         automatically
     """
-    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
+    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], z_vars=[None], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
         # Add all the input parameters to the object
         self.plot_type = plot_type
         self.plot_scale = plot_scale
         self.x_vars = x_vars
         self.y_vars = y_vars
+        self.z_vars = z_vars
         self.xlabels = [None,None]
         self.ylabels = [None,None]
+        self.zlabels = [None,None]
         self.clr_map = clr_map
         self.clabel = None
         self.first_dfs = first_dfs
@@ -413,6 +416,7 @@ class Plot_Parameters:
         if plot_type == 'map':
             x_vars = None
             y_vars = None
+            z_vars = None
         # If trying to plot a map, make sure `map_extent` exists
         if plot_type == 'map' and isinstance(extra_args, type(None)):
             self.extra_args = {'map_extent':'Canada_Basin'}
@@ -558,11 +562,13 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
             vars_to_keep.append('SA_CT_max')
         # Add all the plotting variables
         re_run_clstr = False
-        plot_vars = pp.x_vars+pp.y_vars+[pp.clr_map]
+        plot_vars = pp.x_vars+pp.y_vars+pp.z_vars+[pp.clr_map]
+        # Remove None values
+        plot_vars = [x for x in plot_vars if x is not None]
         # Check the extra arguments
         if not isinstance(pp.extra_args, type(None)):
             for key in pp.extra_args.keys():
-                if key in ['cl_x_var', 'cl_y_var']:
+                if key in ['cl_x_var', 'cl_y_var', 'cl_z_var']:
                     plot_vars.append(pp.extra_args[key])
                     re_run_clstr = True
                 if key == 'z_var':
@@ -709,7 +715,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
     plot_vars = pp.x_vars+pp.y_vars+[pp.clr_map]
     if not isinstance(pp.extra_args, type(None)):
         for key in pp.extra_args.keys():
-            if key in ['cl_x_var', 'cl_y_var']:
+            if key in ['cl_x_var', 'cl_y_var', 'cl_z_var']:
                 plot_vars.append(pp.extra_args[key])
     # Make an empty list
     output_dfs = []
@@ -961,7 +967,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     these_pfs = list(set(df[df['instrmt']==instrmt]['prof_no'].values))
                     print('these pfs:',these_pfs)
                     list_of_pfs.append(these_pfs)
-            print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
+            # print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
             # print(df)
         # exit(0)
     return output_dfs
@@ -1102,7 +1108,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
     if len(pf_list0) != len(pf_list1):
         # Find the eliminated profiles
         elim_list = [x for x in pf_list0 if x not in pf_list1]
-        print('profile ranges filter, # of profiles before:',len(pf_list0),'after:',len(pf_list1),'difference:',len(pf_list0)-len(pf_list1),'-',elim_list)
+        # print('profile ranges filter, # of profiles before:',len(pf_list0),'after:',len(pf_list1),'difference:',len(pf_list0)-len(pf_list1),'-',elim_list)
     return df
 
 ################################################################################
@@ -1193,6 +1199,25 @@ def get_axis_labels(pp, var_attr_dicts):
     else:
         pp.ylabels[0] = None
         pp.ylabels[1] = None
+    # Get z axis labels
+    if not isinstance(pp.z_vars, type(None)) and not isinstance(pp.z_vars[0], type(None)):
+        if len(pp.z_vars) > 0:
+            try:
+                pp.zlabels[0] = var_attr_dicts[0][pp.z_vars[0]]['label']
+            except:
+                pp.zlabels[0] = get_axis_label(pp.z_vars[0], var_attr_dicts)
+        else:
+            pp.zlabels[0] = None
+        if len(pp.z_vars) == 2:
+            try:
+                pp.zlabels[1] = var_attr_dicts[0][pp.z_vars[1]]['label']
+            except:
+                pp.zlabels[1] = get_axis_label(pp.z_vars[1], var_attr_dicts)
+        else:
+            pp.zlabels[1] = None
+    else:
+        pp.zlabels[0] = None
+        pp.zlabels[1] = None
     # Get colormap label
     if not isinstance(pp.clr_map, type(None)):
         try:
@@ -1554,18 +1579,24 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     n_subplots = len(groups_to_plot)
     x_keys = []
     y_keys = []
+    z_keys = []
     for group in groups_to_plot:
         pp = group.plt_params
         u_x_vars = np.unique(pp.x_vars)
         u_x_vars = np.delete(u_x_vars, np.where(u_x_vars == None))
         u_y_vars = np.unique(pp.y_vars)
         u_y_vars = np.delete(u_y_vars, np.where(u_y_vars == None))
+        u_z_vars = np.unique(pp.z_vars)
+        u_z_vars = np.delete(u_z_vars, np.where(u_z_vars == None))
         if len(u_x_vars) > 0:
             for var in u_x_vars:
                 x_keys.append(var)
         if len(u_y_vars) > 0:
             for var in u_y_vars:
                 y_keys.append(var)
+        if len(u_z_vars) > 0:
+            for var in u_z_vars:
+                z_keys.append(var)
             #
         #
     #
@@ -1589,6 +1620,16 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
         #
     else:
         use_same_y_axis = False
+    if len(z_keys) > 1 and isinstance(use_same_z_axis, type(None)):
+        # If all the z_vars are the same, share the z axis between subplots
+        if all(z == z_keys[0] for z in z_keys):
+            use_same_z_axis = True
+            print('\t- Set share_z_axis to True')
+        else:
+            use_same_z_axis = False
+        #
+    else:
+        use_same_z_axis = False
     tight_layout_h_pad = 1.0 #None
     tight_layout_w_pad = 1.0 #None
     if n_subplots == 1:
@@ -1598,9 +1639,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
         fig, ax = set_fig_axes([1], [1], fig_ratio=f_ratio, fig_size=f_size)
-        xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(ax, groups_to_plot[0], fig, 111)
+        xlabel, ylabel, zlabel, plt_title, ax, invert_y_axis = make_subplot(ax, groups_to_plot[0], fig, 111)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
+        if not isinstance(zlabel, type(None)):
+            ax.set_zlabel(zlabel)
         # Invert y-axis if specified
         if invert_y_axis:
             ax.invert_yaxis()
@@ -1629,7 +1672,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
         else:
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
-        fig, axes = set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
+        fig, axes = set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis, share_z_axis=use_same_z_axis)
         for i in range(n_subplots):
             print('- Subplot '+string.ascii_lowercase[i])
             if rows > 1 and cols > 1:
@@ -1637,7 +1680,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             else:
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
-            xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
+            xlabel, ylabel, zlabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
             if use_same_x_axis:
                 # If on the top row
                 if i < cols == 0:
@@ -1684,7 +1727,10 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             if this_ax_pp.add_grid:
                 ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
             # Label subplots a, b, c, ...
-            ax.text(-0.1, -0.1, '('+string.ascii_lowercase[i]+')', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
+            try:
+                ax.text(-0.1, -0.1, '('+string.ascii_lowercase[i]+')', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
+            except:
+                foo = 2
         # Turn off unused axes
         if n_subplots < (rows*cols):
             for i in range(rows*cols-1, n_subplots-1, -1):
@@ -1711,7 +1757,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
 # Formatting plotting functions ################################################
 ################################################################################
 
-def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, share_y_axis=None, prjctn=None):
+def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, share_y_axis=None, share_z_axis=None, prjctn=None):
     """
     Creates fig and axes objects based on desired heights and widths of subplots
     Ex: if widths=[1,5], there will be 2 columns, the 1st 1/5 the width of the 2nd
@@ -1722,6 +1768,7 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
     fig_size     size scale factor, 1 changes nothing, 2 makes it very big
     share_x_axis bool whether the subplots should share their x axes
     share_y_axis bool whether the subplots should share their y axes
+    share_z_axis bool whether the subplots should share their z axes
     prjctn       projection type for the subplots
     """
     # Set aspect ratio of overall figure
@@ -2035,6 +2082,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Set the main x and y data keys
         x_key = pp.x_vars[0]
         y_key = pp.y_vars[0]
+        z_key = pp.z_vars[0]
         # Check for histogram
         if x_key == 'hist' or y_key == 'hist':
             plot_hist = True
@@ -2074,6 +2122,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df[x_key] = mpl.dates.date2num(df[x_key])
             if y_key in ['dt_start', 'dt_end']:
                 df[y_key] = mpl.dates.date2num(df[y_key])
+            if z_key in ['dt_start', 'dt_end']:
+                df[z_key] = mpl.dates.date2num(df[z_key])
             if clr_map == 'dt_start' or clr_map == 'dt_end':
                 cmap_data = mpl.dates.date2num(df[clr_map])
             else:
@@ -2165,15 +2215,38 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df[x_key] = mpl.dates.date2num(df[x_key])
             if y_key in ['dt_start', 'dt_end']:
                 df[y_key] = mpl.dates.date2num(df[y_key])
-            # Drop duplicates
-            df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
+            if isinstance(z_key, type(None)):
+                df_z_key = 0
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
+                plot_3d = False
+            elif z_key in ['dt_start', 'dt_end']:
+                df_z_key = mpl.dates.date2num(df[z_key])
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
+                plot_3d = True
+            else:
+                df_z_key = df[z_key]
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
+                plot_3d = True
+            if plot_3d:
+                # Remove the current axis
+                ax.remove()
+                # Replace axis with one that has 3 dimensions
+                ax = fig.add_subplot(ax_pos, projection='3d')
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
             else: 
                 m_size = mrk_size
             # Plot every point the same color, size, and marker
-            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+            if plot_3d == False:
+                # Plot in 2D
+                ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+            else:
+                # Plot in 3D
+                ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
             if plot_slopes:
                 # Mark outliers
                 mark_outliers(ax, df, x_key, y_key)
@@ -2226,7 +2299,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_source':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
@@ -2406,15 +2479,35 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df[x_key] = mpl.dates.date2num(df[x_key])
             if y_key in ['dt_start', 'dt_end']:
                 df[y_key] = mpl.dates.date2num(df[y_key])
+            if isinstance(z_key, type(None)):
+                df_z_key = 0
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
+                plot_3d = False
+            elif z_key in ['dt_start', 'dt_end']:
+                df_z_key = mpl.dates.date2num(df[z_key])
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
+                plot_3d = True
+            else:
+                df_z_key = df[z_key]
+                # Drop duplicates
+                df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
+                plot_3d = True
+            if plot_3d:
+                # Remove the current axis
+                ax.remove()
+                # Replace axis with one that has 3 dimensions
+                ax = fig.add_subplot(ax_pos, projection='3d')
             m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            print('plot_slopes c:',plot_slopes)
-            invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            print('plot_slopes:',plot_slopes)
+            invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
             #
         else:
             # Did not provide a valid clr_map
@@ -3160,13 +3253,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     """
     # Find extra arguments, if given
     legend = pp.legend
-    if not isinstance(pp.extra_args, type(None)):
-        try:
-            plt_noise = pp.extra_args['plt_noise']
-        except:
-            plt_noise = True
-    else:
-        plt_noise = True
+    # if not isinstance(pp.extra_args, type(None)):
+    #     try:
+    #         plt_noise = pp.extra_args['plt_noise']
+    #     except:
+    #         plt_noise = True
+    # else:
+    #     plt_noise = True
     scale = pp.plot_scale
     ax_lims = pp.ax_lims
     if scale == 'by_pf':
@@ -3178,7 +3271,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     x_key = pp.x_vars[0]
     y_key = pp.y_vars[0]
     var_clr = get_var_color(x_key)
-    var_clr = std_clr
+    # var_clr = std_clr
     # Check for histogram
     if x_key == 'hist' or y_key == 'hist':
         print('Cannot plot histograms with profiles plot type')
@@ -3219,6 +3312,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Get extra args dictionary, if it exists
     try:
         extra_args = pp.extra_args
+        print('extra_args:',extra_args)
     except:
         extra_args = False
     # Make a blank list for dataframes of each profile
@@ -3282,11 +3376,25 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 tmp_df_list.append(df[df['prof_no'] == pf_no])
             df = pd.concat(tmp_df_list)
         except:
-            extra_args = None
+            foo = 2
+            # extra_args = None
         try:
             plt_noise = extra_args['plt_noise']
         except:
             plt_noise = True
+        try:
+            shift_pfs = extra_args['shift_pfs']
+        except:
+            shift_pfs = True
+    else:
+        plt_noise = True
+        shift_pfs = True
+    # Decide whether to shift the profiles over so they don't overlap or not
+    if shift_pfs:
+        shift_pfs = 1
+        print('\t- Shifting profiles for clarity')
+    else:
+        shift_pfs = 0
     # Find the unique profiles for this instrmt
     #   Make sure to match the variable type
     pfs_in_this_df = []
@@ -3337,6 +3445,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # Decide on marker and line styles, don't go off the end of the array
         mkr     = mpl_mrks[i%len(mpl_mrks)]
         l_style = l_styles[i%len(l_styles)]
+        if shift_pfs == 0:
+            var_clr = distinct_clrs[i%len(distinct_clrs)]
         # Get array to plot and find bounds
         if i == 0:
             # Pull data to plot
@@ -3387,7 +3497,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             old_xvar_high = xvar_high
             old_xv_span = xv_span
             # Find array of data for this profile
-            xvar = pf_df[x_key] - min(pf_df[x_key]) + old_xvar_low
+            xvar = pf_df[x_key] - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
             if CT_max_key:
                 CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key]) + old_xvar_low
             # Find new upper and lower bounds of profile
@@ -3401,9 +3511,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                     CT_max = CT_max + old_xv_span*0.8
                 xvar_high = max(xvar)
                 xvar_low = min(xvar)
-                tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
+                tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*0.8
                 if tw_CT_max_key:
-                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key]) + twin_low + tw_span*0.8
+                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*0.8
                 # 
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
@@ -3413,7 +3523,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 norm_tw = (tvar-twin_low)/tw_span
                 norm_pf_diff = min(norm_tw-norm_xv)
                 # Shift things over
-                right_bound = xvar_high - norm_pf_diff*xv_span
+                right_bound = max(xvar_high - norm_pf_diff*xv_span, right_bound)
                 twin_high = max(tvar)
                 # Find index of largest x value
                 # xvar_max_idx = np.argmax(xvar)
@@ -3423,12 +3533,12 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 tvar = None
                 tw_CT_max = None
                 # Shift things over
-                xvar = xvar + old_xv_span*0.45
+                xvar = xvar + old_xv_span*0.45*shift_pfs
                 if CT_max_key:
-                    CT_max = CT_max + old_xv_span*0.45
+                    CT_max = CT_max + old_xv_span*0.45*shift_pfs
                 xvar_low = min(xvar)
                 xvar_high = max(xvar)
-                right_bound = xvar_high
+                right_bound = max(xvar_high, right_bound)
             #
         # Determine the color mapping to be used
         if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
@@ -3458,20 +3568,21 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                     cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
+            mrk_alpha = 0.9
             # Plot a background line for each profile
             ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
             # Plot every point the same color, size, and marker
-            # ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+            ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
             # Plot maximum
-            if CT_max_key:
+            if False:#CT_max_key:
                 press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
                 print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
                 ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
-                # tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
-                if CT_max_key:
+                tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+                if False:#CT_max_key:
                     print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
                     tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             #
@@ -3528,10 +3639,15 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         if invert_tw_y_axis:
             tw_ax_y.invert_yaxis()
             print('\t- Inverting twin y axis')
+    if True:
+        # Change color of the axis label
+        ax.xaxis.label.set_color(var_clr)
+        # Change color of the ticks
+        ax.tick_params(axis='x', colors=var_clr)
     else:
         ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
     # Check whether to add a scale bar
-    if add_scale_bar:
+    if add_scale_bar and shift_pfs == 1:
         add_h_scale_bar(ax, ax_lims, unit=' g/kg')
         if tw_x_key:
             add_h_scale_bar(tw_ax_y, ax_lims, unit=r' $^\circ$C', tw_clr=tw_clr)
@@ -3587,7 +3703,7 @@ def get_cluster_args(pp):
         plot_slopes = cluster_plt_dict['plot_slopes']
     except:
         plot_slopes = False
-    print('plot_slopes b:',plot_slopes)
+    # print('plot_slopes b:',plot_slopes)
     # Check whether or not the box and whisker plots were called for
     try:
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
@@ -4001,7 +4117,7 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
 
 ################################################################################
 
-def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=None, box_and_whisker=True, plot_slopes=False):
+def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=None, box_and_whisker=True, plot_slopes=False):
     """
     Plots the clusters found by HDBSCAN on the x-y plane
 
@@ -4010,6 +4126,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
     df              A pandas data frame output from HDBSCAN_
     x_key           String of the name of the column to use on the x-axis
     y_key           String of the name of the column to use on the y-axis
+    z_key           String of the name of the column to use on the y-axis
     cl_x_var        String of the name of the column used on x-axis of clustering
     cl_y_var        String of the name of the column used on y-axis of clustering
     clr_map         String of the name of the colormap to use (ex: 'clusters')
@@ -4032,9 +4149,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
     else:
         plt_noise = True
     # Decide whether to plot the centroid or not
-    if x_key in pf_vars or y_key in pf_vars:
+    if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
         plot_centroid = False
-    elif y_key == 'CT':
+    elif y_key == 'CT' or z_key == 'CT':
         plot_centroid = False
     else:
         plot_centroid = True
@@ -4044,13 +4161,28 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
     #   the largest label plus 1
     n_clusters = int(df['cluster'].max()+1)
     # Remove rows where the plot variables are null
-    for var in [x_key, y_key]:
-        df = df[df[var].notnull()]
+    for var in [x_key, y_key, z_key]:
+        if not isinstance(var, type(None)):
+            df = df[df[var].notnull()]
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
+    if isinstance(z_key, type(None)):
+        df_noise_z_key = 0
+        plot_3d = False
+    elif z_key in ['dt_start', 'dt_end']:
+        df_noise_z_key = mpl.dates.date2num(df_noise[z_key])
+        plot_3d = True
+    else:
+        df_noise_z_key = df_noise[z_key]
+        plot_3d = True
     if plt_noise:
-        ax.scatter(df_noise[x_key], df_noise[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
+        if plot_3d == False:
+            # Plot in 2D
+            ax.scatter(df_noise[x_key], df_noise[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
+        else:
+            # Plot in 3D
+            ax.scatter(df_noise[x_key], df_noise[y_key], zs=df_noise_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
     n_noise_pts = len(df_noise)
     # Check whether to just plot one point per cluster
     if x_key in ca_vars:
@@ -4101,7 +4233,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
         y_key = 'cmm_mid'
         plot_centroid = False
         plot_slopes = False
-    print('plot_slopes a:',plot_slopes)
+    if isinstance(z_key, type(None)):
+        plot_centroid = False
+        plot_slopes = False
+    # print('plot_slopes a:',plot_slopes)
     # Look for outliers
     if 'nir' in x_key or 'cRL' in x_key or 'ca' in x_key:
         mrk_outliers = True
@@ -4130,6 +4265,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
             y_data = df_this_cluster[y_key] 
             y_mean = np.mean(y_data)
             y_stdv = np.std(y_data)
+            if isinstance(z_key, type(None)):
+                df_z_key = 0
+            elif z_key in ['dt_start', 'dt_end']:
+                df_z_key = mpl.dates.date2num(df_this_cluster[z_key])
+            else:
+                df_z_key = df_this_cluster[z_key]
             alphas = df_this_cluster['clst_prob'] #df[df.cluster == i]['clst_prob']
             # Plot the points for this cluster with the specified color, marker, and alpha value
             #   Having an issue with actually using the alphas from above without a TypeError
@@ -4142,7 +4283,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, cl_x_var, cl_y_var, clr_map
             elif 'nir' in x_key or 'cRL' in x_key or 'cRl' in x_key:
                 ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=1, zorder=5)
             else:
-                ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
+                if plot_3d == False:
+                    # Plot in 2D
+                    ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
+                else:
+                    # Plot in 3D
+                    ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
             # Plot the centroid of this cluster
             if plot_centroid:
                 # This will plot a marker at the centroid
