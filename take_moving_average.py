@@ -18,6 +18,7 @@ Disclaimer
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+import os
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -42,7 +43,7 @@ ncs_to_modify = [
                 #  'netcdfs/AIDJEX_BlueFox.nc',
                 #  'netcdfs/AIDJEX_Caribou.nc',
                 #  'netcdfs/AIDJEX_Snowbird.nc',
-                 'netcdfs/ITP_2.nc',
+                 'netcdfs/ITP_010.nc',
                 #  'netcdfs/ITP_33.nc',
                 #  'netcdfs/ITP_34.nc',
                 #  'netcdfs/ITP_35.nc',
@@ -51,6 +52,16 @@ ncs_to_modify = [
                 #  'netcdfs/ITP_43.nc',
                 #  'netcdfs/SHEBA_Seacat.nc'
                  ]
+
+# Get a list of all ITP netcdfs that have 3 digits in the file name
+ncs_to_modify = [] 
+ncs_available = os.listdir('netcdfs/')
+for nc in ncs_available:
+    itp_number = ''.join(filter(str.isdigit, nc))
+    if len(itp_number) == 3 and 'ITP' in nc:
+        ncs_to_modify.append('netcdfs/'+nc)
+# print(ncs_to_modify)
+# exit(0)
 
 # Loop through the netcdfs to modify
 for my_nc in ncs_to_modify:
@@ -69,9 +80,12 @@ for my_nc in ncs_to_modify:
 
     ## Get the moving average profiles
     # Convert a subset of the dataset to a dataframe
-    df = ds[['press','iT','CT','PT','SP','SA']].squeeze().to_dataframe()
+    df = ds[['press','iT','CT','PT','SP','SA','prof_no']].squeeze().to_dataframe()
     # Get the original dimensions of the data to reshape the arrays later
     len0 = len(df.index.get_level_values(0).unique())
+        # Had issues with ITP11, so I had to add `prof_no` to the dataframe and count
+        #   the unique values
+    len0 = len(list(set(df['prof_no'].values)))
     len1 = len(df.index.get_level_values(1).unique())
     # Use the pandas `rolling` function to get the moving average
     #   center=True makes the first and last window/2 of the profiles are masked
