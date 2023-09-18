@@ -375,15 +375,15 @@ class Plot_Parameters:
                         plotting, so use this argument instead of narrowing earlier
                         in the Data_Set object if you want to plot by 'cluster'
                     If plotting anything that has to do clustering, need these:
-                        {'cl_x_var':var0, 'cl_y_var':var1} where the two variables
-                        can be any that work for an 'xy' plot
+                        {'cl_x_var':var0, 'cl_y_var':var1, 'cl_z_var':var2} where the
+                        variables can be any that work for an 'xy' plot
                         Optional 'b_a_w_plt':True/False for box and whisker plots,
                         'm_pts':90 / 'min_samp':90 to specify m_pts or min pts per
                         cluster, 'plot_slopes' to plot lines showing the least
                         squares slope of each cluster
                     If doing a parameter sweep of clustering, expects the following:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_ps_tuple':[100,410,50]}
-                        where var0 and var1 are as specified above, 'cl_ps_tuple' is
+                        where var0/var1/var2 are as specified above, 'cl_ps_tuple' is
                         the [start,stop,step] for the xvar can be 'm_pts', 'min_samps'
                         'n_pfs' or 'ell_size', and yvar(s) must be 'DBCV' or 'n_clusters'
                         Optional: {'z_var':'m_pts', 'z_list':[90,120,240]} where
@@ -2122,8 +2122,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df[x_key] = mpl.dates.date2num(df[x_key])
             if y_key in ['dt_start', 'dt_end']:
                 df[y_key] = mpl.dates.date2num(df[y_key])
-            if z_key in ['dt_start', 'dt_end']:
-                df[z_key] = mpl.dates.date2num(df[z_key])
+            if isinstance(z_key, type(None)):
+                plot_3d = False
+            elif z_key in ['dt_start', 'dt_end']:
+                df_z_key = mpl.dates.date2num(df[z_key])
+                plot_3d = True
+            else:
+                df_z_key = df[z_key]
+                plot_3d = True
             if clr_map == 'dt_start' or clr_map == 'dt_end':
                 cmap_data = mpl.dates.date2num(df[clr_map])
             else:
@@ -2138,7 +2144,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 m_size = map_mrk_size
             else: 
                 m_size = mrk_size
-            heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+            if plot_3d:
+                # Remove the current axis
+                ax.remove()
+                # Replace axis with one that has 3 dimensions
+                ax = fig.add_subplot(ax_pos, projection='3d')
+                heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+            else:
+                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2193,14 +2206,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_all_same':
             # Concatonate all the pandas data frames together
             df = pd.concat(a_group.data_frames)
             # Check for cluster-based variables
             if x_key in clstr_vars or y_key in clstr_vars:
-                m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
+                m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
             else:
                 # Check whether to plot slopes
                 try:
@@ -2414,8 +2427,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df = pd.concat(a_group.data_frames)
             # Check for cluster-based variables
             if x_key in clstr_vars or y_key in clstr_vars:
-                m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
+                m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+                df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
             # Format the dates if necessary
             if x_key in ['dt_start', 'dt_end']:
                 df[x_key] = mpl.dates.date2num(df[x_key])
@@ -2499,9 +2512,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.remove()
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
-            m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             print('plot_slopes:',plot_slopes)
-            invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -2667,7 +2680,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             add_std_legend(ax, df, 'lon')
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, False
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         if clr_map == 'clr_all_same':
             # Concatonate all the pandas data frames together
             df = pd.concat(a_group.data_frames)
@@ -2682,7 +2695,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             add_std_legend(ax, df, 'lon')
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, False
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         elif clr_map == 'clr_by_source':
             # Find the list of sources
             sources_list = []
@@ -2723,7 +2736,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             lgnd = ax.legend(handles=lgnd_hndls)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, False
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         elif clr_map == 'clr_by_instrmt':
             i = 0
             lgnd_hndls = []
@@ -2785,7 +2798,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cbar.set_label('Bathymetry (m)', size=font_size_labels)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, False
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
     elif plot_type == 'profiles':
         # Check for clustering
         # Call profile plotting function
@@ -3140,8 +3153,8 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         return x_label, y_label, plt_title, ax, invert_y_axis
     elif clr_map == 'cluster':
         # Run clustering algorithm
-        m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
+        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
         # Remove rows where the plot variables are null
         df = df[df[var_key].notnull()]
         # Clusters are labeled starting from 0, so total number of clusters is
@@ -3342,8 +3355,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             cluster_this = True
         #
     if cluster_this:
-        m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
+        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         try:
@@ -3698,6 +3711,11 @@ def get_cluster_args(pp):
     except:
         cl_x_var = None
         cl_y_var = None
+    # Get z parameter, if given
+    try:
+        cl_z_var = cluster_plt_dict['cl_z_var']
+    except:
+        cl_z_var = None
     # Get the boolean for whether to plot trendline slopes or not
     try:
         plot_slopes = cluster_plt_dict['plot_slopes']
@@ -3709,11 +3727,11 @@ def get_cluster_args(pp):
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
     except:
         b_a_w_plt = False
-    return m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt
+    return m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt
 
 ################################################################################
 
-def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[None], param_sweep=False):
+def HDBSCAN_(run_group, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_vars=[None], param_sweep=False):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
@@ -3723,6 +3741,7 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
     df          A pandas data frame with x_key and y_key as equal length columns
     x_key       String of the name of the column to use on the x-axis
     y_key       String of the name of the column to use on the y-axis
+    z_key       String of the name of the column to use on the z-axis (optional)
     m_pts      An integer, the minimum number of points for a cluster
     min_samp    An integer, number of points in neighborhood for a core point
     extra_cl_vars   A list of extra variables to potentially calculate
@@ -3756,6 +3775,7 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
         gcattr_dict = {'Last clustered':[],
                        'Clustering x-axis':[],
                        'Clustering y-axis':[],
+                       'Clustering z-axis':[],
                        'Clustering m_pts':[],
                        'Moving average window':[],
                        'Clustering filters':[],
@@ -3778,13 +3798,30 @@ def HDBSCAN_(run_group, df, x_key, y_key, m_pts, min_samp=None, extra_cl_vars=[N
     if re_run:
         print('\t\tClustering x-axis:',x_key)
         print('\t\tClustering y-axis:',y_key)
+        print('\t\tClustering z-axis:',z_key)
         print('\t\tClustering m_pts: ',m_pts)
         print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
         hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_pts, min_samples=min_samp, cluster_selection_method='leaf')
+        # The datetime variables need to be scaled to match
+        dt_scale_factor = 10000
+        for var in [x_key, y_key, z_key]:
+            if var in ['dt_start','dt_end']:
+                print('\t\tRescaling '+var+' variable for clustering')
+                df[var] = df[var] / dt_scale_factor
         # Run the HDBSCAN algorithm
-        hdbscan_1.fit_predict(df[[x_key,y_key]])
+        if isinstance(z_key, type(None)):
+            # Run in 2D
+            hdbscan_1.fit_predict(df[[x_key,y_key]])
+        else:
+            # Run in 3D
+            hdbscan_1.fit_predict(df[[x_key,y_key,z_key]])
+        # Undo the scaling
+        for var in [x_key, y_key, z_key]:
+            if var in ['dt_start','dt_end']:
+                print('\t\tUnscaling '+var+' variable after clustering')
+                df[var] = df[var] * dt_scale_factor
         # Add the cluster labels and probabilities to the dataframe
         df['cluster']   = hdbscan_1.labels_
         df['clst_prob'] = hdbscan_1.probabilities_
@@ -4117,7 +4154,7 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
 
 ################################################################################
 
-def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, clr_map, m_pts, min_samp=None, box_and_whisker=True, plot_slopes=False):
+def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=None, box_and_whisker=True, plot_slopes=False):
     """
     Plots the clusters found by HDBSCAN on the x-y plane
 
@@ -4129,6 +4166,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     z_key           String of the name of the column to use on the y-axis
     cl_x_var        String of the name of the column used on x-axis of clustering
     cl_y_var        String of the name of the column used on y-axis of clustering
+    cl_z_var        String of the name of the column used on z-axis of clustering
     clr_map         String of the name of the colormap to use (ex: 'clusters')
     m_pts          An integer, the minimum number of points for a cluster
     min_samp        An integer, number of points in neighborhood for a core point
@@ -4156,7 +4194,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     else:
         plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
-    df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
+    df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
     n_clusters = int(df['cluster'].max()+1)
@@ -4546,7 +4584,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     min_s = z_list[i]
                 zlabel = 'Minimum samples: '+str(min_s)
             # Run the HDBSCAN algorithm on the provided dataframe
-            new_df, rel_val, m_pts, ell = HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, m_pts, min_samp=min_s, param_sweep=True)
+            new_df, rel_val, m_pts, ell = HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
             # Record outputs to plot
             if y_key == 'DBCV':
                 # relative_validity_ is a rough measure of DBCV

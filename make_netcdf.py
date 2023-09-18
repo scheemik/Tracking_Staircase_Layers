@@ -165,7 +165,8 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                     i += 1
                 #
             #
-        #
+        # Print out total files found
+        print('\tRead',i,'data files')
     #
     # Make sure the vertical data are all the same length lists
     for i in range(len(list_of_depth_arrs)):
@@ -554,6 +555,7 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                 'Last clustered':'Never',
                 'Clustering x-axis':'None',
                 'Clustering y-axis':'None',
+                'Clustering z-axis':'None',
                 'Clustering m_pts':'None',
                 'Clustering filters':'None',
                 'Clustering DBCV':'None'
@@ -619,9 +621,11 @@ def make_all_ITP_netcdfs(science_data_file_path, format='cormat'):
         exit(0)
     # Read in data for all ITPs available
     for itp in ITP_dirs:
-        # Get just the number for the itp
-        itp_number = ''.join(filter(str.isdigit, itp))
-        read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
+        if 'itp' in itp:
+            # Get just the number for the itp
+            itp_number = ''.join(filter(str.isdigit, itp))
+            read_instrmt('ITP', itp_number, main_dir+itp+'/'+itp+format, 'netcdfs/ITP_'+itp_number.zfill(3)+'.nc')
+        #
     #
 
 ################################################################################
@@ -638,7 +642,7 @@ def read_ITP_data_file(file_path, file_name, instrmt):
     # Make sure it isn't a 'sami' file instead of a 'grd' file
     if 'sami' in file_name:
         print('Skipping',file_name)
-        return
+        return None
     # Get just the proper file name, after the slash
     filename2 = file_name.split('/')[-1]
     # Assuming filename format itpXgrdYYYY.dat where YYYY is always 4 digits
@@ -693,13 +697,25 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
     time_HHMMSS_end   = dat['pstop']
     # Sometimes, the date comes out as an array. In that case, take the first index
     if not isinstance(date_MMDDYY_start, str):
-        date_MMDDYY_start = date_MMDDYY_start[0]
+        try:
+            date_MMDDYY_start = date_MMDDYY_start[0]
+        except:
+            date_MMDDYY_start = None
     if not isinstance(date_MMDDYY_end, str):
-        date_MMDDYY_end   = date_MMDDYY_end[0]
+        try:
+            date_MMDDYY_end   = date_MMDDYY_end[0]
+        except:
+            date_MMDDYY_end   = None
     if not isinstance(time_HHMMSS_start, str):
-        time_HHMMSS_start = time_HHMMSS_start[0]
+        try:
+            time_HHMMSS_start = time_HHMMSS_start[0]
+        except:
+            time_HHMMSS_start = None
     if not isinstance(time_HHMMSS_end, str):
-        time_HHMMSS_end   = time_HHMMSS_end[0]
+        try:
+            time_HHMMSS_end   = time_HHMMSS_end[0]
+        except:
+            time_HHMMSS_end   = None
     # Attempt to format the datetimes
     try:
         dt_start = str(datetime.strptime(date_MMDDYY_start+' '+time_HHMMSS_start, r'%m/%d/%y %H:%M:%S'))
@@ -765,6 +781,7 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         # Return all the relevant values
         return out_dict
     else:
+        print('No data found for',instrmt,prof_no)
         return None
 
 def read_ITP_final(file_path, file_name, instrmt, prof_no):
@@ -855,6 +872,7 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         # Return all the relevant values
         return out_dict
     else:
+        print('No data found for',instrmt,prof_no)
         return None
 
 ################################################################################
@@ -1252,7 +1270,7 @@ def find_geo_region(lon, lat):
 
 ## Read instrument makes a netcdf for just the given instrument
 # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
-read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
+# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
 # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
 # read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
 # read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
@@ -1264,6 +1282,8 @@ read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs
 # read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
 # read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
 # read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
+
+read_instrmt('ITP', '11', science_data_file_path+'ITPs/itp11/itp11cormat', 'netcdfs/ITP_011.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
