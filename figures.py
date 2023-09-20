@@ -97,7 +97,289 @@ all_sources = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'a
 
 # All profiles from all ITPs in this study
 all_ITPs = {'ITP_2':'all','ITP_3':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
+all_ITPs = {'ITP_001':'all',
+            'ITP_002':'all',
+            'ITP_003':'all',
+            'ITP_004':'all',
+            'ITP_005':'all',
+            'ITP_006':'all',
+            'ITP_007':'all',
+            'ITP_008':'all',
+            'ITP_009':'all',
+            'ITP_010':'all',
+            'ITP_011':'all',
+            'ITP_012':'all',
+            # 'ITP_013':'all',
+            # 'ITP_014':'all',
+            # 'ITP_015':'all',
+            # 'ITP_016':'all',
+            # 'ITP_017':'all',
+            # 'ITP_018':'all',
+            # 'ITP_019':'all',
+            # 'ITP_021':'all',
+            # 'ITP_022':'all',
+            # 'ITP_023':'all',
+            # 'ITP_024':'all',
+            # 'ITP_025':'all',
+            # 'ITP_026':'all',
+            # 'ITP_027':'all',
+            # 'ITP_028':'all',
+            # 'ITP_029':'all',
+            # 'ITP_030':'all',
+            # 'ITP_032':'all',
+            # 'ITP_033':'all',
+            # 'ITP_034':'all',
+            # 'ITP_035':'all',
+            # 'ITP_036':'all',
+            # 'ITP_037':'all',
+            # 'ITP_038':'all',
+            # 'ITP_041':'all',
+            # 'ITP_042':'all',
+            # 'ITP_043':'all',
+            # 'ITP_047':'all',
+            # 'ITP_048':'all',
+            # 'ITP_049':'all',
+            # 'ITP_051':'all',
+            # 'ITP_052':'all',
+            # 'ITP_053':'all',
+            # 'ITP_054':'all',
+            # 'ITP_055':'all',
+            # 'ITP_056':'all',
+            # 'ITP_057':'all',
+            # 'ITP_058':'all',
+            # 'ITP_059':'all',
+            # 'ITP_060':'all',
+            # 'ITP_061':'all',
+            # 'ITP_062':'all',
+            # 'ITP_063':'all',
+            # 'ITP_064':'all',
+            # 'ITP_065':'all',
+            # 'ITP_068':'all',
+            # 'ITP_069':'all',
+            # 'ITP_070':'all',
+            # 'ITP_072':'all',
+            # 'ITP_073':'all',
+            # 'ITP_074':'all',
+            # 'ITP_075':'all',
+            # 'ITP_076':'all',
+            # 'ITP_077':'all',
+            # 'ITP_078':'all',
+            # 'ITP_079':'all',
+            # 'ITP_080':'all',
+            # 'ITP_081':'all',
+            # 'ITP_082':'all',
+            # 'ITP_083':'all',
+            # 'ITP_084':'all',
+            # 'ITP_085':'all',
+            # 'ITP_086':'all',
+            # 'ITP_087':'all',
+            # 'ITP_088':'all',
+            # 'ITP_089':'all',
+            # 'ITP_090':'all',
+            # 'ITP_091':'all',
+            # 'ITP_092':'all',
+            # 'ITP_094':'all',
+            # 'ITP_095':'all',
+            # 'ITP_097':'all',
+            # 'ITP_098':'all',
+            # 'ITP_099':'all',
+            # 'ITP_100':'all',
+            # 'ITP_101':'all',
+            # 'ITP_102':'all',
+            # 'ITP_103':'all',
+            # 'ITP_104':'all',
+            # 'ITP_105':'all',
+            # 'ITP_107':'all',
+            # 'ITP_108':'all',
+            # 'ITP_109':'all',
+            # 'ITP_110':'all',
+            # 'ITP_111':'all',
+            # 'ITP_113':'all',
+            # 'ITP_114':'all',
+            # 'ITP_116':'all'
+            }
 all_BGOS = {'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'}
+
+# Sets of ITPs within the CB that appear within certain time ranges
+## 2004-08-20 00:00:01 to 2004-09-29 00:00:05
+CB_ITPs_0a = {'ITP_002':'all'}
+## 2005-08-16 06:00:01 to 
+CB_ITPs_0b = {'ITP_001':'all',
+            #   'ITP_002':'all', # Not in this time range
+              'ITP_003':'all',
+              'ITP_004':'all',
+              'ITP_005':'all',
+              'ITP_006':'all',
+            #   'ITP_007':'all', # Not in CB
+              'ITP_008':'all',
+            #   'ITP_009':'all', # Not in CB
+            #   'ITP_010':'all', # Not in CB
+              'ITP_011':'all', # can't time slice? but only sometimes
+            #   'ITP_012':'all', # Not in CB
+            #   'ITP_013':'all',  # something weird is going on here
+            #   'ITP_014':'all', # Not in CB
+            #   'ITP_015':'all', # Not in CB
+            #   'ITP_016':'all', # Not in CB
+            #   'ITP_017':'all', # Not in CB
+              'ITP_018':'all',
+            #   'ITP_019':'all', # Not in CB
+              'ITP_021':'all',
+              'ITP_022':'all',
+              'ITP_023':'all',
+            #   'ITP_024':'all', # Not in CB
+              'ITP_025':'all',
+              'ITP_026':'all',
+              'ITP_027':'all',
+              'ITP_028':'all',
+              'ITP_029':'all',
+              'ITP_030':'all',
+              'ITP_032':'all',
+              'ITP_033':'all',
+              'ITP_034':'all',
+              'ITP_035':'all',
+              'ITP_036':'all',
+              'ITP_037':'all',
+              'ITP_038':'all',
+              }
+
+# Sets of ITPs within the BGR that appear within certain time ranges
+## 2004-08-20 00:00:01 to 2004-09-29 00:00:05, duration: 41 days
+BGR_ITPs_0a = {'ITP_002':'all'}
+## 2005-08-16 06:00:01 to 2009-08-31 00:00:08, gap: 320 days, duration: 1477 days
+BGR_ITPs_0b = { 'ITP_001':'all',
+                # 'ITP_002':'all', # Not in this time range
+                'ITP_003':'all',
+                'ITP_004':'all',
+                'ITP_005':'all',
+                'ITP_006':'all',
+                # 'ITP_007':'all', # Not in BGR
+                'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                'ITP_011':'all', # can't time slice? but only sometimes
+                # 'ITP_012':'all', # Not in BGR
+                'ITP_013':'all',  # something weird is going on here
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                'ITP_018':'all',
+                # 'ITP_019':'all', # Not in BGR
+                'ITP_021':'all',
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                'ITP_025':'all', 
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                'ITP_030':'all',
+                }
+## 2009-10-04 06:00:02 to 2010-06-08 00:00:07, gap: 33 days, duration: 248 days
+BGR_ITPs_0c = { 'ITP_032':'all',
+                'ITP_033':'all',
+                'ITP_034':'all',
+                'ITP_035':'all',
+                }
+## 2010-06-16 00:00:06 to 2013-08-12 00:00:06, gap: 8 days, duration: 1154 days
+BGR_ITPs_0d = { 'ITP_033':'all',
+                # 'ITP_036':'all', # Not in BGR
+                # 'ITP_037':'all', # Not in BGR
+                # 'ITP_038':'all', # Not in BGR
+                'ITP_041':'all',
+                'ITP_042':'all',
+                'ITP_043':'all',
+                # 'ITP_047':'all',
+                # 'ITP_048':'all',
+                # 'ITP_049':'all',
+                # 'ITP_051':'all',
+                'ITP_052':'all',
+                'ITP_053':'all',
+                'ITP_054':'all',
+                'ITP_055':'all',
+                # 'ITP_056':'all',
+                # 'ITP_057':'all',
+                # 'ITP_058':'all',
+                # 'ITP_059':'all',
+                # 'ITP_060':'all',
+                # 'ITP_061':'all',
+                'ITP_062':'all',
+                # 'ITP_063':'all',
+                'ITP_064':'all',
+                'ITP_065':'all',
+                }
+## 2013-08-22 00:02:02 to 2016-05-02 00:02:01, gap: 9 days, duration: 985 days
+BGR_ITPs_0e = { 'ITP_064':'all',
+                # 'ITP_065':'all', # Doesn't appear in this time period
+                'ITP_068':'all',
+                'ITP_069':'all',
+                'ITP_070':'all',
+                # 'ITP_072':'all', # Not in BGR
+                # 'ITP_073':'all', # Not in BGR
+                # 'ITP_074':'all', # Not in BGR
+                # 'ITP_075':'all', # Not in BGR
+                # 'ITP_076':'all', # Not in BGR
+                'ITP_077':'all',
+                'ITP_078':'all',
+                'ITP_079':'all',
+                'ITP_080':'all',
+                'ITP_081':'all',
+                'ITP_082':'all',
+                # 'ITP_083':'all', # Not in BGR
+                'ITP_084':'all',
+                'ITP_085':'all',
+                'ITP_086':'all',
+                'ITP_087':'all',
+                'ITP_088':'all',
+                'ITP_089':'all',
+                # 'ITP_090':'all', # Not in BGR
+                # 'ITP_091':'all', # Not in BGR
+                # 'ITP_092':'all', # Not in BGR
+                # 'ITP_094':'all', # Not in BGR
+                # 'ITP_095':'all', # Not in BGR
+                }
+## 2016-10-03 00:02:02 to 2017-08-04 00:02:01, gap: 153 days, duration: 306 days
+BGR_ITPs_0f = { 'ITP_097':'all',
+                # 'ITP_098':'all', # Just barely outside BGR
+                'ITP_099':'all',
+                }
+## 2017-09-17 00:02:02 to 2018-07-21 00:02:02, gap: 43 days, duration: 308 days
+BGR_ITPs_0g = { 'ITP_097':'all',
+                'ITP_100':'all',
+                'ITP_101':'all',
+                # 'ITP_102':'all', # Not in BGR
+                # 'ITP_103':'all', # Not in this time period
+                # 'ITP_104':'all', # Not in this time period
+                # 'ITP_105':'all', # Not in this time period
+                # 'ITP_107':'all', # Not in this time period
+                'ITP_108':'all',
+                }
+## 2018-09-19 00:02:03 to 2019-04-14 00:02:02, gap: 59 days, duration: 208 days
+BGR_ITPs_0h = { 'ITP_103':'all',
+                'ITP_104':'all',
+                'ITP_105':'all',
+                'ITP_107':'all',
+                'ITP_108':'all', # Not in this time period
+                'ITP_109':'all',
+                'ITP_110':'all',
+                }
+## 
+BGR_ITPs_0i = { 'ITP_103':'all',
+                'ITP_104':'all',
+                'ITP_105':'all',
+                'ITP_107':'all',
+                'ITP_108':'all', # Not in this time period
+                'ITP_109':'all',
+                'ITP_110':'all',
+                # 'ITP_111':'all', # Not in BGR
+                'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                }
+
+# Pre-clustered files
+BGRa_m110 = {'BGRa_mpts_110':'all'}
 
 # All profiles from all AIDJEX camps
 all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
@@ -188,6 +470,20 @@ dfs0 = ahf.Data_Filters()
 dfs1 = ahf.Data_Filters(min_press=400)
 dfs2 = ahf.Data_Filters(min_press_CT_max=400)
 
+dfs_CB = ahf.Data_Filters(geo_extent='CB', keep_black_list=True, cast_direction='any')
+this_min_press = 400
+dfs1_CB_0a = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)
+dfs1_CB_0b = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)#, date_range=['2005/08/15 00:00:00','2010/07/22 00:00:00'])
+
+# Beaufort Gyre Region
+dfs1_BGR_0c = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
+dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2013/08/17 00:00:00'])
+dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/17 00:00:00','2016/07/10 00:00:00'])
+dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
+dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
+dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
+dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2024/08/17 00:00:00'])
+
 ################################################################################
 # Create data sets by combining filters and the data to load in
 print('- Creating data sets')
@@ -204,11 +500,33 @@ print('- Creating data sets')
 ## ITP
 
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs_all)
+# ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
 # ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
 
-# ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
+# ds_all_ITP = ahf.Data_Set(all_ITPs, dfs_all)
+# ds_all_ITP = ahf.Data_Set(all_ITPs, dfs_CB)
+
+# ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
 # ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
+
+# ds_ITP_test = ahf.Data_Set({'ITP_098':'all'}, dfs_all)
+
+## CB ITP datasets, by time period
+# ds_CB_ITPs_0a = ahf.Data_Set(CB_ITPs_0a, dfs1_CB_0a)
+# ds_CB_ITPs_0b = ahf.Data_Set(CB_ITPs_0b, dfs1_CB_0b)
+# ds_CB_ITPs_0b = ahf.Data_Set(CB_ITPs_0a, dfs1_CB_0b)
+
+## BGR ITP datasets, by time period
+ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+# ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
+# ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1_BGR_0c)
+# ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
+# ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
+# ds_BGR_ITPs_0f = ahf.Data_Set(BGR_ITPs_0f, dfs1_BGR_0f)
+# ds_BGR_ITPs_0g = ahf.Data_Set(BGR_ITPs_0g, dfs1_BGR_0g)
+# ds_BGR_ITPs_0h = ahf.Data_Set(BGR_ITPs_0h, dfs1_BGR_0h)
+# ds_BGR_ITPs_0i = ahf.Data_Set(BGR_ITPs_0i, dfs1_BGR_0i)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -222,7 +540,7 @@ print('- Creating data sets')
 # ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs_all)
 
 # Data Sets filtered based on CT_max
-ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
+# ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
 
 # ds_ITP33 = ahf.Data_Set(ITP33_all, dfs1)
 # ds_ITP34 = ahf.Data_Set(ITP34_all, dfs1)
@@ -284,6 +602,9 @@ ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
 # ds_BGOS_m360_e100 = ahf.Data_Set(BGOS_m360_e100, dfs_all)
 # ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
+# Pre-clustered
+ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_all)
+
 ################################################################################
 # Create profile filtering objects
 print('- Creating profile filtering objects')
@@ -293,35 +614,46 @@ pfs_0 = ahf.Profile_Filters()
 pfs_1 = ahf.Profile_Filters(SA_range=ITP2_S_range)
 pfs_2 = ahf.Profile_Filters(p_range=[400,225])
 
-# AIDJEX Operation Area
-lon_AOA = [-152.9,-133.7]
-lat_AOA = [72.6,77.4]
-pfs_AOA = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA)
-pfs_AOA1 = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA, p_range=[1000,5])
+# # AIDJEX Operation Area (AOA)
+# lon_AOA = [-152.9,-133.7]
+# lat_AOA = [72.6,77.4]
+# pfs_AOA = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA)
+# pfs_AOA1 = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA, p_range=[1000,5])
+# Canada Basin (CB), see Peralta-Ferriz2015
+lon_CB = [-155,-130]
+lat_CB = [72,84]
+pfs_CB = ahf.Profile_Filters(lon_range=lon_CB,lat_range=lat_CB)
+pfs_CB1 = ahf.Profile_Filters(lon_range=lon_CB,lat_range=lat_CB, p_range=[1000,5])
+# Beaufort Gyre Region (BGR), see Shibley2022
+lon_BGR = [-160,-130]
+lat_BGR = [73,81.5]
+pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
+pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
 
 # Finding coincident profiles
-lon_coin = [-148.9,-147.8]
-lat_coin = [74.9,75.5]
-pfs_coin = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin)
-pfs_coin_fltrd = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin, SA_range=LHW_S_range, lt_pCT_max=True)
+# lon_coin = [-148.9,-147.8]
+# lat_coin = [74.9,75.5]
+# pfs_coin = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin)
+# pfs_coin_fltrd = ahf.Profile_Filters(lon_range=lon_coin,lat_range=lat_coin, SA_range=LHW_S_range, lt_pCT_max=True)
 
 # Finding close example profiles
-lon_ex_pfs = [-145.2,-144.53]
-lat_ex_pfs = [75.962,76.06]
-pfs_ex_pfs = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs)
-pfs_ex_pfs_fltrd = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs, SA_range=LHW_S_range, lt_pCT_max=True)
-
-pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
-pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
-pfs_BGOS  = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA,SA_range=BGOS_S_range)
-pfs_fltrd = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True)
-pfs_fltrd_ss = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
-
-pfs_subs = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True)
-pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
-pfs_ss_rg = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True, regrid_TS=['CT',0.01,'SP',0.005])
-
-pfs_AIDJEX = ahf.Profile_Filters(SA_range=AIDJEX_S_range)
+# lon_ex_pfs = [-145.2,-144.53]
+# lat_ex_pfs = [75.962,76.06]
+# pfs_ex_pfs = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs)
+# pfs_ex_pfs_fltrd = ahf.Profile_Filters(lon_range=lon_ex_pfs, lat_range=lat_ex_pfs, SA_range=LHW_S_range, lt_pCT_max=True)
+# 
+# pfs_ITP2  = ahf.Profile_Filters(SA_range=ITP2_S_range)
+# pfs_ITP3  = ahf.Profile_Filters(SA_range=Lu2022_S_range)
+# pfs_BGOS  = ahf.Profile_Filters(lon_range=lon_AOA,lat_range=lat_AOA,SA_range=BGOS_S_range)
+# pfs_fltrd = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True)
+# pfs_fltrd_ss = ahf.Profile_Filters(lon_range=lon_AOA, lat_range=lat_AOA, SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
+# pfs_fltrd = ahf.Profile_Filters(SA_range=LHW_S_range)#, lt_pCT_max=True)
+# 
+# pfs_subs = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True)
+# pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
+# pfs_ss_rg = ahf.Profile_Filters(SA_range=ITP2_S_range, subsample=True, regrid_TS=['CT',0.01,'SP',0.005])
+# 
+# pfs_AIDJEX = ahf.Profile_Filters(SA_range=AIDJEX_S_range)
 
 ################################################################################
 # Create plotting parameter objects
@@ -333,7 +665,7 @@ pfs_AIDJEX = ahf.Profile_Filters(SA_range=AIDJEX_S_range)
 
 ## Number of up-going profiles
 # Make the Plot Parameters
-# pp_test = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='prof_no', legend=True)
+# pp_test = ahf.Plot_Parameters()
 # pp_test = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles')
 # Make the Analysis Group
 # group_AIDJEX_missing_ll = ahf.Analysis_Group(ds_AIDJEX_missing_ll, pfs_0, pp_test, plot_title='BigBear lat-lon errors')
@@ -343,33 +675,167 @@ pfs_AIDJEX = ahf.Profile_Filters(SA_range=AIDJEX_S_range)
 # ahf.make_figure([group_AIDJEX_missing_ll])
 # exit(0)
 
-## Regrid
-# Make the Profile Filters
-pfs_regrid = ahf.Profile_Filters(SA_range=ITP2_S_range, regrid_TS=['CT',0.01,'SP',0.005])
-# Make the Plot Parameters
-pp_regrid = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['CT'], clr_map='clr_all_same', legend=True)
-# Make the Analysis Group
-# group_regrid = ahf.Analysis_Group(ds_ITP2_all, pfs_regrid, pp_regrid)
-# Make the figure
-# ahf.make_figure([group_regrid])
-
-pp_clstr_test = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, legend=True, add_grid=True)
+# Output summary
+if False:
+    # Make the Plot Parameters
+    pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
+    # Make the Analysis Group
+    group_test = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_test)
+    ahf.txt_summary([group_test])
 
 ################################################################################
 ### Figures
 
-## TS plot of ITP2
-if True:
+### Figure 1
+## Maps
+pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Western_Arctic'})
+pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'})#, legend=False, add_grid=False)
+pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'AIDJEX_focus'})
+## Map of all profiles for all sources
+if False:
     print('')
-    print('- Creating TS plot of ITP2')
-    # Make the Plot Parameters
-    pp_CT_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':100, 'b_a_w_plt':False})
-    pp_CT_SA_3d = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], z_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':100, 'b_a_w_plt':False})
-    # Make the Analysis Group pfs_fltrd pfs_AOA1
-    group_CT_SA_plot = ahf.Analysis_Group(ds_ITP2, pfs_fltrd, pp_CT_SA)
-    group_CT_SA_3d_plot = ahf.Analysis_Group(ds_ITP2, pfs_fltrd, pp_CT_SA_3d)
+    print('- Creating a map of all profiles from all sources')
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_ITP, pfs_0, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_ITP, pfs_0, pp_map, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_SA_plot, group_CT_SA_3d_plot])
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+## Map of just in the Canada Basin
+if False:
+    print('')
+    print('- Creating a map of profiles in the Canada Basin')
+    # Make the subplot groups
+    group_map = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_map, plot_title='')
+    # group_map = ahf.Analysis_Group(ds_ITP_test, pfs_0, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+## Map of all upgoing profiles for all sources
+if False:
+    print('')
+    print('- Creating a map of all upgoing profiles from all sources')
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_up, pfs_0, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources_up, pfs_0, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+## Map of all upgoing profiles for all sources with a max pressure > 400 dbar
+if False:
+    print('')
+    print('- Creating a map of all upgoing profiles from all sources that go below 400 dbar')
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_0, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_0, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle') 
+## Map of select profiles from all sources within AOA
+if False:
+    print('')
+    print('- Creating a map of select profiles from all sources within AOA')
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+## Map of select profiles from all sources within AOA within selected ranges
+if False:
+    print('')
+    print('- Creating a map of select profiles from all sources within AOA filtered')
+    # Make plot parameter objects
+    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'AIDJEX_focus', 'extra_vars_to_keep':['SA','press']})
+    pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'Full_Arctic', 'extra_vars_to_keep':['SA','press']}, legend=False, add_grid=False)
+    # Make the subplot groups
+    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map_full_Arctic, plot_title='')
+    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+## Maps comparing available profiles to selected profiles
+if False:
+    print('')
+    print('- Creating maps comparing available vs. selected profiles')
+    # Make the subplot groups
+    group_all      = ahf.Analysis_Group(ds_all_sources_all, pfs_0, pp_map, plot_title='Profiles available')
+    group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map, plot_title='Profiles selected')
+    # Make the figure
+    ahf.make_figure([group_all, group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    # Find the maximum distance between any two profiles for each data set in the group
+    # ahf.find_max_distance([group_all])
+    # ahf.find_max_distance([group_selected])
+## Map to find coincident profiles (or as close as I can get)
+if False:
+    print('')
+    print('- Creating map to find example profiles')
+    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'AIDJEX_focus'})
+    # Make the subplot groups
+    # group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_coin, pp_map, plot_title='Profiles used in study, filtered to small area')
+    group_selected = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_ex_pfs, pp_map, plot_title='Example profiles')
+    # Make the figure
+    ahf.make_figure([group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+### Date and Distance spans
+## Maps of BGOS ITPs by date
+if False:
+    print('')
+    print('- Creating maps for each BGOS ITP')
+    # Make the subplot groups
+    group_ITP33 = ahf.Analysis_Group(ds_ITP33, pfs_AOA, pp_map_by_date)
+    group_ITP34 = ahf.Analysis_Group(ds_ITP34, pfs_AOA, pp_map_by_date)
+    group_ITP35 = ahf.Analysis_Group(ds_ITP35, pfs_AOA, pp_map_by_date)
+    group_ITP41 = ahf.Analysis_Group(ds_ITP41, pfs_AOA, pp_map_by_date)
+    group_ITP42 = ahf.Analysis_Group(ds_ITP42, pfs_AOA, pp_map_by_date)
+    group_ITP43 = ahf.Analysis_Group(ds_ITP43, pfs_AOA, pp_map_by_date)
+    # Make the figure
+    # ahf.make_figure([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    # Find the maximum distance between any two profiles for each data set in the group
+    ahf.find_max_distance([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43])
+## Maps of AIDJEX stations by date
+if False:
+    print('')
+    print('- Creating maps for each AIDJEX station')
+    # Make the subplot groups
+    group_BigBear  = ahf.Analysis_Group(ds_AIDJEX_BigBear,  pfs_AOA, pp_map_by_date)
+    group_BlueFox  = ahf.Analysis_Group(ds_AIDJEX_BlueFox,  pfs_AOA, pp_map_by_date)
+    group_Caribou  = ahf.Analysis_Group(ds_AIDJEX_Caribou,  pfs_AOA, pp_map_by_date)
+    group_Snowbird = ahf.Analysis_Group(ds_AIDJEX_Snowbird, pfs_AOA, pp_map_by_date)
+    # Make the figure
+    # ahf.make_figure([group_BigBear, group_BlueFox, group_Caribou, group_Snowbird], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    # Find the maximum distance between any two profiles for each data set in the group
+    ahf.find_max_distance([group_BigBear, group_BlueFox, group_Caribou, group_Snowbird])
+## Maps of AIDJEX and BGOS ITPs by date
+if False:
+    print('')
+    print('- Creating maps by date for AIDJEX and BGOS ITPs')
+    # Make the subplot groups
+    group_AIDJEX    = ahf.Analysis_Group(ds_AIDJEX, pfs_AOA, pp_map_by_date, plot_title='AIDJEX')
+    group_BGOS_ITP  = ahf.Analysis_Group(ds_BGOS,   pfs_AOA, pp_map_by_date, plot_title='BGOS ITPs')
+    # Make the figure
+    # ahf.make_figure([group_AIDJEX, group_BGOS_ITP], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    # Find the maximum distance between any two profiles for each data set in the group
+    ahf.find_max_distance([group_AIDJEX, group_BGOS_ITP])
+
+## la_CT-SA vs. la_CT-SA-dt_start plots
+if False:
+    print('')
+    print('- Creating TS and TS-time plots')
+    # Make the Plot Parameters
+    pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_by_instrmt')
+    # pp_CT_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
+    # pp_CT_SA_3d = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], z_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'dt_start', 'cl_z_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
+    # Make the Analysis Group pfs_fltrd pfs_BGR1
+    group_CT_SA_plot = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_CT_SA)
+    # group_CT_SA_plot = ahf.Analysis_Group(ds_ITP_test, pfs_BGR1, pp_CT_SA)
+    # group_CT_SA_3d_plot = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_CT_SA_3d)
+    # Make the figure
+    ahf.make_figure([group_CT_SA_plot])#, group_CT_SA_3d_plot])
+
+# TS plot
+if False:
+    print('')
+    print('- Creating TS plots')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['iT'], clr_map='clr_all_same')
+    # Make the Analysis Group
+    group_TS_plot = ahf.Analysis_Group(ds_ITP_test, pfs_fltrd, pp_TS)
+    # Make the figure
+    ahf.make_figure([group_TS_plot])
 
 ## AIDJEX blacklisted profiles TS plots
 if False:
@@ -523,122 +989,6 @@ if False:
     # # Make the figure
     ahf.make_figure([group_AIDJEX, group_SHEBA, group_BGOS])
 
-### Figure 1
-## Maps
-pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'AIDJEX_focus'})
-pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'Full_Arctic'}, legend=False, add_grid=False)
-pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'AIDJEX_focus'})
-## Map of all profiles for all sources
-if False:
-    print('')
-    print('- Creating a map of all profiles from all sources')
-    # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_all, pfs_0, pp_map_full_Arctic, plot_title='')
-    group_map = ahf.Analysis_Group(ds_all_sources_all, pfs_0, pp_map, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-## Map of all upgoing profiles for all sources
-if False:
-    print('')
-    print('- Creating a map of all upgoing profiles from all sources')
-    # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_up, pfs_0, pp_map_full_Arctic, plot_title='')
-    group_map = ahf.Analysis_Group(ds_all_sources_up, pfs_0, pp_map, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-## Map of all upgoing profiles for all sources with a max pressure > 400 dbar
-if False:
-    print('')
-    print('- Creating a map of all upgoing profiles from all sources that go below 400 dbar')
-    # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_0, pp_map_full_Arctic, plot_title='')
-    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_0, pp_map, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle') 
-## Map of select profiles from all sources within AOA
-if False:
-    print('')
-    print('- Creating a map of select profiles from all sources within AOA')
-    # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map_full_Arctic, plot_title='')
-    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-## Map of select profiles from all sources within AOA within selected ranges
-if False:
-    print('')
-    print('- Creating a map of select profiles from all sources within AOA filtered')
-    # Make plot parameter objects
-    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'AIDJEX_focus', 'extra_vars_to_keep':['SA','press']})
-    pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'Full_Arctic', 'extra_vars_to_keep':['SA','press']}, legend=False, add_grid=False)
-    # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map_full_Arctic, plot_title='')
-    group_map = ahf.Analysis_Group(ds_all_sources_pmin, pfs_fltrd, pp_map, plot_title='')
-    # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-## Maps comparing available profiles to selected profiles
-if False:
-    print('')
-    print('- Creating maps comparing available vs. selected profiles')
-    # Make the subplot groups
-    group_all      = ahf.Analysis_Group(ds_all_sources_all, pfs_0, pp_map, plot_title='Profiles available')
-    group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_AOA, pp_map, plot_title='Profiles selected')
-    # Make the figure
-    ahf.make_figure([group_all, group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-    # Find the maximum distance between any two profiles for each data set in the group
-    # ahf.find_max_distance([group_all])
-    # ahf.find_max_distance([group_selected])
-## Map to find coincident profiles (or as close as I can get)
-if False:
-    print('')
-    print('- Creating map to find example profiles')
-    pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_source', extra_args={'map_extent':'AIDJEX_focus'})
-    # Make the subplot groups
-    # group_selected = ahf.Analysis_Group(ds_all_sources_pmin, pfs_coin, pp_map, plot_title='Profiles used in study, filtered to small area')
-    group_selected = ahf.Analysis_Group(ds_all_sources_ex_pfs, pfs_ex_pfs, pp_map, plot_title='Example profiles')
-    # Make the figure
-    ahf.make_figure([group_selected], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-### Date and Distance spans
-## Maps of BGOS ITPs by date
-if False:
-    print('')
-    print('- Creating maps for each BGOS ITP')
-    # Make the subplot groups
-    group_ITP33 = ahf.Analysis_Group(ds_ITP33, pfs_AOA, pp_map_by_date)
-    group_ITP34 = ahf.Analysis_Group(ds_ITP34, pfs_AOA, pp_map_by_date)
-    group_ITP35 = ahf.Analysis_Group(ds_ITP35, pfs_AOA, pp_map_by_date)
-    group_ITP41 = ahf.Analysis_Group(ds_ITP41, pfs_AOA, pp_map_by_date)
-    group_ITP42 = ahf.Analysis_Group(ds_ITP42, pfs_AOA, pp_map_by_date)
-    group_ITP43 = ahf.Analysis_Group(ds_ITP43, pfs_AOA, pp_map_by_date)
-    # Make the figure
-    # ahf.make_figure([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-    # Find the maximum distance between any two profiles for each data set in the group
-    ahf.find_max_distance([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43])
-## Maps of AIDJEX stations by date
-if False:
-    print('')
-    print('- Creating maps for each AIDJEX station')
-    # Make the subplot groups
-    group_BigBear  = ahf.Analysis_Group(ds_AIDJEX_BigBear,  pfs_AOA, pp_map_by_date)
-    group_BlueFox  = ahf.Analysis_Group(ds_AIDJEX_BlueFox,  pfs_AOA, pp_map_by_date)
-    group_Caribou  = ahf.Analysis_Group(ds_AIDJEX_Caribou,  pfs_AOA, pp_map_by_date)
-    group_Snowbird = ahf.Analysis_Group(ds_AIDJEX_Snowbird, pfs_AOA, pp_map_by_date)
-    # Make the figure
-    # ahf.make_figure([group_BigBear, group_BlueFox, group_Caribou, group_Snowbird], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-    # Find the maximum distance between any two profiles for each data set in the group
-    ahf.find_max_distance([group_BigBear, group_BlueFox, group_Caribou, group_Snowbird])
-## Maps of AIDJEX and BGOS ITPs by date
-if False:
-    print('')
-    print('- Creating maps by date for AIDJEX and BGOS ITPs')
-    # Make the subplot groups
-    group_AIDJEX    = ahf.Analysis_Group(ds_AIDJEX, pfs_AOA, pp_map_by_date, plot_title='AIDJEX')
-    group_BGOS_ITP  = ahf.Analysis_Group(ds_BGOS,   pfs_AOA, pp_map_by_date, plot_title='BGOS ITPs')
-    # Make the figure
-    # ahf.make_figure([group_AIDJEX, group_BGOS_ITP], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
-    # Find the maximum distance between any two profiles for each data set in the group
-    ahf.find_max_distance([group_AIDJEX, group_BGOS_ITP])
-
 # Plots in la_CT vs. SA space with different values of ell
 if False:
     print('')
@@ -762,7 +1112,32 @@ if False:
     ahf.make_figure([group_AIDJEX_TS, group_SHEBA_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
     # ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
+# test clustering
+if False:
+    print('')
+    print('- Creating clustering plot')
+    # Make the Plot Parameters
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':110, 'b_a_w_plt':True})
+    # Make the subplot groups
+    group_clstrd = ahf.Analysis_Group(ds_BGR_ITPs_0a, pfs_BGR1, pp_live_clstr)
+    # # Make the figure
+    ahf.make_figure([group_clstrd])
+
 ## Clustering parameter sweeps
+# ## Parameter sweep for BGR ITP data
+if False:
+    print('')
+    print('- Creating clustering parameter sweep for BGR ITP data')
+    test_mpts = 360
+    # Make the Plot Parameters
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,721,10]}) #[50,711,20]
+    # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
+    # Make the subplot groups
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_BGR_ITPs_0a, pfs_BGR1, pp_mpts_param_sweep)
+    # group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep, plot_title='BGOS')
+    # # Make the figure
+    # ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOS.pickle')
+    ahf.make_figure([group_mpts_param_sweep], filename='test_param_sweep_BGR.pickle')
 ## Parameter sweep for BGOS ITP data
 if False:
     print('')
@@ -874,6 +1249,19 @@ if False:
 pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
 pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
 pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
+# BGR ITP clustering
+if True:
+    print('')
+    print('- Creating plots of pre-clustered BGR ITP data')
+    this_ds = ds_BGRa_m110
+    # Make the subplot groups
+    group_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd)
+    # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
+    # group_AIDJEX_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'AIDJEX')
+    # # Make the figure
+    # ahf.make_figure([group_AIDJEX_pre_clstrd, group_AIDJEX_nir_SA, group_AIDJEX_cRL], use_same_y_axis=False)
+    ahf.make_figure([group_pre_clstrd], use_same_y_axis=False)
+
 # AIDJEX clustering
 if False:
     print('')

@@ -389,7 +389,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
 
 ################################################################################
 
-plt_title = 'BGOSss'
+plt_title = 'BGR'
 
 pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'ell_size'})
 pp_ps_ell = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'m_pts'})

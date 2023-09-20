@@ -506,7 +506,12 @@ def apply_data_filters(xarrays, data_filters):
                 end_date_range   = datetime.strptime(data_filters.date_range[1], r'%Y/%m/%d %H:%M:%S')
             except:
                 end_date_range   = datetime.strptime(data_filters.date_range[1], r'%Y/%m/%d')
-            ds = ds.sel(Time=slice(start_date_range, end_date_range))
+            try:
+                ds = ds.sel(Time=slice(start_date_range, end_date_range))
+            except:
+                print('ERROR: cannot take time slice for')
+                print('\t',ds.attrs['Source'],ds.attrs['Instrument'])
+                exit(0)
         #   Filter based on the maximum value of pressure in a profile
         if not isinstance(data_filters.min_press, type(None)):
             if False:
@@ -664,7 +669,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 foo = 2
         # Add vars for the profile filters, if applicable
         scale = pp.plot_scale
-        if scale == 'by_vert':
+        if True:#scale == 'by_vert':
             if not isinstance(profile_filters.lon_range, type(None)):
                 vars_to_keep.append('lon')
             if not isinstance(profile_filters.lat_range, type(None)):
@@ -766,7 +771,11 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     data_pf = data_pf[data_pf['press'] < data_pf['press_CT_max'].values[0]]
                     new_dfs.append(data_pf)
                 # Re-form the dataframe
-                df = pd.concat(new_dfs)
+                try:
+                    df = pd.concat(new_dfs)
+                except:
+                    print('\t- Keeping no profiles from',ds.Source,ds.Instrument)
+                    continue
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # Figure out which salinity and temperature variable to re-grid
@@ -1357,23 +1366,24 @@ def txt_summary(groups_to_summarize, filename=None):
     """
     # Loop over all Analysis_Group objects
     i = 0
+    lines = []
     for a_group in groups_to_summarize:
         i += 1
         # Concatonate all the pandas data frames together
         df = pd.concat(a_group.data_frames)
         # Find the total number of profiles
-        n_profs = len(np.unique(np.array(df['prof_no'], dtype=type(''))))
+        # df['prof_no-dt_start'] = df['prof_no']+' '+df['dt_start']
+        n_profs = len(np.unique(np.array(df['dt_start'], dtype=type(''))))
         # Put all of the lines together
-        lines = ["Group "+str(i)+":",
-                 # "\t"+add_std_title(a_group),
-                 print_global_variables(a_group.data_set),
-                 "\t\tVariables to keep:",
-                 "\t\t"+str(a_group.vars_to_keep),
-                 "\t\tNumber of profiles: ",
-                 "\t\t\t"+str(n_profs),
-                 "\t\tNumber of data points: ",
-                 "\t\t\t"+str(len(df))
-                 ]
+        lines.append("Group "+str(i)+":")
+        # lines.append("\t"+add_std_title(a_group))
+        lines.append(print_global_variables(a_group.data_set))
+        lines.append("\t\tVariables to keep:")
+        lines.append("\t\t"+str(a_group.vars_to_keep))
+        lines.append("\t\tNumber of profiles: ")
+        lines.append("\t\t\t"+str(n_profs))
+        lines.append("\t\tNumber of data points: ")
+        lines.append("\t\t\t"+str(len(df)))
         # Find the ranges of the variables available
         print('working on ranges')
         var_attr_dict = a_group.data_set.var_attr_dicts[0]
@@ -1480,8 +1490,9 @@ def print_global_variables(Dataset):
     lines = ''
     for ds in Dataset.arr_of_ds:
         for attr in ds.attrs:
-            print('\t'+str(attr)+': '+str(ds.attrs[attr]))
-            lines = lines+'\t'+str(attr)+': '+str(ds.attrs[attr])+'\n'
+            # print('\t'+str(attr)+': '+str(ds.attrs[attr]))
+            if attr in ['Source', 'Instrument']:
+                lines = lines+'\t'+str(attr)+': '+str(ds.attrs[attr])+'\n'
             # if attr in ['Creation date', 'Last modified', 'Last modification', 'Sub-sample scheme']:
             #     print('\t'+attr+': '+ds.attrs[attr])
             # else:
@@ -2108,7 +2119,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 plt_title = add_std_title(a_group)
                 # Plot the parameter sweep
                 xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title)
-                return xlabel, ylabel, plt_title, ax, invert_y_axis
+                return xlabel, ylabel, pp.zlabels[0], plt_title, ax, invert_y_axis
         # Determine the color mapping to be used
         if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
             if pp.plot_scale == 'by_pf':
@@ -2368,7 +2379,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_instrmt':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
@@ -2418,7 +2429,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'density_hist':
             if plot_hist:
                 print('Cannot use density_hist colormap with the `hist` variable')
@@ -2477,7 +2488,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
             # Add a standard title
             plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'cluster':
             # Add a standard title
             plt_title = add_std_title(a_group)
@@ -2537,6 +2548,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             map_extent = map_dict['map_extent']
         except:
             map_extent = None
+        print('map_extent:',map_extent)
         #   Set latitude and longitude extents
         #   I found these values by guess-and-check, there really isn't a good way
         #       to know beforehand what you'll actually get
@@ -2547,10 +2559,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
             ex_E = -145 #-156
             ex_W = -125 #-124
         elif map_extent == 'Western_Arctic':
+            print('\tWestern Arctic')
             cent_lon = -140
-            ex_N = 80
+            ex_N = 84
             ex_S = 69
-            ex_E = -165
+            ex_E = -162
             ex_W = -124
         elif map_extent == 'AIDJEX_focus':
             cent_lon = -137
@@ -2595,8 +2608,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
         #   Plotting the coastlines takes a really long time
         # ax.coastlines()
         # Add bounding box
-        bbox = 'CB' # for Canada Basin
-        bbox = 'AOA' # for AIDJEX Operation Area
+        bbox = 'BGR' # for Beaufort Gyre Region
+        # bbox = 'CB' # for Canada Basin
+        # bbox = 'AOA' # for AIDJEX Operation Area
         #   Don't plot outside the extent chosen
         if map_extent == 'Canada_Basin':
             if bbox == 'CB':
@@ -2610,20 +2624,32 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # ax.add_feature(bathy_4000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=5)
             # ax.add_feature(bathy_5000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=6)
         elif map_extent == 'Western_Arctic':
-            if bbox == 'CB':
+            if bbox == 'BGR':
+                CB_lons = np.linspace(-130, -160, 50)
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
-                # Northern boundary does not appear
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
             elif bbox == 'AOA':
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
                 ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         elif map_extent == 'AIDJEX_focus':
-            if bbox == 'CB':
+            if bbox == 'BGR':
+                CB_lons = np.linspace(-130, -160, 50)
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
                 # Northern boundary does not appear
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
@@ -2636,7 +2662,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         else:
-            if bbox == 'CB':
+            if bbox == 'BGR':
+                CB_lons = np.linspace(-130, -160, 50)
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+            elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
                 ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
@@ -4485,7 +4517,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     except:
         tw_y_key = None
     # Get cluster arguments
-    m_pts, min_s, cl_x_var, cl_y_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+    m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
     # Get the parameter sweep tuple, expect the form [start,stop,step]
     try:
         cl_ps_tuple = cluster_plt_dict['cl_ps_tuple']
