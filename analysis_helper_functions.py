@@ -170,7 +170,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -737,18 +737,23 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             df['notes'] = ''
             #   If the m_avg_win is not None, take the moving average of the data
             if not isinstance(profile_filters.m_avg_win, type(None)):
+                # print('\t-Applying m_avg_win filter')
                 df = take_m_avg(df, profile_filters.m_avg_win, vars_to_keep)
                 ds.attrs['Moving average window'] = str(profile_filters.m_avg_win)+' dbar'
             #   True/False, apply the subsample mask to the profiles
             if profile_filters.subsample:
+                # print('\t-Applying subsample filter')
                 # `ss_mask` is null for the points that should be masked out
                 # so apply mask to all the variables that were kept
                 df.loc[df['ss_mask'].isnull(), vars_to_keep] = None
                 # Set a new column so the ss_scheme can be found later for the title
                 df['ss_scheme'] = ds.attrs['Sub-sample scheme']
             # Remove rows where the plot variables are null
+            # print('plot_vars:',plot_vars)
             for var in plot_vars:
+                # print('\t-Removing null values',var)
                 if var in vars_to_keep:
+                    # print('\t\t- for:',var)
                     df = df[df[var].notnull()]
             # Add source and instrument columns
             df['source'] = ds.Source
@@ -756,8 +761,10 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
+            # print('\t- actually done filtering profile ranges')
             # Filter to just pressures above p(CT_max)
             if profile_filters.lt_pCT_max:
+                # print('\t- Applying lt_pCT_max filter')
                 # Get list of profiles
                 pfs = list(set(df['prof_no'].values))
                 # pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
@@ -778,6 +785,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     continue
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
+                # print('\t-Applying regrid_TS filter')
                 # Figure out which salinity and temperature variable to re-grid
                 T_var = profile_filters.regrid_TS[0]
                 S_var = profile_filters.regrid_TS[2]
@@ -802,6 +810,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Check whether or not to take first differences
             first_dfs = pp.first_dfs
             if any(first_dfs):
+                # print('\t-Applying first_dfs filter')
                 # Get list of profiles
                 pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # Take first differences in x variables
@@ -859,6 +868,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Check whether or not to take finite differences
             finit_dfs = pp.finit_dfs
             if any(finit_dfs):
+                # print('\t-Applying finit_dfs filter')
                 # Get list of profiles
                 pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # Take finite differences in x variables
@@ -964,7 +974,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             output_dfs.append(df)
         #
     #
-    if True:
+    # print('\t-Almost done applying profile filters')
+    if False:
         # Output a list of all the profiles this dataset contains
         for df in output_dfs:
             if True:
@@ -979,6 +990,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
             # print(df)
         # exit(0)
+    # print('\t-Done applying profile filters')
     return output_dfs
 
 ################################################################################
@@ -1047,8 +1059,10 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
     SP_key              A string of the practical salinity variable to filter
     SA_key              A string of the absolute salinity variable to filter
     """
+    # print('\t-Filtering profile ranges')
     #   Filter to a certain longitude range
     if not isinstance(profile_filters.lon_range, type(None)):
+        # print('\t\t-Applying lon_range filter')
         # Get endpoints of longitude range
         l_max = max(profile_filters.lon_range)
         l_min = min(profile_filters.lon_range)
@@ -1056,15 +1070,17 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df['lon'] < l_max) & (df['lon'] > l_min)]
     #   Filter to a certain latitude range
     if not isinstance(profile_filters.lat_range, type(None)):
+        # print('\t\t-Applying lat_range filter')
         # Get endpoints of latitude range
         l_max = max(profile_filters.lat_range)
         l_min = min(profile_filters.lat_range)
         # Filter the data frame to the specified latitude range
         df = df[(df['lat'] < l_max) & (df['lat'] > l_min)]
     # Find number of profiles before
-    pf_list0 = list(set(df['prof_no'].values))
+    # pf_list0 = list(set(df['prof_no'].values))
     #   Filter to a certain pressure range
     if not isinstance(profile_filters.p_range, type(None)):
+        # print('\t\t-Applying p_range filter')
         # Get endpoints of pressure range
         p_max = max(profile_filters.p_range)
         p_min = min(profile_filters.p_range)
@@ -1072,6 +1088,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[p_key] < p_max) & (df[p_key] > p_min)]
     #   Filter to a certain depth range
     if not isinstance(profile_filters.d_range, type(None)):
+        # print('\t\t-Applying d_range filter')
         # Get endpoints of depth range
         d_max = max(profile_filters.d_range)
         d_min = min(profile_filters.d_range)
@@ -1079,6 +1096,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[d_key] < d_max) & (df[d_key] > d_min)]
     #   Filter to a certain in-situ temperature range
     if not isinstance(profile_filters.iT_range, type(None)):
+        # print('\t\t-Applying iT_range filter')
         # Get endpoints of in-situ temperature range
         t_max = max(profile_filters.iT_range)
         t_min = min(profile_filters.iT_range)
@@ -1086,6 +1104,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[iT_key] < t_max) & (df[iT_key] > t_min)]
     #   Filter to a certain conservative temperature range
     if not isinstance(profile_filters.CT_range, type(None)):
+        # print('\t\t-Applying CT_range filter')
         # Get endpoints of conservative temperature range
         t_max = max(profile_filters.CT_range)
         t_min = min(profile_filters.CT_range)
@@ -1093,6 +1112,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[CT_key] < t_max) & (df[CT_key] > t_min)]
     #   Filter to a certain potential temperature range
     if not isinstance(profile_filters.PT_range, type(None)):
+        # print('\t\t-Applying PT_range filter')
         # Get endpoints of potential temperature range
         t_max = max(profile_filters.PT_range)
         t_min = min(profile_filters.PT_range)
@@ -1100,6 +1120,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[PT_key] < t_max) & (df[PT_key] > t_min)]
     #   Filter to a certain practical salinity range
     if not isinstance(profile_filters.SP_range, type(None)):
+        # print('\t\t-Applying SP_range filter')
         # Get endpoints of practical salinity range
         s_max = max(profile_filters.SP_range)
         s_min = min(profile_filters.SP_range)
@@ -1107,17 +1128,19 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         df = df[(df[SP_key] < s_max) & (df[SP_key] > s_min)]
     #   Filter to a certain absolute salinity range
     if not isinstance(profile_filters.SA_range, type(None)):
+        # print('\t\t-Applying SA_range filter')
         # Get endpoints of absolute salinity range
         s_max = max(profile_filters.SA_range)
         s_min = min(profile_filters.SA_range)
         # Filter the data frame to the specified absolute salinity range
         df = df[(df[SA_key] < s_max) & (df[SA_key] > s_min)]
     # Find number of profiles after
-    pf_list1 = list(set(df['prof_no'].values))
-    if len(pf_list0) != len(pf_list1):
-        # Find the eliminated profiles
-        elim_list = [x for x in pf_list0 if x not in pf_list1]
-        # print('profile ranges filter, # of profiles before:',len(pf_list0),'after:',len(pf_list1),'difference:',len(pf_list0)-len(pf_list1),'-',elim_list)
+    # pf_list1 = list(set(df['prof_no'].values))
+    # if len(pf_list0) != len(pf_list1):
+    #     # Find the eliminated profiles
+    #     elim_list = [x for x in pf_list0 if x not in pf_list1]
+    #     # print('profile ranges filter, # of profiles before:',len(pf_list0),'after:',len(pf_list1),'difference:',len(pf_list0)-len(pf_list1),'-',elim_list)
+    # print('\t\t-Done filtering profile ranges')
     return df
 
 ################################################################################
@@ -1579,6 +1602,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     row_col_list        [rows, cols, f_ratio, f_size], if none given, will use 
                         the defaults specified below in n_row_col_dict
     """
+    # print('in make_figure')
     # Define number of rows and columns based on number of subplots
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
     n_row_col_dict = {'1':[1,1, 0.8, 1.25], '2':[1,2, 0.5, 1.25], '2.5':[2,1, 0.8, 1.25],
@@ -2222,7 +2246,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Concatonate all the pandas data frames together
             df = pd.concat(a_group.data_frames)
             # Check for cluster-based variables
-            if x_key in clstr_vars or y_key in clstr_vars:
+            if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars:
                 m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
                 df, rel_val, m_pts, ell = HDBSCAN_(a_group, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
             else:
@@ -2380,6 +2404,62 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        elif clr_map == 'clr_by_dataset':
+            # if plot_hist:
+            #     return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+            # # Check for cluster-based variables
+            new_cl_vars = []
+            for key in [x_key, y_key, z_key]:
+                if key in clstr_vars:
+                    new_cl_vars.append(key)
+            i = 0
+            lgnd_hndls = []
+            df_labels = [*a_group.data_set.sources_dict.keys()]
+            print('df_labels:',df_labels)
+            # Loop through each dataframe 
+            #   which correspond to the datasets input to the Data_Set object's sources_dict
+            for this_df in a_group.data_frames:
+                if len(new_cl_vars) > 0:
+                    this_df = calc_extra_cl_vars(this_df, new_cl_vars)
+                    # Drop duplicates to have just one row per cluster
+                    this_df.drop_duplicates(subset=new_cl_vars, keep='first', inplace=True)
+                # If there aren't that many points, make the markers bigger
+                if len(this_df[x_key]) < 1000:
+                    m_size = map_mrk_size
+                else: 
+                    m_size = mrk_size
+                # Decide on the color, don't go off the end of the array
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # Format the dates if necessary
+                if x_key in ['dt_start', 'dt_end']:
+                    this_df[x_key] = mpl.dates.date2num(this_df[x_key])
+                if y_key in ['dt_start', 'dt_end']:
+                    this_df[y_key] = mpl.dates.date2num(this_df[y_key])
+                # Plot every point from this df the same color, size, and marker
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                # Add legend to report the total number of points for this instrmt
+                lgnd_label = df_labels[i]+': '+str(len(this_df[x_key]))+' points'
+                lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
+                i += 1
+            # Invert y-axis if specified
+            if y_key in y_invert_vars:
+                invert_y_axis = True
+            notes_string = ''.join(this_df.notes.unique())
+            # Only add the notes_string if it contains something
+            if len(notes_string) > 1:
+                notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
+                lgnd_hndls.append(notes_patch)
+            # Format the axes for datetimes, if necessary
+            format_datetime_axes(x_key, y_key, ax)
+            # Add legend with custom handles
+            if pp.legend:
+                lgnd = ax.legend(handles=lgnd_hndls)
+            # Check whether to plot isopycnals
+            if add_isos:
+                add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Add a standard title
+            plt_title = add_std_title(a_group)
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_instrmt':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
@@ -2506,7 +2586,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if isinstance(z_key, type(None)):
                 df_z_key = 0
                 # Drop duplicates
-                df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
+                # df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
                 plot_3d = False
             elif z_key in ['dt_start', 'dt_end']:
                 df_z_key = mpl.dates.date2num(df[z_key])
@@ -3902,8 +3982,9 @@ def calc_extra_cl_vars(df, new_cl_vars):
     df                  A pandas data frame of the data to plot
     new_cl_vars         A list of clustering-related variables to calculate
     """
+    # print('\t- Calculating extra cluster variables')
     # Find the number of clusters
-    n_clusters = int(max(df['cluster']+1))
+    n_clusters = int(np.nanmax(df['cluster']+1))
     # Check for variables to calculate
     for this_var in new_cl_vars:
         # Split the prefix from the original variable (assumes an underscore split)
@@ -4253,6 +4334,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         else:
             # Plot in 3D
             ax.scatter(df_noise[x_key], df_noise[y_key], zs=df_noise_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
+            plot_centroid = False
+            plot_slopes = False
     n_noise_pts = len(df_noise)
     # Check whether to just plot one point per cluster
     if x_key in ca_vars:
@@ -4303,10 +4386,6 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         y_key = 'cmm_mid'
         plot_centroid = False
         plot_slopes = False
-    if isinstance(z_key, type(None)):
-        plot_centroid = False
-        plot_slopes = False
-    # print('plot_slopes a:',plot_slopes)
     # Look for outliers
     if 'nir' in x_key or 'cRL' in x_key or 'ca' in x_key:
         mrk_outliers = True

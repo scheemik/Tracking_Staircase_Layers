@@ -378,36 +378,41 @@ BGR_ITPs_0i = { 'ITP_103':'all',
                 # 'ITP_116':'all', # Not in BGR
                 }
 
-# Pre-clustered files
+## Pre-clustered files
+# Single time periods
 BGRa_m110 = {'BGRa_mpts_110':'all'}
+BGRf_m410 = {'BGRf_mpts_410':'all'}
+BGRg_m240 = {'BGRg_mpts_240':'all'}
+# Comparing time periods
+BGRfg = {'BGRf_mpts_410':'all','BGRg_mpts_240':'all'}
 
-# All profiles from all AIDJEX camps
-all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
-
-# Pre-clustered files
-all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
-#   ell = 10
-AIDJEX_m500_e010 = {'AIDJEX_mpts_500_ell_010':'all'}
-BGOS_m440_e010 = {'BGOS_mpts_440_ell_010':'all'}
-BGOSss_m260_e010 = {'BGOSss_mpts_260_ell_010':'all'}
-#   ell = 10
-AIDJEX_m490_e050 = {'AIDJEX_mpts_490_ell_050':'all'}
-BGOS_m280_e050 = {'BGOS_mpts_280_ell_050':'all'}
-BGOSss_m340_e050 = {'BGOSss_mpts_340_ell_050':'all'}
-#   ell = 100
-AIDJEX_m300_e100 = {'AIDJEX_mpts_300_ell_100':'all'}
-BGOS_m360_e100 = {'BGOS_mpts_360_ell_100':'all'}
-BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
-
-# All profiles from certain ITPs
-ITP2_all  = {'ITP_2':'all'}
-ITP3_all  = {'ITP_3':'all'}
-ITP33_all = {'ITP_33':'all'}
-ITP34_all = {'ITP_34':'all'}
-ITP35_all = {'ITP_35':'all'}
-ITP41_all = {'ITP_41':'all'}
-ITP42_all = {'ITP_42':'all'}
-ITP43_all = {'ITP_43':'all'}
+# # All profiles from all AIDJEX camps
+# all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
+# 
+# # Pre-clustered files
+# all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
+# #   ell = 10
+# AIDJEX_m500_e010 = {'AIDJEX_mpts_500_ell_010':'all'}
+# BGOS_m440_e010 = {'BGOS_mpts_440_ell_010':'all'}
+# BGOSss_m260_e010 = {'BGOSss_mpts_260_ell_010':'all'}
+# #   ell = 10
+# AIDJEX_m490_e050 = {'AIDJEX_mpts_490_ell_050':'all'}
+# BGOS_m280_e050 = {'BGOS_mpts_280_ell_050':'all'}
+# BGOSss_m340_e050 = {'BGOSss_mpts_340_ell_050':'all'}
+# #   ell = 100
+# AIDJEX_m300_e100 = {'AIDJEX_mpts_300_ell_100':'all'}
+# BGOS_m360_e100 = {'BGOS_mpts_360_ell_100':'all'}
+# BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
+# 
+# # All profiles from certain ITPs
+# ITP2_all  = {'ITP_2':'all'}
+# ITP3_all  = {'ITP_3':'all'}
+# ITP33_all = {'ITP_33':'all'}
+# ITP34_all = {'ITP_34':'all'}
+# ITP35_all = {'ITP_35':'all'}
+# ITP41_all = {'ITP_41':'all'}
+# ITP42_all = {'ITP_42':'all'}
+# ITP43_all = {'ITP_43':'all'}
 
 # A list of many profiles to plot from ITP3
 start_pf = 1331
@@ -420,45 +425,45 @@ ITP35_pfs1 = {'ITP_35':ITP35_some_pfs1}
 ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 
 # Example profiles
-Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
-ex_pfs1 = {'AIDJEX_BigBear':[389], 'ITP_33':[313], 'SHEBA_Seacat':['SH31200']}
-
-## AIDJEX
-
-AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
-AIDJEX_BlueFox_all = {'AIDJEX_BlueFox':'all'}
-AIDJEX_Caribou_all = {'AIDJEX_Caribou':'all'}
-AIDJEX_Snowbird_all = {'AIDJEX_Snowbird':'all'}
-
-AIDJEX_BigBear_blacklist = {'AIDJEX_BigBear':[531, 535, 537, 539, 541, 543, 545, 547, 549]}
-AIDJEX_BlueFox_blacklist = {'AIDJEX_BlueFox':[94, 308, 310]}
-AIDJEX_Snowbird_blacklist = {'AIDJEX_Snowbird':[443]}
-
-AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22]}#, 28, 30, 32]}
-
-AIDJEX_ex_stairs = {'AIDJEX_Snowbird':[1]}
-
-## SHEBA
-
-all_SHEBA = {'SHEBA_Seacat':'all'}
-SHEBA_Seacat_blacklist = {'SHEBA_Seacat':['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
-# SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
-SHEBA_example_profile = {'SHEBA_Seacat':['SH31200','SH31900']}
-
-## filtered out by p_max > 400 dbar
-
-pmax_lt_400_AIDJEX_BigBear = {'AIDJEX_BigBear':[14]}
-pmax_lt_400_AIDJEX_BlueFox = {'AIDJEX_BlueFox':[30, 144, 168, 262, 431]}
-pmax_lt_400_AIDJEX_Caribou = {'AIDJEX_Caribou':[39, 47, 55, 63, 71, 79, 83, 91, 96, 98, 102, 104, 105, 113, 117, 123, 125, 128, 136, 144, 152, 159, 163, 169, 177, 185, 231, 440, 552, 610, 687, 694, 700, 704, 722, 727, 852]}
-pmax_lt_400_AIDJEX_Snowbird = {'AIDJEX_Snowbird':[320, 369, 404, 412, 414]}
-# ITP 33 had none filtered out
-# ITP 34 had none filtered out
-pmax_lt_400_ITP_35 = {'ITP_35':
-    [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
-pmax_lt_400_ITP_41 = {'ITP_41':[1393, 1395, 1397, 1399, 1401, 1403, 1405, 1407, 1409, 1411, 1413, 1417, 1419, 1423, 1425, 1427, 1429, 1431, 1433, 1435, 1439, 1441, 1443, 1445, 1447, 1449, 1451, 1453, 1457, 1459, 1461, 1463, 1465, 1467, 1469, 1471, 1473, 1477, 1479]}
-pmax_lt_400_ITP_42 = {'ITP_42':[203, 204, 205, 206, 207, 208, 209]}
-# ITP 43 had none filtered out
-pmax_lt_400_SHEBA_Seacat = {'SHEBA_Seacat':['CT205515', 'SH12200', 'SH14400', 'SH17400', 'SH17701', 'SH12900']}
+# Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
+# ex_pfs1 = {'AIDJEX_BigBear':[389], 'ITP_33':[313], 'SHEBA_Seacat':['SH31200']}
+# 
+# ## AIDJEX
+# 
+# AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
+# AIDJEX_BlueFox_all = {'AIDJEX_BlueFox':'all'}
+# AIDJEX_Caribou_all = {'AIDJEX_Caribou':'all'}
+# AIDJEX_Snowbird_all = {'AIDJEX_Snowbird':'all'}
+# 
+# AIDJEX_BigBear_blacklist = {'AIDJEX_BigBear':[531, 535, 537, 539, 541, 543, 545, 547, 549]}
+# AIDJEX_BlueFox_blacklist = {'AIDJEX_BlueFox':[94, 308, 310]}
+# AIDJEX_Snowbird_blacklist = {'AIDJEX_Snowbird':[443]}
+# 
+# AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22]}#, 28, 30, 32]}
+# 
+# AIDJEX_ex_stairs = {'AIDJEX_Snowbird':[1]}
+# 
+# ## SHEBA
+# 
+# all_SHEBA = {'SHEBA_Seacat':'all'}
+# SHEBA_Seacat_blacklist = {'SHEBA_Seacat':['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
+# # SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
+# SHEBA_example_profile = {'SHEBA_Seacat':['SH31200','SH31900']}
+# 
+# ## filtered out by p_max > 400 dbar
+# 
+# pmax_lt_400_AIDJEX_BigBear = {'AIDJEX_BigBear':[14]}
+# pmax_lt_400_AIDJEX_BlueFox = {'AIDJEX_BlueFox':[30, 144, 168, 262, 431]}
+# pmax_lt_400_AIDJEX_Caribou = {'AIDJEX_Caribou':[39, 47, 55, 63, 71, 79, 83, 91, 96, 98, 102, 104, 105, 113, 117, 123, 125, 128, 136, 144, 152, 159, 163, 169, 177, 185, 231, 440, 552, 610, 687, 694, 700, 704, 722, 727, 852]}
+# pmax_lt_400_AIDJEX_Snowbird = {'AIDJEX_Snowbird':[320, 369, 404, 412, 414]}
+# # ITP 33 had none filtered out
+# # ITP 34 had none filtered out
+# pmax_lt_400_ITP_35 = {'ITP_35':
+#     [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
+# pmax_lt_400_ITP_41 = {'ITP_41':[1393, 1395, 1397, 1399, 1401, 1403, 1405, 1407, 1409, 1411, 1413, 1417, 1419, 1423, 1425, 1427, 1429, 1431, 1433, 1435, 1439, 1441, 1443, 1445, 1447, 1449, 1451, 1453, 1457, 1459, 1461, 1463, 1465, 1467, 1469, 1471, 1473, 1477, 1479]}
+# pmax_lt_400_ITP_42 = {'ITP_42':[203, 204, 205, 206, 207, 208, 209]}
+# # ITP 43 had none filtered out
+# pmax_lt_400_SHEBA_Seacat = {'SHEBA_Seacat':['CT205515', 'SH12200', 'SH14400', 'SH17400', 'SH17701', 'SH12900']}
 
 ################################################################################
 # Create data filtering objects
@@ -518,7 +523,7 @@ print('- Creating data sets')
 # ds_CB_ITPs_0b = ahf.Data_Set(CB_ITPs_0a, dfs1_CB_0b)
 
 ## BGR ITP datasets, by time period
-ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+# ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1_BGR_0c)
 # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
@@ -602,8 +607,13 @@ ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGOS_m360_e100 = ahf.Data_Set(BGOS_m360_e100, dfs_all)
 # ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
-# Pre-clustered
-ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_all)
+## Pre-clustered
+# Single time periods
+# ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_all)
+# ds_BGRf_m410 = ahf.Data_Set(BGRf_m410, dfs_all)
+# ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_all)
+# Comparing time periods
+ds_BGRfg = ahf.Data_Set(BGRfg, dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -675,12 +685,25 @@ pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[100
 # ahf.make_figure([group_AIDJEX_missing_ll])
 # exit(0)
 
+
+# Use these things
+pfs_this_BGR = pfs_BGR1
+# ds_this_BGR = ds_BGR_ITPs_0a
+# ds_this_BGR = ds_BGR_ITPs_0b
+# ds_this_BGR = ds_BGR_ITPs_0c
+# ds_this_BGR = ds_BGR_ITPs_0d
+# ds_this_BGR = ds_BGR_ITPs_0e
+# ds_this_BGR = ds_BGR_ITPs_0f
+# ds_this_BGR = ds_BGR_ITPs_0g
+# ds_this_BGR = ds_BGR_ITPs_0h
+
+
 # Output summary
 if False:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
-    group_test = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_test)
+    group_test = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_test)
     ahf.txt_summary([group_test])
 
 ################################################################################
@@ -700,12 +723,12 @@ if False:
     group_map = ahf.Analysis_Group(ds_all_ITP, pfs_0, pp_map, plot_title='')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
-## Map of just in the Canada Basin
+## Map of just in the Beaufort Gyre Region
 if False:
     print('')
-    print('- Creating a map of profiles in the Canada Basin')
+    print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
-    group_map = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_map, plot_title='')
+    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
     # group_map = ahf.Analysis_Group(ds_ITP_test, pfs_0, pp_map, plot_title='')
     # Make the figure
     ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
@@ -820,7 +843,7 @@ if False:
     # pp_CT_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
     # pp_CT_SA_3d = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], z_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'dt_start', 'cl_z_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
     # Make the Analysis Group pfs_fltrd pfs_BGR1
-    group_CT_SA_plot = ahf.Analysis_Group(ds_BGR_ITPs_0b, pfs_BGR1, pp_CT_SA)
+    group_CT_SA_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_CT_SA)
     # group_CT_SA_plot = ahf.Analysis_Group(ds_ITP_test, pfs_BGR1, pp_CT_SA)
     # group_CT_SA_3d_plot = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_CT_SA_3d)
     # Make the figure
@@ -1117,9 +1140,11 @@ if False:
     print('')
     print('- Creating clustering plot')
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':110, 'b_a_w_plt':True})
+    # pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':660, 'b_a_w_plt':True})
     # Make the subplot groups
-    group_clstrd = ahf.Analysis_Group(ds_BGR_ITPs_0a, pfs_BGR1, pp_live_clstr)
+    # group_clstrd = ahf.Analysis_Group(ds_BGR_ITPs_0a, pfs_BGR1, pp_live_clstr)
+    group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # # Make the figure
     ahf.make_figure([group_clstrd])
 
@@ -1130,10 +1155,10 @@ if False:
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,721,10]}) #[50,711,20]
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,721,10]}) #[10,711,20]
     # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
-    group_mpts_param_sweep = ahf.Analysis_Group(ds_BGR_ITPs_0a, pfs_BGR1, pp_mpts_param_sweep)
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep)
     # group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep, plot_title='BGOS')
     # # Make the figure
     # ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOS.pickle')
@@ -1250,10 +1275,12 @@ pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cl
 pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
 pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
 # BGR ITP clustering
-if True:
+if False:
     print('')
     print('- Creating plots of pre-clustered BGR ITP data')
-    this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    this_ds = ds_BGRg_m240
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd)
     # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
@@ -1304,6 +1331,24 @@ if False:
     ahf.make_figure([group_BGOSss_pre_clstrd, group_BGOSss_nir_SA, group_BGOSss_cRL])
 #
 
+## Comparing two BGR ITP time period clusterings
+# BGR ITP clustering
+if True:
+    print('')
+    print('- Creating plots to compare pre-clustered BGR ITP data')
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    # this_ds = ds_BGRg_m240
+    this_ds = ds_BGRfg
+    # Make the Plot Parameters
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='cluster')# clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    # Make the subplot groups
+    group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
+    # print('done making analysis group')
+    # # Make the figure
+    ahf.make_figure([group_comp_clstrs])
+
 
 exit(0)
 
@@ -1314,63 +1359,63 @@ exit(0)
 ### Figure 2
 ## Plotting a TS diagram of both ITP and AIDJEX data
 # TS diagram of all sources, colored by source
-pp_TS_clr_all_same = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
-pp_TS_by_source = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_source')
-pp_TS_by_instrmt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_instrmt')
-
-pp_LA_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
-
-pp_CT_max = ahf.Plot_Parameters(x_vars=['CT_max'], y_vars=['press_CT_max'], clr_map='prof_no')
-pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='CT_max')
-pp_SA_CT_max_hist = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['hist'], clr_map='clr_all_same')
-
-test_mpts = 65
-pp_ITP2_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
-pp_ITP2_clstr_og = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
-
-BGOS_mpts = 120
-pp_BGOS_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'b_a_w_plt':True})
-pp_BGOS_clstr_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'b_a_w_plt':True})
-
-### Figure 3
-## Parameter sweep across \ell and m_pts for ITP2 subsampled
-ITP2_ss_mpts = 65
-pp_ITP2_ss_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,220,5]})
-pp_ITP2_ss_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,271,10]})
-## Parameter sweep across \ell and m_pts for BGOS
-BGOS_mpts = 170
-pp_BGOS_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'cl_ps_tuple':[10,440,10]})
-pp_BGOS_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'cl_ps_tuple':[10,271,10]})
-## Parameter sweep across \ell and m_pts for AIDJEX
-AIDJEX_mpts = 500
-pp_AIDJEX_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[300,700,20]})
-pp_AIDJEX_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[10,210,10]})
-
-## Parameter sweep across \ell and m_pts for ITP3, Lu et al. 2022
-pp_ITP3_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[800,1001,10]}, legend=False, add_grid=False)
-pp_ITP3_ps_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[10,210,10]}, legend=False, add_grid=False)
-
-### Figure 4
-## Evaluating clusterings with the lateral density ratio and the normalized inter-cluster range
-pp_salt_R_L = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False, 'plot_slopes':True}, legend=False)
-pp_salt_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False}, legend=False)
-
-### Figure 5
-## Tracking clusters across a subset of profiles
-# For ITP2
-pp_ITP2_some_pfs_0  = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':ITP2_some_pfs_0, 'plt_noise':True}, legend=False, ax_lims=ITP2_some_pfs_ax_lims_0)
-pp_ITP2_some_pfs_1  = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':ITP2_some_pfs_1, 'plt_noise':True}, legend=False, ax_lims=ITP2_some_pfs_ax_lims_1)
-
-### Figure 6
-## Tracking clusters across profiles, reproducing Lu et al. 2022 Figure 3
-pp_Lu2022_fig3a = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
-pp_Lu2022_fig3b = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
-pp_Lu2022_fig3c = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_SA'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
-
-### Figure 8
-## Tracking clusters across a subset of profiles
-# For ITP35
-pp_ITP35_some_pfs = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles')
+# pp_TS_clr_all_same = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_all_same')
+# pp_TS_by_source = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_source')
+# pp_TS_by_instrmt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_instrmt')
+# 
+# pp_LA_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
+# 
+# pp_CT_max = ahf.Plot_Parameters(x_vars=['CT_max'], y_vars=['press_CT_max'], clr_map='prof_no')
+# pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='CT_max')
+# pp_SA_CT_max_hist = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['hist'], clr_map='clr_all_same')
+# 
+# test_mpts = 65
+# pp_ITP2_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+# pp_ITP2_clstr_og = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'b_a_w_plt':True})
+# 
+# BGOS_mpts = 120
+# pp_BGOS_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'b_a_w_plt':True})
+# pp_BGOS_clstr_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'b_a_w_plt':True})
+# 
+# ### Figure 3
+# ## Parameter sweep across \ell and m_pts for ITP2 subsampled
+# ITP2_ss_mpts = 65
+# pp_ITP2_ss_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,220,5]})
+# pp_ITP2_ss_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':ITP2_ss_mpts, 'cl_ps_tuple':[10,271,10]})
+# ## Parameter sweep across \ell and m_pts for BGOS
+# BGOS_mpts = 170
+# pp_BGOS_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'cl_ps_tuple':[10,440,10]})
+# pp_BGOS_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':BGOS_mpts, 'cl_ps_tuple':[10,271,10]})
+# ## Parameter sweep across \ell and m_pts for AIDJEX
+# AIDJEX_mpts = 500
+# pp_AIDJEX_mpts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[300,700,20]})
+# pp_AIDJEX_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':AIDJEX_mpts, 'cl_ps_tuple':[10,210,10]})
+# 
+# ## Parameter sweep across \ell and m_pts for ITP3, Lu et al. 2022
+# pp_ITP3_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[800,1001,10]}, legend=False, add_grid=False)
+# pp_ITP3_ps_ell  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':Lu2022_m_pts, 'cl_ps_tuple':[10,210,10]}, legend=False, add_grid=False)
+# 
+# ### Figure 4
+# ## Evaluating clusterings with the lateral density ratio and the normalized inter-cluster range
+# pp_salt_R_L = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False, 'plot_slopes':True}, legend=False)
+# pp_salt_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plt_noise':False}, legend=False)
+# 
+# ### Figure 5
+# ## Tracking clusters across a subset of profiles
+# # For ITP2
+# pp_ITP2_some_pfs_0  = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':ITP2_some_pfs_0, 'plt_noise':True}, legend=False, ax_lims=ITP2_some_pfs_ax_lims_0)
+# pp_ITP2_some_pfs_1  = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'pfs_to_plot':ITP2_some_pfs_1, 'plt_noise':True}, legend=False, ax_lims=ITP2_some_pfs_ax_lims_1)
+# 
+# ### Figure 6
+# ## Tracking clusters across profiles, reproducing Lu et al. 2022 Figure 3
+# pp_Lu2022_fig3a = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
+# pp_Lu2022_fig3b = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_CT'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
+# pp_Lu2022_fig3c = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_SA'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
+# 
+# ### Figure 8
+# ## Tracking clusters across a subset of profiles
+# # For ITP35
+# pp_ITP35_some_pfs = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles')
 
 ################################################################################
 # Create analysis group objects

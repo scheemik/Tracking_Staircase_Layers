@@ -186,8 +186,30 @@ BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
                    'm_pts':110
                    }
 
+## BGR ITPs 0f
+BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_410.nc',
+                   'sources_dict':{'ITP_097':'all','ITP_099':'all'},
+                   'data_filters':dfs1_BGR_0f,
+                   'pfs_object':pfs_BGR1,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':410
+                   }
 
-for clstr_dict in [BGRa_clstr_dict]:
+## BGR ITPs 0g
+BGRg_clstr_dict = {'netcdf_file':'netcdfs/BGRg_mpts_240.nc',
+                   'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
+                   'data_filters':dfs1_BGR_0g,
+                   'pfs_object':pfs_BGR1,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':240
+                   }
+
+
+for clstr_dict in [BGRg_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
