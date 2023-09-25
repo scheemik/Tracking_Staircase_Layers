@@ -45,6 +45,9 @@ BGOS_S_range = [34.366, 34.9992]
 LHW_S_range = [34.366, 35.5]
 AIDJEX_S_range = [34.366, 35.0223]
 
+# Axis limits
+x_ax_lims_SA = {'x_lims':[LHW_S_range[0], 35.01]}
+
 ### Filters for reproducing plots from Timmermans et al. 2008
 ITP2_p_range = [185,300]
 ITP2_S_range = [34.05,34.75]
@@ -376,15 +379,29 @@ BGR_ITPs_0i = { 'ITP_103':'all',
                 'ITP_113':'all',
                 'ITP_114':'all',
                 # 'ITP_116':'all', # Not in BGR
+                'ITP_117':'all',
+                'ITP_118':'all',
+                'ITP_120':'all',
+                'ITP_121':'all',
+                'ITP_122':'all',
+                'ITP_123':'all',
+                'ITP_125':'all',
+                'ITP_128':'all',
                 }
+
+## All
+BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
 
 ## Pre-clustered files
 # Single time periods
 BGRa_m110 = {'BGRa_mpts_110':'all'}
 BGRf_m410 = {'BGRf_mpts_410':'all'}
 BGRg_m240 = {'BGRg_mpts_240':'all'}
+BGRh_m390 = {'BGRh_mpts_390':'all'}
 # Comparing time periods
 BGRfg = {'BGRf_mpts_410':'all','BGRg_mpts_240':'all'}
+BGRgh = {'BGRg_mpts_240':'all','BGRh_mpts_390':'all'}
+BGRfgh = {'BGRf_mpts_410':'all','BGRg_mpts_240':'all','BGRh_mpts_390':'all'}
 
 # # All profiles from all AIDJEX camps
 # all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
@@ -523,6 +540,7 @@ print('- Creating data sets')
 # ds_CB_ITPs_0b = ahf.Data_Set(CB_ITPs_0a, dfs1_CB_0b)
 
 ## BGR ITP datasets, by time period
+ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
 # ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1_BGR_0c)
@@ -612,8 +630,11 @@ print('- Creating data sets')
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_all)
 # ds_BGRf_m410 = ahf.Data_Set(BGRf_m410, dfs_all)
 # ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_all)
+# ds_BGRh_m390 = ahf.Data_Set(BGRh_m390, dfs_all)
 # Comparing time periods
-ds_BGRfg = ahf.Data_Set(BGRfg, dfs_all)
+# ds_BGRfg = ahf.Data_Set(BGRfg, dfs_all)
+# ds_BGRgh = ahf.Data_Set(BGRgh, dfs_all)
+# ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -688,6 +709,7 @@ pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[100
 
 # Use these things
 pfs_this_BGR = pfs_BGR1
+ds_this_BGR = ds_BGR_ITPs_all
 # ds_this_BGR = ds_BGR_ITPs_0a
 # ds_this_BGR = ds_BGR_ITPs_0b
 # ds_this_BGR = ds_BGR_ITPs_0c
@@ -713,7 +735,7 @@ if False:
 ## Maps
 pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Western_Arctic'})
 pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'})#, legend=False, add_grid=False)
-pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'AIDJEX_focus'})
+pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
 ## Map of all profiles for all sources
 if False:
     print('')
@@ -724,12 +746,12 @@ if False:
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of just in the Beaufort Gyre Region
-if False:
+if True:
     print('')
     print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
-    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
-    # group_map = ahf.Analysis_Group(ds_ITP_test, pfs_0, pp_map, plot_title='')
+    # group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
+    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_by_date, plot_title='')
     # Make the figure
     ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of all upgoing profiles for all sources
@@ -1280,7 +1302,8 @@ if False:
     print('- Creating plots of pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
     # this_ds = ds_BGRf_m410
-    this_ds = ds_BGRg_m240
+    # this_ds = ds_BGRg_m240
+    this_ds = ds_BGRh_m390
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd)
     # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
@@ -1333,13 +1356,15 @@ if False:
 
 ## Comparing two BGR ITP time period clusterings
 # BGR ITP clustering
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
     # this_ds = ds_BGRf_m410
     # this_ds = ds_BGRg_m240
-    this_ds = ds_BGRfg
+    # this_ds = ds_BGRfg
+    # this_ds = ds_BGRgh
+    this_ds = ds_BGRfgh
     # Make the Plot Parameters
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
     # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='cluster')# clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
@@ -1348,6 +1373,24 @@ if True:
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
+# BGR ITP clustering, comparing with histograms
+if False:
+    print('')
+    print('- Creating plots to compare pre-clustered BGR ITP data')
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    # this_ds = ds_BGRg_m240
+    # this_ds = ds_BGRfg
+    # Make the Plot Parameters
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':False}, ax_lims=x_ax_lims_SA, legend=False) 
+    # Make the subplot groups
+    group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRf_m410, pfs_0, pp_comp_clstrs)
+    group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRg_m240, pfs_0, pp_comp_clstrs)
+    group_comp_clstrs2 = ahf.Analysis_Group(ds_BGRh_m390, pfs_0, pp_comp_clstrs)
+    # print('done making analysis group')
+    # # Make the figure
+    # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
+    ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 
 
 exit(0)

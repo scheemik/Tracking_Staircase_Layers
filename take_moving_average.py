@@ -43,23 +43,31 @@ ncs_to_modify = [
                 #  'netcdfs/AIDJEX_BlueFox.nc',
                 #  'netcdfs/AIDJEX_Caribou.nc',
                 #  'netcdfs/AIDJEX_Snowbird.nc',
-                 'netcdfs/ITP_010.nc',
+                #  'netcdfs/ITP_010.nc',
                 #  'netcdfs/ITP_33.nc',
                 #  'netcdfs/ITP_34.nc',
                 #  'netcdfs/ITP_35.nc',
                 #  'netcdfs/ITP_41.nc',
                 #  'netcdfs/ITP_42.nc',
                 #  'netcdfs/ITP_43.nc',
+                 'netcdfs/ITP_117.nc',
+                 'netcdfs/ITP_118.nc',
+                 'netcdfs/ITP_120.nc',
+                 'netcdfs/ITP_121.nc',
+                 'netcdfs/ITP_122.nc',
+                 'netcdfs/ITP_123.nc',
+                 'netcdfs/ITP_125.nc',
+                 'netcdfs/ITP_128.nc',
                 #  'netcdfs/SHEBA_Seacat.nc'
                  ]
 
 # Get a list of all ITP netcdfs that have 3 digits in the file name
-ncs_to_modify = [] 
-ncs_available = os.listdir('netcdfs/')
-for nc in ncs_available:
-    itp_number = ''.join(filter(str.isdigit, nc))
-    if len(itp_number) == 3 and 'ITP' in nc:
-        ncs_to_modify.append('netcdfs/'+nc)
+# ncs_to_modify = [] 
+# ncs_available = os.listdir('netcdfs/')
+# for nc in ncs_available:
+#     itp_number = ''.join(filter(str.isdigit, nc))
+#     if len(itp_number) == 3 and 'ITP' in nc:
+#         ncs_to_modify.append('netcdfs/'+nc)
 # print(ncs_to_modify)
 # exit(0)
 

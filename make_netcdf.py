@@ -1283,7 +1283,14 @@ def find_geo_region(lon, lat):
 # read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
 # read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
 
-read_instrmt('ITP', '11', science_data_file_path+'ITPs/itp11/itp11cormat', 'netcdfs/ITP_011.nc')
+read_instrmt('ITP', '117', science_data_file_path+'ITPs/itp117/itp117cormat', 'netcdfs/ITP_117.nc')
+read_instrmt('ITP', '118', science_data_file_path+'ITPs/itp118/itp118cormat', 'netcdfs/ITP_118.nc')
+read_instrmt('ITP', '120', science_data_file_path+'ITPs/itp120/itp120cormat', 'netcdfs/ITP_120.nc')
+read_instrmt('ITP', '121', science_data_file_path+'ITPs/itp121/itp121cormat', 'netcdfs/ITP_121.nc')
+read_instrmt('ITP', '122', science_data_file_path+'ITPs/itp122/itp122cormat', 'netcdfs/ITP_122.nc')
+read_instrmt('ITP', '123', science_data_file_path+'ITPs/itp123/itp123cormat', 'netcdfs/ITP_123.nc')
+read_instrmt('ITP', '125', science_data_file_path+'ITPs/itp125/itp125cormat', 'netcdfs/ITP_125.nc')
+read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)

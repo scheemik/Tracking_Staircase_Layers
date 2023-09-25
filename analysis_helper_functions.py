@@ -141,9 +141,10 @@ mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
 mrk_size      = 0.5
-mrk_alpha     = 0.3
+mrk_alpha     = 0.9#0.3
 noise_alpha   = 0.2
 grid_alpha    = 0.3
+hist_alpha    = 1.0
 pf_alpha      = 0.4
 map_alpha     = 0.7
 lgnd_mrk_size = 60
@@ -3117,7 +3118,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(df, tw_var_key)
             # Plot the histogram
-            tw_ax.hist(h_var, bins=res_bins, color=tw_clr, alpha=mrk_alpha, orientation=orientation)
+            tw_ax.hist(h_var, bins=res_bins, color=tw_clr, alpha=hist_alpha, orientation=orientation)
             if orientation == 'vertical':
                 tw_ax.set_xlabel(tw_label)
                 tw_ax.tick_params(axis='x', colors=tw_clr)
@@ -3135,14 +3136,14 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
                     tw_ax.axhline(mean-2*std_dev, color='r', linestyle='--', alpha=0.5)
                     tw_ax.axhline(mean+2*std_dev, color='r', linestyle='--', alpha=0.5)
             # Add legend to report overall statistics
-            n_pts_patch   = mpl.patches.Patch(color=tw_clr, label=str(len(h_var))+' points', alpha=mrk_alpha)
-            median_patch  = mpl.patches.Patch(color=tw_clr, label='Median:  '+'%.4f'%median, alpha=mrk_alpha)
-            mean_patch    = mpl.patches.Patch(color=tw_clr, label='Mean:    ' + '%.4f'%mean, alpha=mrk_alpha)
-            std_dev_patch = mpl.patches.Patch(color=tw_clr, label='Std dev: '+'%.4f'%std_dev, alpha=mrk_alpha)
+            n_pts_patch   = mpl.patches.Patch(color=tw_clr, label=str(len(h_var))+' points', alpha=hist_alpha)
+            median_patch  = mpl.patches.Patch(color=tw_clr, label='Median:  '+'%.4f'%median, alpha=hist_alpha)
+            mean_patch    = mpl.patches.Patch(color=tw_clr, label='Mean:    ' + '%.4f'%mean, alpha=hist_alpha)
+            std_dev_patch = mpl.patches.Patch(color=tw_clr, label='Std dev: '+'%.4f'%std_dev, alpha=hist_alpha)
             tw_notes_string = ''.join(df.notes.unique())
             # Only add the notes_string if it contains something
             if len(tw_notes_string) > 1:
-                tw_notes_patch  = mpl.patches.Patch(color='none', label=notes_string, alpha=mrk_alpha)
+                tw_notes_patch  = mpl.patches.Patch(color='none', label=notes_string, alpha=hist_alpha)
                 tw_hndls=[n_pts_patch, median_patch, mean_patch, std_dev_patch, tw_notes_patch]
             else:
                 tw_hndls=[n_pts_patch, median_patch, mean_patch, std_dev_patch]
@@ -3156,7 +3157,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             ax.legend(handles=hndls+tw_hndls)
         # Add a standard title
         plt_title = add_std_title(a_group)
-        return x_label, y_label, plt_title, ax, invert_y_axis
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_source':
         # Can't make this type of plot for certain variables yet
         if var_key in clstr_vars:
@@ -3182,7 +3183,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
             # Plot the histogram
-            ax.hist(h_var, bins=res_bins, color=my_clr, alpha=mrk_alpha, orientation=orientation)
+            ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
             # Check whether to plot lines for mean and standard deviation
             if plt_hist_lines:
                 if orientation == 'vertical':
@@ -3196,10 +3197,10 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             i += 1
             # Add legend handle to report the total number of points for this source
             lgnd_label = source+': '+str(len(this_df[var_key]))+' points, Median:'+'%.4f'%median
-            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=mrk_alpha))
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
             # Add legend handle to report overall statistics
             lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
-            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=mrk_alpha))
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
             notes_string = ''.join(this_df.notes.unique())
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
@@ -3212,7 +3213,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             invert_y_axis = True
         # Add a standard title
         plt_title = add_std_title(a_group)
-        return x_label, y_label, plt_title, ax, invert_y_axis
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_instrmt':
         # Can't make this type of plot for certain variables yet
         if var_key in clstr_vars:
@@ -3232,7 +3233,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
             # Plot the histogram
-            ax.hist(h_var, bins=res_bins, color=my_clr, alpha=mrk_alpha, orientation=orientation)
+            ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
             # Check whether to plot lines for mean and standard deviation
             if plt_hist_lines:
                 if orientation == 'vertical':
@@ -3246,10 +3247,10 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             i += 1
             # Add legend to report the total number of points for this instrmt
             lgnd_label = s_instrmt+': '+str(len(df[var_key]))+' points'
-            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=mrk_alpha))
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
             # Add legend handle to report overall statistics
             lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
-            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=mrk_alpha))
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
             notes_string = ''.join(df.notes.unique())
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
@@ -3262,7 +3263,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             invert_y_axis = True
         # Add a standard title
         plt_title = add_std_title(a_group)
-        return x_label, y_label, plt_title, ax, invert_y_axis
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'cluster':
         # Run clustering algorithm
         m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
@@ -3288,7 +3289,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(this_clstr_df, var_key, n_h_bins)
             # Plot the histogram
-            n, bins, patches = ax.hist(h_var, bins=res_bins, color=my_clr, alpha=mrk_alpha, orientation=orientation, zorder=5)
+            n, bins, patches = ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation, zorder=5)
             # Find the maximum value for this histogram
             h_max = n.max()
             # Find where that max value occured
@@ -3296,9 +3297,11 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             # Plot a symbol to indicate which cluster is which histogram
             if orientation == 'vertical':
                 ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
+                ax.set_yscale('log')
             elif orientation == 'horizontal':
                 ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
                 # ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+                ax.set_xscale('log')
             #
         # Noise points are labeled as -1
         # Plot noise points
@@ -3310,9 +3313,11 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             if orientation == 'vertical':
                 tw_ax = ax.twinx()
                 tw_ax.set_ylabel('Number of noise points')
+                tw_ax.set_yscale('log')
             elif orientation == 'horizontal':
                 tw_ax = ax.twiny()
                 tw_ax.set_xlabel('Number of noise points')
+                tw_ax.set_xscale('log')
             n, bins, patches = tw_ax.hist(h_var, bins=res_bins, color=std_clr, alpha=noise_alpha, orientation=orientation, zorder=1)
         n_noise_pts = len(df_noise)
         # Add legend to report the total number of points and notes on the data
@@ -3328,7 +3333,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             invert_y_axis = True
         # Add a standard title
         plt_title = add_std_title(a_group)
-        return x_label, y_label, plt_title, ax, invert_y_axis
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
     else:
         # Did not provide a valid clr_map
         print('Colormap',clr_map,'not valid')
