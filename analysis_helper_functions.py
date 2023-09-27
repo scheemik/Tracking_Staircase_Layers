@@ -144,7 +144,7 @@ mrk_size      = 0.5
 mrk_alpha     = 0.9#0.3
 noise_alpha   = 0.2
 grid_alpha    = 0.3
-hist_alpha    = 1.0
+hist_alpha    = 0.8
 pf_alpha      = 0.4
 map_alpha     = 0.7
 lgnd_mrk_size = 60
@@ -248,8 +248,11 @@ class Data_Filters:
     min_press           The minimum value of pressure to keep a profile
     min_press_CT_max    The minimum value for the pressure at the conservative
                         temperature maximum, above which profiles will be kept
+    clstr_labels        None to keep all cluster labels or a list of X lists, 
+                        where X is the number of datasets, and each list contains
+                        the cluster labels to keep from that dataset
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None, clstr_labels=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
@@ -258,6 +261,7 @@ class Data_Filters:
         self.date_range = date_range
         self.min_press = min_press
         self.min_press_CT_max = min_press_CT_max
+        self.clstr_labels = clstr_labels
 
 ################################################################################
 
@@ -481,7 +485,9 @@ def apply_data_filters(xarrays, data_filters):
     """
     # Make an empty list
     output_arrs = []
+    i = 0
     for ds in xarrays:
+        print('new ds, i =',i)
         ## Filters on a per-profile basis
         ##      I turned off squeezing because it drops the `Time` dimension if
         ##      you only pass in one profile per dataset
@@ -528,6 +534,20 @@ def apply_data_filters(xarrays, data_filters):
         if not isinstance(data_filters.min_press_CT_max, type(None)):
             ds = ds.where(ds.press_CT_max>=data_filters.min_press_CT_max, drop=True)#.squeeze()
         #
+        #   Filter to just certain cluster labels
+        if isinstance(data_filters.clstr_labels, type(None)):
+            foo = 2
+        elif len(data_filters.clstr_labels) > 0:
+            list_of_ds_clstrs = []
+            print('data_filters.clstr_labels:',data_filters.clstr_labels)
+            these_clstr_labels = data_filters.clstr_labels[i]
+            print('\t- Filtering to just these cluster labels:',these_clstr_labels)
+            for this_clstr_label in these_clstr_labels:
+                this_ds = ds.where(ds.cluster == this_clstr_label, drop=True)#.squeeze()
+                list_of_ds_clstrs.append(this_ds)
+            ds = xr.concat(list_of_ds_clstrs, dim='Time')
+        #
+        i += 1
         output_arrs.append(ds)
     return output_arrs
 
@@ -2406,8 +2426,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_dataset':
-            # if plot_hist:
-            #     return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+            if plot_hist:
+                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
             # # Check for cluster-based variables
             new_cl_vars = []
             for key in [x_key, y_key, z_key]:
@@ -3214,6 +3234,40 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
+    elif clr_map == 'clr_by_dataset':
+        i = 0
+        lgnd_hndls = []
+        df_labels = [*a_group.data_set.sources_dict.keys()]
+        print('df_labels:',df_labels)
+        # Loop through each dataframe 
+        #   which correspond to the datasets input to the Data_Set object's sources_dict
+        for this_df in a_group.data_frames:
+            # Decide on the color, don't go off the end of the array
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
+            # Get histogram parameters
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            # Plot the histogram
+            ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
+            # Add legend handle to report the total number of points for this dataset
+            lgnd_label = df_labels[i]+': '+str(len(this_df[var_key]))+' points, Median:'+'%.4f'%median
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
+            # Add legend handle to report overall statistics
+            lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
+            notes_string = ''.join(this_df.notes.unique())
+            i += 1
+        # Only add the notes_string if it contains something
+        if len(notes_string) > 1:
+            notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
+            lgnd_hndls.append(notes_patch)
+        # Add legend with custom handles
+        lgnd = ax.legend(handles=lgnd_hndls)
+        # Invert y-axis if specified
+        if y_key in y_invert_vars:
+            invert_y_axis = True
+        # Add a standard title
+        plt_title = add_std_title(a_group)
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_instrmt':
         # Can't make this type of plot for certain variables yet
         if var_key in clstr_vars:
@@ -3296,11 +3350,16 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             bin_h_max = bins[np.where(n == h_max)][0]
             # Plot a symbol to indicate which cluster is which histogram
             if orientation == 'vertical':
-                ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
-                ax.set_yscale('log')
+                # This will plot the symbol for a cluster just above the max
+                # ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
+                # This will plot the number for a cluster just above the max
+                ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=1)
+                # Change the y scale to log
+                # ax.set_yscale('log')
             elif orientation == 'horizontal':
                 ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
                 # ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+                # Change the x scale to log
                 ax.set_xscale('log')
             #
         # Noise points are labeled as -1
@@ -4447,9 +4506,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             if plot_centroid:
                 # This will plot a marker at the centroid
                 ax.scatter(x_mean, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
-                ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
+                # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
-                # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+                ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             if plot_slopes and 'cRL' not in [x_key, y_key]:
                 # Find the slope of the ordinary least-squares of the points for this cluster
                 # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
