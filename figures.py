@@ -632,8 +632,8 @@ print('- Creating data sets')
 # ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
 ## Pre-clustered
-# dfs_to_use = dfs_all
-dfs_to_use = dfs_clstr_lbl
+dfs_to_use = dfs_all
+# dfs_to_use = dfs_clstr_lbl
 # Single time periods
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
 # ds_BGRc_m310 = ahf.Data_Set(BGRc_m310, dfs_to_use)
@@ -641,8 +641,8 @@ dfs_to_use = dfs_clstr_lbl
 # ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_to_use)
 # ds_BGRh_m390 = ahf.Data_Set(BGRh_m390, dfs_to_use)
 # Comparing time periods
-# ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
-# ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
+ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
+ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
 ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_to_use)
 
 ################################################################################
@@ -1389,17 +1389,52 @@ if True:
     # this_ds = ds_BGRa_m110
     # this_ds = ds_BGRf_m410
     # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRfg
+    this_ds = ds_BGRfg
     # this_ds = ds_BGRgh
-    this_ds = ds_BGRfgh
+    # this_ds = ds_BGRfgh
     # Make the Plot Parameters
-    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
-    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset')# clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
     # Make the subplot groups
     group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
+if True:
+    print('')
+    print('- Creating plots to compare pre-clustered BGR ITP data')
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    # this_ds = ds_BGRg_m240
+    # this_ds = ds_BGRfg
+    this_ds = ds_BGRgh
+    # this_ds = ds_BGRfgh
+    # Make the Plot Parameters
+    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
+    # Make the subplot groups
+    group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
+    # print('done making analysis group')
+    # # Make the figure
+    ahf.make_figure([group_comp_clstrs])
+if True:
+    print('')
+    print('- Creating plots to compare pre-clustered BGR ITP data')
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    # this_ds = ds_BGRg_m240
+    # this_ds = ds_BGRfg
+    # this_ds = ds_BGRgh
+    this_ds = ds_BGRfgh
+    # Make the Plot Parameters
+    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
+    # Make the subplot groups
+    group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
+    # print('done making analysis group')
+    # # Make the figure
+    ahf.make_figure([group_comp_clstrs])
+
 # BGR ITP clustering, comparing with histograms
 if False:
     print('')

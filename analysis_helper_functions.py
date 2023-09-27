@@ -193,12 +193,14 @@ ca_prefix  = 'ca_'  # cluster average
 ca_vars    = [ f'{ca_prefix}{var}'  for var in vertical_vars]
 cs_prefix  = 'cs_'  # cluster span
 cs_vars    = [ f'{cs_prefix}{var}'  for var in vertical_vars]
+csd_prefix = 'csd_'  # cluster standard deviation
+csd_vars   = [ f'{csd_prefix}{var}'  for var in vertical_vars]
 cmm_prefix = 'cmm_' # cluster min/max
 cmm_vars   = [ f'{cmm_prefix}{var}'  for var in vertical_vars]
 nir_prefix = 'nir_' # normalized inter-cluster range
 nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
 # Make a complete list of cluster-related variables
-clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + cmm_vars + nir_vars
+clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars
 # For parameter sweeps of clustering
 #   Independent variables
 clstr_ps_ind_vars = ['m_pts', 'n_pfs', 'ell_size']
@@ -399,6 +401,9 @@ class Plot_Parameters:
                     To manually place the inline labels for isopycnals, add this:
                         {'place_isos':'manual'}, otherwise they will be placed 
                         automatically
+                    To add error bars to the plot, add {'errorbars':True}. This, for 
+                        example, will add error bars equal to the standard deviation
+                        if plotting a cluster average `ca_` variable
     """
     def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], z_vars=[None], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
         # Add all the input parameters to the object
@@ -718,8 +723,8 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         #
         # Remove duplicates
         vars_to_keep = list(set(vars_to_keep))
-        # print('vars_to_keep:')
-        # print(vars_to_keep)
+        print('vars_to_keep:')
+        print(vars_to_keep)
         # exit(0)
         return vars_to_keep
 
@@ -1363,6 +1368,11 @@ def get_axis_label(var_key, var_attr_dicts):
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[3:]
         return 'Cluster span of '+ var_attr_dicts[0][var_str]['label']
+    # Check for cluster standard deviation variables
+    elif 'csd_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Cluster standard deviation of '+ var_attr_dicts[0][var_str]['label']
     # Check for cluster min/max variables
     elif 'cmm_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -2116,6 +2126,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     clr_map   = pp.clr_map
     # Check the extra arguments
     add_isos = False
+    errorbars = False
     if not isinstance(pp.extra_args, type(None)):
         extra_args = pp.extra_args
         if 'isopycnals' in extra_args.keys():
@@ -2124,6 +2135,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 add_isos = True
         if 'place_isos' in extra_args.keys():
             place_isos = extra_args['place_isos']
+        if 'errorbars' in extra_args.keys():
+            errorbars = extra_args['errorbars']
         else:
             place_isos = False
     else:
@@ -2433,10 +2446,32 @@ def make_subplot(ax, a_group, fig, ax_pos):
             for key in [x_key, y_key, z_key]:
                 if key in clstr_vars:
                     new_cl_vars.append(key)
+            if errorbars:
+                if isinstance(x_key, type('str')) and '_' in x_key:
+                    # Split the prefix from the original variable (assumes an underscore split)
+                    split_var = x_key.split('_', 1)
+                    prefix = split_var[0]
+                    var_str = split_var[1]
+                    if prefix == 'ca':
+                        x_err_key = 'csd_'+var_str
+                        new_cl_vars.append(x_err_key)
+                    else:
+                        x_err_key = None
+                if isinstance(y_key, type('str')) and '_' in y_key:
+                    # Split the prefix from the original variable (assumes an underscore split)
+                    split_var = y_key.split('_', 1)
+                    prefix = split_var[0]
+                    var_str = split_var[1]
+                    if prefix == 'ca':
+                        y_err_key = 'csd_'+var_str
+                        new_cl_vars.append(y_err_key)
+                    else:
+                        y_err_key = None
+            print('new_cl_vars:',new_cl_vars)
             i = 0
             lgnd_hndls = []
             df_labels = [*a_group.data_set.sources_dict.keys()]
-            print('df_labels:',df_labels)
+            print('\tdf_labels:',df_labels)
             # Loop through each dataframe 
             #   which correspond to the datasets input to the Data_Set object's sources_dict
             for this_df in a_group.data_frames:
@@ -2458,6 +2493,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     this_df[y_key] = mpl.dates.date2num(this_df[y_key])
                 # Plot every point from this df the same color, size, and marker
                 ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                # Add error bars if applicable
+                if errorbars:
+                    if not isinstance(x_err_key, type(None)):
+                        ax.errorbar(this_df[x_key], this_df[y_key], xerr=this_df[x_err_key], color=my_clr, capsize=l_cap_size, fmt='none')
+                    if not isinstance(y_err_key, type(None)):
+                        ax.errorbar(this_df[x_key], this_df[y_key], yerr=this_df[y_err_key], color=my_clr, capsize=l_cap_size, fmt='none')
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = df_labels[i]+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
@@ -4146,6 +4187,19 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 clstr_span = max(df_this_cluster[var].values) - min(df_this_cluster[var].values)
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_span
+        elif prefix == 'csd':
+            # Calculate the cluster standard deviation of the variable
+            #   Reduces the number of points to just one per cluster
+            # Loop over each cluster
+            # print('cluster,'+var)
+            for i in range(n_clusters):
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i].copy()
+                # Find the std of this var for this cluster
+                clstr_std = np.std(df_this_cluster[var].values)
+                # Put those values back into the original dataframe
+                df.loc[df['cluster']==i, this_var] = clstr_std
+                # print(str(i)+','+str(clstr_std))
         elif prefix == 'cmm':
             # Find the min/max of each cluster for the variable
             #   Reduces the number of points to just one per cluster
