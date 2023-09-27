@@ -1613,6 +1613,66 @@ def find_max_distance(groups_to_analyze):
         print(print_string)
 
 ################################################################################
+# Admin stats functions ########################################################
+################################################################################
+
+def cluster_stats(groups_to_summarize, stat_vars=['SA'], filename=None):
+    """
+    Takes in a list of Analysis_Group objects. Analyzes and outputs summary info
+    for each one.
+
+    groups_to_plot      A list of Analysis_Group objects
+    stat_vars           A list of variables on which to compute the stats
+    filename            The file to write the output to. If none, it will print
+                            the output to the console
+    """
+    # Import statistics
+    from scipy import stats
+    import csv
+    # Loop over all Analysis_Group objects
+    i = 0
+    lines = []
+    for a_group in groups_to_summarize:
+        i += 1
+        df_labels = [*a_group.data_set.sources_dict.keys()]
+        # Find the dataframes
+        dfs = a_group.data_frames
+        if len(dfs) != 2 or len(df_labels) != 2:
+            print('Error: can only perform t-Tests between 2 datasets')
+            exit(0)
+        # Put all of the lines together
+        lines.append("Group "+str(i)+": "+str(df_labels))
+        for var in stat_vars:
+            lines.append('\tStat variable: '+str(var))
+            stat_var_arrs = []
+            for i in range(2):
+                # Find the data for this variable for this df
+                stat_var_arrs.append(dfs[i][var].values)
+                lines.append('\t\t'+df_labels[i])
+                lines.append('\t\t\tNumber of points: '+str(len(stat_var_arrs[i])))
+                lines.append('\t\t\tMean: '+str(np.mean(stat_var_arrs[i])))
+                lines.append('\t\t\tStandard deviation: '+str(np.std(stat_var_arrs[i])))
+                # Write to file
+                with open('test'+str(i)+'.csv', 'w') as f:
+                    write = csv.writer(f)
+                    write.writerow(stat_var_arrs[i])
+            #
+            lines.append('\t\tt-Test')
+            var_stats = stats.ttest_ind(stat_var_arrs[0], stat_var_arrs[1])
+            lines.append('\t\t\tt-statistic: '+str(var_stats.statistic))
+            lines.append('\t\t\tp-value: '+str(var_stats.pvalue))
+            # lines.append('\t\t\tdegs of freedom: '+str(var_stats.df))
+        #
+    #
+    if filename != None:
+        print('Writing summary file to',filename)
+        with open(filename, 'w') as f:
+            f.write('\n'.join(lines))
+    else:
+        for line in lines:
+            print(line)
+
+################################################################################
 # Admin plotting functions #####################################################
 ################################################################################
 

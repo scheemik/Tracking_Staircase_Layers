@@ -511,6 +511,10 @@ dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
 dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[16],[18],[14]])
 dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[29],[17],[20]])
+# fg corresponding
+dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[16],[18]])
+# fg NOT corresponding
+dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[16],[17]])
 
 ################################################################################
 # Create data sets by combining filters and the data to load in
@@ -632,8 +636,8 @@ print('- Creating data sets')
 # ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
 ## Pre-clustered
-dfs_to_use = dfs_all
-# dfs_to_use = dfs_clstr_lbl
+# dfs_to_use = dfs_all
+dfs_to_use = dfs_clstr_lbl
 # Single time periods
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
 # ds_BGRc_m310 = ahf.Data_Set(BGRc_m310, dfs_to_use)
@@ -642,8 +646,8 @@ dfs_to_use = dfs_all
 # ds_BGRh_m390 = ahf.Data_Set(BGRh_m390, dfs_to_use)
 # Comparing time periods
 ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
-ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
-ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_to_use)
+# ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
+# ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_to_use)
 
 ################################################################################
 # Create profile filtering objects
@@ -736,6 +740,15 @@ if False:
     # Make the Analysis Group
     group_test = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_test)
     ahf.txt_summary([group_test])
+
+
+# Cluster stats
+if False:
+    # Make the Plot Parameters
+    pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['SA','cluster']})
+    # Make the Analysis Group
+    group_test = ahf.Analysis_Group(ds_BGRfg, pfs_0, pp_test)
+    ahf.cluster_stats([group_test], stat_vars=['SA'])
 
 ################################################################################
 ### Figures
@@ -879,6 +892,16 @@ if False:
     # group_CT_SA_3d_plot = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_CT_SA_3d)
     # Make the figure
     ahf.make_figure([group_CT_SA_plot])#, group_CT_SA_3d_plot])
+## lon-dt_start plots
+if True:
+    print('')
+    print('- Creating lon-time plots')
+    # Make the Plot Parameters
+    pp_lon_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lon'], clr_map='clr_by_instrmt')
+    # Make the Analysis Group pfs_fltrd pfs_BGR1
+    group_lon_dt_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_lon_dt)
+    # Make the figure
+    ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
 if False:
@@ -1106,8 +1129,8 @@ if False:
     # # Make the figure
     ahf.make_figure([group_BGOS_full, group_BGOS_ss])
 
-## Plotting salinity vs time
-# 
+## Plotting vs time
+# salinity vs time
 if False:
     print('')
     print('- Creating plots of salinity vs time')
@@ -1383,7 +1406,7 @@ if False:
 
 ## Comparing two BGR ITP time period clusterings
 # BGR ITP clustering
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
@@ -1400,7 +1423,7 @@ if True:
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
@@ -1417,7 +1440,7 @@ if True:
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
@@ -1454,6 +1477,24 @@ if False:
     # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
     ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 
+# BGR ITP clustering, comparing specific clusters
+if False:
+    print('')
+    print('- Creating plots to compare pre-clustered BGR ITP data')
+    # this_ds = ds_BGRa_m110
+    # this_ds = ds_BGRf_m410
+    # this_ds = ds_BGRg_m240
+    this_ds = ds_BGRfg
+    # this_ds = ds_BGRgh
+    # this_ds = ds_BGRfgh
+    # Make the Plot Parameters
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
+    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
+    # Make the subplot groups
+    group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
+    # print('done making analysis group')
+    # # Make the figure
+    ahf.make_figure([group_comp_clstrs])
 
 exit(0)
 
