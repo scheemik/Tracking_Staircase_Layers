@@ -249,7 +249,7 @@ CB_ITPs_0b = {'ITP_001':'all',
 ## 2004-08-20 00:00:01 to 2004-09-29 00:00:05, duration: 41 days
 BGR_ITPs_0a = {'ITP_002':'all'}
 ## 2005-08-16 06:00:01 to 2009-08-31 00:00:08, gap: 320 days, duration: 1477 days
-BGR_ITPs_0b = { 'ITP_001':'all',
+BGR_ITPs_0x = { 'ITP_001':'all',
                 # 'ITP_002':'all', # Not in this time range
                 'ITP_003':'all',
                 'ITP_004':'all',
@@ -279,41 +279,145 @@ BGR_ITPs_0b = { 'ITP_001':'all',
                 # 'ITP_029':'all', # Not in BGR
                 'ITP_030':'all',
                 }
+## 2005-08-16 06:00:01 to 2007-01-08 18:00:03, gap: 320 days, duration: 511 days
+BGR_ITPs_0b = { 'ITP_001':'all',
+                # 'ITP_002':'all', # Not in this time range
+                'ITP_003':'all'
+                }
+## 2006-09-03 06:00:01 to 2008-05-13 00:00:02, overlap: 128 days, duration: 619 days
+BGR_ITPs_0c = { 'ITP_004':'all',
+                'ITP_005':'all',
+                'ITP_006':'all'
+                }
+## 2007-08-13 00:00:01 to 2008-09-15 00:00:04, overlap: 275 days, duration: 400 days
+BGR_ITPs_0d = { # 'ITP_007':'all', # Not in BGR
+                'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                # 'ITP_011':'all', # Not in this time period, can't time slice
+                # 'ITP_012':'all', # Not in BGR
+                'ITP_013':'all',  # Can't time slice
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                'ITP_018':'all',
+                # 'ITP_019':'all', # Not in BGR
+                'ITP_021':'all',
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                # 'ITP_025':'all', # Not in this time period
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                'ITP_030':'all',
+                }
+## 2008-09-21 00:00:05 to 2009-08-31 00:00:08, gap: 7 days, duration: 345 days
+BGR_ITPs_0e = { 'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                'ITP_011':'all', # Can't time slice
+                # 'ITP_012':'all', # Not in BGR
+                # 'ITP_013':'all',  # Not in this time period, can't time slice
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                # 'ITP_018':'all', # Not in this time period
+                # 'ITP_019':'all', # Not in BGR
+                'ITP_021':'all', 
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                'ITP_025':'all', 
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                # 'ITP_030':'all', # Not in this time period
+                }
 ## 2009-10-04 06:00:02 to 2010-06-08 00:00:07, gap: 33 days, duration: 248 days
-BGR_ITPs_0c = { 'ITP_032':'all',
+BGR_ITPs_0f = { 'ITP_032':'all',
                 'ITP_033':'all',
                 'ITP_034':'all',
                 'ITP_035':'all',
                 }
-## 2010-06-16 00:00:06 to 2013-08-12 00:00:06, gap: 8 days, duration: 1154 days
-BGR_ITPs_0d = { 'ITP_033':'all',
+## 2010-06-16 00:00:06 to 2013-08-12 00:00:06, duration: 1154 days
+BGR_ITPs_0y = { 'ITP_033':'all',
                 # 'ITP_036':'all', # Not in BGR
                 # 'ITP_037':'all', # Not in BGR
                 # 'ITP_038':'all', # Not in BGR
                 'ITP_041':'all',
                 'ITP_042':'all',
                 'ITP_043':'all',
-                # 'ITP_047':'all',
-                # 'ITP_048':'all',
-                # 'ITP_049':'all',
-                # 'ITP_051':'all',
+                # 'ITP_047':'all', # Not in BGR
+                # 'ITP_048':'all', # Not in BGR
+                # 'ITP_049':'all', # Not in BGR
+                # 'ITP_051':'all', # Not in BGR
                 'ITP_052':'all',
                 'ITP_053':'all',
                 'ITP_054':'all',
                 'ITP_055':'all',
-                # 'ITP_056':'all',
-                # 'ITP_057':'all',
-                # 'ITP_058':'all',
-                # 'ITP_059':'all',
-                # 'ITP_060':'all',
-                # 'ITP_061':'all',
+                # 'ITP_056':'all', ?
+                # 'ITP_057':'all', ?
+                # 'ITP_058':'all', ?
+                # 'ITP_059':'all',?
+                # 'ITP_060':'all',?
+                # 'ITP_061':'all',?
                 'ITP_062':'all',
-                # 'ITP_063':'all',
+                # 'ITP_063':'all',?
                 'ITP_064':'all',
                 'ITP_065':'all',
                 }
-## 2013-08-22 00:02:02 to 2016-05-02 00:02:01, gap: 9 days, duration: 985 days
-BGR_ITPs_0e = { 'ITP_064':'all',
+## 2010-06-16 00:00:06 to 2011-06-08 00:00:06, gap: 8 days, duration: 358 days
+BGR_ITPs_0g = { 'ITP_033':'all',
+                # 'ITP_036':'all', # Not in BGR
+                # 'ITP_037':'all', # Not in BGR
+                # 'ITP_038':'all', # Not in BGR
+                'ITP_041':'all',
+                'ITP_042':'all',
+                'ITP_043':'all'
+                }
+## 2011-06-11 00:00:05 to 2012-08-06 06:00:05, gap: 2 days, duration: 423 days
+BGR_ITPs_0h = { 'ITP_041':'all',
+                # 'ITP_042':'all', # Not in this time period
+                # 'ITP_043':'all', # Not in this time period
+                # 'ITP_047':'all', # Not in BGR
+                # 'ITP_048':'all', # Not in BGR
+                # 'ITP_049':'all', # Not in BGR
+                # 'ITP_051':'all', # Not in BGR
+                'ITP_052':'all',
+                'ITP_053':'all',
+                'ITP_054':'all',
+                'ITP_055':'all'
+                }
+## 2012-08-08 00:00:07 to 2013-08-23 12:02:02, gap: 1 day, duration: 381 days
+BGR_ITPs_0i = { 'ITP_041':'all',
+                # 'ITP_042':'all', # Not in this time period
+                # 'ITP_043':'all', # Not in this time period
+                # 'ITP_047':'all', # Not in BGR
+                # 'ITP_048':'all', # Not in BGR
+                # 'ITP_049':'all', # Not in BGR
+                # 'ITP_051':'all', # Not in BGR
+                # 'ITP_052':'all', # Not in this time period
+                # 'ITP_053':'all', # Not in this time period
+                # 'ITP_054':'all', # Not in this time period
+                # 'ITP_055':'all', # Not in this time period
+                # 'ITP_056':'all', # Not in BGR
+                # 'ITP_057':'all', # Not in BGR
+                # 'ITP_058':'all', # Not in BGR
+                # 'ITP_059':'all', # Not in BGR
+                # 'ITP_060':'all', # Not in BGR
+                # 'ITP_061':'all', # Not in BGR
+                'ITP_062':'all',
+                # 'ITP_063':'all', # Not in BGR
+                'ITP_064':'all',
+                'ITP_065':'all',
+                }
+## 2013-08-22 00:02:02 to 2016-05-02 00:02:01, duration: 985 days
+BGR_ITPs_0z = { 'ITP_064':'all',
                 # 'ITP_065':'all', # Doesn't appear in this time period
                 'ITP_068':'all',
                 'ITP_069':'all',
@@ -342,59 +446,99 @@ BGR_ITPs_0e = { 'ITP_064':'all',
                 # 'ITP_094':'all', # Not in BGR
                 # 'ITP_095':'all', # Not in BGR
                 }
-## 2016-10-03 00:02:02 to 2017-08-04 00:02:01, gap: 153 days, duration: 306 days
-BGR_ITPs_0f = { 'ITP_097':'all',
-                # 'ITP_098':'all', # Just barely outside BGR
-                'ITP_099':'all',
+## 2013-08-26 00:02:01 to 2014-10-01 00:02:01, gap: 2 days, duration: 402 days
+BGR_ITPs_0j = { 'ITP_068':'all',
+                'ITP_069':'all',
+                'ITP_070':'all',
+                # 'ITP_072':'all', # Not in BGR
+                # 'ITP_073':'all', # Not in BGR
+                # 'ITP_074':'all', # Not in BGR
+                # 'ITP_075':'all', # Not in BGR
+                # 'ITP_076':'all', # Not in BGR
+                'ITP_077':'all',
+                'ITP_078':'all',
+                'ITP_079':'all'
                 }
-## 2017-09-17 00:02:02 to 2018-07-21 00:02:02, gap: 43 days, duration: 308 days
-BGR_ITPs_0g = { 'ITP_097':'all',
-                'ITP_100':'all',
-                'ITP_101':'all',
-                # 'ITP_102':'all', # Not in BGR
-                # 'ITP_103':'all', # Not in this time period
-                # 'ITP_104':'all', # Not in this time period
-                # 'ITP_105':'all', # Not in this time period
-                # 'ITP_107':'all', # Not in this time period
-                'ITP_108':'all',
+## 2014-08-14 00:02:01 to 2015-09-04 00:02:00, overlap: 49 days, duration: 387 days
+BGR_ITPs_0k = { 'ITP_080':'all',
+                'ITP_081':'all',
+                'ITP_082':'all',
+                # 'ITP_083':'all', # Not in BGR
+                'ITP_084':'all',
+                'ITP_085':'all',
+                'ITP_086':'all',
+                'ITP_087':'all'
                 }
-## 2018-09-19 00:02:03 to 2019-04-14 00:02:02, gap: 59 days, duration: 208 days
-BGR_ITPs_0h = { 'ITP_103':'all',
-                'ITP_104':'all',
-                'ITP_105':'all',
-                'ITP_107':'all',
-                'ITP_108':'all', # Not in this time period
-                'ITP_109':'all',
-                'ITP_110':'all',
-                }
-## 
-BGR_ITPs_0i = { 'ITP_103':'all',
-                'ITP_104':'all',
-                'ITP_105':'all',
-                'ITP_107':'all',
-                'ITP_108':'all', # Not in this time period
-                'ITP_109':'all',
-                'ITP_110':'all',
-                # 'ITP_111':'all', # Not in BGR
-                'ITP_113':'all',
-                'ITP_114':'all',
-                # 'ITP_116':'all', # Not in BGR
-                'ITP_117':'all',
-                'ITP_118':'all',
-                'ITP_120':'all',
-                'ITP_121':'all',
-                'ITP_122':'all',
-                'ITP_123':'all',
-                'ITP_125':'all',
-                'ITP_128':'all',
+## 2015-09-06 00:02:01 to 2016-05-02 00:02:01, gap: 1 day, duration: 240 days
+BGR_ITPs_0l = { 'ITP_082':'all',
+                # 'ITP_083':'all', # Not in BGR
+                # 'ITP_084':'all', # Not in this time period
+                # 'ITP_085':'all', # Not in this time period
+                # 'ITP_086':'all', # Not in this time period
+                # 'ITP_087':'all', # Not in this time period
+                'ITP_088':'all',
+                'ITP_089':'all',
+                # 'ITP_090':'all', # Not in BGR
+                # 'ITP_091':'all', # Not in BGR
+                # 'ITP_092':'all', # Not in BGR
+                # 'ITP_094':'all', # Not in BGR
+                # 'ITP_095':'all', # Not in BGR
                 }
 
+# ## 2016-10-03 00:02:02 to 2017-08-04 00:02:01, gap: 153 days, duration: 306 days
+# BGR_ITPs_0f = { 'ITP_097':'all',
+#                 # 'ITP_098':'all', # Just barely outside BGR
+#                 'ITP_099':'all',
+#                 }
+# ## 2017-09-17 00:02:02 to 2018-07-21 00:02:02, gap: 43 days, duration: 308 days
+# BGR_ITPs_0g = { 'ITP_097':'all',
+#                 'ITP_100':'all',
+#                 'ITP_101':'all',
+#                 # 'ITP_102':'all', # Not in BGR
+#                 # 'ITP_103':'all', # Not in this time period
+#                 # 'ITP_104':'all', # Not in this time period
+#                 # 'ITP_105':'all', # Not in this time period
+#                 # 'ITP_107':'all', # Not in this time period
+#                 'ITP_108':'all',
+#                 }
+# ## 2018-09-19 00:02:03 to 2019-04-14 00:02:02, gap: 59 days, duration: 208 days
+# BGR_ITPs_0h = { 'ITP_103':'all',
+#                 'ITP_104':'all',
+#                 'ITP_105':'all',
+#                 'ITP_107':'all',
+#                 'ITP_108':'all', # Not in this time period
+#                 'ITP_109':'all',
+#                 'ITP_110':'all',
+#                 }
+# ## 
+# BGR_ITPs_0i = { 'ITP_103':'all',
+#                 'ITP_104':'all',
+#                 'ITP_105':'all',
+#                 'ITP_107':'all',
+#                 'ITP_108':'all', # Not in this time period
+#                 'ITP_109':'all',
+#                 'ITP_110':'all',
+#                 # 'ITP_111':'all', # Not in BGR
+#                 'ITP_113':'all',
+#                 'ITP_114':'all',
+#                 # 'ITP_116':'all', # Not in BGR
+#                 'ITP_117':'all',
+#                 'ITP_118':'all',
+#                 'ITP_120':'all',
+#                 'ITP_121':'all',
+#                 'ITP_122':'all',
+#                 'ITP_123':'all',
+#                 'ITP_125':'all',
+#                 'ITP_128':'all',
+#                 }
+
 ## All
-BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
+# BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
 
 ## Pre-clustered files
 # Single time periods
 BGRa_m110 = {'BGRa_mpts_110':'all'}
+BGRb_none = {'BGRb_mpts_none':'all'}
 BGRc_m310 = {'BGRc_mpts_310':'all'}
 BGRf_m410 = {'BGRf_mpts_410':'all'}
 BGRg_m240 = {'BGRg_mpts_240':'all'}
@@ -499,13 +643,20 @@ dfs1_CB_0a = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)
 dfs1_CB_0b = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)#, date_range=['2005/08/15 00:00:00','2010/07/22 00:00:00'])
 
 # Beaufort Gyre Region
-dfs1_BGR_0c = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
-dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2013/08/17 00:00:00'])
-dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/17 00:00:00','2016/07/10 00:00:00'])
-dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
-dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
-dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
-dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2024/08/17 00:00:00'])
+dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/11 00:00:00','2008/09/18 00:00:00'])
+dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/09/18 00:00:00','2009/09/01 00:00:00'])
+dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
+dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2011/06/09 00:00:00'])
+dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/06/09 00:00:00','2012/08/07 00:00:00'])
+dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/07 00:00:00','2013/08/25 00:00:00'])
+dfs1_BGR_0j = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2014/10/10 00:00:00'])
+dfs1_BGR_0k = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2015/09/05 00:00:00'])
+dfs1_BGR_0l = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/09/05 00:00:00','2016/07/10 00:00:00'])
+
+# dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
+# dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
+# dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
+# dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2024/08/17 00:00:00'])
 
 # To filter pre-clustered files to just certain cluster labels
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
@@ -515,6 +666,9 @@ dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[29],[17],[20]])
 dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[16],[18]])
 # fg NOT corresponding
 dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[16],[17]])
+# fg 3 clusters
+dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[12,13,17]])
+dfs_clstr_lbl1 = ahf.Data_Filters(clstr_labels=[[11,12,13]])
 
 ################################################################################
 # Create data sets by combining filters and the data to load in
@@ -553,7 +707,17 @@ print('- Creating data sets')
 # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
 # ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
-# ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1_BGR_0c)
+# ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
+# ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
+# ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
+# ds_BGR_ITPs_0f = ahf.Data_Set(BGR_ITPs_0f, dfs1_BGR_0f)
+# ds_BGR_ITPs_0g = ahf.Data_Set(BGR_ITPs_0g, dfs1_BGR_0g)
+# ds_BGR_ITPs_0h = ahf.Data_Set(BGR_ITPs_0h, dfs1_BGR_0h)
+# ds_BGR_ITPs_0i = ahf.Data_Set(BGR_ITPs_0i, dfs1_BGR_0i)
+# ds_BGR_ITPs_0j = ahf.Data_Set(BGR_ITPs_0j, dfs1_BGR_0j)
+# ds_BGR_ITPs_0k = ahf.Data_Set(BGR_ITPs_0k, dfs1_BGR_0k)
+ds_BGR_ITPs_0l = ahf.Data_Set(BGR_ITPs_0l, dfs1_BGR_0l)
+
 # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
 # ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
 # ds_BGR_ITPs_0f = ahf.Data_Set(BGR_ITPs_0f, dfs1_BGR_0f)
@@ -642,10 +806,10 @@ dfs_to_use = dfs_clstr_lbl
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
 # ds_BGRc_m310 = ahf.Data_Set(BGRc_m310, dfs_to_use)
 # ds_BGRf_m410 = ahf.Data_Set(BGRf_m410, dfs_to_use)
-# ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_to_use)
+# ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_clstr_lbl1)# dfs_to_use)
 # ds_BGRh_m390 = ahf.Data_Set(BGRh_m390, dfs_to_use)
 # Comparing time periods
-ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
+# ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
 # ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
 # ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_to_use)
 
@@ -731,10 +895,14 @@ pfs_this_BGR = pfs_BGR1
 # ds_this_BGR = ds_BGR_ITPs_0f
 # ds_this_BGR = ds_BGR_ITPs_0g
 # ds_this_BGR = ds_BGR_ITPs_0h
+# ds_this_BGR = ds_BGR_ITPs_0i
+# ds_this_BGR = ds_BGR_ITPs_0j
+# ds_this_BGR = ds_BGR_ITPs_0k
+ds_this_BGR = ds_BGR_ITPs_0l
 
 
 # Output summary
-if False:
+if True:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
@@ -768,12 +936,12 @@ if False:
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of just in the Beaufort Gyre Region
-if False:
+if True:
     print('')
     print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
     # group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
-    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_by_date, plot_title='')
+    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
     # Make the figure
     ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of all upgoing profiles for all sources
@@ -879,7 +1047,7 @@ if False:
     ahf.find_max_distance([group_AIDJEX, group_BGOS_ITP])
 
 ## la_CT-SA vs. la_CT-SA-dt_start plots
-if False:
+if True:
     print('')
     print('- Creating TS and TS-time plots')
     # Make the Plot Parameters
@@ -891,9 +1059,9 @@ if False:
     # group_CT_SA_plot = ahf.Analysis_Group(ds_ITP_test, pfs_BGR1, pp_CT_SA)
     # group_CT_SA_3d_plot = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_CT_SA_3d)
     # Make the figure
-    ahf.make_figure([group_CT_SA_plot])#, group_CT_SA_3d_plot])
+    ahf.make_figure([group_CT_SA_plot], filename='Figure_2.pickle')#, group_CT_SA_3d_plot])
 ## lon-dt_start plots
-if True:
+if False:
     print('')
     print('- Creating lon-time plots')
     # Make the Plot Parameters
@@ -904,13 +1072,13 @@ if True:
     ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
-if False:
+if True:
     print('')
     print('- Creating TS plots')
     # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SP'], y_vars=['iT'], clr_map='clr_all_same')
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
     # Make the Analysis Group
-    group_TS_plot = ahf.Analysis_Group(ds_ITP_test, pfs_fltrd, pp_TS)
+    group_TS_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
     # Make the figure
     ahf.make_figure([group_TS_plot])
 
@@ -1467,24 +1635,24 @@ if False:
     # this_ds = ds_BGRg_m240
     # this_ds = ds_BGRfg
     # Make the Plot Parameters
-    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':False}, ax_lims=x_ax_lims_SA, legend=False) 
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':False}, legend=False)#, ax_lims=x_ax_lims_SA) 
     # Make the subplot groups
     group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRf_m410, pfs_0, pp_comp_clstrs)
     group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRg_m240, pfs_0, pp_comp_clstrs)
-    group_comp_clstrs2 = ahf.Analysis_Group(ds_BGRh_m390, pfs_0, pp_comp_clstrs)
+    # group_comp_clstrs2 = ahf.Analysis_Group(ds_BGRh_m390, pfs_0, pp_comp_clstrs)
     # print('done making analysis group')
     # # Make the figure
-    # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
-    ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
+    ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
+    # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 
 # BGR ITP clustering, comparing specific clusters
 if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRf_m410
+    this_ds = ds_BGRf_m410
     # this_ds = ds_BGRg_m240
-    this_ds = ds_BGRfg
+    # this_ds = ds_BGRfg
     # this_ds = ds_BGRgh
     # this_ds = ds_BGRfgh
     # Make the Plot Parameters
