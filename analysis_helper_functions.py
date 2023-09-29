@@ -141,7 +141,7 @@ mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
 mrk_size      = 0.5
-mrk_alpha     = 0.9#0.3
+mrk_alpha     = 0.5
 noise_alpha   = 0.2
 grid_alpha    = 0.3
 hist_alpha    = 0.8
@@ -492,7 +492,7 @@ def apply_data_filters(xarrays, data_filters):
     output_arrs = []
     i = 0
     for ds in xarrays:
-        print('new ds, i =',i)
+        # print('new ds, i =',i)
         ## Filters on a per-profile basis
         ##      I turned off squeezing because it drops the `Time` dimension if
         ##      you only pass in one profile per dataset
@@ -523,7 +523,7 @@ def apply_data_filters(xarrays, data_filters):
             except:
                 print('ERROR: cannot take time slice for')
                 print('\t',ds.attrs['Source'],ds.attrs['Instrument'])
-                exit(0)
+                # exit(0)
         #   Filter based on the maximum value of pressure in a profile
         if not isinstance(data_filters.min_press, type(None)):
             if False:
@@ -3439,6 +3439,8 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
             # Get relevant data
             this_clstr_df = df[df.cluster == i]
+            if len(this_clstr_df) < 1:
+                continue
             h_data = this_clstr_df[var_key]
             h_mean = np.mean(h_data)
             # Get histogram parameters
@@ -3456,7 +3458,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
                 # This will plot the number for a cluster just above the max
                 ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=1)
                 # Change the y scale to log
-                # ax.set_yscale('log')
+                ax.set_yscale('log')
             elif orientation == 'horizontal':
                 ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
                 # ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)

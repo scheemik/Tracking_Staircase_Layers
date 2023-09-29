@@ -484,53 +484,70 @@ BGR_ITPs_0l = { 'ITP_082':'all',
                 # 'ITP_094':'all', # Not in BGR
                 # 'ITP_095':'all', # Not in BGR
                 }
-
-# ## 2016-10-03 00:02:02 to 2017-08-04 00:02:01, gap: 153 days, duration: 306 days
-# BGR_ITPs_0f = { 'ITP_097':'all',
-#                 # 'ITP_098':'all', # Just barely outside BGR
-#                 'ITP_099':'all',
-#                 }
-# ## 2017-09-17 00:02:02 to 2018-07-21 00:02:02, gap: 43 days, duration: 308 days
-# BGR_ITPs_0g = { 'ITP_097':'all',
-#                 'ITP_100':'all',
-#                 'ITP_101':'all',
-#                 # 'ITP_102':'all', # Not in BGR
-#                 # 'ITP_103':'all', # Not in this time period
-#                 # 'ITP_104':'all', # Not in this time period
-#                 # 'ITP_105':'all', # Not in this time period
-#                 # 'ITP_107':'all', # Not in this time period
-#                 'ITP_108':'all',
-#                 }
-# ## 2018-09-19 00:02:03 to 2019-04-14 00:02:02, gap: 59 days, duration: 208 days
-# BGR_ITPs_0h = { 'ITP_103':'all',
-#                 'ITP_104':'all',
-#                 'ITP_105':'all',
-#                 'ITP_107':'all',
-#                 'ITP_108':'all', # Not in this time period
-#                 'ITP_109':'all',
-#                 'ITP_110':'all',
-#                 }
-# ## 
-# BGR_ITPs_0i = { 'ITP_103':'all',
-#                 'ITP_104':'all',
-#                 'ITP_105':'all',
-#                 'ITP_107':'all',
-#                 'ITP_108':'all', # Not in this time period
-#                 'ITP_109':'all',
-#                 'ITP_110':'all',
-#                 # 'ITP_111':'all', # Not in BGR
-#                 'ITP_113':'all',
-#                 'ITP_114':'all',
-#                 # 'ITP_116':'all', # Not in BGR
-#                 'ITP_117':'all',
-#                 'ITP_118':'all',
-#                 'ITP_120':'all',
-#                 'ITP_121':'all',
-#                 'ITP_122':'all',
-#                 'ITP_123':'all',
-#                 'ITP_125':'all',
-#                 'ITP_128':'all',
-#                 }
+## 2016-10-03 00:02:02 to 2017-08-04 00:02:01, gap: 153 days, duration: 306 days
+BGR_ITPs_0m = { 'ITP_097':'all',
+                # 'ITP_098':'all', # Just barely outside BGR
+                'ITP_099':'all',
+                }
+## 2017-09-17 00:02:02 to 2018-07-21 00:02:02, gap: 43 days, duration: 308 days
+BGR_ITPs_0n = { 'ITP_097':'all',
+                'ITP_100':'all',
+                'ITP_101':'all',
+                # 'ITP_102':'all', # Not in BGR
+                # 'ITP_103':'all', # Not in this time period
+                # 'ITP_104':'all', # Not in this time period
+                # 'ITP_105':'all', # Not in this time period
+                # 'ITP_107':'all', # Not in this time period
+                'ITP_108':'all',
+                }
+## 2018-09-19 00:02:03 to 2019-04-14 00:02:02, gap: 59 days, duration: 208 days
+BGR_ITPs_0o = { 'ITP_103':'all',
+                'ITP_104':'all',
+                'ITP_105':'all',
+                'ITP_107':'all',
+                # 'ITP_108':'all', # Not in this time period
+                'ITP_109':'all',
+                'ITP_110':'all',
+                }
+## 2019-05-01 00:02:02 to 2019-08-31 00:02:03, gap: 16 days, duration: 123 days
+BGR_ITPs_0p = { 'ITP_103':'all',
+                # 'ITP_104':'all', # Not in this time period
+                'ITP_105':'all',
+                'ITP_107':'all',
+                # 'ITP_108':'all', # Not in this time period
+                # 'ITP_109':'all', # Not in this time period
+                'ITP_110':'all',
+                # 'ITP_111':'all', # Not in BGR
+                }
+## 2019-09-20 00:02:03 to 2020-04-02 17:33:46, gap: 19 days, duration: 196 days
+BGR_ITPs_0q = { 'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                'ITP_117':'all',
+                'ITP_118':'all',
+                }
+## 2020-05-20 17:33:46 to 2021-08-31 00:02:02, gap: 47 days, duration: 469 days
+BGR_ITPs_0r = { 'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                # 'ITP_117':'all', # Not in this time period
+                # 'ITP_118':'all', # Not in this time period
+                'ITP_120':'all',
+                'ITP_121':'all',
+                }
+## 
+BGR_ITPs_0s = { 'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                'ITP_117':'all',
+                'ITP_118':'all',
+                'ITP_120':'all',
+                'ITP_121':'all',
+                'ITP_122':'all',
+                'ITP_123':'all',
+                'ITP_125':'all',
+                'ITP_128':'all',
+                }
 
 ## All
 # BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
@@ -538,15 +555,15 @@ BGR_ITPs_0l = { 'ITP_082':'all',
 ## Pre-clustered files
 # Single time periods
 BGRa_m110 = {'BGRa_mpts_110':'all'}
-BGRb_none = {'BGRb_mpts_none':'all'}
-BGRc_m310 = {'BGRc_mpts_310':'all'}
-BGRf_m410 = {'BGRf_mpts_410':'all'}
-BGRg_m240 = {'BGRg_mpts_240':'all'}
-BGRh_m390 = {'BGRh_mpts_390':'all'}
+BGRb_m380 = {'BGRb_mpts_380':'all'}
+BGRf_m310 = {'BGRf_mpts_310':'all'}
+BGRm_m410 = {'BGRm_mpts_410':'all'}
+BGRn_m240 = {'BGRn_mpts_240':'all'}
+BGRo_m390 = {'BGRo_mpts_390':'all'}
 # Comparing time periods
-BGRfg = {'BGRf_mpts_410':'all','BGRg_mpts_240':'all'}
-BGRgh = {'BGRg_mpts_240':'all','BGRh_mpts_390':'all'}
-BGRfgh = {'BGRf_mpts_410':'all','BGRg_mpts_240':'all','BGRh_mpts_390':'all'}
+BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
+BGRno = {'BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
+BGRmno = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 
 # # All profiles from all AIDJEX camps
 # all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
@@ -652,11 +669,14 @@ dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/07
 dfs1_BGR_0j = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2014/10/10 00:00:00'])
 dfs1_BGR_0k = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2015/09/05 00:00:00'])
 dfs1_BGR_0l = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/09/05 00:00:00','2016/07/10 00:00:00'])
+dfs1_BGR_0m = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
+dfs1_BGR_0n = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
+dfs1_BGR_0o = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
+dfs1_BGR_0p = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2019/09/10 00:00:00'])
+dfs1_BGR_0q = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/09/10 00:00:00','2020/04/22 00:00:00'])
+dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22 00:00:00','2021/09/03 00:00:00'])
+dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 
-# dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
-# dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
-# dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
-# dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2024/08/17 00:00:00'])
 
 # To filter pre-clustered files to just certain cluster labels
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
@@ -716,14 +736,13 @@ print('- Creating data sets')
 # ds_BGR_ITPs_0i = ahf.Data_Set(BGR_ITPs_0i, dfs1_BGR_0i)
 # ds_BGR_ITPs_0j = ahf.Data_Set(BGR_ITPs_0j, dfs1_BGR_0j)
 # ds_BGR_ITPs_0k = ahf.Data_Set(BGR_ITPs_0k, dfs1_BGR_0k)
-ds_BGR_ITPs_0l = ahf.Data_Set(BGR_ITPs_0l, dfs1_BGR_0l)
-
-# ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
-# ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
-# ds_BGR_ITPs_0f = ahf.Data_Set(BGR_ITPs_0f, dfs1_BGR_0f)
-# ds_BGR_ITPs_0g = ahf.Data_Set(BGR_ITPs_0g, dfs1_BGR_0g)
-# ds_BGR_ITPs_0h = ahf.Data_Set(BGR_ITPs_0h, dfs1_BGR_0h)
-# ds_BGR_ITPs_0i = ahf.Data_Set(BGR_ITPs_0i, dfs1_BGR_0i)
+# ds_BGR_ITPs_0l = ahf.Data_Set(BGR_ITPs_0l, dfs1_BGR_0l)
+# ds_BGR_ITPs_0m = ahf.Data_Set(BGR_ITPs_0m, dfs1_BGR_0m)
+# ds_BGR_ITPs_0n = ahf.Data_Set(BGR_ITPs_0n, dfs1_BGR_0n)
+# ds_BGR_ITPs_0o = ahf.Data_Set(BGR_ITPs_0o, dfs1_BGR_0o)
+# ds_BGR_ITPs_0p = ahf.Data_Set(BGR_ITPs_0p, dfs1_BGR_0p)
+# ds_BGR_ITPs_0q = ahf.Data_Set(BGR_ITPs_0q, dfs1_BGR_0q)
+ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -804,14 +823,14 @@ ds_BGR_ITPs_0l = ahf.Data_Set(BGR_ITPs_0l, dfs1_BGR_0l)
 dfs_to_use = dfs_clstr_lbl
 # Single time periods
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
-# ds_BGRc_m310 = ahf.Data_Set(BGRc_m310, dfs_to_use)
-# ds_BGRf_m410 = ahf.Data_Set(BGRf_m410, dfs_to_use)
-# ds_BGRg_m240 = ahf.Data_Set(BGRg_m240, dfs_clstr_lbl1)# dfs_to_use)
-# ds_BGRh_m390 = ahf.Data_Set(BGRh_m390, dfs_to_use)
+# ds_BGRf_m310 = ahf.Data_Set(BGRf_m310, dfs_to_use)
+# ds_BGRm_m410 = ahf.Data_Set(BGRm_m410, dfs_to_use)
+# ds_BGRn_m240 = ahf.Data_Set(BGRn_m240, dfs_clstr_lbl1)# dfs_to_use)
+# ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # Comparing time periods
-# ds_BGRfg = ahf.Data_Set(BGRfg, dfs_to_use)
-# ds_BGRgh = ahf.Data_Set(BGRgh, dfs_to_use)
-# ds_BGRfgh = ahf.Data_Set(BGRfgh, dfs_to_use)
+# ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
+# ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
+# ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
 
 ################################################################################
 # Create profile filtering objects
@@ -898,7 +917,13 @@ pfs_this_BGR = pfs_BGR1
 # ds_this_BGR = ds_BGR_ITPs_0i
 # ds_this_BGR = ds_BGR_ITPs_0j
 # ds_this_BGR = ds_BGR_ITPs_0k
-ds_this_BGR = ds_BGR_ITPs_0l
+# ds_this_BGR = ds_BGR_ITPs_0l
+# ds_this_BGR = ds_BGR_ITPs_0m
+# ds_this_BGR = ds_BGR_ITPs_0n
+# ds_this_BGR = ds_BGR_ITPs_0o
+# ds_this_BGR = ds_BGR_ITPs_0p
+# ds_this_BGR = ds_BGR_ITPs_0q
+ds_this_BGR = ds_BGR_ITPs_0r
 
 
 # Output summary
@@ -915,7 +940,7 @@ if False:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['SA','cluster']})
     # Make the Analysis Group
-    group_test = ahf.Analysis_Group(ds_BGRfg, pfs_0, pp_test)
+    group_test = ahf.Analysis_Group(ds_BGRmn, pfs_0, pp_test)
     ahf.cluster_stats([group_test], stat_vars=['SA'])
 
 ################################################################################
@@ -1502,9 +1527,9 @@ if False:
     print('- Creating plots of pre-clustered BGR ITP data')
     pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':[34.36,35.01]})
     # this_ds = ds_BGRa_m110
-    this_ds = ds_BGRf_m410 
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRh_m390
+    this_ds = ds_BGRm_m410 
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRo_m390
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(this_ds, pfs_0, pp_pre_clstrd)
     # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
@@ -1560,11 +1585,11 @@ if False:
     print('')
     print('- Creating plots of cluster span in pressure')
     this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRc_m310
-    # this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRh_m390
-    # this_ds = ds_BGRfg
+    # this_ds = ds_BGRf_m310
+    # this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRo_m390
+    # this_ds = ds_BGRmn
     # Make the Plot Parameters
     pp_clstr_span = ahf.Plot_Parameters(x_vars=['pcs_press'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':False}, legend=False) 
     # Make the subplot groups
@@ -1578,11 +1603,11 @@ if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    this_ds = ds_BGRfg
-    # this_ds = ds_BGRgh
-    # this_ds = ds_BGRfgh
+    # this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    this_ds = ds_BGRmn
+    # this_ds = ds_BGRno
+    # this_ds = ds_BGRmno
     # Make the Plot Parameters
     # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
@@ -1595,11 +1620,11 @@ if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRfg
-    this_ds = ds_BGRgh
-    # this_ds = ds_BGRfgh
+    # this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRmn
+    this_ds = ds_BGRno
+    # this_ds = ds_BGRmno
     # Make the Plot Parameters
     # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
@@ -1612,11 +1637,11 @@ if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRfg
-    # this_ds = ds_BGRgh
-    this_ds = ds_BGRfgh
+    # this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRmn
+    # this_ds = ds_BGRno
+    this_ds = ds_BGRmno
     # Make the Plot Parameters
     # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
@@ -1631,15 +1656,15 @@ if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    # this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRfg
+    # this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRmn
     # Make the Plot Parameters
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':False}, legend=False)#, ax_lims=x_ax_lims_SA) 
     # Make the subplot groups
-    group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRf_m410, pfs_0, pp_comp_clstrs)
-    group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRg_m240, pfs_0, pp_comp_clstrs)
-    # group_comp_clstrs2 = ahf.Analysis_Group(ds_BGRh_m390, pfs_0, pp_comp_clstrs)
+    group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRm_m410, pfs_0, pp_comp_clstrs)
+    group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRn_m240, pfs_0, pp_comp_clstrs)
+    # group_comp_clstrs2 = ahf.Analysis_Group(ds_BGRo_m390, pfs_0, pp_comp_clstrs)
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
@@ -1650,11 +1675,11 @@ if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
-    this_ds = ds_BGRf_m410
-    # this_ds = ds_BGRg_m240
-    # this_ds = ds_BGRfg
-    # this_ds = ds_BGRgh
-    # this_ds = ds_BGRfgh
+    this_ds = ds_BGRm_m410
+    # this_ds = ds_BGRn_m240
+    # this_ds = ds_BGRmn
+    # this_ds = ds_BGRno
+    # this_ds = ds_BGRmno
     # Make the Plot Parameters
     pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
     # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 

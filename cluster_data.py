@@ -161,13 +161,22 @@ BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_340_ell_050.nc',
 # Data filters
 this_min_press = 400
 dfs1 = ahf.Data_Filters(min_press=this_min_press)
-dfs1_BGR_0c = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
-dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2013/08/17 00:00:00'])
-dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/17 00:00:00','2016/07/10 00:00:00'])
-dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
-dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
-dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
-dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2024/08/17 00:00:00'])
+dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/11 00:00:00','2008/09/18 00:00:00'])
+dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/09/18 00:00:00','2009/09/01 00:00:00'])
+dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
+dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2011/06/09 00:00:00'])
+dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/06/09 00:00:00','2012/08/07 00:00:00'])
+dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/07 00:00:00','2013/08/25 00:00:00'])
+dfs1_BGR_0j = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2014/10/10 00:00:00'])
+dfs1_BGR_0k = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2015/09/05 00:00:00'])
+dfs1_BGR_0l = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/09/05 00:00:00','2016/07/10 00:00:00'])
+dfs1_BGR_0m = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
+dfs1_BGR_0n = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
+dfs1_BGR_0o = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
+dfs1_BGR_0p = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2019/09/10 00:00:00'])
+dfs1_BGR_0q = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/09/10 00:00:00','2020/04/22 00:00:00'])
+dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22 00:00:00','2021/09/03 00:00:00'])
+dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]
@@ -186,10 +195,21 @@ BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
                    'm_pts':110
                    }
 
-## BGR ITPs 0c
-BGRc_clstr_dict = {'netcdf_file':'netcdfs/BGRc_mpts_310.nc',
+## BGR ITPs 0b
+BGRb_clstr_dict = {'netcdf_file':'netcdfs/BGRb_mpts_380.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_BGR1,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':380
+                   }
+
+## BGR ITPs 0f
+BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_310.nc',
                    'sources_dict':{'ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
-                   'data_filters':dfs1_BGR_0c,
+                   'data_filters':dfs1_BGR_0f,
                    'pfs_object':pfs_BGR1,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
@@ -197,10 +217,10 @@ BGRc_clstr_dict = {'netcdf_file':'netcdfs/BGRc_mpts_310.nc',
                    'm_pts':310
                    }
 
-## BGR ITPs 0f
-BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_410.nc',
+## BGR ITPs 0m
+BGRm_clstr_dict = {'netcdf_file':'netcdfs/BGRm_mpts_410.nc',
                    'sources_dict':{'ITP_097':'all','ITP_099':'all'},
-                   'data_filters':dfs1_BGR_0f,
+                   'data_filters':dfs1_BGR_0m,
                    'pfs_object':pfs_BGR1,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
@@ -208,10 +228,10 @@ BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_410.nc',
                    'm_pts':410
                    }
 
-## BGR ITPs 0g
-BGRg_clstr_dict = {'netcdf_file':'netcdfs/BGRg_mpts_240.nc',
+## BGR ITPs 0n
+BGRn_clstr_dict = {'netcdf_file':'netcdfs/BGRn_mpts_240.nc',
                    'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
-                   'data_filters':dfs1_BGR_0g,
+                   'data_filters':dfs1_BGR_0n,
                    'pfs_object':pfs_BGR1,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
@@ -219,10 +239,10 @@ BGRg_clstr_dict = {'netcdf_file':'netcdfs/BGRg_mpts_240.nc',
                    'm_pts':240
                    }
 
-## BGR ITPs 0h
-BGRh_clstr_dict = {'netcdf_file':'netcdfs/BGRh_mpts_390.nc',
+## BGR ITPs 0o
+BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
                    'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
-                   'data_filters':dfs1_BGR_0h,
+                   'data_filters':dfs1_BGR_0o,
                    'pfs_object':pfs_BGR1,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
@@ -231,7 +251,7 @@ BGRh_clstr_dict = {'netcdf_file':'netcdfs/BGRh_mpts_390.nc',
                    }
 
 
-for clstr_dict in [BGRh_clstr_dict]:
+for clstr_dict in [BGRb_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -302,7 +322,10 @@ for clstr_dict in [BGRh_clstr_dict]:
         # Create profile filter object
         pfs_object = clstr_dict['pfs_object']
         # Create plot parameters object
-        pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':['BL_yn', 'up_cast', 'lon', 'lat', 'press_max', 'press_CT_max', 'alpha', 'beta', 'ma_CT']}, legend=True)
+        if clstr_dict['m_pts'] == 'None':
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']}, legend=True)
+        else:
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':['BL_yn', 'up_cast', 'lon', 'lat', 'press_max', 'press_CT_max', 'alpha', 'beta', 'ma_CT']}, legend=True)
         # Create analysis group
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
         # Make a figure to run clustering algorithm and check results
