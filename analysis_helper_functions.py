@@ -59,8 +59,11 @@ https://scitools.org.uk/cartopy/docs/latest/installing.html#installing
 Relevent command:
 $ conda install -c conda-forge cartopy
 """
-import cartopy.crs as ccrs
-import cartopy.feature
+try:
+    import cartopy.crs as ccrs
+    import cartopy.feature
+except:
+    print('Warning: could not import the cartopy package')
 
 science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
 
@@ -404,6 +407,9 @@ class Plot_Parameters:
                     To add error bars to the plot, add {'errorbars':True}. This, for 
                         example, will add error bars equal to the standard deviation
                         if plotting a cluster average `ca_` variable
+                    To change any axis to a log scale, add {'log_axes':[True,False,False]}
+                        where the array should be 3 long with entries True/False for 
+                        whether to put the x, y, or z axes (in that order) on a log scale
     """
     def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], z_vars=[None], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
         # Add all the input parameters to the object
@@ -542,6 +548,8 @@ def apply_data_filters(xarrays, data_filters):
         #   Filter to just certain cluster labels
         if isinstance(data_filters.clstr_labels, type(None)):
             foo = 2
+        elif data_filters.clstr_labels == 'no_noise':
+            ds = ds.where(ds.cluster != -1, drop=True)#.squeeze()
         elif len(data_filters.clstr_labels) > 0:
             list_of_ds_clstrs = []
             print('data_filters.clstr_labels:',data_filters.clstr_labels)
@@ -2187,6 +2195,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     # Check the extra arguments
     add_isos = False
     errorbars = False
+    log_axes = 'None'
     if not isinstance(pp.extra_args, type(None)):
         extra_args = pp.extra_args
         if 'isopycnals' in extra_args.keys():
@@ -2199,6 +2208,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             errorbars = extra_args['errorbars']
         else:
             place_isos = False
+        if 'log_axes' in extra_args.keys():
+            log_axes = extra_args['log_axes']
     else:
         extra_args = False
     # Concatonate all the pandas data frames together
@@ -2333,6 +2344,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2439,6 +2458,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2495,6 +2522,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2579,6 +2614,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2629,6 +2672,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2688,6 +2739,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -2733,6 +2792,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
             #
         else:
@@ -3178,6 +3245,10 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             plt_noise = pp.extra_args['plt_noise']
         except:
             plt_noise = True
+        try:
+            log_axes = pp.extra_args['log_axes']
+        except:
+            log_axes = 'None'
     else:
         n_h_bins = None
         plt_hist_lines = False
@@ -3271,11 +3342,20 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         else:
             tw_hndls = []
         # Only add the notes_string if it contains something
-        if len(notes_string) > 1:
-            notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
-            ax.legend(handles=hndls+notes_patch+tw_hndls)
-        else:
-            ax.legend(handles=hndls+tw_hndls)
+        if legend:
+            if len(notes_string) > 1:
+                notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
+                ax.legend(handles=hndls+notes_patch+tw_hndls)
+            else:
+                ax.legend(handles=hndls+tw_hndls)
+        # Check whether to change any axes to log scale
+        if len(log_axes) == 3:
+            if log_axes[0]:
+                ax.set_xscale('log')
+            if log_axes[1]:
+                ax.set_yscale('log')
+            if log_axes[2]:
+                ax.set_zscale('log')
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -3328,10 +3408,19 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Add legend with custom handles
-        lgnd = ax.legend(handles=lgnd_hndls)
+        if legend:
+            lgnd = ax.legend(handles=lgnd_hndls)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
+        # Check whether to change any axes to log scale
+        if len(log_axes) == 3:
+            if log_axes[0]:
+                ax.set_xscale('log')
+            if log_axes[1]:
+                ax.set_yscale('log')
+            if log_axes[2]:
+                ax.set_zscale('log')
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -3362,10 +3451,19 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Add legend with custom handles
-        lgnd = ax.legend(handles=lgnd_hndls)
+        if legend:
+            lgnd = ax.legend(handles=lgnd_hndls)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
+        # Check whether to change any axes to log scale
+        if len(log_axes) == 3:
+            if log_axes[0]:
+                ax.set_xscale('log')
+            if log_axes[1]:
+                ax.set_yscale('log')
+            if log_axes[2]:
+                ax.set_zscale('log')
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -3412,10 +3510,19 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Add legend with custom handles
-        lgnd = ax.legend(handles=lgnd_hndls)
+        if legend:
+            lgnd = ax.legend(handles=lgnd_hndls)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
+        # Check whether to change any axes to log scale
+        if len(log_axes) == 3:
+            if log_axes[0]:
+                ax.set_xscale('log')
+            if log_axes[1]:
+                ax.set_yscale('log')
+            if log_axes[2]:
+                ax.set_zscale('log')
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -3457,13 +3564,9 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
                 # ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
                 # This will plot the number for a cluster just above the max
                 ax.scatter(bin_h_max, h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=1)
-                # Change the y scale to log
-                ax.set_yscale('log')
             elif orientation == 'horizontal':
                 ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=my_mkr, zorder=1)
                 # ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
-                # Change the x scale to log
-                ax.set_xscale('log')
             #
         # Noise points are labeled as -1
         # Plot noise points
@@ -3493,6 +3596,14 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
+        # Check whether to change any axes to log scale
+        if len(log_axes) == 3:
+            if log_axes[0]:
+                ax.set_xscale('log')
+            if log_axes[1]:
+                ax.set_yscale('log')
+            if log_axes[2]:
+                ax.set_zscale('log')
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
