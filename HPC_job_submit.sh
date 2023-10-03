@@ -33,6 +33,8 @@ fi
 LANCEUR="HPC_lanceur.slrm"
 
 # Pull the most recent changes from git
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_GH_23
 git pull
 
 ###############################################################################
