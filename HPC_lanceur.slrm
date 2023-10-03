@@ -1,11 +1,11 @@
 #!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=40
+#SBATCH --time=0-00:05  # d-HH:MM
 #SBATCH --account=def-ngrisoua
 #SBATCH --mail-user=mschee@physics.utoronto.ca
 #SBATCH --mail-type=ALL
 #SBATCH --output=outputs/HPC_out_%j.txt
-#SBATCH --ntasks-per-node=40
-#SBATCH --nodes=1
-#SBATCH --time=0-00:05  # d-HH:MM
 
 # Author: Mikhail Schee
 
