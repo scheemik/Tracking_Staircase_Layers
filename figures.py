@@ -727,7 +727,7 @@ print('- Creating data sets')
 
 ## BGR ITP datasets, by time period
 # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
-# ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
 # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
@@ -832,8 +832,8 @@ dfs_to_use = dfs_all
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
-ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
-ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
+# ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
+# ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
 
 ################################################################################
 # Create profile filtering objects
@@ -909,7 +909,7 @@ pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[100
 # Use these things
 pfs_this_BGR = pfs_BGR1
 # ds_this_BGR = ds_BGR_ITPs_all
-# ds_this_BGR = ds_BGR_ITPs_0a
+ds_this_BGR = ds_BGR_ITPs_0a
 # ds_this_BGR = ds_BGR_ITPs_0b
 # ds_this_BGR = ds_BGR_ITPs_0c
 # ds_this_BGR = ds_BGR_ITPs_0d
@@ -1400,19 +1400,19 @@ if False:
 
 ## Clustering parameter sweeps
 # ## Parameter sweep for BGR ITP data
-if False:
+if True:
     print('')
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,721,10]}) #[10,711,20]
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,21,10]}) #[10,721,10]
     # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
-    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep)
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep, plot_title='BGRa')
     # group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep, plot_title='BGOS')
     # # Make the figure
     # ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOS.pickle')
-    ahf.make_figure([group_mpts_param_sweep], filename='test_param_sweep_BGR.pickle')
+    ahf.make_figure([group_mpts_param_sweep], filename='BGRa_ps.pickl')
 ## Parameter sweep for BGOS ITP data
 if False:
     print('')
@@ -1673,7 +1673,7 @@ if False:
     ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
     # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 # BGR ITP clustering, comparing with histograms, looking for valleys
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110

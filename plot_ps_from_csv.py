@@ -40,7 +40,7 @@ my_csv = args['CSV1']       # filename of the pickle to unpickle
 # Try to load the specified csv
 print('- Loading '+my_csv)
 try:
-    df = pd.read_csv(my_csv)
+    df = pd.read_csv(my_csv, header=2)
 except:
     print('Could not load '+my_csv)
     exit(0)
@@ -49,11 +49,12 @@ try:
     my_csv2 = args['CSV2']
     print('- Loading '+my_csv2)
     try:
-        df2 = pd.read_csv(my_csv2)
+        df2 = pd.read_csv(my_csv2, header=2)
     except:
         print('Could not load '+my_csv2)
         exit(0)
 except:
+    my_csv2 = None
     df2 = None
 
 ################################################################################
@@ -75,7 +76,6 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-
 
 # Set some plotting styles
 grid_alpha    = 0.3
@@ -389,7 +389,14 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
 
 ################################################################################
 
-plt_title = 'BGR'
+# Assemble plot title from the file names
+# Split the prefix from the original variable (assumes an underscore split)
+split_name = my_csv.split('_', 1)
+plt_title = split_name[0].split('/',1)[1]
+if not isinstance(my_csv2, type(None)):
+    split_name = my_csv2.split('_', 1)
+    plt_title = plt_title + ' and ' + split_name[0].split('/',1)[1]
+# plt_title = 'BGR'
 
 pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'ell_size'})
 pp_ps_ell = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'m_pts'})

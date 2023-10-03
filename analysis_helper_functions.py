@@ -4904,10 +4904,16 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
         z_key = None
         z_list = [0]
     # Open a text file to record values from the parameter sweep
-    sweep_txt_file = 'outputs/ps_x_'+x_key+'_z_'+str(z_key)+'.txt'
+    # sweep_txt_file = 'outputs/ps_x_'+x_key+'_z_'+str(z_key)+'.txt'
+    # f = open(sweep_txt_file,'w')
+    # f.write('Parameter Sweep for '+plt_title+'\n')
+    # f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+    # f.close()
+    sweep_txt_file = 'outputs/'+plt_title+'_ps.csv'
     f = open(sweep_txt_file,'w')
     f.write('Parameter Sweep for '+plt_title+'\n')
-    f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+    f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y")+'\n')
+    f.write('m_pts,ell_size,n_clusters,DBCV\n')
     f.close()
     # If limiting the number of pfs, find total number of pfs in the given df
     #   In the multi-index of df, level 0 is 'Time'
@@ -4924,20 +4930,24 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
         z_list = z_list[z_list <= number_of_pfs]
     #
     print('\tPlotting these x values of',x_key,':',x_var_array)
-    f = open(sweep_txt_file,'a')
-    f.write('\nPlotting these x values of '+x_key+':\n')
-    f.write(str(x_var_array))
-    f.close()
+    # f = open(sweep_txt_file,'a')
+    # f.write('\nPlotting these x values of '+x_key+':\n')
+    # f.write(str(x_var_array))
+    # f.close()
     if z_key:
         print('\tPlotting these z values of',z_key,':',z_list)
-        f = open(sweep_txt_file,'a')
-        f.write('\nPlotting these z values of '+z_key+':\n')
-        f.write(str(z_list))
-        f.close()
-    for i in range(len(z_list)):
+        # f = open(sweep_txt_file,'a')
+        # f.write('\nPlotting these z values of '+z_key+':\n')
+        # f.write(str(z_list))
+        # f.close()
+    z_len = len(z_list)
+    x_len = len(x_var_array)
+    for i in range(z_len):
         y_var_array = []
         tw_y_var_array = []
-        for x in x_var_array:
+        lines = [None]*x_len
+        for j in range(x_len):
+            x = x_var_array[j]
             # Set initial values for some variables
             zlabel = None
             this_df = df.copy()
@@ -4986,7 +4996,10 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     min_s = z_list[i]
                 zlabel = 'Minimum samples: '+str(min_s)
             # Run the HDBSCAN algorithm on the provided dataframe
-            new_df, rel_val, m_pts, ell = HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+            try:
+                new_df, rel_val, m_pts, ell = HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+            except:
+                break
             # Record outputs to plot
             if y_key == 'DBCV':
                 # relative_validity_ is a rough measure of DBCV
@@ -5009,29 +5022,27 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     tw_ylabel = 'Number of clusters'
                 #
             #
-            f = open(sweep_txt_file,'a')
-            if z_key:
-                f.write('\n m_pts: '+str(m_pts)+' '+str(x_key)+': '+str(x)+' '+str(z_key)+': '+str(z_list[i])+' n_clstrs: '+str(new_df['cluster'].max()+1)+' DBCV: '+str(rel_val))
-            else:
-                f.write('\n m_pts: '+str(m_pts)+' '+str(x_key)+': '+str(x)+' n_clstrs: '+str(new_df['cluster'].max()+1)+' DBCV: '+str(rel_val))
-            f.close()
-        ax.plot(x_var_array, y_var_array, color=std_clr, linestyle=l_styles[i], label=zlabel)
-        # Add gridlines
-        ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
-        if tw_y_key:
-            if z_key:
-                tw_ax_x.plot(x_var_array, tw_y_var_array, color=alt_std_clr, linestyle=l_styles[i])
-            else: # If not plotting multiple z values, make the twin axis line a different linestyle
-                tw_ax_x.plot(x_var_array, tw_y_var_array, color=alt_std_clr, linestyle=l_styles[i+1])
-            tw_ax_x.set_ylabel(tw_ylabel)
-            # Change color of the axis label on the twin axis
-            tw_ax_x.yaxis.label.set_color(alt_std_clr)
-            # Change color of the ticks on the twin axis
-            tw_ax_x.tick_params(axis='y', colors=alt_std_clr)
+            # f = open(sweep_txt_file,'a')
+            lines[j] = (str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+            # f.close()
+        if False:
+            ax.plot(x_var_array, y_var_array, color=std_clr, linestyle=l_styles[i], label=zlabel)
             # Add gridlines
-            # tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
+            ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
+            if tw_y_key:
+                if z_key:
+                    tw_ax_x.plot(x_var_array, tw_y_var_array, color=alt_std_clr, linestyle=l_styles[i])
+                else: # If not plotting multiple z values, make the twin axis line a different linestyle
+                    tw_ax_x.plot(x_var_array, tw_y_var_array, color=alt_std_clr, linestyle=l_styles[i+1])
+                tw_ax_x.set_ylabel(tw_ylabel)
+                # Change color of the axis label on the twin axis
+                tw_ax_x.yaxis.label.set_color(alt_std_clr)
+                # Change color of the ticks on the twin axis
+                tw_ax_x.tick_params(axis='y', colors=alt_std_clr)
+                # Add gridlines
+                # tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
         f = open(sweep_txt_file,'a')
-        f.write('\n')
+        f.write(''.join(lines))
         f.close()
     if z_key:
         ax.legend()
