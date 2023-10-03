@@ -398,6 +398,8 @@ class Plot_Parameters:
                         'n_pfs' or 'ell_size', and yvar(s) must be 'DBCV' or 'n_clusters'
                         Optional: {'z_var':'m_pts', 'z_list':[90,120,240]} where
                         z_var can be any variable that var0 can be
+                    If running a parameter sweep in parallel, add the following:
+                        {'mpi_run':True}. This will suppress any graphical output
                     To plot isopycnal contour lines add {'isopycnals':X} where X is the 
                         value in dbar to which the isopycnals are referenced or True 
                         which will set the reference to the median pressure
@@ -2196,6 +2198,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     add_isos = False
     errorbars = False
     log_axes = 'None'
+    mpi_run = False
     if not isinstance(pp.extra_args, type(None)):
         extra_args = pp.extra_args
         if 'isopycnals' in extra_args.keys():
@@ -2210,6 +2213,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             place_isos = False
         if 'log_axes' in extra_args.keys():
             log_axes = extra_args['log_axes']
+        if 'mpi_run' in extra_args.keys():
+            mpi_run = extra_args['mpi_run']
     else:
         extra_args = False
     # Concatonate all the pandas data frames together
@@ -2247,7 +2252,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Add a standard title
                 plt_title = add_std_title(a_group)
                 # Plot the parameter sweep
-                xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title)
+                if mpi_run:
+                    return df
+                else:
+                    xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title)
                 return xlabel, ylabel, pp.zlabels[0], plt_title, ax, invert_y_axis
         # Determine the color mapping to be used
         if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
@@ -4872,6 +4880,10 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     a_group         An Analysis_Group object containing the info to create this subplot
     plt_title       A string to use as the title of this subplot
     """
+    # Get set up for MPI
+    # from mpi4py import MPI
+    # comm = MPI.COMM_WORLD
+    # rank = comm.Get_rank()
     ## Get relevant parameters for the plot
     pp = a_group.plt_params
     # Concatonate all the pandas data frames together
@@ -4904,11 +4916,6 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
         z_key = None
         z_list = [0]
     # Open a text file to record values from the parameter sweep
-    # sweep_txt_file = 'outputs/ps_x_'+x_key+'_z_'+str(z_key)+'.txt'
-    # f = open(sweep_txt_file,'w')
-    # f.write('Parameter Sweep for '+plt_title+'\n')
-    # f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y"))
-    # f.close()
     sweep_txt_file = 'outputs/'+plt_title+'_ps.csv'
     f = open(sweep_txt_file,'w')
     f.write('Parameter Sweep for '+plt_title+'\n')
@@ -4945,9 +4952,10 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     for i in range(z_len):
         y_var_array = []
         tw_y_var_array = []
-        lines = [None]*x_len
-        for j in range(x_len):
-            x = x_var_array[j]
+        lines = []
+        # Divide the runs among the processes
+        # x_var_array = comm.scatter(x_var_array, root=0)
+        for x in x_var_array:
             # Set initial values for some variables
             zlabel = None
             this_df = df.copy()
@@ -5023,7 +5031,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 #
             #
             # f = open(sweep_txt_file,'a')
-            lines[j] = (str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+            lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
             # f.close()
         if False:
             ax.plot(x_var_array, y_var_array, color=std_clr, linestyle=l_styles[i], label=zlabel)
@@ -5041,6 +5049,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 tw_ax_x.tick_params(axis='y', colors=alt_std_clr)
                 # Add gridlines
                 # tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
+        # Gather the data from all the processes
+        # lines = comm.gather(lines, root=0)
         f = open(sweep_txt_file,'a')
         f.write(''.join(lines))
         f.close()

@@ -1,0 +1,70 @@
+#!/bin/bash
+#SBATCH --account=def-ngrisoua
+#SBATCH --mail-user=mschee@physics.utoronto.ca
+#SBATCH --mail-type=ALL
+#SBATCH --output=outputs/HPC_out_%j.txt
+#SBATCH --ntasks-per-node=40
+#SBATCH --nodes=1
+#SBATCH --time=0-00:05  # d-HH:MM
+
+# Author: Mikhail Schee
+
+# Submit this script to a HPC with `sbatch`
+# Takes in optional arguments:
+#	$ sh HPC_job_submit.sh -j <job name> 				 Default: current datetime
+
+# Having a ":" after a flag means an option is required to invoke that flag
+while getopts j: option
+do
+	case "${option}"
+		in
+		j) JOBNAME=${OPTARG};;
+	esac
+done
+
+# check to see if arguments were passed
+if [ -z "$JOBNAME" ]
+then
+	JOBNAME=$DATETIME
+	echo "-j, No name specified, using JOBNAME=$JOBNAME"
+else
+  echo "-j, Name specified, using JOBNAME=$JOBNAME"
+fi
+
+# Current datetime
+DATETIME=`date +"%Y-%m-%d_%Hh%M"`
+echo "Launched script: $DATETIME"
+
+###############################################################################
+# Load module stack for Niagara
+# module loading sets values of environment variables
+#   so have these commands before the `export` lines
+module load NiaEnv/
+module load gcc/8.3.0 
+module load intelmpi/2019u5
+module load mpi4py
+module load python/3.7.9
+
+export FFTW_PATH=$EBROOTFFTW
+export MPI_PATH=$EBROOTOPENMPI
+export FFTW_STATIC=1
+export OMPI_MCA_mpi_warn_on_fork=0
+# export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+# Activate the clusterer virtual environment
+source ~/.virtualenvs/clusterer/bin/activate
+
+###############################################################################
+# Start the experiment script
+
+# Path to experiment directory
+EXP_PATH="_experiments/${EXP}"
+# Name of csv data file for each simulation
+csv_data_file="sim_data.csv"
+# Name of combined csv data file for exp
+exp_csv_file="exp_data.csv"
+
+echo "Running Dedalus script"
+mpiexec -n 40 python3 HPC_param_sweep.py
+echo ""
+echo 'Done running script'
