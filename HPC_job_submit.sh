@@ -2,8 +2,7 @@
 # Author: Mikhail Schee
 # 2023-10-03
 
-# Run this script to submit a job to Niagara. Example:
-# $ sbatch HPC_job_submit.sh -j my_latest_run
+# Run this script to submit a job to Niagara. 
 # Takes in optional arguments:
 #	$ sh HPC_job_submit.sh -j <job name> 				 Default: current datetime
 
