@@ -4,7 +4,7 @@
 
 # Run this script to submit a job to Niagara. 
 # Takes in optional arguments:
-#	$ sh HPC_job_submit.sh -j <job name> 				 Default: current datetime
+#	$ bash HPC_job_submit.sh -j <job name> 				 Default: current datetime
 
 # Current datetime
 DATETIME=`date +"%Y-%m-%d_%Hh%M"`

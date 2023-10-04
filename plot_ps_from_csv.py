@@ -391,7 +391,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
 
 # Assemble plot title from the file names
 # Split the prefix from the original variable (assumes an underscore split)
-split_name = my_csv.split('_', 1)
+split_name = my_csv.split('.', 1)
 plt_title = split_name[0].split('/',1)[1]
 if not isinstance(my_csv2, type(None)):
     split_name = my_csv2.split('_', 1)

@@ -308,8 +308,8 @@ if rank == 0:
 
     ## BGR ITP datasets, by time period
     # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
-    ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
-    # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
+    # ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+    ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
     # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
     # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
     # ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
@@ -344,11 +344,11 @@ if rank == 0:
 ################################################################################
 
     # Use these things
-    # pfs_this_BGR = pfs_BGR1
-    pfs_this_BGR = pfs_BGR1_4
+    pfs_this_BGR = pfs_BGR1
+    # pfs_this_BGR = pfs_BGR1_4
     # ds_this_BGR = ds_BGR_ITPs_all
-    ds_this_BGR = ds_BGR_ITPs_0a
-    # ds_this_BGR = ds_BGR_ITPs_0b
+    # ds_this_BGR = ds_BGR_ITPs_0a
+    ds_this_BGR = ds_BGR_ITPs_0b
     # ds_this_BGR = ds_BGR_ITPs_0c
     # ds_this_BGR = ds_BGR_ITPs_0d
     # ds_this_BGR = ds_BGR_ITPs_0e
@@ -371,7 +371,7 @@ if rank == 0:
 
     ## Clustering parameter sweeps
     # ## Parameter sweep for BGR ITP data
-    this_plot_title = 'BGRa_n4'
+    this_plot_title = 'BGRb'
     if True:
         print('')
         print('- Creating clustering parameter sweep for BGR ITP data')
