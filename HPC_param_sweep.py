@@ -339,11 +339,13 @@ if rank == 0:
     lat_BGR = [73,81.5]
     pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
     pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
+    pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True, every_nth_row=4)
 
 ################################################################################
 
     # Use these things
-    pfs_this_BGR = pfs_BGR1
+    # pfs_this_BGR = pfs_BGR1
+    pfs_this_BGR = pfs_BGR1_4
     # ds_this_BGR = ds_BGR_ITPs_all
     ds_this_BGR = ds_BGR_ITPs_0a
     # ds_this_BGR = ds_BGR_ITPs_0b
@@ -369,7 +371,7 @@ if rank == 0:
 
     ## Clustering parameter sweeps
     # ## Parameter sweep for BGR ITP data
-    this_plot_title = 'BGRa'
+    this_plot_title = 'BGRa_n4'
     if True:
         print('')
         print('- Creating clustering parameter sweep for BGR ITP data')

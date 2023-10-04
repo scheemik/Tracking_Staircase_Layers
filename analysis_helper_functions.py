@@ -306,12 +306,13 @@ class Profile_Filters:
     lat_range           [lat_min,lat_max] where the values are floats in degrees
     lt_pCT_max          True/False whether to only keep points with p < p(CT_max)
     subsample           True/False whether to apply the subsample mask to the profiles
+    every_nth_row       Integer n to keep every nth row in the dataframe
     regrid_TS           [1st_var_str, Delta_1st_var, 2nd_var_str, Delta_2nd_var], a pair of 
                             [var, Delta_var] where you specify the variable then the value
                             of the spacing to regrid that value to
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, regrid_TS=None, m_avg_win=None):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -323,6 +324,7 @@ class Profile_Filters:
         self.lat_range = lat_range
         self.lt_pCT_max = lt_pCT_max
         self.subsample = subsample
+        self.every_nth_row = every_nth_row
         self.regrid_TS = regrid_TS
         self.m_avg_win = m_avg_win
 
@@ -733,8 +735,8 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         #
         # Remove duplicates
         vars_to_keep = list(set(vars_to_keep))
-        print('vars_to_keep:')
-        print(vars_to_keep)
+        # print('vars_to_keep:')
+        # print(vars_to_keep)
         # exit(0)
         return vars_to_keep
 
@@ -784,6 +786,13 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df.loc[df['ss_mask'].isnull(), vars_to_keep] = None
                 # Set a new column so the ss_scheme can be found later for the title
                 df['ss_scheme'] = ds.attrs['Sub-sample scheme']
+            # Keep every nth row
+            if profile_filters.every_nth_row > 1:
+                n = int(profile_filters.every_nth_row)
+                print('\t- Keeping every',n,'th row')
+                print('before:',len(df))
+                df = df.iloc[::n, :]
+                print('after:',len(df))
             # Remove rows where the plot variables are null
             # print('plot_vars:',plot_vars)
             for var in plot_vars:

@@ -84,4 +84,4 @@ done
 
 # echo "$file_list"
 
-scp ${file_list} mschee@niagara.scinet.utoronto.ca:/home/n/ngrisoua/mschee/Clustering/Staircase_Clustering_Detection_Algorithm_v2/netcdfs/
+scp ${file_list} mschee@niagara.scinet.utoronto.ca:/scratch/n/ngrisoua/mschee/Clustering/Staircase_Clustering_Detection_Algorithm_v2/netcdfs/
