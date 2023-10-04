@@ -382,7 +382,8 @@ if rank == 0:
         group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep, plot_title=this_plot_title)
         # Run the parameter sweep
         df = ahf.make_subplot(None, group_mpts_param_sweep, None, None)
-        # print(df)
+        # Grab just the datasets from the analysis group
+        this_arr_of_ds = group_mpts_param_sweep.data_set.arr_of_ds
     # Open a text file to record values from the parameter sweep
     sweep_txt_file = 'outputs/'+this_plot_title+'_ps.csv'
     f = open(sweep_txt_file,'w')
@@ -396,14 +397,14 @@ if rank == 0:
 else:
     df = None
     pp_mpts_param_sweep = None
-    group_mpts_param_sweep = None
+    this_arr_of_ds = None
     x_var_array = None
 
 # Broadcast the filtered dataframe to all processes
 df = comm.bcast(df, root=0)
 print('this is rank',rank,'with df of length',len(df))
 pp = comm.bcast(pp_mpts_param_sweep, root=0)
-arr_of_ds = comm.bcast(group_mpts_param_sweep.data_set.arr_of_ds, root=0)
+arr_of_ds = comm.bcast(this_arr_of_ds, root=0)
 x_var_array = comm.bcast(x_var_array, root=0)
 # Divide the runs among the processes
 x_var_array = x_var_array[rank::size]
