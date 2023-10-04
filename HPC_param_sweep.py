@@ -38,7 +38,7 @@ import os
 os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'BGRa'
+this_plot_title = 'BGRb'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
