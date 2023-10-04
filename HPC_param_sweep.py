@@ -308,8 +308,8 @@ if rank == 0:
 
     ## BGR ITP datasets, by time period
     # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
-    # ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
-    ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
+    ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+    # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
     # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
     # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
     # ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
@@ -347,8 +347,8 @@ if rank == 0:
     pfs_this_BGR = pfs_BGR1
     # pfs_this_BGR = pfs_BGR1_4
     # ds_this_BGR = ds_BGR_ITPs_all
-    # ds_this_BGR = ds_BGR_ITPs_0a
-    ds_this_BGR = ds_BGR_ITPs_0b
+    ds_this_BGR = ds_BGR_ITPs_0a
+    # ds_this_BGR = ds_BGR_ITPs_0b
     # ds_this_BGR = ds_BGR_ITPs_0c
     # ds_this_BGR = ds_BGR_ITPs_0d
     # ds_this_BGR = ds_BGR_ITPs_0e
@@ -403,7 +403,7 @@ else:
 df = comm.bcast(df, root=0)
 print('this is rank',rank,'with df of length',len(df))
 pp = comm.bcast(pp_mpts_param_sweep, root=0)
-a_group = comm.bcast(group_mpts_param_sweep, root=0)
+arr_of_ds = comm.bcast(group_mpts_param_sweep.data_set.arr_of_ds, root=0)
 x_var_array = comm.bcast(x_var_array, root=0)
 # Divide the runs among the processes
 x_var_array = x_var_array[rank::size]
@@ -456,7 +456,7 @@ for x in x_var_array:
         xlabel = 'Minimum samples'
     # Run the HDBSCAN algorithm on the provided dataframe
     try:
-        new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(a_group, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+        new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
     except:
         print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
         break
