@@ -17,12 +17,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 """
 
 """
-Note: You unfortunately cannot pickle plots with parasite axes. So, the pickling
-functionality won't work if you try to make a plot with the box and whisker plot
-in an inset.
-
-The Jupyter notebook Create_Figures.ipynb offers detailed explanations of each 
-plot created by this script.
 
 NOTE: Run in parallel with 
 $ mpirun -np 2 python3 HPC_param_sweep.py

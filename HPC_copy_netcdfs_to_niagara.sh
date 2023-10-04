@@ -2,7 +2,7 @@
 # Author: Mikhail Schee
 
 
-# Run this script to use secure copy to transfer all the files in netcdf to Niagara
+# Run this script to use secure copy to transfer netcdf files to Niagara
 
 # Add the public key to allow file transfer
 ssh-add ~/.ssh/DA_23_id_rsa
