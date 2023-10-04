@@ -280,6 +280,9 @@ BGR_ITPs_0s = { 'ITP_113':'all',
 ## All
 # BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
 
+## Preclustered files
+BGRb_m380 = {'BGRb_mpts_380':'all'}
+
 ################################################################################
 # Create data filtering objects
 # print('- Creating data filtering objects')
@@ -321,7 +324,7 @@ dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01
 ## BGR ITP datasets, by time period
 # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
 # ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
-ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
+# ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
 # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
 # ds_BGR_ITPs_0e = ahf.Data_Set(BGR_ITPs_0e, dfs1_BGR_0e)
@@ -338,6 +341,8 @@ ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0p = ahf.Data_Set(BGR_ITPs_0p, dfs1_BGR_0p)
 # ds_BGR_ITPs_0q = ahf.Data_Set(BGR_ITPs_0q, dfs1_BGR_0q)
 # ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
+
+ds_BGRb_m380 = ahf.Data_Set(BGRb_m380, dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -356,11 +361,11 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 ################################################################################
 
 # Use these things
-pfs_this_BGR = pfs_BGR1
+# pfs_this_BGR = pfs_BGR1
 # pfs_this_BGR = pfs_BGR1_4
 # ds_this_BGR = ds_BGR_ITPs_all
 # ds_this_BGR = ds_BGR_ITPs_0a
-ds_this_BGR = ds_BGR_ITPs_0b
+# ds_this_BGR = ds_BGR_ITPs_0b
 # ds_this_BGR = ds_BGR_ITPs_0c
 # ds_this_BGR = ds_BGR_ITPs_0d
 # ds_this_BGR = ds_BGR_ITPs_0e
@@ -377,6 +382,10 @@ ds_this_BGR = ds_BGR_ITPs_0b
 # ds_this_BGR = ds_BGR_ITPs_0p
 # ds_this_BGR = ds_BGR_ITPs_0q
 # ds_this_BGR = ds_BGR_ITPs_0r
+
+## Preclustered
+pfs_this_BGR = pfs_0
+ds_this_BGR = ds_BGRb_m380
 
 ################################################################################
 ### Figures
