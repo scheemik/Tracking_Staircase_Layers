@@ -33,6 +33,10 @@ from mpi4py import MPI
 # For formatting date objects
 from datetime import datetime
 
+# Change the matplotlib configure directory to somewhere writable to avoid warnings
+import os
+os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
+
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
