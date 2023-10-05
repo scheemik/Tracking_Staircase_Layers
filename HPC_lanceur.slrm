@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=40
 #SBATCH --time=0-00:15  								# d-HH:MM
 #SBATCH --account=def-ngrisoua
