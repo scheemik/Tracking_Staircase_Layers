@@ -32,10 +32,10 @@ import analysis_helper_functions as ahf
 from mpi4py import MPI
 # For formatting date objects
 from datetime import datetime
-
-# Change the matplotlib configure directory to somewhere writable to avoid warnings
-import os
-os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
+# 
+# # Change the matplotlib configure directory to somewhere writable to avoid warnings
+# import os
+# os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
 this_plot_title = 'BGRb'
