@@ -2,7 +2,7 @@
 # Author: Mikhail Schee
 
 
-# Run this script to use secure copy to transfer netcdf files to Niagara
+# Run this script to use secure copy to transfer netcdf files from Niagara
 # Takes in optional arguments:
 #	$ bash HPC_scp_from_Niagara.sh -f <file name> 				 
 
