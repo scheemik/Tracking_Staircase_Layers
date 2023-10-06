@@ -553,9 +553,9 @@ def apply_data_filters(xarrays, data_filters):
         if isinstance(data_filters.clstr_labels, type(None)):
             foo = 2
         elif data_filters.clstr_labels == 'no_noise':
-            print('ds variables:')
-            print(list(ds.keys()))
-            print('')
+            # print('ds variables:')
+            # print(list(ds.keys()))
+            # print('')
             ds = ds.where(ds.cluster != -1, drop=True)#.squeeze()
         elif len(data_filters.clstr_labels) > 0:
             list_of_ds_clstrs = []
@@ -2735,8 +2735,15 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 clr_max = d_hist_dict['clr_max']
                 clr_ext = d_hist_dict['clr_ext']
                 xy_bins = d_hist_dict['xy_bins']
+            # Check whether to change the colorbar axis to log scale
+            cbar_scale = None
+            if len(log_axes) == 3:
+                if log_axes[2]:
+                    cbar_scale = mpl.colors.LogNorm()
+                    clr_min = None
+                    clr_max = 100
             # Make the 2D histogram, the number of bins really changes the outcome
-            heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), vmin=clr_min, vmax=clr_max)
+            heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), vmin=clr_min, vmax=clr_max, norm=cbar_scale)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2765,8 +2772,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     ax.set_xscale('log')
                 if log_axes[1]:
                     ax.set_yscale('log')
-                if log_axes[2]:
-                    ax.set_zscale('log')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis

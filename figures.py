@@ -729,7 +729,7 @@ print('- Creating data sets')
 
 ## BGR ITP datasets, by time period
 # ds_BGR_ITPs_all = ahf.Data_Set(BGR_ITPs_all, dfs1)
-ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
+# ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 # ds_BGR_ITPs_0b = ahf.Data_Set(BGR_ITPs_0b, dfs1)
 # ds_BGR_ITPs_0c = ahf.Data_Set(BGR_ITPs_0c, dfs1)
 # ds_BGR_ITPs_0d = ahf.Data_Set(BGR_ITPs_0d, dfs1_BGR_0d)
@@ -826,7 +826,7 @@ ds_BGR_ITPs_0a = ahf.Data_Set(BGR_ITPs_0a, dfs1)
 dfs_to_use = dfs_all
 # dfs_to_use = dfs_clstr_lbl
 # Single time periods
-ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
+# ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
 # ds_BGRb_m380 = ahf.Data_Set(BGRb_m380, dfs_to_use)
 # ds_BGRf_m310 = ahf.Data_Set(BGRf_m310, dfs_to_use)
 # ds_BGRm_m410 = ahf.Data_Set(BGRm_m410, dfs_to_use)
@@ -837,8 +837,8 @@ ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
-# ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
-# ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
+ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
+ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
 
 ################################################################################
 # Create profile filtering objects
@@ -937,7 +937,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGR_ITPs_0q
 # ds_this_BGR = ds_BGR_ITPs_0r
 
-ds_this_BGR = ds_BGRa_m110
+# ds_this_BGR = ds_BGRa_m110
 # ds_this_BGR = ds_BGRb_m380
 # by year
 # ds_this_BGR = ds_BGR0506
@@ -1712,13 +1712,13 @@ if True:
     # this_ds = ds_BGRn_m240
     # this_ds = ds_BGRmno
     # Make the Plot Parameters
-    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':20, 'clr_ext':'max', 'xy_bins':1000}, legend=False, ax_lims=x_ax_lims_SA) 
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':15, 'clr_ext':'max', 'xy_bins':1000, 'log_axes':[False,False,True]}, legend=False, ax_lims=x_ax_lims_SA) 
     # Make the subplot groups
-    group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRa_m110, pfs_0, pp_comp_clstrs, plot_title='BGRmno with noise')
-    # group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRmno_no_noise, pfs_0, pp_comp_clstrs, plot_title='BGRmno without noise')
+    group_comp_clstrs0 = ahf.Analysis_Group(ds_BGRmno, pfs_0, pp_comp_clstrs, plot_title='BGRmno with noise')
+    group_comp_clstrs1 = ahf.Analysis_Group(ds_BGRmno_no_noise, pfs_0, pp_comp_clstrs, plot_title='BGRmno without noise')
     # # Make the figure
-    ahf.make_figure([group_comp_clstrs0])
-    # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
+    # ahf.make_figure([group_comp_clstrs0])
+    ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
     # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 
 # BGR ITP clustering, comparing specific clusters

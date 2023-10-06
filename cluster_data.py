@@ -265,7 +265,7 @@ BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
                    'm_pts':'None'
                    }
 
-for clstr_dict in [BGRa_clstr_dict]:#, BGRm_clstr_dict, BGRn_clstr_dict, BGRo_clstr_dict]:
+for clstr_dict in [BGRm_clstr_dict, BGRn_clstr_dict, BGRo_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
