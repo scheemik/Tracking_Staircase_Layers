@@ -553,6 +553,9 @@ def apply_data_filters(xarrays, data_filters):
         if isinstance(data_filters.clstr_labels, type(None)):
             foo = 2
         elif data_filters.clstr_labels == 'no_noise':
+            print('ds variables:')
+            print(list(ds.keys()))
+            print('')
             ds = ds.where(ds.cluster != -1, drop=True)#.squeeze()
         elif len(data_filters.clstr_labels) > 0:
             list_of_ds_clstrs = []
@@ -2802,8 +2805,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
             m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            print('plot_slopes:',plot_slopes)
-            invert_y_axis = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            # print('plot_slopes:',plot_slopes)
+            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -4874,7 +4877,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if y_key in y_invert_vars:
             invert_y_axis = True
     #
-    return invert_y_axis
+    return invert_y_axis, [df], rel_val
 
 ################################################################################
 

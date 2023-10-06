@@ -177,6 +177,8 @@ dfs1_BGR_0p = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23
 dfs1_BGR_0q = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/09/10 00:00:00','2020/04/22 00:00:00'])
 dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22 00:00:00','2021/09/03 00:00:00'])
 dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
+# By year
+dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]
@@ -250,8 +252,20 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
                    'm_pts':390
                    }
 
+# By year
 
-for clstr_dict in [BGRb_clstr_dict]:
+## BGR ITPs 0607
+BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                   'data_filters':dfs1_BGR0506,
+                   'pfs_object':pfs_BGR1,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'None'
+                   }
+
+for clstr_dict in [BGRa_clstr_dict]:#, BGRm_clstr_dict, BGRn_clstr_dict, BGRo_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -283,6 +297,7 @@ for clstr_dict in [BGRb_clstr_dict]:
         my_nc = False
     # Make new netcdf to store clustering results
     if my_nc != False:
+        print('Preparing to write to',my_nc)
         # Will make a new netcdf to store the clustering results
         ds_var_info = {}
         # ds_coord_info = {}
@@ -323,12 +338,18 @@ for clstr_dict in [BGRb_clstr_dict]:
         pfs_object = clstr_dict['pfs_object']
         # Create plot parameters object
         if clstr_dict['m_pts'] == 'None':
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']}, legend=True)
+            keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
+            # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':['BL_yn', 'up_cast', 'lon', 'lat', 'press_max', 'press_CT_max', 'alpha', 'beta', 'ma_CT']}, legend=True)
+            # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
+            keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
         # Create analysis group
+        print('creating analysis group')
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
         # Make a figure to run clustering algorithm and check results
+        print('making figure')
         ahf.make_figure([group_test_clstr])
 
         # Does this netcdf already exist?
@@ -370,7 +391,7 @@ for clstr_dict in [BGRb_clstr_dict]:
         print('Avoiding index collisions for ITPSs by adding `instrmt` as an index')
         new_df = pd.concat(dfs)
         new_df = new_df.set_index('instrmt', append=True)
-        # print(new_df)
+        # print(list(new_df))
         # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())
         # exit(0)
