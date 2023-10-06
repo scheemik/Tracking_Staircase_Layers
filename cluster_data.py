@@ -179,13 +179,15 @@ dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22
 dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 # By year
 dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
-dfs1_BGR05a = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2005/12/15 00:00:00'])
+dfs1_BGR05a = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2005/11/15 00:00:00'])
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 LHW_S_range = [34.366, 35.5]
+test_S_range = [34.5, 34.7]
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
+pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
 
 ## BGR ITPs 0a
 BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
@@ -273,10 +275,21 @@ BGR05a_clstr_dict = {'netcdf_file':'netcdfs/BGR05a.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
+                   'm_pts':510
+                   }
+
+# Test parameter sweep with ITP3
+ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
+                   'sources_dict':{'ITP_003':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
                    'm_pts':'None'
                    }
 
-for clstr_dict in [BGR05a_clstr_dict]:
+for clstr_dict in [ITP3t_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',

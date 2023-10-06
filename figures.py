@@ -560,6 +560,7 @@ BGRf_m310 = {'BGRf_mpts_310':'all'}
 BGRm_m410 = {'BGRm_mpts_410':'all'}
 BGRn_m240 = {'BGRn_mpts_240':'all'}
 BGRo_m390 = {'BGRo_mpts_390':'all'}
+ITP3t = {'ITP3t':'all'}
 # by year
 BGR0506 = {'BGR0506':'all'}
 # Comparing time periods
@@ -751,7 +752,7 @@ print('- Creating data sets')
 # ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
 
 # by different time periods
-ds_BGR05a = ahf.Data_Set(BGR_ITPs_0b, dfs1_BGR05a)
+# ds_BGR05a = ahf.Data_Set(BGR_ITPs_0b, dfs1_BGR05a)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -837,6 +838,7 @@ dfs_to_use = dfs_all
 # ds_BGRm_m410 = ahf.Data_Set(BGRm_m410, dfs_to_use)
 # ds_BGRn_m240 = ahf.Data_Set(BGRn_m240, dfs_clstr_lbl1)# dfs_to_use)
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
+ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # Comparing time periods
@@ -918,8 +920,8 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 
 
 # Use these things
-# pfs_this_BGR = pfs_0
-pfs_this_BGR = pfs_BGR1
+pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_BGR1
 # pfs_this_BGR = pfs_BGR1_4
 
 # ds_this_BGR = ds_BGR_ITPs_all
@@ -946,7 +948,8 @@ pfs_this_BGR = pfs_BGR1
 # ds_this_BGR = ds_BGRb_m380
 # by year
 # ds_this_BGR = ds_BGR0506
-ds_this_BGR = ds_BGR05a
+# ds_this_BGR = ds_BGR05a
+ds_this_BGR = ds_ITP3t
 
 # Output summary
 if False:
@@ -1409,7 +1412,7 @@ if False:
     print('')
     print('- Creating clustering plot')
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':110, 'b_a_w_plt':True})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':510, 'b_a_w_plt':True})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
