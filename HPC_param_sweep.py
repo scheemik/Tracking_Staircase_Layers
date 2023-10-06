@@ -390,9 +390,10 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 
 ## Preclustered
 pfs_this_BGR = pfs_0
-ds_this_BGR = ds_BGRa_m110
+# ds_this_BGR = ds_BGRa_m110
 # ds_this_BGR = ds_BGRb_m380
 # ds_this_BGR = ds_BGR0506
+ds_this_BGR = ds_BGR05a
 
 ################################################################################
 ### Figures
