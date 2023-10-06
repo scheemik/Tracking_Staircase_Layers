@@ -43,6 +43,7 @@ import analysis_helper_functions as ahf
 # BGOS_S_range = [34.1, 34.76]
 BGOS_S_range = [34.366, 34.9992]
 LHW_S_range = [34.366, 35.5]
+test_S_range = [34.5, 34.7]
 AIDJEX_S_range = [34.366, 35.0223]
 
 # Axis limits
@@ -588,7 +589,7 @@ BGRmno = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 # 
 # # All profiles from certain ITPs
 # ITP2_all  = {'ITP_2':'all'}
-# ITP3_all  = {'ITP_3':'all'}
+ITP3_all  = {'ITP_003':'all'}
 # ITP33_all = {'ITP_33':'all'}
 # ITP34_all = {'ITP_34':'all'}
 # ITP35_all = {'ITP_35':'all'}
@@ -722,6 +723,7 @@ print('- Creating data sets')
 # ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
 # ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
+# ds_ITP3 = ahf.Data_Set(ITP3_all, dfs1)
 
 # ds_ITP_test = ahf.Data_Set({'ITP_098':'all'}, dfs_all)
 
@@ -871,7 +873,9 @@ lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
-pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True, every_nth_row=4)
+pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True, every_nth_row=4)
+
+pfs_test = ahf.Profile_Filters(every_nth_row=2)
 
 # Finding coincident profiles
 # lon_coin = [-148.9,-147.8]
@@ -920,10 +924,12 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 
 
 # Use these things
-pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-# pfs_this_BGR = pfs_BGR1_4
+# pfs_this_BGR = pfs_BGR1_n
+pfs_this_BGR = pfs_test
 
+# ds_this_BGR = ds_ITP3
 # ds_this_BGR = ds_BGR_ITPs_all
 # ds_this_BGR = ds_BGR_ITPs_0a
 # ds_this_BGR = ds_BGR_ITPs_0b
@@ -1122,7 +1128,7 @@ if False:
     ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
-if True:
+if False:
     print('')
     print('- Creating TS plots')
     # Make the Plot Parameters
@@ -1408,11 +1414,11 @@ if False:
     # ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
 # test clustering
-if False:
+if True:
     print('')
     print('- Creating clustering plot')
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':510, 'b_a_w_plt':True})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':360, 'b_a_w_plt':True})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure

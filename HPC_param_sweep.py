@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'ITP3t_2'
+this_plot_title = 'ITP3t_3'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -357,7 +357,7 @@ ds_ITP3t = ahf.Data_Set(ITP3t, dfs_all)
 ################################################################################
 
 pfs_0 = ahf.Profile_Filters()
-pfs_1 = ahf.Profile_Filters(every_nth_row=2)
+pfs_1 = ahf.Profile_Filters(every_nth_row=3)
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]

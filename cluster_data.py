@@ -286,7 +286,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':350
                    }
 
 for clstr_dict in [ITP3t_clstr_dict]:
