@@ -679,6 +679,8 @@ dfs1_BGR_0q = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/09/10
 dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22 00:00:00','2021/09/03 00:00:00'])
 dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 
+# Different time periods
+dfs1_BGR05a = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2005/12/15 00:00:00'])
 
 # To filter pre-clustered files to just certain cluster labels
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
@@ -747,6 +749,9 @@ print('- Creating data sets')
 # ds_BGR_ITPs_0p = ahf.Data_Set(BGR_ITPs_0p, dfs1_BGR_0p)
 # ds_BGR_ITPs_0q = ahf.Data_Set(BGR_ITPs_0q, dfs1_BGR_0q)
 # ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
+
+# by different time periods
+ds_BGR05a = ahf.Data_Set(BGR_ITPs_0b, dfs1_BGR05a)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -837,8 +842,8 @@ dfs_to_use = dfs_all
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
-ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
-ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
+# ds_BGRmno = ahf.Data_Set(BGRmno, dfs_to_use)
+# ds_BGRmno_no_noise = ahf.Data_Set(BGRmno, dfs_no_noise)
 
 ################################################################################
 # Create profile filtering objects
@@ -913,8 +918,8 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 
 
 # Use these things
-pfs_this_BGR = pfs_0
-# pfs_this_BGR = pfs_BGR1
+# pfs_this_BGR = pfs_0
+pfs_this_BGR = pfs_BGR1
 # pfs_this_BGR = pfs_BGR1_4
 
 # ds_this_BGR = ds_BGR_ITPs_all
@@ -941,6 +946,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGRb_m380
 # by year
 # ds_this_BGR = ds_BGR0506
+ds_this_BGR = ds_BGR05a
 
 # Output summary
 if False:
@@ -1113,7 +1119,7 @@ if False:
     ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
-if False:
+if True:
     print('')
     print('- Creating TS plots')
     # Make the Plot Parameters
@@ -1704,7 +1710,7 @@ if False:
     ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25])
     # ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1, group_comp_clstrs2], row_col_list=[3,1, 0.4, 2.0])
 # BGR ITP clustering, comparing with 2D histograms
-if True:
+if False:
     print('')
     print('- Creating plots to compare pre-clustered BGR ITP data')
     # this_ds = ds_BGRa_m110
