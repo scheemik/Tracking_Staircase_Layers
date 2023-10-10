@@ -64,6 +64,10 @@ doi = 'No DOI yet'
 #   at a pressure greater than this value
 press_CT_max_threshold = 5
 
+# Choose type of float to store
+float_dtype = 'float32'
+np_float_type = np.float32
+
 ################################################################################
 
 def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
@@ -186,22 +190,22 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     nc_vars = {
                 'entry':(
                         ['Time'],
-                        list_of_entries,
+                        np.array(list_of_entries, dtype=np.int32),
                         {
                             'units':'N/A',
                             'label':'Entry (index)',
                             'long_name':'Sequential entry number',
-                            'dtype':'int64'
+                            'dtype':'int32'
                         }
                 ),
                 'prof_no':(
                         ['Time'],
-                        list_of_pf_nos,
+                        np.array(list_of_pf_nos, dtype=np.int32),
                         {
                             'units':'N/A',
                             'label':'Profile number',
                             'long_name':'Profile number',
-                            'dtype':'int64'
+                            'dtype':'int32'
                         }
                 ),
                 'BL_yn':(
@@ -237,7 +241,8 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                         {
                             'units':'Degrees',
                             'label':'Longitude ($^\circ$E+)',
-                            'long_name':'Longitude'
+                            'long_name':'Longitude',
+                            'dtype':float_dtype
                         }
                 ),
                 'lat':(
@@ -246,7 +251,8 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                         {
                             'units':'Degrees',
                             'label':'Latitude ($^\circ$N)',
-                            'long_name':'Latitude'
+                            'long_name':'Latitude',
+                            'dtype':float_dtype
                         }
                 ),
                 'region':(
@@ -269,227 +275,252 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                 ),
                 'press_max':(
                         ['Time'],
-                        list_of_press_maxs,
+                        np.array(list_of_press_maxs, dtype=np_float_type),
                         {
                             'units':'dbar',
                             'label':'$p_{max}$ (dbar)',
-                            'long_name':'Maximum Pressure'
+                            'long_name':'Maximum Pressure',
+                            'dtype':float_dtype
                         }
                 ),
                 'CT_max':(
                         ['Time'],
-                        list_of_CT_maxs,
+                        np.array(list_of_CT_maxs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'$\Theta_{max}$ ($^\circ$C)',
-                            'long_name':'Maximum Conservative Temperature'
+                            'long_name':'Maximum Conservative Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'press_CT_max':(
                         ['Time'],
-                        list_of_press_CT_maxs,
+                        np.array(list_of_press_CT_maxs, dtype=np_float_type),
                         {
                             'units':'dbar',
                             'label':'$p(\Theta_{max})$ (dbar)',
-                            'long_name':'Pressure at Maximum Conservative Temperature'
+                            'long_name':'Pressure at Maximum Conservative Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'SA_CT_max':(
                         ['Time'],
-                        list_of_SA_CT_maxs,
+                        np.array(list_of_SA_CT_maxs, dtype=np_float_type),
                         {
                             'units':'g/kg',
                             'label':'$S_A(\Theta_{max})$ (g/kg)',
-                            'long_name':'Absolute Salinity at Maximum Conservative Temperature'
+                            'long_name':'Absolute Salinity at Maximum Conservative Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'R_rho':(
                         ['Time'],
-                        Time_blank,
+                        np.array(Time_blank, dtype=np_float_type),
                         {
                             'units':'N/A',
                             'label':'$Density Ratio R_\\rho$',
-                            'long_name':'Density ratio'
+                            'long_name':'Density ratio',
+                            'dtype':float_dtype
                         }
                 ),
                 'press':(
                         ['Time','Vertical'],
-                        list_of_press_arrs,
+                        np.array(list_of_press_arrs, dtype=np_float_type),
                         {
                             'units':'dbar',
                             'label':'Pressure (dbar)',
-                            'long_name':'Pressure'
+                            'long_name':'Pressure',
+                            'dtype':float_dtype
                         }
                 ),
                 'depth':(
                         ['Time','Vertical'],
-                        list_of_depth_arrs,
+                        np.array(list_of_depth_arrs, dtype=np_float_type),
                         {
                             'units':'m',
                             'label':'Depth (m)',
-                            'long_name':'Depth'
+                            'long_name':'Depth',
+                            'dtype':float_dtype
                         }
                 ),
                 'iT':(
                         ['Time','Vertical'],
-                        list_of_iT_arrs,
+                        np.array(list_of_iT_arrs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'in-situ Temperature ($^\circ$C)',
-                            'long_name':'in-situ Temperature'
+                            'long_name':'in-situ Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'CT':(
                         ['Time','Vertical'],
-                        list_of_CT_arrs,
+                        np.array(list_of_CT_arrs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'$\Theta$ ($^\circ$C)',
-                            'long_name':'Conservative Temperature'
+                            'long_name':'Conservative Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'PT':(
                         ['Time','Vertical'],
-                        list_of_PT_arrs,
+                        np.array(list_of_PT_arrs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'$\theta$ ($^\circ$C)',
-                            'long_name':'Potential Temperature'
+                            'long_name':'Potential Temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'SP':(
                         ['Time','Vertical'],
-                        list_of_SP_arrs,
+                        np.array(list_of_SP_arrs, dtype=np_float_type),
                         {
                             'units':'g/kg',
                             'label':'$S_P$ (g/kg)',
-                            'long_name':'Practical Salinity'
+                            'long_name':'Practical Salinity',
+                            'dtype':float_dtype
                         }
                 ),
                 'SA':(
                         ['Time','Vertical'],
-                        list_of_SA_arrs,
+                        np.array(list_of_SA_arrs, dtype=np_float_type),
                         {
                             'units':'g/kg',
                             'label':'$S_A$ (g/kg)',
-                            'long_name':'Absolute Salinity'
+                            'long_name':'Absolute Salinity',
+                            'dtype':float_dtype
                         }
                 ),
                 'sigma':(
                         ['Time','Vertical'],
-                        gsw.sigma1(list_of_SA_arrs, list_of_CT_arrs),
+                        np.array(gsw.sigma1(list_of_SA_arrs, list_of_CT_arrs), dtype=np_float_type),
                         {
                             'units':'kg/m^3',
                             'label':'$\\sigma_1$ (kg/m$^3$)',
-                            'long_name':'Density anomaly referenced to 1000 dbar'
+                            'long_name':'Density anomaly referenced to 1000 dbar',
+                            'dtype':float_dtype
                         }
                 ),
                 'alpha':(
                         ['Time','Vertical'],
-                        gsw.alpha(list_of_SA_arrs, list_of_CT_arrs, list_of_press_arrs),
+                        np.array(gsw.alpha(list_of_SA_arrs, list_of_CT_arrs, list_of_press_arrs), dtype=np_float_type),
                         {
                             'units':'1/(degrees Celcius)',
                             'label':'$\\alpha$ (1/$^\circ$C)',
-                            'long_name':'Thermal expansion coefficient alpha'
+                            'long_name':'Thermal expansion coefficient alpha',
+                            'dtype':float_dtype
                         }
                 ),
                 'alpha_PT':(
                         ['Time','Vertical'],
-                        gsw.alpha(list_of_SA_arrs, list_of_PT_arrs, list_of_press_arrs),
+                        np.array(gsw.alpha(list_of_SA_arrs, list_of_PT_arrs, list_of_press_arrs), dtype=np_float_type),
                         {
                             'units':'1/(degrees Celcius)',
                             'label':'$\\alpha_{PT}$ (1/$^\circ$C)',
-                            'long_name':'Thermal expansion coefficient alpha wrt PT'
+                            'long_name':'Thermal expansion coefficient alpha wrt PT',
+                            'dtype':float_dtype
                         }
                 ),
                 'alpha_iT':(
                         ['Time','Vertical'],
-                        gsw.alpha_wrt_t_exact(list_of_SA_arrs, list_of_iT_arrs, list_of_press_arrs),
+                        np.array(gsw.alpha_wrt_t_exact(list_of_SA_arrs, list_of_iT_arrs, list_of_press_arrs), dtype=np_float_type),
                         {
                             'units':'1/(degrees Celcius)',
                             'label':'$\\alpha_{iT}$ (1/$^\circ$C)',
-                            'long_name':'Thermal expansion coefficient alpha wrt iT'
+                            'long_name':'Thermal expansion coefficient alpha wrt iT',
+                            'dtype':float_dtype
                         }
                 ),
                 'beta':(
                         ['Time','Vertical'],
-                        gsw.beta(list_of_SA_arrs, list_of_CT_arrs, list_of_press_arrs),
+                        np.array(gsw.beta(list_of_SA_arrs, list_of_CT_arrs, list_of_press_arrs), dtype=np_float_type),
                         {
                             'units':'1/(g/kg)',
                             'label':'$\\beta$ (kg/g)',
-                            'long_name':'Saline contraction coefficient beta'
+                            'long_name':'Saline contraction coefficient beta',
+                            'dtype':float_dtype
                         }
                 ),
                 'beta_PT':(
                         ['Time','Vertical'],
-                        gsw.beta(list_of_SA_arrs, list_of_PT_arrs, list_of_press_arrs),
+                        np.array(gsw.beta(list_of_SA_arrs, list_of_PT_arrs, list_of_press_arrs), dtype=np_float_type),
                         {
                             'units':'1/(g/kg)',
                             'label':'$\\beta_{PT}$ (kg/g)',
-                            'long_name':'Saline contraction coefficient beta wrt PT'
+                            'long_name':'Saline contraction coefficient beta wrt PT',
+                            'dtype':float_dtype
                         }
                 ),
                 'ss_mask':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'N/A',
                             'label':'Sub-sample mask',
-                            'long_name':'A mask to apply the sub-sample scheme'
+                            'long_name':'A mask to apply the sub-sample scheme',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_iT':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'Moving average in-situ temperature ($^\circ$C)',
-                            'long_name':'Moving average in-situ temperature'
+                            'long_name':'Moving average in-situ temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_CT':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'Moving average $\Theta$ ($^\circ$C)',
-                            'long_name':'Moving average conservative temperature'
+                            'long_name':'Moving average conservative temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_PT':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'Moving average $\theta$ ($^\circ$C)',
-                            'long_name':'Moving average potential temperature'
+                            'long_name':'Moving average potential temperature',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_SP':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'g/kg',
                             'label':'Moving average $S_P$ (g/kg)',
-                            'long_name':'Moving average practical salinity'
+                            'long_name':'Moving average practical salinity',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_SA':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'g/kg',
                             'label':'Moving average $S_A$ (g/kg)',
-                            'long_name':'Moving average absolute salinity'
+                            'long_name':'Moving average absolute salinity',
+                            'dtype':float_dtype
                         }
                 ),
                 'ma_sigma':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'kg/m^3',
                             'label':'Moving average $\\sigma_1$ (kg/m$^3$)',
-                            'long_name':'Moving average density anomaly'
+                            'long_name':'Moving average density anomaly',
+                            'dtype':float_dtype
                         }
                 ),
                 'cluster':(
@@ -499,16 +530,17 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'units':'N/A',
                             'label':'Cluster label',
                             'long_name':'Cluster label (-1 means noise points)',
-                            'dtype':'int64'
+                            'dtype':'int32'
                         }
                 ),
                 'clst_prob':(
                         ['Time','Vertical'],
-                        Vertical_blank,
+                        np.array(Vertical_blank, dtype=np_float_type),
                         {
                             'units':'N/A',
                             'label':'Cluster probability',
-                            'long_name':'Probability of being in the labeled cluster'
+                            'long_name':'Probability of being in the labeled cluster',
+                            'dtype':float_dtype
                         }
                 )
     }
@@ -530,7 +562,7 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                         {
                             'units':'N/A',
                             'long_name':'An index of vertical position (depth or pressure)',
-                            'dtype':'int64'
+                            'dtype':'int32'
                         }
                 )
     }
@@ -687,8 +719,8 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         dat = io.loadmat(file_path+'/'+file_name)
     # Extract certain data from the object, specific to how the files are formatted
     #   The latitude and longitude values where the profile was taken
-    lon = float(dat['longitude'])
-    lat = float(dat['latitude'])
+    lon = np.array(dat['longitude'], dtype=np_float_type)
+    lat = np.array(dat['latitude'], dtype=np_float_type)
     #   The date this profile was taken, psdate: profile start or pedate: profile end
     date_MMDDYY_start = dat['psdate']
     date_MMDDYY_end   = dat['pedate']
@@ -815,8 +847,8 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
     except:
         date = None
     #   The latitude and longitude values where the profile was taken
-    lon = float(dat0[2])
-    lat = float(dat0[3])
+    lon = np.array(dat0[2], dtype=np_float_type)
+    lat = np.array(dat0[3], dtype=np_float_type)
     # Determine the region
     reg = find_geo_region(lon, lat)
     #
@@ -978,15 +1010,15 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
             # Find latitude and longitude
             if 'latitude' in line_str.lower():
                 if len(line_nmbrs) == 2:
-                    lat = float(line_nmbrs[0]) + float(line_nmbrs[1])/100
+                    lat = np.array(line_nmbrs[0], dtype=np_float_type) + np.array(line_nmbrs[1], dtype=np_float_type)/100
                 else:
-                    lat = float(line_nmbrs[0])
+                    lat = np.array(line_nmbrs[0], dtype=np_float_type)
                 # print('Latitude:',lat)
             if 'longitude' in line_str.lower():
                 if len(line_nmbrs) == 2:
-                    lon = -float(line_nmbrs[0]) + float(line_nmbrs[1])/100
+                    lon = -np.array(line_nmbrs[0], dtype=np_float_type) + np.array(line_nmbrs[1], dtype=np_float_type)/100
                 else:
-                    lon = -float(line_nmbrs[0])
+                    lon = -np.array(line_nmbrs[0], dtype=np_float_type)
                 # print('Longitude:',lon)
             # Find the headers of each column
             if 'name' in line_str.lower():
@@ -1147,9 +1179,9 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         print('Failed to format date for', file_name)
     #   Longitude and Latitude
     if ('Lat' in dat1[0]) or ('lat' in dat1[0]):
-        lat = float(dat1[1])
+        lat = np.array(dat1[1], dtype=np_float_type)
     if ('Lon' in dat1[2]) or ('lon' in dat1[2]):
-        lon = float(dat1[3])
+        lon = np.array(dat1[3], dtype=np_float_type)
     #       Check to make sure the lon and lat values are valid
     if lat == 99.9999 and lon == 99.9999:
         lat = None
@@ -1269,28 +1301,55 @@ def find_geo_region(lon, lat):
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-# read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_1.nc')
-# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_2.nc')
-# read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_3.nc')
-# read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_22.nc')
-# read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_23.nc')
-# read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_32.nc')
+if True:
+    # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
+    # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
+    # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
+    # read_instrmt('ITP', '4', science_data_file_path+'ITPs/itp4/itp4cormat', 'netcdfs/ITP_004.nc')
+    # read_instrmt('ITP', '5', science_data_file_path+'ITPs/itp5/itp5cormat', 'netcdfs/ITP_005.nc')
+    # read_instrmt('ITP', '6', science_data_file_path+'ITPs/itp6/itp6cormat', 'netcdfs/ITP_006.nc')
+    # read_instrmt('ITP', '7', science_data_file_path+'ITPs/itp7/itp7cormat', 'netcdfs/ITP_007.nc')
+    # read_instrmt('ITP', '8', science_data_file_path+'ITPs/itp8/itp8cormat', 'netcdfs/ITP_008.nc')
+    # read_instrmt('ITP', '9', science_data_file_path+'ITPs/itp9/itp9cormat', 'netcdfs/ITP_009.nc')
+    # read_instrmt('ITP', '10', science_data_file_path+'ITPs/itp10/itp10cormat', 'netcdfs/ITP_010.nc')
+    # read_instrmt('ITP', '11', science_data_file_path+'ITPs/itp11/itp11cormat', 'netcdfs/ITP_011.nc')
+    # read_instrmt('ITP', '12', science_data_file_path+'ITPs/itp12/itp12cormat', 'netcdfs/ITP_012.nc')
+    # read_instrmt('ITP', '13', science_data_file_path+'ITPs/itp13/itp13cormat', 'netcdfs/ITP_013.nc') # had an error?
+    # read_instrmt('ITP', '14', science_data_file_path+'ITPs/itp14/itp14cormat', 'netcdfs/ITP_014.nc')
+    # read_instrmt('ITP', '15', science_data_file_path+'ITPs/itp15/itp15cormat', 'netcdfs/ITP_015.nc')
+    # read_instrmt('ITP', '16', science_data_file_path+'ITPs/itp16/itp16cormat', 'netcdfs/ITP_016.nc')
+    # read_instrmt('ITP', '17', science_data_file_path+'ITPs/itp17/itp17cormat', 'netcdfs/ITP_017.nc')
+    # read_instrmt('ITP', '18', science_data_file_path+'ITPs/itp18/itp18cormat', 'netcdfs/ITP_018.nc')
+    # read_instrmt('ITP', '19', science_data_file_path+'ITPs/itp19/itp19cormat', 'netcdfs/ITP_019.nc')
+    # read_instrmt('ITP', '21', science_data_file_path+'ITPs/itp21/itp21cormat', 'netcdfs/ITP_021.nc')
+    # read_instrmt('ITP', '22', science_data_file_path+'ITPs/itp22/itp22cormat', 'netcdfs/ITP_022.nc')
+    # read_instrmt('ITP', '23', science_data_file_path+'ITPs/itp23/itp23cormat', 'netcdfs/ITP_023.nc')
+    # read_instrmt('ITP', '24', science_data_file_path+'ITPs/itp24/itp24cormat', 'netcdfs/ITP_024.nc') # had an error?
+    read_instrmt('ITP', '25', science_data_file_path+'ITPs/itp25/itp25cormat', 'netcdfs/ITP_025.nc')
+    read_instrmt('ITP', '26', science_data_file_path+'ITPs/itp26/itp26cormat', 'netcdfs/ITP_026.nc')
+    read_instrmt('ITP', '27', science_data_file_path+'ITPs/itp27/itp27cormat', 'netcdfs/ITP_027.nc')
+    read_instrmt('ITP', '28', science_data_file_path+'ITPs/itp28/itp28cormat', 'netcdfs/ITP_028.nc')
+    read_instrmt('ITP', '29', science_data_file_path+'ITPs/itp29/itp29cormat', 'netcdfs/ITP_029.nc')
+    read_instrmt('ITP', '30', science_data_file_path+'ITPs/itp30/itp30cormat', 'netcdfs/ITP_030.nc')
+    read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_032.nc')
+    read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_033.nc')
+    read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_034.nc')
+    read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_035.nc')
+    read_instrmt('ITP', '36', science_data_file_path+'ITPs/itp36/itp36cormat', 'netcdfs/ITP_036.nc')
+    read_instrmt('ITP', '37', science_data_file_path+'ITPs/itp37/itp37cormat', 'netcdfs/ITP_037.nc')
+    read_instrmt('ITP', '38', science_data_file_path+'ITPs/itp38/itp38cormat', 'netcdfs/ITP_038.nc')
+    read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_041.nc')
+    read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_042.nc')
+    read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_043.nc')
 
-# read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_33.nc')
-# read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_34.nc')
-# read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_35.nc')
-# read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_41.nc')
-# read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_42.nc')
-# read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_43.nc')
-
-read_instrmt('ITP', '117', science_data_file_path+'ITPs/itp117/itp117cormat', 'netcdfs/ITP_117.nc')
-read_instrmt('ITP', '118', science_data_file_path+'ITPs/itp118/itp118cormat', 'netcdfs/ITP_118.nc')
-read_instrmt('ITP', '120', science_data_file_path+'ITPs/itp120/itp120cormat', 'netcdfs/ITP_120.nc')
-read_instrmt('ITP', '121', science_data_file_path+'ITPs/itp121/itp121cormat', 'netcdfs/ITP_121.nc')
-read_instrmt('ITP', '122', science_data_file_path+'ITPs/itp122/itp122cormat', 'netcdfs/ITP_122.nc')
-read_instrmt('ITP', '123', science_data_file_path+'ITPs/itp123/itp123cormat', 'netcdfs/ITP_123.nc')
-read_instrmt('ITP', '125', science_data_file_path+'ITPs/itp125/itp125cormat', 'netcdfs/ITP_125.nc')
-read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
+    # read_instrmt('ITP', '117', science_data_file_path+'ITPs/itp117/itp117cormat', 'netcdfs/ITP_117.nc')
+    # read_instrmt('ITP', '118', science_data_file_path+'ITPs/itp118/itp118cormat', 'netcdfs/ITP_118.nc')
+    # read_instrmt('ITP', '120', science_data_file_path+'ITPs/itp120/itp120cormat', 'netcdfs/ITP_120.nc')
+    # read_instrmt('ITP', '121', science_data_file_path+'ITPs/itp121/itp121cormat', 'netcdfs/ITP_121.nc')
+    # read_instrmt('ITP', '122', science_data_file_path+'ITPs/itp122/itp122cormat', 'netcdfs/ITP_122.nc')
+    # read_instrmt('ITP', '123', science_data_file_path+'ITPs/itp123/itp123cormat', 'netcdfs/ITP_123.nc')
+    # read_instrmt('ITP', '125', science_data_file_path+'ITPs/itp125/itp125cormat', 'netcdfs/ITP_125.nc')
+    # read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
