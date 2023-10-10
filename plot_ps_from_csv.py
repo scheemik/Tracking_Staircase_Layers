@@ -18,11 +18,10 @@ Disclaimer
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Usage:
-    plot_cs_from_csv.py CSV1 [CSV2]
+    plot_cs_from_csv.py CSV ...
 
 Arguments:
-    CSV1            # filepath of the csv to plot
-    CSV2            # filepath of second optional csv to plot
+    CSV            # filepath(s) of the csv(s) to plot
 """
 import numpy as np
 import matplotlib as mpl
@@ -35,27 +34,20 @@ import dill as pl
 # Parse input parameters
 from docopt import docopt
 args = docopt(__doc__)
-my_csv = args['CSV1']       # filename of the pickle to unpickle
+csvs = args['CSV']
 
-# Try to load the specified csv
-print('- Loading '+my_csv)
-try:
-    df = pd.read_csv(my_csv, header=2)
-except:
-    print('Could not load '+my_csv)
-    exit(0)
-# Check for second csv
-try:
-    my_csv2 = args['CSV2']
-    print('- Loading '+my_csv2)
+# Try to load the specified csvs
+dfs = []
+labels = []
+for my_csv in csvs:
+    print('- Loading '+my_csv)
     try:
-        df2 = pd.read_csv(my_csv2, header=2)
+        dfs.append(pd.read_csv(my_csv, header=2))
+        split_name = my_csv.split('.', 1)
+        labels.append(split_name[0].split('/',1)[1])
     except:
-        print('Could not load '+my_csv2)
+        print('Could not load '+my_csv)
         exit(0)
-except:
-    my_csv2 = None
-    df2 = None
 
 ################################################################################
 # Declare variables for plotting
@@ -316,7 +308,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
     # plot_type = pp.plot_type
     # clr_map   = pp.clr_map
     # Concatonate all the pandas data frames together
-    df = pd.concat(a_group.data_frames)
+    dfs = a_group.data_frames
     ## Make a standard x vs. y scatter plot
     # Set the main x and y data keys
     x_key = pp.x_vars[0]
@@ -331,12 +323,12 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
     # Add a standard title
     plt_title = ahf.add_std_title(a_group)
     # Plot the parameter sweep
-    xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title)
+    xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, dfs, pp, plt_title)
     return xlabel, ylabel, plt_title, ax
 
 ################################################################################
 
-def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
+def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_titles=None):
     """
     Plots the number of clusters found by HDBSCAN vs. the number of profiles
     included in the data set
@@ -363,15 +355,19 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
     # Set x and y labels
     ax.set_xlabel(pp.xlabels[0])
     ax.set_ylabel(pp.ylabels[0])
-    # Find the different values of the z variable
-    z_list = np.unique(df[z_key])
     # Loop through the different z values in the list
-    for i in range(len(z_list)):
-        # Set z label
-        if z_key == 'ell_size':
-            zlabel = r'$\ell=$'+str(z_list[i])+' dbar'
-        elif z_key == 'm_pts':
-            zlabel = r'$m_{pts}=$: '+str(z_list[i])
+    for i in range(len(dfs)):
+        df = dfs[i]
+        if z_key == 'label':
+            zlabel = str(plt_titles[i])
+        else:
+            # Find the different values of the z variable
+            z_list = np.unique(df[z_key])
+            # Set z label
+            if z_key == 'ell_size':
+                zlabel = r'$\ell=$'+str(z_list[0])+' dbar'
+            elif z_key == 'm_pts':
+                zlabel = r'$m_{pts}=$: '+str(z_list[0])
         # Plot main axis
         ax.plot(df[x_key], df[y_key], color=std_clr, linestyle=l_styles[i], label=zlabel)
         if tw_y_key:
@@ -389,21 +385,10 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_title=None):
 
 ################################################################################
 
-# Assemble plot title from the file names
-# Split the prefix from the original variable (assumes an underscore split)
-split_name = my_csv.split('.', 1)
-plt_title = split_name[0].split('/',1)[1]
-if not isinstance(my_csv2, type(None)):
-    split_name = my_csv2.split('_', 1)
-    plt_title = plt_title + ' and ' + split_name[0].split('/',1)[1]
 # plt_title = 'BGR'
 
-pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'ell_size'})
-pp_ps_ell = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'m_pts'})
+pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'label'})
+# pp_ps_ell = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'m_pts'})
 
-group_param_sweep1 = Analysis_Group([df], pp_ps_m_pts, plot_title=plt_title)
-if not isinstance(df2, type(None)):
-    group_param_sweep2 = Analysis_Group([df2], pp_ps_ell, plot_title=plt_title)
-    make_figure([group_param_sweep1, group_param_sweep2])#, filename='new_BGOS_test_sweep.pickle')
-else:
-    make_figure([group_param_sweep1])#, filename='new_BGOS_test_sweep.pickle')
+group_param_sweep1 = Analysis_Group(dfs, pp_ps_m_pts, plot_title=labels)
+make_figure([group_param_sweep1])#, filename='new_BGOS_test_sweep.pickle')
