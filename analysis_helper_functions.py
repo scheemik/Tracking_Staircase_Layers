@@ -174,7 +174,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'pca_SA', 'ca_SA', 'press_CT_max']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'press_CT_max']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -530,6 +530,7 @@ def apply_data_filters(xarrays, data_filters):
                 end_date_range   = datetime.strptime(data_filters.date_range[1], r'%Y/%m/%d')
             try:
                 ds = ds.sel(Time=slice(start_date_range, end_date_range))
+                # print('\t- Filtering to the period',start_date_range,end_date_range)
             except:
                 print('ERROR: cannot take time slice for')
                 print('\t',ds.attrs['Source'],ds.attrs['Instrument'])
@@ -2740,10 +2741,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if len(log_axes) == 3:
                 if log_axes[2]:
                     cbar_scale = mpl.colors.LogNorm()
-                    clr_min = None
-                    clr_max = 100
+                    if clr_min < 0:
+                        clr_min = None
+                    # clr_min = None
+                    # clr_max = 100
             # Make the 2D histogram, the number of bins really changes the outcome
-            heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), vmin=clr_min, vmax=clr_max, norm=cbar_scale)
+            heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
