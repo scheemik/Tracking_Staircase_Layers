@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'ITP3t_4'
+this_plot_title = 'BGR0506' # 'ITP3t_4'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -348,9 +348,9 @@ dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01
 
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_all)
 # ds_BGRb_m380 = ahf.Data_Set(BGRb_m380, dfs_all)
-# ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_all)
+ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_all)
 # ds_BGR05a = ahf.Data_Set(BGR05a, dfs_all)
-ds_ITP3t = ahf.Data_Set(ITP3t, dfs_all)
+# ds_ITP3t = ahf.Data_Set(ITP3t, dfs_all)
 ################################################################################
 # Create profile filtering objects
 # print('- Creating profile filtering objects')
@@ -392,13 +392,13 @@ pfs_BGR1_4 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 # ds_this_BGR = ds_BGR_ITPs_0r
 
 ## Preclustered
-# pfs_this_BGR = pfs_0
-pfs_this_BGR = pfs_1
+pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_1
 # ds_this_BGR = ds_BGRa_m110
 # ds_this_BGR = ds_BGRb_m380
-# ds_this_BGR = ds_BGR0506
+ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR05a
-ds_this_BGR = ds_ITP3t
+# ds_this_BGR = ds_ITP3t
 
 ################################################################################
 ### Figures
