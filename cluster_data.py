@@ -179,13 +179,17 @@ dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22
 dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 # By year
 dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
-dfs1_BGR05a = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2005/11/15 00:00:00'])
+dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/15 00:00:00','2007/08/15 00:00:00'])
+dfs1_BGR0507 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2007/08/15 00:00:00'])
+dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
+dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
+dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 LHW_S_range = [34.366, 35.5]
-test_S_range = [34.5, 34.7]
+test_S_range = [34.4, 34.6]
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
 pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
 
@@ -257,25 +261,37 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
 
 # By year
 
+## BGR ITPs 04
+BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04.nc',
+                #    'sources_dict':{'ITP_002':'all'},
+                   'sources_dict':{'BGR04':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':110
+                   }
 ## BGR ITPs 0506
 BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                #    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                   'sources_dict':{'BGR0506':'all'},
                    'data_filters':dfs1_BGR0506,
-                   'pfs_object':pfs_BGR1,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':670
+                   }
+## BGR ITPs 0607
+BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all'},
+                   'data_filters':dfs1_BGR0607,
+                   'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'None'
-                   }
-## BGR ITPs 05a
-BGR05a_clstr_dict = {'netcdf_file':'netcdfs/BGR05a.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'data_filters':dfs1_BGR05a,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':510
                    }
 
 # Test parameter sweep with ITP3
@@ -289,7 +305,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [ITP3t_clstr_dict]:
+for clstr_dict in [BGR0607_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -367,7 +383,7 @@ for clstr_dict in [ITP3t_clstr_dict]:
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
-            keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+            keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
         # Create analysis group
         print('creating analysis group')
@@ -412,9 +428,13 @@ for clstr_dict in [ITP3t_clstr_dict]:
             # new_df.reset_index(inplace=True, level='Vertical')
             # new_df = new_df.set_index('Vertical', append=True)
         #else:
-        print('Avoiding index collisions for ITPSs by adding `instrmt` as an index')
         new_df = pd.concat(dfs)
-        new_df = new_df.set_index('instrmt', append=True)
+        if not 'instrmt' in new_df.index.names:
+            print('Avoiding index collisions for ITPs by adding `instrmt` as an index')
+            new_df = new_df.set_index('instrmt', append=True)
+        else:
+            # Remove the superfluous 'instrmt' column
+            new_df = new_df.drop('instrmt', axis=1)
         # print(list(new_df))
         # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())

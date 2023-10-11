@@ -43,7 +43,7 @@ import analysis_helper_functions as ahf
 # BGOS_S_range = [34.1, 34.76]
 BGOS_S_range = [34.366, 34.9992]
 LHW_S_range = [34.366, 35.5]
-test_S_range = [34.5, 34.7]
+test_S_range = [34.4, 34.6]
 AIDJEX_S_range = [34.366, 35.0223]
 
 # Axis limits
@@ -550,8 +550,67 @@ BGR_ITPs_0s = { 'ITP_113':'all',
                 'ITP_128':'all',
                 }
 
+# Sets of ITPs within the BGR by year-long time periods
+## 2004-08-20 00:00:01 to 2004-09-29 00:00:05, duration: 41 days
+BGRITPs04   = {'ITP_002':'all'}
+## 2005-08-16 06:00:01 to 2006-08-14 18:00:03, gap: 320 days, duration: 
+BGRITPs0506 = { 'ITP_001':'all',
+                # 'ITP_002':'all', # Not in this time range
+                'ITP_003':'all',
+                }
+## 2006-08-15 06:00:02 to 2007-08-14 12:00:02, gap: 1 day, duration: 
+BGRITPs0607 = { 'ITP_001':'all',
+                # 'ITP_002':'all', # Not in this time range
+                'ITP_003':'all',
+                'ITP_004':'all',
+                'ITP_005':'all',
+                'ITP_006':'all',
+                # 'ITP_007':'all', # Not in BGR
+                'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                # 'ITP_011':'all', # can't time slice? but only sometimes
+                # 'ITP_012':'all', # Not in BGR
+                # 'ITP_013':'all',  # something weird is going on here
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                }
+## 2005-08-16 06:00:01 to 2009-08-31 00:00:08, gap: 320 days, duration: 1477 days
+BGRITPs0708 = { 'ITP_001':'all',
+                # 'ITP_002':'all', # Not in this time range
+                'ITP_003':'all',
+                'ITP_004':'all',
+                'ITP_005':'all',
+                'ITP_006':'all',
+                # 'ITP_007':'all', # Not in BGR
+                'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                # 'ITP_011':'all', # can't time slice? but only sometimes
+                # 'ITP_012':'all', # Not in BGR
+                # 'ITP_013':'all',  # something weird is going on here
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                'ITP_018':'all',
+                # 'ITP_019':'all', # Not in BGR
+                'ITP_021':'all',
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                'ITP_025':'all', 
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                'ITP_030':'all',
+                }
+
 ## All
-# BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i}
+BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i, **BGR_ITPs_0j, **BGR_ITPs_0k, **BGR_ITPs_0l, **BGR_ITPs_0m, **BGR_ITPs_0n, **BGR_ITPs_0o, **BGR_ITPs_0p, **BGR_ITPs_0q, **BGR_ITPs_0r, **BGR_ITPs_0s}
 
 ## Pre-clustered files
 # Single time periods
@@ -564,6 +623,7 @@ BGRo_m390 = {'BGRo_mpts_390':'all'}
 ITP3t = {'ITP3t':'all'}
 # by year
 BGR0506 = {'BGR0506':'all'}
+BGR0607 = {'BGR0607':'all'}
 # Comparing time periods
 BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
 BGRno = {'BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
@@ -588,8 +648,8 @@ BGRmno = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 # BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
 # 
 # # All profiles from certain ITPs
-# ITP2_all  = {'ITP_2':'all'}
-ITP3_all  = {'ITP_003':'all'}
+ITP2_all  = {'ITP_2':'all'}
+# ITP3_all  = {'ITP_003':'all'}
 # ITP33_all = {'ITP_33':'all'}
 # ITP34_all = {'ITP_34':'all'}
 # ITP35_all = {'ITP_35':'all'}
@@ -682,7 +742,11 @@ dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22
 dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
 
 # Different time periods
-dfs1_BGR05a = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2005/12/15 00:00:00'])
+dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
+dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/15 00:00:00','2007/08/15 00:00:00'])
+dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
+dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
+dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
 
 # To filter pre-clustered files to just certain cluster labels
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
@@ -722,7 +786,7 @@ print('- Creating data sets')
 
 # ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
-# ds_ITP2_all = ahf.Data_Set(ITP2_all, dfs0)
+# ds_ITP2 = ahf.Data_Set(ITP2_all, dfs0)
 # ds_ITP3 = ahf.Data_Set(ITP3_all, dfs1)
 
 # ds_ITP_test = ahf.Data_Set({'ITP_098':'all'}, dfs_all)
@@ -755,6 +819,9 @@ print('- Creating data sets')
 
 # by different time periods
 # ds_BGR05a = ahf.Data_Set(BGR_ITPs_0b, dfs1_BGR05a)
+# ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
+# ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
+ds_BGR0708 = ahf.Data_Set(BGRITPs0708, dfs1_BGR0708)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -840,9 +907,10 @@ dfs_to_use = dfs_all
 # ds_BGRm_m410 = ahf.Data_Set(BGRm_m410, dfs_to_use)
 # ds_BGRn_m240 = ahf.Data_Set(BGRn_m240, dfs_clstr_lbl1)# dfs_to_use)
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
-ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
+# ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
+# ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
@@ -875,7 +943,9 @@ pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
 pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True, every_nth_row=4)
 
-pfs_test = ahf.Profile_Filters(every_nth_row=2)
+pfs_BGR_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
+
+pfs_test = ahf.Profile_Filters(every_nth_row=4)
 
 # Finding coincident profiles
 # lon_coin = [-148.9,-147.8]
@@ -908,27 +978,14 @@ pfs_test = ahf.Profile_Filters(every_nth_row=2)
 # print('- Creating plotting parameter objects')
 ################################################################################
 
-### Test plots
-
-## Number of up-going profiles
-# Make the Plot Parameters
-# pp_test = ahf.Plot_Parameters()
-# pp_test = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles')
-# Make the Analysis Group
-# group_AIDJEX_missing_ll = ahf.Analysis_Group(ds_AIDJEX_missing_ll, pfs_0, pp_test, plot_title='BigBear lat-lon errors')
-# group_AIDJEX_missing_ll = ahf.Analysis_Group(ds_ITP35_some_pfs2, pfs_0, pp_test, plot_title='ITP35 test pfs')
-# group_test = ahf.Analysis_Group(ds_all_AIDJEX, pfs_0, pp_test)
-# Make the figure
-# ahf.make_figure([group_AIDJEX_missing_ll])
-# exit(0)
-
-
 # Use these things
 # pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
+pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
-pfs_this_BGR = pfs_test
+# pfs_this_BGR = pfs_test
 
+# ds_this_BGR = ds_ITP2
 # ds_this_BGR = ds_ITP3
 # ds_this_BGR = ds_BGR_ITPs_all
 # ds_this_BGR = ds_BGR_ITPs_0a
@@ -950,15 +1007,16 @@ pfs_this_BGR = pfs_test
 # ds_this_BGR = ds_BGR_ITPs_0q
 # ds_this_BGR = ds_BGR_ITPs_0r
 
-# ds_this_BGR = ds_BGRa_m110
-# ds_this_BGR = ds_BGRb_m380
 # by year
 # ds_this_BGR = ds_BGR0506
-# ds_this_BGR = ds_BGR05a
-ds_this_BGR = ds_ITP3t
+# ds_this_BGR = ds_BGR0607
+ds_this_BGR = ds_BGR0708
+# ds_this_BGR = ds_ITP3t
+
+################################################################################
 
 # Output summary
-if False:
+if True:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
@@ -992,7 +1050,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of just in the Beaufort Gyre Region
-if False:
+if True:
     print('')
     print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
@@ -1103,19 +1161,19 @@ if False:
     ahf.find_max_distance([group_AIDJEX, group_BGOS_ITP])
 
 ## la_CT-SA vs. la_CT-SA-dt_start plots
-if False:
+if True:
     print('')
     print('- Creating TS and TS-time plots')
     # Make the Plot Parameters
-    pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_by_instrmt')
-    # pp_CT_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
+    pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_by_instrmt', legend=True)
+    # pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':10, 'clr_ext':'max', 'xy_bins':1000, 'log_axes':[False,False,True]})
     # pp_CT_SA_3d = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], z_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'dt_start', 'cl_z_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
     # Make the Analysis Group pfs_fltrd pfs_BGR1
     group_CT_SA_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_CT_SA)
     # group_CT_SA_plot = ahf.Analysis_Group(ds_ITP_test, pfs_BGR1, pp_CT_SA)
     # group_CT_SA_3d_plot = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_CT_SA_3d)
     # Make the figure
-    ahf.make_figure([group_CT_SA_plot], filename='Figure_2.pickle')#, group_CT_SA_3d_plot])
+    ahf.make_figure([group_CT_SA_plot], filename='Figure_2.pickle')
 ## lon-dt_start plots
 if False:
     print('')
@@ -1128,7 +1186,7 @@ if False:
     ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
-if False:
+if True:
     print('')
     print('- Creating TS plots')
     # Make the Plot Parameters
@@ -1414,11 +1472,11 @@ if False:
     # ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
 # test clustering
-if True:
+if False:
     print('')
     print('- Creating clustering plot')
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':360, 'b_a_w_plt':True})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':670, 'b_a_w_plt':True})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1554,8 +1612,8 @@ pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='clust
 if False:
     print('')
     print('- Creating plots of pre-clustered BGR ITP data')
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':[34.36,35.01]})
-    this_ds = ds_BGRa_m110
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':[34.4,34.6]})
+    this_ds = ds_BGR0506
     # this_ds = ds_BGRm_m410 
     # this_ds = ds_BGRn_m240
     # this_ds = ds_BGRo_m390
