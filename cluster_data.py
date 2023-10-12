@@ -263,14 +263,15 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
 
 ## BGR ITPs 04
 BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04.nc',
-                #    'sources_dict':{'ITP_002':'all'},
-                   'sources_dict':{'BGR04':'all'},
+                   'sources_dict':{'ITP_002':'all'},
+                #    'sources_dict':{'BGR04':'all'},
                    'data_filters':dfs1,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':110
+                   'm_pts':'None',
+                #    'm_pts':110,
                    }
 ## BGR ITPs 0506
 BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
@@ -435,7 +436,14 @@ for clstr_dict in [BGR0607_clstr_dict]:
         else:
             # Remove the superfluous 'instrmt' column
             new_df = new_df.drop('instrmt', axis=1)
-        # print(list(new_df))
+        if clstr_dict['m_pts'] == 'None':
+            # Remove unnecessary variables
+            print('variables in new_df:',list(new_df))
+            only_need_these_vars = ['entry','prof_no','CT','ma_CT','SA',]
+            for var in list(new_df):
+                if not var in only_need_these_vars:
+                    new_df = new_df.drop(var, axis=1)
+        print('after, vars in new_df:',list(new_df))
         # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())
         # exit(0)

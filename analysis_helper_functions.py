@@ -4899,10 +4899,6 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     a_group         An Analysis_Group object containing the info to create this subplot
     plt_title       A string to use as the title of this subplot
     """
-    # Get set up for MPI
-    # from mpi4py import MPI
-    # comm = MPI.COMM_WORLD
-    # rank = comm.Get_rank()
     ## Get relevant parameters for the plot
     pp = a_group.plt_params
     # Concatonate all the pandas data frames together
