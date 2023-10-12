@@ -86,8 +86,8 @@ dfs1 = ahf.Data_Filters(min_press=this_min_press)
 # print('- Creating data sets')
 ################################################################################
 
-# ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
-ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
+ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
+# ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
 
 ################################################################################
 # Create profile filtering objects

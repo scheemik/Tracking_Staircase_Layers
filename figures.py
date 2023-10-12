@@ -569,28 +569,25 @@ BGRITPs0607 = { 'ITP_001':'all',
                 'ITP_008':'all',
                 # 'ITP_009':'all', # Not in BGR
                 # 'ITP_010':'all', # Not in BGR
-                # 'ITP_011':'all', # can't time slice? but only sometimes
+                # 'ITP_011':'all', # Not in this time range
                 # 'ITP_012':'all', # Not in BGR
-                # 'ITP_013':'all',  # something weird is going on here
+                'ITP_013':'all',  
                 # 'ITP_014':'all', # Not in BGR
                 # 'ITP_015':'all', # Not in BGR
                 # 'ITP_016':'all', # Not in BGR
                 # 'ITP_017':'all', # Not in BGR
                 }
-## 2005-08-16 06:00:01 to 2009-08-31 00:00:08, gap: 320 days, duration: 1477 days
-BGRITPs0708 = { 'ITP_001':'all',
-                # 'ITP_002':'all', # Not in this time range
-                'ITP_003':'all',
-                'ITP_004':'all',
+## 2007-08-15 00:00:01 to 2008-08-14 00:24:17
+BGRITPs0708 = { 'ITP_004':'all',
                 'ITP_005':'all',
                 'ITP_006':'all',
                 # 'ITP_007':'all', # Not in BGR
                 'ITP_008':'all',
                 # 'ITP_009':'all', # Not in BGR
                 # 'ITP_010':'all', # Not in BGR
-                # 'ITP_011':'all', # can't time slice? but only sometimes
+                # 'ITP_011':'all', # Not in this time period
                 # 'ITP_012':'all', # Not in BGR
-                # 'ITP_013':'all',  # something weird is going on here
+                'ITP_013':'all',
                 # 'ITP_014':'all', # Not in BGR
                 # 'ITP_015':'all', # Not in BGR
                 # 'ITP_016':'all', # Not in BGR
@@ -601,7 +598,7 @@ BGRITPs0708 = { 'ITP_001':'all',
                 # 'ITP_022':'all', # Not in BGR
                 # 'ITP_023':'all', # Not in BGR
                 # 'ITP_024':'all', # Not in BGR
-                'ITP_025':'all', 
+                # 'ITP_025':'all', # Not in this time period
                 # 'ITP_026':'all', # Not in BGR
                 # 'ITP_027':'all', # Not in BGR
                 # 'ITP_028':'all', # Not in BGR
@@ -821,7 +818,7 @@ print('- Creating data sets')
 # by different time periods
 # ds_BGR04 = ahf.Data_Set(BGRITPs04, dfs1_BGR04)
 # ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
-# ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
+ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
 # ds_BGR0708 = ahf.Data_Set(BGRITPs0708, dfs1_BGR0708)
 
 # Data Sets without filtering based on CT_max
@@ -912,7 +909,7 @@ dfs_to_use = dfs_all
 # By year
 # ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
-ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
+# ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
@@ -981,9 +978,9 @@ pfs_test = ahf.Profile_Filters(every_nth_row=4)
 ################################################################################
 
 # Use these things
-pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-# pfs_this_BGR = pfs_BGR_test
+pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1019,7 +1016,7 @@ ds_this_BGR = ds_BGR0607
 ################################################################################
 
 # Output summary
-if False:
+if True:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
@@ -1052,7 +1049,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of just in the Beaufort Gyre Region
-if False:
+if True:
     print('')
     print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
@@ -1163,7 +1160,7 @@ if False:
     ahf.find_max_distance([group_AIDJEX, group_BGOS_ITP])
 
 ## la_CT-SA vs. la_CT-SA-dt_start plots
-if False:
+if True:
     print('')
     print('- Creating TS and TS-time plots')
     # Make the Plot Parameters
@@ -1188,7 +1185,7 @@ if False:
     ahf.make_figure([group_lon_dt_plot])
 
 # TS plot
-if False:
+if True:
     print('')
     print('- Creating TS plots')
     # Make the Plot Parameters
@@ -1486,7 +1483,7 @@ if False:
 
 ## Clustering parameter sweeps
 # ## Parameter sweep for BGR ITP data
-if True:
+if False:
     print('')
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360

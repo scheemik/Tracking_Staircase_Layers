@@ -275,19 +275,30 @@ BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04.nc',
                    }
 ## BGR ITPs 0506
 BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
-                #    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'sources_dict':{'BGR0506':'all'},
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                #    'sources_dict':{'BGR0506':'all'},
                    'data_filters':dfs1_BGR0506,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':670
+                   'm_pts':'None',
+                #    'm_pts':670,
                    }
 ## BGR ITPs 0607
 BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all'},
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
                    'data_filters':dfs1_BGR0607,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'None'
+                   }
+## BGR ITPs 0708
+BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708.nc',
+                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                   'data_filters':dfs1_BGR0708,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
@@ -306,7 +317,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR0607_clstr_dict]:
+for clstr_dict in [BGR04_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
