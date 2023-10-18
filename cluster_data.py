@@ -262,7 +262,7 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
 # By year
 
 ## BGR ITPs 04
-BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04.nc',
+BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGRm250_04.nc',
                    'sources_dict':{'ITP_002':'all'},
                 #    'sources_dict':{'BGR04':'all'},
                    'data_filters':dfs1,
@@ -270,11 +270,12 @@ BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None',
-                #    'm_pts':110,
+                #    'm_pts':'None',
+                #    'm_pts':190,
+                   'm_pts':250,
                    }
 ## BGR ITPs 0506
-BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
+BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGRm350_0506.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
                 #    'sources_dict':{'BGR0506':'all'},
                    'data_filters':dfs1_BGR0506,
@@ -284,26 +285,32 @@ BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506.nc',
                    'cl_z_var':'None',
                    'm_pts':'None',
                 #    'm_pts':670,
+                   'm_pts':350,
                    }
 ## BGR ITPs 0607
-BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607.nc',
+BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGRm350_0607.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
+                #    'sources_dict':{'BGR0607':'all'},
                    'data_filters':dfs1_BGR0607,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                #    'm_pts':'None',
+                #    'm_pts':230,
+                   'm_pts':350,
                    }
 ## BGR ITPs 0708
-BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708.nc',
+BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGRm350_0708.nc',
                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                #    'sources_dict':{'BGR0708':'all'},
                    'data_filters':dfs1_BGR0708,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                #    'm_pts':'None',
+                   'm_pts':350,
                    }
 
 # Test parameter sweep with ITP3
@@ -317,7 +324,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR04_clstr_dict]:
+for clstr_dict in [BGR0506_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
