@@ -324,7 +324,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR0506_clstr_dict]:
+for clstr_dict in [BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -448,12 +448,12 @@ for clstr_dict in [BGR0506_clstr_dict]:
             # new_df = new_df.set_index('Vertical', append=True)
         #else:
         new_df = pd.concat(dfs)
-        if not 'instrmt' in new_df.index.names:
-            print('Avoiding index collisions for ITPs by adding `instrmt` as an index')
-            new_df = new_df.set_index('instrmt', append=True)
-        else:
-            # Remove the superfluous 'instrmt' column
-            new_df = new_df.drop('instrmt', axis=1)
+        # if not 'instrmt' in new_df.index.names:
+        #     print('Avoiding index collisions for ITPs by adding `instrmt` as an index')
+        #     new_df = new_df.set_index('instrmt', append=True)
+        # else:
+        #     # Remove the superfluous 'instrmt' column
+        #     new_df = new_df.drop('instrmt', axis=1)
         if clstr_dict['m_pts'] == 'None':
             # Remove unnecessary variables
             print('variables in new_df:',list(new_df))

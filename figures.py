@@ -674,7 +674,7 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 
 # Example profiles
 # Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
-# ex_pfs1 = {'AIDJEX_BigBear':[389], 'ITP_33':[313], 'SHEBA_Seacat':['SH31200']}
+ex_pfs1 = {'ITP_002':[188, 189, 208, 209]}
 # 
 # ## AIDJEX
 # 
@@ -779,6 +779,7 @@ print('- Creating data sets')
 ## Example profiles
 # ds_all_sources_ex_pfs = ahf.Data_Set(Coincident_pfs0, dfs_all)
 # ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs1)
+ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
 
 ## ITP
 
@@ -915,7 +916,7 @@ dfs_to_use = dfs_all
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
 # ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
-ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
+# ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
@@ -1017,7 +1018,7 @@ pfs_this_BGR = pfs_0
 
 # by year
 # ds_this_BGR = ds_BGR04
-ds_this_BGR = ds_BGR0506
+# ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR0607
 # ds_this_BGR = ds_BGR0708
 # ds_this_BGR = ds_BGR_all
@@ -1295,21 +1296,18 @@ if False:
     # ahf.make_figure([group_example_profiles1], use_same_y_axis=False)
     ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3, group_example_profiles4], use_same_y_axis=False)
 ## Example profile plot
-if False:
+if True:
     print('')
     print('- Creating figure of an example profile')
     # Make the Plot Parameters
     zoom_range = [360,310]
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['depth'], plot_type='profiles')
-    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['SP','iT'], y_vars=['depth'], plot_type='profiles', ax_lims={'y_lims':zoom_range}, add_grid=False)
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SP','iT'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['SP','iT'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':zoom_range}, add_grid=False)
     # Make the Analysis Group
-    # this_ds = ds_all_sources_ex_pfs
-    this_ds = ds_AIDJEX_ex_stairs
+    this_ds = ds_ITP_ex_pfs
     group_example_profiles1 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_full, plot_title='')
-    group_example_profiles2 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_zoom, plot_title='')
     # Make the figure
-    # ahf.make_figure([group_example_profiles2], use_same_y_axis=False)
-    ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, use_same_x_axis=False)
+    ahf.make_figure([group_example_profiles1])
 ## Example profiles from SHEBA
 if False:
     print('')
@@ -1841,10 +1839,10 @@ if False:
     # # Make the figure
     ahf.make_figure([group_pre_clstrd, group_pre_clstrd1, group_pre_clstrd2], use_same_x_axis=False)
 # BGR ITP clustering, comparing across time
-if True:
+if False:
     print('')
     print('- Creating plots of pre-clustered BGR ITP data')
-    pp_pre_clstrd_sali = ahf.Plot_Parameters(x_vars=['la_CT'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'y_lims':[34.4,34.6]})
+    pp_pre_clstrd_sali = ahf.Plot_Parameters(x_vars=['la_CT'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'y_lims':[34.6,34.4]})
     pp_pre_clstrd_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
     # Make the subplot groups
     group_pre_clstrd_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd_sali)
