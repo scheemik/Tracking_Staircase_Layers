@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'ITP2_ell_10'# 'BGR0708'
+this_plot_title = 'ITP2_ell_100'# 'BGR0708'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
