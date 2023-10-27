@@ -32,7 +32,7 @@ from scipy import interpolate
 import gsw
 
 # The moving average window in dbar
-c3 = 50#100
+c3 = 10#100
 
 ################################################################################
 # Main execution
@@ -44,7 +44,7 @@ ncs_to_modify = [
                 #  'netcdfs/AIDJEX_Caribou.nc',
                 #  'netcdfs/AIDJEX_Snowbird.nc',
                 #  'netcdfs/ITP_001.nc',
-                #  'netcdfs/ITP_002.nc',
+                 'netcdfs/ITP_002.nc',
                 #  'netcdfs/ITP_003.nc',
                 #  'netcdfs/ITP_004.nc',
                 #  'netcdfs/ITP_005.nc',
@@ -67,30 +67,30 @@ ncs_to_modify = [
                 #  'netcdfs/ITP_022.nc', # Not in BGR
                 #  'netcdfs/ITP_023.nc', # Not in BGR
                 #  'netcdfs/ITP_024.nc', # Not in BGR
-                 'netcdfs/ITP_025.nc',
+                #  'netcdfs/ITP_025.nc',
                 #  'netcdfs/ITP_026.nc', # Not in BGR
                 #  'netcdfs/ITP_027.nc', # Not in BGR
                 #  'netcdfs/ITP_028.nc', # Not in BGR
                 #  'netcdfs/ITP_029.nc', # Not in BGR
-                 'netcdfs/ITP_030.nc',
-                 'netcdfs/ITP_032.nc',
-                 'netcdfs/ITP_033.nc',
-                 'netcdfs/ITP_034.nc',
-                 'netcdfs/ITP_035.nc',
+                #  'netcdfs/ITP_030.nc',
+                #  'netcdfs/ITP_032.nc',
+                #  'netcdfs/ITP_033.nc',
+                #  'netcdfs/ITP_034.nc',
+                #  'netcdfs/ITP_035.nc',
                 #  'netcdfs/ITP_036.nc', # Not in BGR
                 #  'netcdfs/ITP_037.nc', # Not in BGR
                 #  'netcdfs/ITP_038.nc', # Not in BGR
-                 'netcdfs/ITP_041.nc',
-                 'netcdfs/ITP_042.nc',
-                 'netcdfs/ITP_043.nc',
+                #  'netcdfs/ITP_041.nc',
+                #  'netcdfs/ITP_042.nc',
+                #  'netcdfs/ITP_043.nc',
                 #  'netcdfs/ITP_047.nc', # Not in BGR
                 #  'netcdfs/ITP_048.nc', # Not in BGR
                 #  'netcdfs/ITP_049.nc', # Not in BGR
                 #  'netcdfs/ITP_051.nc', # Not in BGR
-                 'netcdfs/ITP_052.nc',
-                 'netcdfs/ITP_053.nc',
-                 'netcdfs/ITP_054.nc',
-                 'netcdfs/ITP_055.nc',
+                #  'netcdfs/ITP_052.nc',
+                #  'netcdfs/ITP_053.nc',
+                #  'netcdfs/ITP_054.nc',
+                #  'netcdfs/ITP_055.nc',
 
                 #  'netcdfs/ITP_117.nc',
                 #  'netcdfs/ITP_118.nc',
