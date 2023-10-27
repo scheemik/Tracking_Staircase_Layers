@@ -64,8 +64,6 @@ csv_data_file="sim_data.csv"
 # Name of combined csv data file for exp
 exp_csv_file="exp_data.csv"
 
-python3 take_moving_average.py
-
 echo "Running Dedalus script"
 mpiexec -n 80 python3 HPC_param_sweep.py
 echo ""
