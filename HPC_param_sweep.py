@@ -100,7 +100,7 @@ pfs_0 = ahf.Profile_Filters()
 pfs_1 = ahf.Profile_Filters(every_nth_row=4)
 
 test_p_range = [400,200]
-pfs_ell  = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=10)
+pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
 
 ################################################################################
 
