@@ -55,6 +55,7 @@ if rank == 0:
     f.write('m_pts,ell_size,n_clusters,DBCV\n')
     f.close()
 
+ITP2_S_range = [34.05,34.75]
 LHW_S_range = [34.366, 35.5]
 test_S_range = [34.4, 34.6]
 
@@ -101,6 +102,7 @@ pfs_1 = ahf.Profile_Filters(every_nth_row=4)
 
 test_p_range = [400,200]
 pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
+pfs_ell  = ahf.Profile_Filters(SP_range=ITP2_S_range)
 
 ################################################################################
 

@@ -74,7 +74,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = True
+dark_mode = False
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -150,12 +150,13 @@ grid_alpha    = 0.3
 hist_alpha    = 0.8
 pf_alpha      = 0.4
 map_alpha     = 0.7
+pf_mrk_alpha  = 0.3
 lgnd_mrk_size = 60
 map_mrk_size  = 25
 big_map_mrkr  = 80
 sml_map_mrkr  = 5
 cent_mrk_size = 50
-pf_mrk_size   = 15
+pf_mrk_size   = 5 #15
 std_marker = '.'
 map_marker = '.' #'x'
 map_ln_wid = 0.5
@@ -1409,6 +1410,7 @@ def get_axis_label(var_key, var_attr_dicts):
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
     # Build dictionary of axis labels
     ax_labels = {
+                 'instrmt':r'Instrument',
                  'hist':r'Occurrences',
                  'aiT':r'$\alpha T$',
                  'aCT':r'$\alpha \Theta$',
@@ -2138,7 +2140,7 @@ def format_sci_notation(x, ndp=2):
 
 ################################################################################
 
-def add_h_scale_bar(ax, ax_lims, unit="", tw_clr=False):
+def add_h_scale_bar(ax, ax_lims, unit="", clr=std_clr, tw_clr=False):
     """
     Adds a horizontal scale bar to a plot
 
@@ -2147,7 +2149,7 @@ def add_h_scale_bar(ax, ax_lims, unit="", tw_clr=False):
     unit        A string of the units of the horizontal axis
     tw_clr      The color of the twin axis, if necessary
     """
-    h_bar_clr = std_clr
+    h_bar_clr = clr
     # Find distance between ticks
     ax_ticks = np.array(ax.get_xticks())
     # Use the ticks to decide on the bar length
@@ -4003,7 +4005,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Plot a background line for each profile
             ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
             # Plot every point the same color, size, and marker
-            ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+            ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
             if False:#CT_max_key:
                 press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
@@ -4079,9 +4081,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
     # Check whether to add a scale bar
     if add_scale_bar and shift_pfs == 1:
-        add_h_scale_bar(ax, ax_lims, unit=' g/kg')
         if tw_x_key:
+            add_h_scale_bar(ax, ax_lims, unit=' g/kg', clr=var_clr)
             add_h_scale_bar(tw_ax_y, ax_lims, unit=r' $^\circ$C', tw_clr=tw_clr)
+        else:
+            add_h_scale_bar(ax, ax_lims, unit=' g/kg')
     # Add legend
     if legend:
         lgnd = ax.legend()
@@ -4097,7 +4101,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         #
     # Add a standard title
     plt_title = add_std_title(a_group)
-    return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+    return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, invert_y_axis
 
 ################################################################################
 
@@ -4112,7 +4116,9 @@ def get_cluster_args(pp):
     # print('cluster_plt_dict:',cluster_plt_dict)
     # Get minimum cluster size parameter, if it was given
     try:
-        m_pts = int(cluster_plt_dict['m_pts'])
+        m_pts = cluster_plt_dict['m_pts']
+        if m_pts != 'auto':
+            m_pts = int(m_pts)
     except:
         m_pts = None
     # Get minimum samples parameter, if it was given
@@ -4214,6 +4220,10 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
             print('-- `Last clustered` attr is `Never`, re_run:',re_run)
     print('\t- Re-run HDBSCAN:',re_run)
     if re_run:
+        print('in HDBSCAN_(), m_pts:',m_pts)
+        if m_pts == 'auto':
+            # m_pts = int(len(df) / 500 + 200)
+            m_pts = int(5*(len(df)**(1/3)) + 100)
         print('\t\tClustering x-axis:',x_key)
         print('\t\tClustering y-axis:',y_key)
         print('\t\tClustering z-axis:',z_key)
@@ -4625,6 +4635,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     else:
         plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
+    print('in plot_clusters(), m_pts:',m_pts)
     df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
@@ -4633,6 +4644,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     for var in [x_key, y_key, z_key]:
         if not isinstance(var, type(None)):
             df = df[df[var].notnull()]
+    # Re-order the cluster labels, if specified
+    df = sort_clusters(df, n_clusters)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -4886,6 +4899,48 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             invert_y_axis = True
     #
     return invert_y_axis, [df], rel_val
+
+################################################################################
+
+def sort_clusters(df, n_clusters, order_by='SA'):
+    """
+    Redoes the cluster labels so they are sorted in some way
+
+    df              A pandas data frame output from HDBSCAN_
+    """
+    print('\t- Sorting clusters')
+    ## Figure out the order
+    sorting_arr = []
+    # Loop through each cluster
+    for i in range(n_clusters):
+        # Find the data from this cluster
+        df_this_cluster = df[df['cluster']==i]
+        # Get relevant data for sorting
+        s_key = order_by
+        s_data = df_this_cluster[s_key] 
+        s_mean = np.mean(s_data)
+        # Change cluster id to temp number in the original dataframe
+        #   Need to make a mask first for some reason
+        this_cluster_mask = (df['cluster']==i)
+        temp_i = int(i - (n_clusters+2))
+        df.loc[this_cluster_mask, 'cluster'] = temp_i
+        # Add cluster to the sorting array
+        sorting_arr.append((temp_i, s_mean))
+    # Make the sorting array into a pandas dataframe
+    sorting_df = pd.DataFrame(sorting_arr, columns=['temp_i','s_mean']).sort_values(by=['s_mean'])
+    # print(sorting_df)
+    ## Re-assign cluster labels based on sorted order
+    # Loop through each cluster
+    i = 0
+    for temp_i in sorting_df['temp_i']:
+        # Make a mask to locate the rows in the dataframe to change
+        this_cluster_mask = (df['cluster']==temp_i)
+        # Replace the cluster id
+        df.loc[this_cluster_mask, 'cluster'] = i
+        # Increment i
+        i += 1
+    #
+    return df
 
 ################################################################################
 

@@ -653,7 +653,7 @@ BGRmno = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 # BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
 # 
 # # All profiles from certain ITPs
-ITP2_all  = {'ITP_2':'all'}
+ITP2_all  = {'ITP_002':'all'}
 # ITP3_all  = {'ITP_003':'all'}
 # ITP33_all = {'ITP_33':'all'}
 # ITP34_all = {'ITP_34':'all'}
@@ -779,7 +779,7 @@ print('- Creating data sets')
 ## Example profiles
 # ds_all_sources_ex_pfs = ahf.Data_Set(Coincident_pfs0, dfs_all)
 # ds_all_sources_ex_pfs = ahf.Data_Set(ex_pfs1, dfs1)
-ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+# ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
 
 ## ITP
 
@@ -841,7 +841,7 @@ ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
 # ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs_all)
 
 # Data Sets filtered based on CT_max
-# ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
+ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
 
 # ds_ITP33 = ahf.Data_Set(ITP33_all, dfs1)
 # ds_ITP34 = ahf.Data_Set(ITP34_all, dfs1)
@@ -853,41 +853,6 @@ ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
 # ds_ITP35_some_pfs0 = ahf.Data_Set(ITP35_pfs0, dfs0)
 # ds_ITP35_some_pfs1 = ahf.Data_Set(ITP35_pfs1, dfs0)
 # ds_ITP35_some_pfs2 = ahf.Data_Set(ITP35_pfs2, dfs0)
-
-## AIDJEX
-
-# ds_all_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs_all)
-# ds_AIDJEX = ahf.Data_Set(all_AIDJEX, dfs1)
-
-# ds_AIDJEX_BigBear  = ahf.Data_Set(AIDJEX_BigBear_all, dfs1)
-# ds_AIDJEX_BlueFox  = ahf.Data_Set(AIDJEX_BlueFox_all, dfs1)
-# ds_AIDJEX_Caribou  = ahf.Data_Set(AIDJEX_Caribou_all, dfs1)
-# ds_AIDJEX_Snowbird = ahf.Data_Set(AIDJEX_Snowbird_all, dfs1)
-
-# ds_AIDJEX_BigBear_blacklist = ahf.Data_Set(AIDJEX_BigBear_blacklist, dfs_all)
-# ds_AIDJEX_BlueFox_blacklist = ahf.Data_Set(AIDJEX_BlueFox_blacklist, dfs_all)
-# ds_AIDJEX_Snowbird_blacklist = ahf.Data_Set(AIDJEX_Snowbird_blacklist, dfs_all)
-
-# ds_AIDJEX_missing_ll = ahf.Data_Set(AIDJEX_missing_ll, dfs_all)
-
-# ds_AIDJEX_ex_stairs = ahf.Data_Set(AIDJEX_ex_stairs, dfs_all)
-
-## SHEBA
-
-# ds_all_SHEBA = ahf.Data_Set(all_SHEBA, dfs_all)
-# ds_SHEBA = ahf.Data_Set(all_SHEBA, dfs1)
-# ds_SHEBA_Seacat_blacklist = ahf.Data_Set(SHEBA_Seacat_blacklist, dfs_all)
-# ds_SHEBA_example_profile = ahf.Data_Set(SHEBA_example_profile, dfs1)
-
-## filtered out by p_max > 400 dbar
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_BigBear, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_BlueFox, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_Caribou, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_AIDJEX_Snowbird, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_35, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_41, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_ITP_42, dfs0)
-# ds_pmax_lt_400 = ahf.Data_Set(pmax_lt_400_SHEBA_Seacat, dfs0)
 
 # Pre-clustered
 #   ell = 10
@@ -933,7 +898,7 @@ print('- Creating profile filtering objects')
 
 pfs_0 = ahf.Profile_Filters()
 pfs_1 = ahf.Profile_Filters(SA_range=ITP2_S_range)
-pfs_2 = ahf.Profile_Filters(p_range=[400,225])
+pfs_2 = ahf.Profile_Filters(p_range=[400,200])
 
 # # AIDJEX Operation Area (AOA)
 # lon_AOA = [-152.9,-133.7]
@@ -955,6 +920,19 @@ pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1
 pfs_BGR_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
 
 pfs_test = ahf.Profile_Filters(every_nth_row=4)
+
+# Profile filters
+test_p_range = [400,200]
+pfs_ell_10  = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=10)
+pfs_ell_50  = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=50)
+pfs_ell_100 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=100)
+pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
+
+ITP2_S_range = [34.05,34.75]
+pfs_ell_10  = ahf.Profile_Filters(SP_range=ITP2_S_range, m_avg_win=10)
+pfs_ell_50  = ahf.Profile_Filters(SP_range=ITP2_S_range, m_avg_win=50)
+pfs_ell_100 = ahf.Profile_Filters(SP_range=ITP2_S_range, m_avg_win=100)
+pfs_ell_150 = ahf.Profile_Filters(SP_range=ITP2_S_range, m_avg_win=150)
 
 # Finding coincident profiles
 # lon_coin = [-148.9,-147.8]
@@ -1043,6 +1021,17 @@ if False:
 
 ################################################################################
 ### Figures
+
+## ITP number vs time
+if False:
+    print('')
+    print('- Creating plot of ITP number vs time')
+    # Make the Plot Parameters
+    pp_ITP_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['instrmt'], clr_map='clr_by_instrmt', legend=False)
+    # Make the Analysis Group
+    group_ITP_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_ITP_vs_time)
+    # Make the figure
+    ahf.make_figure([group_ITP_vs_time])
 
 ### Figure 1
 ## Maps
@@ -1205,6 +1194,25 @@ if False:
     # Make the figure
     ahf.make_figure([group_TS_plot])
 
+# TS plot 4 different ell values
+if True:
+    print('')
+    print('- Creating TS plots')
+    # Make the Plot Parameters
+    # pp_SP_la_CT = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
+    pp_SP_la_CT_010 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170, 'b_a_w_plt':False, 'extra_vars_to_keep':['press']}, legend=False)
+    pp_SP_la_CT_050 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170, 'b_a_w_plt':False, 'extra_vars_to_keep':['press']}, legend=False)
+    pp_SP_la_CT_100 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170, 'b_a_w_plt':False, 'extra_vars_to_keep':['press']}, legend=False)
+    pp_SP_la_CT_150 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':170, 'b_a_w_plt':False, 'extra_vars_to_keep':['press']}, legend=False)
+    # Make the Analysis Groups
+    group_ell_010 = ahf.Analysis_Group(ds_ITP2, pfs_ell_10, pp_SP_la_CT_010, plot_title=r'ITP2 $\ell=10$ dbar')
+    group_ell_050 = ahf.Analysis_Group(ds_ITP2, pfs_ell_50, pp_SP_la_CT_050, plot_title=r'ITP2 $\ell=50$ dbar')
+    group_ell_100 = ahf.Analysis_Group(ds_ITP2, pfs_ell_100,pp_SP_la_CT_100, plot_title=r'ITP2 $\ell=100$ dbar')
+    group_ell_150 = ahf.Analysis_Group(ds_ITP2, pfs_ell_150,pp_SP_la_CT_150, plot_title=r'ITP2 $\ell=150$ dbar')
+    # Make the figure
+    ahf.make_figure([group_ell_010, group_ell_050, group_ell_100, group_ell_150])
+    # ahf.make_figure([group_ell_100])
+
 ## AIDJEX blacklisted profiles TS plots
 if False:
     print('')
@@ -1296,7 +1304,7 @@ if False:
     # ahf.make_figure([group_example_profiles1], use_same_y_axis=False)
     ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3, group_example_profiles4], use_same_y_axis=False)
 ## Example profile plot
-if True:
+if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the Plot Parameters
@@ -1482,7 +1490,7 @@ if False:
     print('')
     print('- Creating clustering plot')
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':350, 'b_a_w_plt':True})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'b_a_w_plt':True})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1503,7 +1511,20 @@ if False:
     # # Make the figure
     # ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGOS.pickle')
     ahf.make_figure([group_mpts_param_sweep])#, filename='BGRa_ps.pickl')
-## Parameter sweep for BGOS ITP data
+## Parameter sweep 
+# TS plot 4 different ell values
+if False:
+    print('')
+    print('- Creating TS plots')
+    # Make the Plot Parameters
+    pp_mpts_ps = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':100, 'cl_ps_tuple':[10,721,10]})
+    # Make the Analysis Groups
+    group_ell_010 = ahf.Analysis_Group(ds_ITP2, pfs_ell_10, pp_mpts_ps, plot_title=r'ITP2 $\ell=10$ dbar')
+    group_ell_050 = ahf.Analysis_Group(ds_ITP2, pfs_ell_50, pp_mpts_ps, plot_title=r'ITP2 $\ell=50$ dbar')
+    group_ell_100 = ahf.Analysis_Group(ds_ITP2, pfs_ell_100,pp_mpts_ps, plot_title=r'ITP2 $\ell=100$ dbar')
+    group_ell_150 = ahf.Analysis_Group(ds_ITP2, pfs_ell_150,pp_mpts_ps, plot_title=r'ITP2 $\ell=150$ dbar')
+    # Make the figure
+    ahf.make_figure([group_ell_010, group_ell_050, group_ell_100, group_ell_150], filename='4_ell_value_ps.pickle')
 if False:
     print('')
     print('- Creating clustering parameter sweep for BGOS ITP data')
@@ -1619,16 +1640,9 @@ if False:
     print('')
     print('- Creating plots of pre-clustered BGR ITP data')
     pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':[34.4,34.6]})
-    # this_ds = ds_BGR0607
-    # this_ds = ds_BGRm_m410 
-    # this_ds = ds_BGRn_m240
-    # this_ds = ds_BGRo_m390
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
-    # group_AIDJEX_nir_SA = ahf.Analysis_Group(this_ds, pfs_0, pp_nir_SA, plot_title=r'AIDJEX')
-    # group_AIDJEX_cRL = ahf.Analysis_Group(this_ds, pfs_0, pp_cRL, plot_title=r'AIDJEX')
-    # # Make the figure
-    # ahf.make_figure([group_AIDJEX_pre_clstrd, group_AIDJEX_nir_SA, group_AIDJEX_cRL], use_same_y_axis=False)
+    # Plot the figure
     ahf.make_figure([group_pre_clstrd], use_same_y_axis=False)
 
 # AIDJEX clustering
@@ -1818,7 +1832,7 @@ if False:
     # print('done making analysis group')
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
-
+exit(0)
 # BGR ITP clustering, comparing across time
 if False:
     print('')
@@ -1838,17 +1852,18 @@ if False:
     group_pre_clstrd2 = ahf.Analysis_Group(ds_BGR0708, pfs_0, pp_pre_clstrd)
     # # Make the figure
     ahf.make_figure([group_pre_clstrd, group_pre_clstrd1, group_pre_clstrd2], use_same_x_axis=False)
-# BGR ITP clustering, comparing across time
-if False:
-    print('')
-    print('- Creating plots of pre-clustered BGR ITP data')
-    pp_pre_clstrd_sali = ahf.Plot_Parameters(x_vars=['la_CT'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'y_lims':[34.6,34.4]})
-    pp_pre_clstrd_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
-    # Make the subplot groups
-    group_pre_clstrd_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd_sali)
-    group_pre_clstrd_sali = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd_time)
-    # # Make the figure
-    ahf.make_figure([group_pre_clstrd_time, group_pre_clstrd_sali], use_same_x_axis=False)
+# BGR ITP clustering, SA vs la_CT and SA vs time
+for ds_this_BGR in [ds_BGR04, ds_BGR0506, ds_BGR0607, ds_BGR0708]:
+    if True:
+        print('')
+        print('- Creating plots of pre-clustered BGR ITP data')
+        pp_pre_clstrd_sali = ahf.Plot_Parameters(x_vars=['la_CT'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'y_lims':[34.6,34.4]})
+        pp_pre_clstrd_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':False}, legend=False)
+        # Make the subplot groups
+        group_pre_clstrd_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd_sali)
+        group_pre_clstrd_sali = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd_time)
+        # # Make the figure
+        ahf.make_figure([group_pre_clstrd_time, group_pre_clstrd_sali], use_same_x_axis=False)
 
 exit(0)
 
