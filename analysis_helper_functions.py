@@ -74,7 +74,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = False
+dark_mode = True
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -3816,12 +3816,26 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         except:
             plt_noise = True
         try:
+            sort_clstrs = pp.extra_args['sort_clstrs']
+        except:
+            sort_clstrs = True
+        try:
             shift_pfs = extra_args['shift_pfs']
         except:
             shift_pfs = True
     else:
         plt_noise = True
         shift_pfs = True
+        sort_clstrs = True
+    # Re-order the cluster labels, if specified
+    if sort_clstrs:
+        try:
+            # Clusters are labeled starting from 0, so total number of clusters is
+            #   the largest label plus 1
+            n_clusters = int(df['cluster'].max()+1)
+            df = sort_clusters(df, n_clusters)
+        except:
+            foo = 2
     # Decide whether to shift the profiles over so they don't overlap or not
     if shift_pfs:
         shift_pfs = 1
@@ -4625,8 +4639,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             plt_noise = pp.extra_args['plt_noise']
         except:
             plt_noise = True
+        try:
+            sort_clstrs = pp.extra_args['sort_clstrs']
+        except:
+            sort_clstrs = True
     else:
         plt_noise = True
+        sort_clstrs = True
     # Decide whether to plot the centroid or not
     if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
         plot_centroid = False
@@ -4645,7 +4664,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if not isinstance(var, type(None)):
             df = df[df[var].notnull()]
     # Re-order the cluster labels, if specified
-    df = sort_clusters(df, n_clusters)
+    if sort_clstrs:
+        df = sort_clusters(df, n_clusters)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -4771,8 +4791,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
             # Plot the centroid of this cluster
             if plot_centroid:
-                # This will plot a marker at the centroid
+                # This plots a circle upon which to put the centroid symbol
                 ax.scatter(x_mean, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                # This will plot a marker at the centroid
                 # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
