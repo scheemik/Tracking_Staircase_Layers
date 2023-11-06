@@ -3276,6 +3276,10 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         except:
             plt_noise = True
         try:
+            sort_clstrs = pp.extra_args['sort_clstrs']
+        except:
+            sort_clstrs = True
+        try:
             log_axes = pp.extra_args['log_axes']
         except:
             log_axes = 'None'
@@ -3283,6 +3287,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         n_h_bins = None
         plt_hist_lines = False
         plt_noise = True
+        sort_clstrs = True
     # Load in variables
     if x_key == 'hist':
         var_key = y_key
@@ -3565,6 +3570,9 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         # Clusters are labeled starting from 0, so total number of clusters is
         #   the largest label plus 1
         n_clusters  = int(df['cluster'].max()+1)
+        # Re-order the cluster labels, if specified
+        if sort_clstrs:
+            df = sort_clusters(df, n_clusters)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
