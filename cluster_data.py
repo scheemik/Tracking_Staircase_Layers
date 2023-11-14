@@ -482,7 +482,7 @@ for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
         ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
         ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
         ds.attrs['Clustering z-axis'] = clstr_dict['cl_z_var']
-        ds.attrs['Clustering m_pts'] = clstr_dict['m_pts']
+        ds.attrs['Clustering m_pts'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering m_pts']
         ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
         ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
         # Add the variable attributes back in

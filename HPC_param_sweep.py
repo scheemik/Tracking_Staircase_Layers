@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'ITP2_ell_10'# 'BGR0708'
+this_plot_title = 'BGR0506'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -87,10 +87,10 @@ dfs1 = ahf.Data_Filters(min_press=this_min_press)
 ################################################################################
 
 # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
-# ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
+ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
 # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
 # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
-ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
+# ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 
 ################################################################################
 # Create profile filtering objects
@@ -102,7 +102,7 @@ pfs_1 = ahf.Profile_Filters(every_nth_row=4)
 
 test_p_range = [400,200]
 pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
-pfs_ell  = ahf.Profile_Filters(SP_range=ITP2_S_range)
+pfs_ell  = ahf.Profile_Filters(SP_range=test_S_range)
 
 ################################################################################
 

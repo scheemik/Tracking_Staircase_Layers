@@ -2816,7 +2816,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax = fig.add_subplot(ax_pos, projection='3d')
             m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             # print('plot_slopes:',plot_slopes)
-            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -4234,9 +4234,9 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
         re_run = False
         for attr in gcattr_dict.keys():
             gcattr_dict[attr] = list(set(gcattr_dict[attr]))
-            if len(gcattr_dict[attr]) > 1:
+            if attr not in ['Last clustered', 'Clustering m_pts', 'Clustering DBCV'] and len(gcattr_dict[attr]) > 1:
                 re_run = True
-                print('-- found multiple distinct attrs in list, re_run:',re_run)
+                print('-- found multiple distinct values of',attr,'in list, re_run:',re_run)
         if gcattr_dict['Last clustered'][0] == 'Never':
             re_run = True
             print('-- `Last clustered` attr is `Never`, re_run:',re_run)
@@ -4245,7 +4245,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
         print('in HDBSCAN_(), m_pts:',m_pts)
         if m_pts == 'auto':
             # m_pts = int(len(df) / 500 + 200)
-            m_pts = int(5*(len(df)**(1/3)) + 100)
+            m_pts = int(7*(len(df)**(1/3)))
         print('\t\tClustering x-axis:',x_key)
         print('\t\tClustering y-axis:',y_key)
         print('\t\tClustering z-axis:',z_key)
@@ -4253,7 +4253,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
         print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
-        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_pts, min_samples=min_samp, cluster_selection_method='leaf')
+        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_pts, min_samples=min_samp)#, cluster_selection_method='leaf')
         # The datetime variables need to be scaled to match
         dt_scale_factor = 10000
         for var in [x_key, y_key, z_key]:
@@ -4662,8 +4662,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     else:
         plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
-    print('in plot_clusters(), m_pts:',m_pts)
     df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
+    # print('in plot_clusters(), m_pts:',m_pts)
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
     n_clusters = int(df['cluster'].max()+1)
@@ -4927,7 +4927,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if y_key in y_invert_vars:
             invert_y_axis = True
     #
-    return invert_y_axis, [df], rel_val
+    return invert_y_axis, [df], m_pts, rel_val
 
 ################################################################################
 
