@@ -52,8 +52,11 @@ if rank == 0:
 
 ################################################################################
 
-    # Data Filters
+    ## Data Filters
+    # Generic
     dfs1 = ahf.Data_Filters(min_press=400)
+    # Specific
+    dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 
     # Profile Filters
     lon_BGR = [-160,-130]
@@ -76,11 +79,24 @@ if rank == 0:
                     #    'm_pts':250,
                     }
 
+    ## BGR ITPs 0508
+    BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
+                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                    'data_filters':dfs1_BGR0508,
+                    'pfs_object':pfs_test,
+                    'cl_x_var':'SA',
+                    'cl_y_var':'la_CT',
+                    'cl_z_var':'None',
+                    'm_pts':'auto',
+                    #    'm_pts':'None',
+                    #    'm_pts':350,
+                    }
+
 ################################################################################
 # Run the clustering process
 ################################################################################
 
-    for clstr_dict in [BGR04_clstr_dict]:
+    for clstr_dict in [BGR0508_clstr_dict]:
     # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
         gattrs_to_print =  ['Last modified',
                             'Last modification',
