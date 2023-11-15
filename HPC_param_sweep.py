@@ -55,144 +55,149 @@ if rank == 0:
     f.write('m_pts,ell_size,n_clusters,DBCV\n')
     f.close()
 
-ITP2_S_range = [34.05,34.75]
-LHW_S_range = [34.366, 35.5]
-test_S_range = [34.4, 34.6]
+# Reduce the number of active processes
+rf = 4
+if rank%rf == 0:
+
+    ITP2_S_range = [34.05,34.75]
+    LHW_S_range = [34.366, 35.5]
+    test_S_range = [34.4, 34.6]
 
 ################################################################################
 # Make dictionaries for what data to load in and analyze
 ################################################################################
 
-## Preclustered files
-BGR04 = {'BGR04':'all'}
-BGR0506 = {'BGR0506':'all'}
-BGR0607 = {'BGR0607':'all'}
-BGR0708 = {'BGR0708':'all'}
-BGR0508 = {'BGR0508':'all'}
-ITP2 = {'ITP_002':'all'}
+    ## Preclustered files
+    BGR04 = {'BGR04':'all'}
+    BGR0506 = {'BGR0506':'all'}
+    BGR0607 = {'BGR0607':'all'}
+    BGR0708 = {'BGR0708':'all'}
+    BGR0508 = {'BGR0508':'all'}
+    ITP2 = {'ITP_002':'all'}
 
 ################################################################################
 # Create data filtering objects
 # print('- Creating data filtering objects')
 ################################################################################
 
-this_min_press = 400
+    this_min_press = 400
 
-dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any')
-dfs0 = ahf.Data_Filters()
-dfs1 = ahf.Data_Filters(min_press=this_min_press)
+    dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any')
+    dfs0 = ahf.Data_Filters()
+    dfs1 = ahf.Data_Filters(min_press=this_min_press)
 
 ################################################################################
 # Create data sets by combining filters and the data to load in
 # print('- Creating data sets')
 ################################################################################
 
-# ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
-# ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
-# ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
-# ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
-ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
-# ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
+    # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 
 ################################################################################
 # Create profile filtering objects
 # print('- Creating profile filtering objects')
 ################################################################################
 
-pfs_0 = ahf.Profile_Filters()
-pfs_1 = ahf.Profile_Filters(every_nth_row=4)
+    pfs_0 = ahf.Profile_Filters()
+    pfs_1 = ahf.Profile_Filters(every_nth_row=4)
 
-test_p_range = [400,200]
-pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
-pfs_ell  = ahf.Profile_Filters(SA_range=test_S_range)
+    test_p_range = [400,200]
+    pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
+    pfs_ell  = ahf.Profile_Filters(SA_range=test_S_range)
 
 ################################################################################
 
-## Preclustered
-# pfs_this_BGR = pfs_0
-# pfs_this_BGR = pfs_1
+    ## Preclustered
+    # pfs_this_BGR = pfs_0
+    # pfs_this_BGR = pfs_1
 
-pfs_this_BGR = pfs_ell
+    pfs_this_BGR = pfs_ell
 
 ################################################################################
 ### Figures
 
-## Clustering parameter sweeps
-# ## Parameter sweep for BGR ITP data
-if True:
-    print('')
-    print('- Creating clustering parameter sweep for BGR ITP data')
-    test_mpts = 360
-    # Make the Plot Parameters
-    pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,801,10], 'mpi_run':True}) #[10,721,10]
-    # Make the subplot groups
-    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=this_plot_title)
-    # Run the parameter sweep
-    df = ahf.make_subplot(None, group_mpts_param_sweep, None, None)
-    # Grab just the datasets from the analysis group
-    arr_of_ds = group_mpts_param_sweep.data_set.arr_of_ds
-# Build the array for the x_var axis
-cl_ps_tuple = pp.extra_args['cl_ps_tuple']
-x_var_array = np.arange(cl_ps_tuple[0], cl_ps_tuple[1], cl_ps_tuple[2])
+    ## Clustering parameter sweeps
+    # ## Parameter sweep for BGR ITP data
+    if True:
+        print('')
+        print('- Creating clustering parameter sweep for BGR ITP data')
+        test_mpts = 360
+        # Make the Plot Parameters
+        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,801,10], 'mpi_run':True}) #[10,721,10]
+        # Make the subplot groups
+        group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=this_plot_title)
+        # Run the parameter sweep
+        df = ahf.make_subplot(None, group_mpts_param_sweep, None, None)
+        # Grab just the datasets from the analysis group
+        arr_of_ds = group_mpts_param_sweep.data_set.arr_of_ds
+    # Build the array for the x_var axis
+    cl_ps_tuple = pp.extra_args['cl_ps_tuple']
+    x_var_array = np.arange(cl_ps_tuple[0], cl_ps_tuple[1], cl_ps_tuple[2])
 
-# Divide the runs among the processes
-x_var_array = x_var_array[rank::int(size/4)]
+    # Divide the runs among the processes
+    x_var_array = x_var_array[int(rank/rf)::int(size/rf)]
 
 ################################################################################
 # Start the parameter sweeps
 
-# Set the main x and y data keys
-x_key = pp.x_vars[0]
-y_key = pp.y_vars[0]
-print('\trank',rank,'plotting these x values of',x_key,':',x_var_array)
-# Get cluster arguments
-m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = ahf.get_cluster_args(pp)
-# If limiting the number of pfs, find total number of pfs in the given df
-#   In the multi-index of df, level 0 is 'Time'
-if x_key == 'n_pfs':
-    pf_nos = np.unique(np.array(df['prof_no'].values, dtype=type('')))
-    number_of_pfs = len(pf_nos)
-    print('\tNumber of profiles:',number_of_pfs)
-    x_var_array = x_var_array[x_var_array <= number_of_pfs]
-#
-x_len = len(x_var_array)
-lines = []
-for x in x_var_array:
-    # Set initial values for some variables
-    zlabel = None
-    this_df = df.copy()
-    # Set parameters based on variables selected
-    #   NOTE: need to run `ell_size` BEFORE `n_pfs`
-    if x_key == 'ell_size':
-        # Need to apply moving average window to original data, before
-        #   the data filters were applied, so make a new Analysis_Group
-        a_group.profile_filters.m_avg_win = x
-        new_a_group = Analysis_Group(a_group.data_set, a_group.profile_filters, a_group.plt_params)
-        this_df = pd.concat(new_a_group.data_frames)
-        xlabel = r'$\ell$ (dbar)'
+    # Set the main x and y data keys
+    x_key = pp.x_vars[0]
+    y_key = pp.y_vars[0]
+    print('\trank',rank,'plotting these x values of',x_key,':',x_var_array)
+    # Get cluster arguments
+    m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = ahf.get_cluster_args(pp)
+    # If limiting the number of pfs, find total number of pfs in the given df
+    #   In the multi-index of df, level 0 is 'Time'
     if x_key == 'n_pfs':
-        this_df = this_df[this_df['prof_no'] <= pf_nos[x-1]].copy()
-        xlabel = 'Number of profiles included'
-    if x_key == 'm_pts':
-        # min cluster size must be an integer
-        m_pts = int(x)
-        xlabel = r'$m_{pts}$'
-    elif x_key == 'min_samps':
-        # min samples must be an integer, or None
-        if not isinstance(x, type(None)):
-            min_s = int(x)
-        else:
-            min_s = x
-        xlabel = 'Minimum samples'
-    # Run the HDBSCAN algorithm on the provided dataframe
-    try:
-        new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
-    except:
-        print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
-        break
-    # Record outputs to output object
-    lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
-
+        pf_nos = np.unique(np.array(df['prof_no'].values, dtype=type('')))
+        number_of_pfs = len(pf_nos)
+        print('\tNumber of profiles:',number_of_pfs)
+        x_var_array = x_var_array[x_var_array <= number_of_pfs]
+    #
+    x_len = len(x_var_array)
+    lines = []
+    for x in x_var_array:
+        # Set initial values for some variables
+        zlabel = None
+        this_df = df.copy()
+        # Set parameters based on variables selected
+        #   NOTE: need to run `ell_size` BEFORE `n_pfs`
+        if x_key == 'ell_size':
+            # Need to apply moving average window to original data, before
+            #   the data filters were applied, so make a new Analysis_Group
+            a_group.profile_filters.m_avg_win = x
+            new_a_group = Analysis_Group(a_group.data_set, a_group.profile_filters, a_group.plt_params)
+            this_df = pd.concat(new_a_group.data_frames)
+            xlabel = r'$\ell$ (dbar)'
+        if x_key == 'n_pfs':
+            this_df = this_df[this_df['prof_no'] <= pf_nos[x-1]].copy()
+            xlabel = 'Number of profiles included'
+        if x_key == 'm_pts':
+            # min cluster size must be an integer
+            m_pts = int(x)
+            xlabel = r'$m_{pts}$'
+        elif x_key == 'min_samps':
+            # min samples must be an integer, or None
+            if not isinstance(x, type(None)):
+                min_s = int(x)
+            else:
+                min_s = x
+            xlabel = 'Minimum samples'
+        # Run the HDBSCAN algorithm on the provided dataframe
+        try:
+            new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+        except:
+            print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
+            break
+        # Record outputs to output object
+        lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+else:
+    lines = ''
 ################################################################################
 
 # Gather the data from all the processes
