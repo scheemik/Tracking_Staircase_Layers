@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'BGR0708'
+this_plot_title = 'BGR0508'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -68,6 +68,7 @@ BGR04 = {'BGR04':'all'}
 BGR0506 = {'BGR0506':'all'}
 BGR0607 = {'BGR0607':'all'}
 BGR0708 = {'BGR0708':'all'}
+BGR0508 = {'BGR0508':'all'}
 ITP2 = {'ITP_002':'all'}
 
 ################################################################################
@@ -89,7 +90,8 @@ dfs1 = ahf.Data_Filters(min_press=this_min_press)
 # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
 # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
 # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
-ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
+# ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
+ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
 # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 
 ################################################################################
