@@ -136,7 +136,7 @@ cl_ps_tuple = pp.extra_args['cl_ps_tuple']
 x_var_array = np.arange(cl_ps_tuple[0], cl_ps_tuple[1], cl_ps_tuple[2])
 
 # Divide the runs among the processes
-x_var_array = x_var_array[rank::size/4]
+x_var_array = x_var_array[rank::(size/4)]
 
 ################################################################################
 # Start the parameter sweeps
