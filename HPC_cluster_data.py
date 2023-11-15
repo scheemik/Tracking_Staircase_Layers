@@ -80,128 +80,127 @@ if rank == 0:
 # Run the clustering process
 ################################################################################
 
+    for clstr_dict in [BGR04_clstr_dict]:
+    # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
+        gattrs_to_print =  ['Last modified',
+                            'Last modification',
+                            'Last clustered',
+                            'Clustering x-axis',
+                            'Clustering y-axis',
+                            'Clustering z-axis',
+                            'Clustering m_pts',
+                            'Clustering filters',
+                            'Clustering DBCV']
 
-for clstr_dict in [BGR04_clstr_dict]:
-# for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
-    gattrs_to_print =  ['Last modified',
-                        'Last modification',
-                        'Last clustered',
-                        'Clustering x-axis',
-                        'Clustering y-axis',
-                        'Clustering z-axis',
-                        'Clustering m_pts',
-                        'Clustering filters',
-                        'Clustering DBCV']
-
-    gattrs_to_copy = {        # Note: can't store datetime objects in netcdfs
-                    'Title':'',
-                    'Source':'',
-                    'Instrument':'',
-                    'Data Attribution':'',
-                    'Data Source':'',
-                    'Data Organizer':'',
-                    'Reference':'',
-                    'Original vertical measure':'',
-                    'Original temperature measure':'',
-                    'Original salinity measure':'',
-                    'Sub-sample scheme':'',
-                    'Moving average window':''
-                    }
-    # Find the netcdf to which to write the clustering results
-    try:
-        my_nc = clstr_dict['netcdf_file']
-    except:
-        my_nc = False
-    # Make new netcdf to store clustering results
-    if my_nc != False:
-        print('Preparing to write to',my_nc)
-        # Will make a new netcdf to store the clustering results
-        ds_var_info = {}
-        # Create data set object
-        ds_object = ahf.Data_Set(clstr_dict['sources_dict'], clstr_dict['data_filters'])
-        # Copy down the global attributes to put into the new netcdf later
-        # Loop through each dataset (one for each instrument)
-        for ds in ds_object.arr_of_ds:
-            # Loop through the variables to get the information
-            for var in ds.variables:
-                var_ = ds.variables[var]
-                ds_var_info[var] = var_.attrs
-            # Loop through each of that dataset's global attributes
-            for attr in ds.attrs:
-                # See if it's an attribute we want to copy
-                if attr in gattrs_to_copy:
-                    this_attr = str(ds.attrs[attr])
-                    # See whether we've already copied it in
-                    if this_attr not in gattrs_to_copy[attr]:
-                        gattrs_to_copy[attr] = gattrs_to_copy[attr] + ds.attrs[attr] + ' '
+        gattrs_to_copy = {        # Note: can't store datetime objects in netcdfs
+                        'Title':'',
+                        'Source':'',
+                        'Instrument':'',
+                        'Data Attribution':'',
+                        'Data Source':'',
+                        'Data Organizer':'',
+                        'Reference':'',
+                        'Original vertical measure':'',
+                        'Original temperature measure':'',
+                        'Original salinity measure':'',
+                        'Sub-sample scheme':'',
+                        'Moving average window':''
+                        }
+        # Find the netcdf to which to write the clustering results
+        try:
+            my_nc = clstr_dict['netcdf_file']
+        except:
+            my_nc = False
+        # Make new netcdf to store clustering results
+        if my_nc != False:
+            print('Preparing to write to',my_nc)
+            # Will make a new netcdf to store the clustering results
+            ds_var_info = {}
+            # Create data set object
+            ds_object = ahf.Data_Set(clstr_dict['sources_dict'], clstr_dict['data_filters'])
+            # Copy down the global attributes to put into the new netcdf later
+            # Loop through each dataset (one for each instrument)
+            for ds in ds_object.arr_of_ds:
+                # Loop through the variables to get the information
+                for var in ds.variables:
+                    var_ = ds.variables[var]
+                    ds_var_info[var] = var_.attrs
+                # Loop through each of that dataset's global attributes
+                for attr in ds.attrs:
+                    # See if it's an attribute we want to copy
+                    if attr in gattrs_to_copy:
+                        this_attr = str(ds.attrs[attr])
+                        # See whether we've already copied it in
+                        if this_attr not in gattrs_to_copy[attr]:
+                            gattrs_to_copy[attr] = gattrs_to_copy[attr] + ds.attrs[attr] + ' '
+                        #
                     #
                 #
             #
-        #
-        # Create profile filter object
-        pfs_object = clstr_dict['pfs_object']
-        # Create plot parameters object
-        if clstr_dict['m_pts'] == 'None':
-            keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
-        else:
-            # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
-            keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
-        # Create analysis group
-        print('creating analysis group')
-        group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
-        # Make a figure to run clustering algorithm and check results
-        print('making figure')
-        ahf.make_figure([group_test_clstr], filename='test.png')
+            # Create profile filter object
+            pfs_object = clstr_dict['pfs_object']
+            # Create plot parameters object
+            if clstr_dict['m_pts'] == 'None':
+                keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
+                pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
+            else:
+                # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
+                keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+                pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
+            # Create analysis group
+            print('creating analysis group')
+            group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
+            # Make a figure to run clustering algorithm and check results
+            print('making figure')
+            ahf.make_figure([group_test_clstr], filename='test.png')
 
-        # Does this netcdf already exist?
-        try:
-            ds = xr.load_dataset(my_nc)
-            print('- Previously,',my_nc)
-            # See the variables before
+            # Does this netcdf already exist?
+            try:
+                ds = xr.load_dataset(my_nc)
+                print('- Previously,',my_nc)
+                # See the variables before
+                for attr in gattrs_to_print:
+                    print('\t',attr+':',ds.attrs[attr])
+            except:
+                foo = 2
+            
+            # Pull the dataframes from the analysis group
+            dfs = group_test_clstr.data_frames
+            new_df = pd.concat(dfs)
+            if clstr_dict['m_pts'] == 'None':
+                # Remove unnecessary variables
+                print('variables in new_df:',list(new_df))
+                only_need_these_vars = ['entry','prof_no','CT','ma_CT','SA',]
+                for var in list(new_df):
+                    if not var in only_need_these_vars:
+                        new_df = new_df.drop(var, axis=1)
+            print('after, vars in new_df:',list(new_df))
+            # Convert back to xarray dataset
+            ds = new_df.to_xarray()
+            # Put the global attributes back in
+            for attr in gattrs_to_copy:
+                ds.attrs[attr] = gattrs_to_copy[attr]
+            # Update the global variables:
+            ds.attrs['Creation date'] = str(datetime.now())
+            ds.attrs['Last modified'] = str(datetime.now())
+            ds.attrs['Last modification'] = 'Updated clustering'
+            ds.attrs['Last clustered'] = str(datetime.now())
+            ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
+            ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
+            ds.attrs['Clustering z-axis'] = clstr_dict['cl_z_var']
+            ds.attrs['Clustering m_pts'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering m_pts']
+            ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
+            ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
+            # Add the variable attributes back in
+            for var in ds.variables:
+                if var in ds_var_info.keys():
+                    ds.variables[var].attrs = ds_var_info[var]
+            # Write out to netcdf
+            print('Writing data to',my_nc)
+            ds.to_netcdf(my_nc, 'w')
+            # Load in with xarray
+            ds2 = xr.load_dataset(my_nc)
+            # See the variables after
             for attr in gattrs_to_print:
-                print('\t',attr+':',ds.attrs[attr])
-        except:
-            foo = 2
-        
-        # Pull the dataframes from the analysis group
-        dfs = group_test_clstr.data_frames
-        new_df = pd.concat(dfs)
-        if clstr_dict['m_pts'] == 'None':
-            # Remove unnecessary variables
-            print('variables in new_df:',list(new_df))
-            only_need_these_vars = ['entry','prof_no','CT','ma_CT','SA',]
-            for var in list(new_df):
-                if not var in only_need_these_vars:
-                    new_df = new_df.drop(var, axis=1)
-        print('after, vars in new_df:',list(new_df))
-        # Convert back to xarray dataset
-        ds = new_df.to_xarray()
-        # Put the global attributes back in
-        for attr in gattrs_to_copy:
-            ds.attrs[attr] = gattrs_to_copy[attr]
-        # Update the global variables:
-        ds.attrs['Creation date'] = str(datetime.now())
-        ds.attrs['Last modified'] = str(datetime.now())
-        ds.attrs['Last modification'] = 'Updated clustering'
-        ds.attrs['Last clustered'] = str(datetime.now())
-        ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
-        ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
-        ds.attrs['Clustering z-axis'] = clstr_dict['cl_z_var']
-        ds.attrs['Clustering m_pts'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering m_pts']
-        ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
-        ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']
-        # Add the variable attributes back in
-        for var in ds.variables:
-            if var in ds_var_info.keys():
-                ds.variables[var].attrs = ds_var_info[var]
-        # Write out to netcdf
-        print('Writing data to',my_nc)
-        ds.to_netcdf(my_nc, 'w')
-        # Load in with xarray
-        ds2 = xr.load_dataset(my_nc)
-        # See the variables after
-        for attr in gattrs_to_print:
-            print('\t',attr+':',ds2.attrs[attr])
-        #
+                print('\t',attr+':',ds2.attrs[attr])
+            #

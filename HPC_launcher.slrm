@@ -57,7 +57,7 @@ source ~/.virtualenvs/clusterer/bin/activate
 ###############################################################################
 # Start the experiment script
 
-echo "Running Dedalus script"
+echo "Running script"
 mpiexec -n 40 python3 HPC_cluster_data.py
 echo ""
 echo 'Done running script'
