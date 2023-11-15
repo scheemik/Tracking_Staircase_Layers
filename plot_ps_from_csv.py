@@ -368,6 +368,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, df, pp, plt_titles=None):
                 zlabel = r'$\ell=$'+str(z_list[0])+' dbar'
             elif z_key == 'm_pts':
                 zlabel = r'$m_{pts}=$: '+str(z_list[0])
+        # Sort the dataframe
+        df.sort_values(by=[x_key], inplace=True)
         # Plot main axis
         ax.plot(df[x_key], df[y_key], color=std_clr, linestyle=l_styles[i], label=zlabel)
         if tw_y_key:
