@@ -184,6 +184,8 @@ dfs1_BGR0507 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/1
 dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
 dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
 dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
+## combo
+dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = [-160,-130]
@@ -317,6 +319,20 @@ BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
                 #    'm_pts':350,
                    }
 
+## BGR ITPs 0708
+BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                #    'sources_dict':{'BGR0708':'all'},
+                   'data_filters':dfs1_BGR0508,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                #    'm_pts':'auto',
+                   'm_pts':'None',
+                #    'm_pts':350,
+                   }
+
 # Test parameter sweep with ITP3
 ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'sources_dict':{'ITP_003':'all'},
@@ -328,7 +344,8 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
+for clstr_dict in [BGR04_clstr_dict]:
+# for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
