@@ -319,7 +319,7 @@ BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
                 #    'm_pts':350,
                    }
 
-## BGR ITPs 0708
+## BGR ITPs 0508
 BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
                 #    'sources_dict':{'BGR0708':'all'},

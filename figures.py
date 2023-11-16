@@ -550,6 +550,9 @@ BGR_ITPs_0s = { 'ITP_113':'all',
                 'ITP_128':'all',
                 }
 
+## All
+BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i, **BGR_ITPs_0j, **BGR_ITPs_0k, **BGR_ITPs_0l, **BGR_ITPs_0m, **BGR_ITPs_0n, **BGR_ITPs_0o, **BGR_ITPs_0p, **BGR_ITPs_0q, **BGR_ITPs_0r, **BGR_ITPs_0s}
+
 # Sets of ITPs within the BGR by year-long time periods
 ## 2004-08-20 00:00:01 to 2004-09-29 00:00:05, duration: 41 days
 BGRITPs04   = {'ITP_002':'all'}
@@ -607,7 +610,7 @@ BGRITPs0708 = { 'ITP_004':'all',
                 }
 
 ## All
-BGR_ITPs_all = {**BGR_ITPs_0a, **BGR_ITPs_0b, **BGR_ITPs_0c, **BGR_ITPs_0d, **BGR_ITPs_0e, **BGR_ITPs_0f, **BGR_ITPs_0g, **BGR_ITPs_0h, **BGR_ITPs_0i, **BGR_ITPs_0j, **BGR_ITPs_0k, **BGR_ITPs_0l, **BGR_ITPs_0m, **BGR_ITPs_0n, **BGR_ITPs_0o, **BGR_ITPs_0p, **BGR_ITPs_0q, **BGR_ITPs_0r, **BGR_ITPs_0s}
+BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
 
 ## Pre-clustered files
 # Single time periods
@@ -631,10 +634,11 @@ BGR0708 = {'BGRm350_0708':'all'}
 BGR05060708 = {'BGRm350_0506':'all', 'BGRm350_0607':'all', 'BGRm350_0708':'all'}
 BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
 # With m_pts fixed automatically
-BGR04   = {'BGR04_clstrd':'all'}
+BGR04   = {'BGR04_HPC_clstrd':'all'}
 BGR0506 = {'BGR0506_clstrd':'all'}
 BGR0607 = {'BGR0607_clstrd':'all'}
 BGR0708 = {'BGR0708_clstrd':'all'}
+BGR0508 = {'BGR0508':'all'}
 BGR05060708 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all', 'BGR0708_clstrd':'all'}
 BGR_all = {'BGR04_clstrd':'all','BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'}
 # Comparing time periods
@@ -716,8 +720,8 @@ ex_pfs1 = {'ITP_002':[185]}
 # pmax_lt_400_AIDJEX_Snowbird = {'AIDJEX_Snowbird':[320, 369, 404, 412, 414]}
 # # ITP 33 had none filtered out
 # # ITP 34 had none filtered out
-# pmax_lt_400_ITP_35 = {'ITP_35':
-#     [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
+pmax_lt_400_ITP_35 = {'ITP_35':
+    [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
 # pmax_lt_400_ITP_41 = {'ITP_41':[1393, 1395, 1397, 1399, 1401, 1403, 1405, 1407, 1409, 1411, 1413, 1417, 1419, 1423, 1425, 1427, 1429, 1431, 1433, 1435, 1439, 1441, 1443, 1445, 1447, 1449, 1451, 1453, 1457, 1459, 1461, 1463, 1465, 1467, 1469, 1471, 1473, 1477, 1479]}
 # pmax_lt_400_ITP_42 = {'ITP_42':[203, 204, 205, 206, 207, 208, 209]}
 # # ITP 43 had none filtered out
@@ -762,6 +766,9 @@ dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/1
 dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
 dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
 dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
+
+## combo
+dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 
 # To filter pre-clustered files to just certain cluster labels
 # dfs_clstr_lbl = ahf.Data_Filters(clstr_labels=[[-1, 0, 1, 2]])
@@ -835,9 +842,10 @@ print('- Creating data sets')
 
 # by different time periods
 # ds_BGR04 = ahf.Data_Set(BGRITPs04, dfs1)
-ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
+# ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
 # ds_BGR0708 = ahf.Data_Set(BGRITPs0708, dfs1_BGR0708)
+# ds_BGR0508 = ahf.Data_Set(BGRITPs0508, dfs1_BGR0508)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -890,10 +898,11 @@ dfs_to_use = dfs_all
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
-# ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
+ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
+# ds_BGR0508 = ahf.Data_Set(BGR0508, dfs_to_use)
 # ds_BGR05060708 = ahf.Data_Set(BGR05060708, dfs_to_use)
 # ds_BGR05060708_no_noise = ahf.Data_Set(BGR05060708, dfs_no_noise)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
@@ -978,9 +987,9 @@ pfs_ell_150 = ahf.Profile_Filters(SP_range=ITP2_S_range, m_avg_win=150)
 ################################################################################
 
 # Use these things
-# pfs_this_BGR = pfs_0
+pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-pfs_this_BGR = pfs_BGR_test
+# pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1007,11 +1016,12 @@ pfs_this_BGR = pfs_BGR_test
 # ds_this_BGR = ds_BGR_ITPs_0r
 
 # by year
-# ds_this_BGR = ds_BGR04
-ds_this_BGR = ds_BGR0506
+ds_this_BGR = ds_BGR04
+# ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR0607
 # ds_this_BGR = ds_BGR0708
 # ds_this_BGR = ds_BGR_all
+# ds_this_BGR = ds_BGR0508
 
 ################################################################################
 
@@ -1522,12 +1532,12 @@ if False:
     # ahf.make_figure([group_AIDJEX_TS, group_BGOS_TS])#, use_same_x_axis=False, use_same_y_axis=False)
 
 # test clustering
-if True:
+if False:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1673,7 +1683,7 @@ pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cl
 pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
 pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
 # BGR ITP clustering
-if False:
+if True:
     print('')
     print('- Creating plots of pre-clustered BGR ITP data')
     pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
@@ -1804,6 +1814,16 @@ if False:
     # # Make the figure
     ahf.make_figure([group_comp_clstrs])
 
+# BGR ITP clustering, histograms
+if True:
+    print('')
+    print('- Creating histograms of BGR ITP data')
+    # Make the Plot Parameters
+    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='cluster', extra_args={'plt_noise':True}, legend=True, ax_lims=test_S_range)
+    # Make the subplot groups
+    group_clstr_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_comp_clstrs)
+    # # Make the figure
+    ahf.make_figure([group_clstr_hist])
 # BGR ITP clustering, comparing with histograms
 if False:
     print('')

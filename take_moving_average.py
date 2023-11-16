@@ -43,27 +43,27 @@ ncs_to_modify = [
                 #  'netcdfs/AIDJEX_BlueFox.nc',
                 #  'netcdfs/AIDJEX_Caribou.nc',
                 #  'netcdfs/AIDJEX_Snowbird.nc',
-                #  'netcdfs/ITP_001.nc',
+                 'netcdfs/ITP_001.nc',
                  'netcdfs/ITP_002.nc',
-                #  'netcdfs/ITP_003.nc',
-                #  'netcdfs/ITP_004.nc',
-                #  'netcdfs/ITP_005.nc',
-                #  'netcdfs/ITP_006.nc',
+                 'netcdfs/ITP_003.nc',
+                 'netcdfs/ITP_004.nc',
+                 'netcdfs/ITP_005.nc',
+                 'netcdfs/ITP_006.nc',
                 #  'netcdfs/ITP_007.nc', # Not in BGR
-                #  'netcdfs/ITP_008.nc',
+                 'netcdfs/ITP_008.nc',
                 #  'netcdfs/ITP_009.nc', # Not in BGR
                 #  'netcdfs/ITP_009.nc', # Not in BGR
                 #  'netcdfs/ITP_010.nc', # Not in BGR
                 #  'netcdfs/ITP_011.nc',
                 #  'netcdfs/ITP_012.nc', # Not in BGR
-                #  'netcdfs/ITP_013.nc',
+                 'netcdfs/ITP_013.nc',
                 #  'netcdfs/ITP_014.nc', # Not in BGR
                 #  'netcdfs/ITP_015.nc', # Not in BGR
                 #  'netcdfs/ITP_016.nc', # Not in BGR
                 #  'netcdfs/ITP_017.nc', # Not in BGR
-                #  'netcdfs/ITP_018.nc',
+                 'netcdfs/ITP_018.nc',
                 #  'netcdfs/ITP_019.nc', # Not in BGR
-                #  'netcdfs/ITP_021.nc',
+                 'netcdfs/ITP_021.nc',
                 #  'netcdfs/ITP_022.nc', # Not in BGR
                 #  'netcdfs/ITP_023.nc', # Not in BGR
                 #  'netcdfs/ITP_024.nc', # Not in BGR
@@ -72,7 +72,7 @@ ncs_to_modify = [
                 #  'netcdfs/ITP_027.nc', # Not in BGR
                 #  'netcdfs/ITP_028.nc', # Not in BGR
                 #  'netcdfs/ITP_029.nc', # Not in BGR
-                #  'netcdfs/ITP_030.nc',
+                 'netcdfs/ITP_030.nc',
                 #  'netcdfs/ITP_032.nc',
                 #  'netcdfs/ITP_033.nc',
                 #  'netcdfs/ITP_034.nc',

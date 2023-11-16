@@ -3572,7 +3572,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         n_clusters  = int(df['cluster'].max()+1)
         # Re-order the cluster labels, if specified
         if sort_clstrs:
-            df = sort_clusters(df, n_clusters)
+            df = sort_clusters(df, n_clusters, ax)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
@@ -3841,7 +3841,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Clusters are labeled starting from 0, so total number of clusters is
             #   the largest label plus 1
             n_clusters = int(df['cluster'].max()+1)
-            df = sort_clusters(df, n_clusters)
+            df = sort_clusters(df, n_clusters, ax)
         except:
             foo = 2
     # Decide whether to shift the profiles over so they don't overlap or not
@@ -4673,7 +4673,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             df = df[df[var].notnull()]
     # Re-order the cluster labels, if specified
     if sort_clstrs:
-        df = sort_clusters(df, n_clusters)
+        df = sort_clusters(df, n_clusters, ax)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -4931,44 +4931,109 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, order_by='SA'):
+def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
     """
     Redoes the cluster labels so they are sorted in some way
 
     df              A pandas data frame output from HDBSCAN_
+    n_clusters      The number of clusters
+    ax              The axis on which to draw lines, if applicable
+    order_by        String of the variable by which to sort clusters
+    use_hist        True/False whether to sort by the valleys in a histogram
     """
-    print('\t- Sorting clusters')
-    ## Figure out the order
-    sorting_arr = []
-    # Loop through each cluster
-    for i in range(n_clusters):
-        # Find the data from this cluster
-        df_this_cluster = df[df['cluster']==i]
-        # Get relevant data for sorting
-        s_key = order_by
-        s_data = df_this_cluster[s_key] 
-        s_mean = np.mean(s_data)
-        # Change cluster id to temp number in the original dataframe
-        #   Need to make a mask first for some reason
-        this_cluster_mask = (df['cluster']==i)
-        temp_i = int(i - (n_clusters+2))
-        df.loc[this_cluster_mask, 'cluster'] = temp_i
-        # Add cluster to the sorting array
-        sorting_arr.append((temp_i, s_mean))
-    # Make the sorting array into a pandas dataframe
-    sorting_df = pd.DataFrame(sorting_arr, columns=['temp_i','s_mean']).sort_values(by=['s_mean'])
-    # print(sorting_df)
-    ## Re-assign cluster labels based on sorted order
-    # Loop through each cluster
-    i = 0
-    for temp_i in sorting_df['temp_i']:
-        # Make a mask to locate the rows in the dataframe to change
-        this_cluster_mask = (df['cluster']==temp_i)
-        # Replace the cluster id
-        df.loc[this_cluster_mask, 'cluster'] = i
-        # Increment i
-        i += 1
-    #
+    s_key = order_by
+    if True:
+        print('\t- Sorting clusters by',order_by)
+        ## Figure out the order
+        sorting_arr = []
+        # Loop through each cluster
+        for i in range(n_clusters):
+            # Find the data from this cluster
+            df_this_cluster = df[df['cluster']==i]
+            # Get relevant data for sorting
+            s_data = df_this_cluster[s_key] 
+            s_mean = np.mean(s_data)
+            # Change cluster id to temp number in the original dataframe
+            #   Need to make a mask first for some reason
+            this_cluster_mask = (df['cluster']==i)
+            temp_i = int(i - (n_clusters+2))
+            df.loc[this_cluster_mask, 'cluster'] = temp_i
+            # Add cluster to the sorting array
+            sorting_arr.append((temp_i, s_mean))
+        # Make the sorting array into a pandas dataframe
+        sorting_df = pd.DataFrame(sorting_arr, columns=['temp_i','s_mean']).sort_values(by=['s_mean'])
+        # print(sorting_df)
+        ## Re-assign cluster labels based on sorted order
+        # Loop through each cluster
+        i = 0
+        for temp_i in sorting_df['temp_i']:
+            # Make a mask to locate the rows in the dataframe to change
+            this_cluster_mask = (df['cluster']==temp_i)
+            # Replace the cluster id
+            df.loc[this_cluster_mask, 'cluster'] = i
+            # Increment i
+            i += 1
+        #
+    if use_hist:
+        # Find the gaps in the valleys of the histogram and order clusters that way
+        #   Following Lu et al. 2022
+        noise_threshold = 0
+        # Find the data which is not noise
+        df_no_noise = df[df['cluster']!=-1]
+        # Get the data for the specified variable
+        h_data = df_no_noise[s_key]
+        # Get the histogram parameters
+        h_var, res_bins, median, mean, std_dev = get_hist_params(df, s_key, n_h_bins=100)
+        # Make the histogram
+        # hist_vals, hist_bins, patches = ax.hist(h_data, bins=res_bins)
+        hist_vals, hist_bins = np.histogram(h_data, bins=res_bins)
+        print('hist_vals:',len(hist_vals))
+        print('hist_bins:',len(hist_bins))
+        # Gather bin edges to define cluster boundaries
+        clstr_bnds = []
+        for i in range(len(hist_vals)-1):
+            # Get the edges and values for this bin and the next one
+            this_bin = hist_bins[i]
+            this_val = hist_vals[i]
+            next_bin = hist_bins[i+1]
+            next_val = hist_vals[i+1]
+            # Check to see what the far left edge is like
+            if i == 0:
+                # If the left-most bin isn't below the threshold, 
+                #   set that as the first cluster boundary
+                if not this_val <= noise_threshold:
+                    clstr_bnds.append(this_bin)
+                    l_edge = this_bin
+                else:
+                    l_edge = None
+            # If this bin is above the threshold but the next is below, then this is a left edge
+            if this_val > noise_threshold and next_val <= noise_threshold:
+                l_edge = next_bin
+            # If this bin is below the threshold but the next isn't, then this is a right edge
+            if this_val <= noise_threshold and next_val > noise_threshold:
+                r_edge = this_bin
+                if isinstance(l_edge, type(None)):
+                    clstr_bnds.append(r_edge)
+                else:
+                    # Find the midpoint between the left and right edge
+                    mid_point = (r_edge - l_edge)/2 + l_edge
+                    # Add this midpoint as a new cluster boundary
+                    clstr_bnds.append(mid_point)
+            # Check to see what the far right edge is like
+            if i == len(hist_vals)-2:
+                print('i:',i,'r_edge:',r_edge,'l_edge:',l_edge)
+                # If the right-most bin isn't below the threshold, 
+                #   set that as the last cluster boundary
+                if not this_val <= noise_threshold:
+                    clstr_bnds.append(this_bin)
+                else:
+                    clstr_bnds.append(l_edge)
+        print(clstr_bnds)
+        # Add vertical lines to mark all the cluster boundaries
+        for bnd in clstr_bnds:
+            ax.axvline(bnd, color='r', linestyle='--')
+        # plt.show()
+        # exit(0)
     return df
 
 ################################################################################
