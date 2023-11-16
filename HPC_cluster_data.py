@@ -53,8 +53,9 @@ if rank == 0:
 ################################################################################
 
     ## Data Filters
+    this_min_press = 400
     # Generic
-    dfs1 = ahf.Data_Filters(min_press=400)
+    dfs1 = ahf.Data_Filters(min_press=this_min_press)
     # Specific
     dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 
