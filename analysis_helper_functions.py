@@ -4658,16 +4658,21 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             sort_clstrs = pp.extra_args['sort_clstrs']
         except:
             sort_clstrs = True
+        try:
+            plot_centroid = pp.extra_args['plot_centroid']
+        except:
+            plot_centroid = None
     else:
         plt_noise = True
         sort_clstrs = True
     # Decide whether to plot the centroid or not
-    if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
-        plot_centroid = False
-    elif y_key == 'CT' or z_key == 'CT':
-        plot_centroid = False
-    else:
-        plot_centroid = True
+    if isinstance(plot_centroid, type(None)):
+        if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
+            plot_centroid = False
+        elif y_key == 'CT' or z_key == 'CT':
+            plot_centroid = False
+        else:
+            plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
     df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
     # print('in plot_clusters(), m_pts:',m_pts)
@@ -4938,7 +4943,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=True):
+def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
     """
     Redoes the cluster labels so they are sorted in some way
 
