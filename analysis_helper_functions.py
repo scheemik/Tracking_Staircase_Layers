@@ -604,10 +604,12 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         if pp.plot_type == 'map':
             vars_to_keep.append('lon')
             vars_to_keep.append('lat')
-        if pp.plot_type == 'profiles':
+        if pp.plot_type in ['profiles', 'waterfall']:
             vars_to_keep.append('CT_max')
             vars_to_keep.append('press_CT_max')
             vars_to_keep.append('SA_CT_max')
+        if pp.plot_type == 'waterfall':
+            vars_to_keep.append('dt_start')
         # Add all the plotting variables
         re_run_clstr = False
         plot_vars = pp.x_vars+pp.y_vars+pp.z_vars+[pp.clr_map]
@@ -2090,7 +2092,7 @@ def get_color_map(cmap_var):
 
 ################################################################################
 
-def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None):
+def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None):
     """
     Formats any datetime axes to show actual dates, as appropriate
 
@@ -2101,6 +2103,7 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
     tw_ax_y     The twin y axis on which to format
     tw_y_key    The string of the name for the y data on the twin axis
     tw_ax_x     The twin x axis on which to format
+    z_key       The string of the name for the z data on the main axis
     """
     loc = mpl.dates.AutoDateLocator()
     if x_key in ['dt_start', 'dt_end']:
@@ -2109,6 +2112,9 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+    if z_key in ['dt_start', 'dt_end']:
+        ax.zaxis.set_major_locator(loc)
+        ax.zaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
     if tw_x_key in ['dt_start', 'dt_end']:
         tw_ax_y.xaxis.set_major_locator(loc)
         tw_ax_y.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -3126,9 +3132,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
     elif plot_type == 'profiles':
-        # Check for clustering
         # Call profile plotting function
         return plot_profiles(ax, a_group, pp)
+    elif plot_type == 'waterfall':
+        # Call waterfall plotting function
+        return plot_waterfall(ax, a_group, fig, ax_pos, pp)
     else:
         # Did not provide a valid plot type
         print('Plot type',plot_type,'not valid')
@@ -3695,15 +3703,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     pp              The Plot_Parameters object for a_group
     clr_map         A string to determine what color map to use in the plot
     """
-    # Find extra arguments, if given
     legend = pp.legend
-    # if not isinstance(pp.extra_args, type(None)):
-    #     try:
-    #         plt_noise = pp.extra_args['plt_noise']
-    #     except:
-    #         plt_noise = True
-    # else:
-    #     plt_noise = True
     scale = pp.plot_scale
     ax_lims = pp.ax_lims
     if scale == 'by_pf':
@@ -3834,10 +3834,15 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             shift_pfs = extra_args['shift_pfs']
         except:
             shift_pfs = True
+        try:
+            plot_pts = extra_args['plot_pts']
+        except:
+            plot_pts = True
     else:
         plt_noise = True
         shift_pfs = True
         sort_clstrs = True
+        plot_pts = True
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
@@ -3859,17 +3864,15 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     for pf_no in df['prof_no'].values:
         if pf_no not in pfs_in_this_df:
             pfs_in_this_df.append(pf_no)
-    # var_type = type(df['prof_no'][0])
-    # print(var_type)
-    # pfs_in_this_df = np.unique(np.array(df['prof_no'], dtype=type('')))
-    print('\t- Profiles to plot:',pfs_in_this_df)
+        #
     # Make sure you're not trying to plot too many profiles
     if len(pfs_in_this_df) > 15:
         print('You are trying to plot',len(pfs_in_this_df),'profiles')
         print('That is too many. Try to plot less than 15')
         exit(0)
     else:
-        print('Plotting',len(pfs_in_this_df),'profiles')
+        print('\t- Plotting',len(pfs_in_this_df),'profiles')
+        print('\t- Profiles to plot:',pfs_in_this_df)
     # Loop through each profile to create a list of dataframes
     for pf_no in pfs_in_this_df:
         # Get just the part of the dataframe for this profile
@@ -4029,8 +4032,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             mrk_alpha = 0.9
             # Plot a background line for each profile
             ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
-            # Plot every point the same color, size, and marker
-            ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
+            if plot_pts:
+                # Plot every point the same color, size, and marker
+                ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
             if False:#CT_max_key:
                 press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
@@ -4039,7 +4043,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
-                tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+                if plot_pts:
+                    tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
                 if False:#CT_max_key:
                     print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
                     tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
@@ -4127,6 +4132,361 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Add a standard title
     plt_title = add_std_title(a_group)
     return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, invert_y_axis
+
+################################################################################
+
+def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
+    """
+    Takes in an Analysis_Group object which has the data and plotting parameters
+    to produce a subplot of individual profiles in a 3D waterfall layout. Returns 
+    the x and y labels and the subplot title
+
+    ax              The axis on which to make the plot
+    a_group         A Analysis_Group object containing the info to create this subplot
+    fig             The figure in which ax is contained
+    ax_pos          A tuple of the ax (rows, cols, linear number of this subplot)
+    pp              The Plot_Parameters object for a_group
+    clr_map         A string to determine what color map to use in the plot
+    """
+    legend = pp.legend
+    scale = pp.plot_scale
+    ax_lims = pp.ax_lims
+    if scale == 'by_pf':
+        print('Cannot use',pp.plot_type,'with plot scale by_pf')
+        exit(0)
+    clr_map = pp.clr_map
+    ## Make a plot of the given profiles vs. the vertical
+    # Set the main x, y, and z data keys
+    #   NOTE: Later I switch the y and z axes so that variables 
+    #         passed to y end up on the vertical axis
+    x_key = pp.x_vars[0]
+    y_key = pp.y_vars[0]
+    z_key = pp.z_vars[0]
+    # var_clr = get_var_color(x_key)
+    var_clr = std_clr
+    # Check for histogram
+    if x_key == 'hist' or y_key == 'hist':
+        print('Cannot plot histograms with profiles plot type')
+        exit(0)
+    # Concatonate all the pandas data frames together
+    df = pd.concat(a_group.data_frames)
+    # Set up z(y) axis
+    if isinstance(z_key, type(None)):
+        z_key = 'dt_start'
+        z_label = a_group.data_set.var_attr_dicts[0]['dt_start']['label']
+        df[z_key] = mpl.dates.date2num(df[z_key])
+    elif z_key in ['dt_start', 'dt_end']:
+        df[z_key] = mpl.dates.date2num(df[z_key])
+    else:
+        df[z_key] = df[z_key]
+    # Drop duplicates
+    df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
+    # In order to plot in 3D, need to remove the current axis
+    ax.remove()
+    # And replace axis with one that has 3 dimensions
+    ax = fig.add_subplot(ax_pos, projection='3d')
+    # Check for twin x and y data keys
+    try:
+        tw_x_key = pp.x_vars[1]
+        tw_ax_y  = ax.twiny()
+        tw_clr = get_var_color(tw_x_key)
+        if tw_clr == std_clr:
+            tw_clr = alt_std_clr
+    except:
+        tw_x_key = None
+        tw_ax_y  = None
+    try:
+        tw_y_key = pp.y_vars[1]
+        tw_ax_x  = ax.twinx()
+        tw_clr = get_var_color(tw_y_key)
+        if tw_clr == std_clr:
+            tw_clr = alt_std_clr
+    except:
+        tw_y_key = None
+        tw_ax_x  = None
+    # Invert y-axis if specified
+    if y_key in y_invert_vars:
+        invert_y_axis = True
+    else:
+        invert_y_axis = False
+    if not isinstance(tw_y_key, type(None)):
+        if tw_y_key in y_invert_vars:
+            invert_tw_y_axis = True
+        else:
+            invert_tw_y_axis = False
+    else:
+        invert_tw_y_axis = False
+    # Get extra args dictionary, if it exists
+    try:
+        extra_args = pp.extra_args
+        print('extra_args:',extra_args)
+    except:
+        extra_args = False
+    # Make a blank list for dataframes of each profile
+    profile_dfs = []
+    # Check whether to run the clustering algorithm
+    #   Need to run the clustering algorithm BEFORE filtering to specified range
+    cluster_this = False
+    # Set the keys for CT max markers
+    if x_key == 'CT':
+        CT_max_key = 'CT_max'
+    elif x_key == 'SA':
+        CT_max_key = 'SA_CT_max'
+    else:
+        CT_max_key = False
+    if tw_x_key == 'CT':
+        tw_CT_max_key = 'CT_max'
+    elif tw_x_key == 'SA':
+        tw_CT_max_key = 'SA_CT_max'
+    else:
+        tw_CT_max_key = False
+    #   Find all the plotting variables
+    plot_vars = [x_key,y_key,tw_x_key,tw_y_key,clr_map]
+    for var in plot_vars:
+        if var in clstr_vars:
+            cluster_this = True
+        #
+    if cluster_this:
+        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
+    # Filter to specified range if applicable
+    if not isinstance(a_group.plt_params.ax_lims, type(None)):
+        print('Warning: Specifying ax_lims does not work as expected in waterfall plots')
+        try:
+            y_lims = a_group.plt_params.ax_lims['y_lims']
+            # Get endpoints of vertical range, make sure they are positive
+            y_lims = [abs(ele) for ele in y_lims]
+            y_max = max(y_lims)
+            y_min = min(y_lims)
+            # Filter the data frame to the specified vertical range
+            df = df[(df[y_key] < y_max) & (df[y_key] > y_min)]
+        except:
+            foo = 2
+        #
+    # Clean out the null values
+    df = df[df[x_key].notnull() & df[y_key].notnull()]
+    if tw_x_key:
+        df = df[df[tw_x_key].notnull()]
+    if tw_y_key:
+        df = df[df[tw_y_key].notnull()]
+    # Get notes
+    notes_string = ''.join(df.notes.unique())
+    # Check for extra arguments
+    if extra_args:
+        # Check whether to narrow down the profiles to plot
+        try:
+            pfs_to_plot = extra_args['pfs_to_plot']
+            # Make a temporary list of dataframes for the profiles to plot
+            tmp_df_list = []
+            for pf_no in pfs_to_plot:
+                tmp_df_list.append(df[df['prof_no'] == pf_no])
+            df = pd.concat(tmp_df_list)
+        except:
+            foo = 2
+            # extra_args = None
+        try:
+            plt_noise = extra_args['plt_noise']
+        except:
+            plt_noise = True
+        try:
+            sort_clstrs = pp.extra_args['sort_clstrs']
+        except:
+            sort_clstrs = True
+        try:
+            plot_pts = extra_args['plot_pts']
+        except:
+            plot_pts = True
+    else:
+        plt_noise = True
+        sort_clstrs = True
+        plot_pts = True
+    # Re-order the cluster labels, if specified
+    if sort_clstrs:
+        try:
+            # Clusters are labeled starting from 0, so total number of clusters is
+            #   the largest label plus 1
+            n_clusters = int(df['cluster'].max()+1)
+            df = sort_clusters(df, n_clusters, ax)
+        except:
+            foo = 2
+    # Find the unique profiles for this instrmt
+    #   Make sure to match the variable type
+    pfs_in_this_df = []
+    for pf_no in df['prof_no'].values:
+        if pf_no not in pfs_in_this_df:
+            pfs_in_this_df.append(pf_no)
+        #
+    # Make sure you're not trying to plot too many profiles
+    if len(pfs_in_this_df) > 100:
+        print('You are trying to plot',len(pfs_in_this_df),'profiles')
+        print('That is too many. Try to plot less than 15')
+        exit(0)
+    else:
+        print('\t- Plotting',len(pfs_in_this_df),'profiles')
+        print('\t- Profiles to plot:',pfs_in_this_df)
+    # Loop through each profile to create a list of dataframes
+    for pf_no in pfs_in_this_df:
+        # Get just the part of the dataframe for this profile
+        pf_df = df[df['prof_no']==pf_no]
+        profile_dfs.append(pf_df)
+        # print(pf_df)
+    #
+    # Check to see whether any profiles were actually loaded
+    n_pfs = len(profile_dfs)
+    if n_pfs < 1:
+        print('No profiles loaded')
+        # Add a standard title
+        plt_title = add_std_title(a_group)
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+    # 
+    # Plot each profile
+    for i in range(n_pfs):
+        # Pull the dataframe for this profile
+        pf_df = profile_dfs[i]
+        # Make a label for this profile
+        if len(pf_df) > 1:
+            try:
+                pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(int(pf_df['prof_no'][0]))
+            except:
+                pf_label = pf_df['source'][0]+pf_df['instrmt'][0]+'-'+str(pf_df['prof_no'][0])
+        elif len(pf_df) == 1:
+            try:
+                pf_label = pf_df['source']+pf_df['instrmt']+'-'+str(int(pf_df['prof_no']))
+            except:
+                pf_label = pf_df['source']+pf_df['instrmt']+'-'+str(pf_df['prof_no'])
+        # Determine the color mapping to be used
+        if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
+            # Format the dates if necessary
+            if clr_map == 'dt_start' or clr_map == 'dt_end':
+                cmap_data = mpl.dates.date2num(pf_df[clr_map])
+            else:
+                cmap_data = pf_df[clr_map]
+            # Plot a background line for each profile
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
+            # Get the colormap
+            this_cmap = get_color_map(clr_map)
+            # Plot the points as a heatmap
+            heatmap = ax.scatter(xvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
+            # Plot on twin axes, if specified
+            if not isinstance(tw_x_key, type(None)):
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
+                tw_ax_y.scatter(tvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
+            #
+            # Create the colorbar, but only on the first profile
+            if i == 0:
+                cbar = plt.colorbar(heatmap, ax=ax)
+                # Format the colorbar ticks, if necessary
+                if clr_map == 'dt_start' or clr_map == 'dt_end':
+                    loc = mpl.dates.AutoDateLocator()
+                    cbar.ax.yaxis.set_major_locator(loc)
+                    cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+                cbar.set_label(pp.clabel)
+        if clr_map == 'clr_all_same':
+            mrk_alpha = 0.9
+            # Plot a background line for each profile
+            #   NOTE: Switching the y and z axis so the y var is on the vertical
+            ax.plot(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=var_clr, label=pf_label, zorder=1)
+            # Plot in 3D
+            # ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+            if plot_pts:
+                # Plot every point the same color, size, and marker
+                ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
+            # Plot maximum
+            if False:#CT_max_key:
+                press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
+                print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
+                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+            # Plot on twin axes, if specified
+            if not isinstance(tw_x_key, type(None)):
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
+                if plot_pts:
+                    tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
+                if False:#CT_max_key:
+                    print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
+                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+            #
+        if clr_map == 'cluster':
+            # Plot a background line for each profile
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, alpha=0.5, label=pf_label, zorder=1)
+            # Make a dataframe with adjusted xvar and tvar
+            df_clstrs = pd.DataFrame({x_key:xvar, tw_x_key:tvar, y_key:pf_df[y_key], 'cluster':pf_df['cluster'], 'clst_prob':pf_df['clst_prob']})
+            # Get a list of unique cluster numbers, but delete the noise point label "-1"
+            cluster_numbers = np.unique(np.array(df_clstrs['cluster'].values, dtype=int))
+            cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+            # print('\tcluster_numbers:',cluster_numbers)
+            # Plot noise points first
+            if plt_noise:
+                ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
+                #ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
+            # Plot on twin axes, if specified
+            if not isinstance(tw_x_key, type(None)):
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, zorder=1)
+                if plt_noise:
+                    tw_ax_y.scatter(df_clstrs[df_clstrs.cluster==-1][tw_x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
+            # Loop through each cluster
+            for i in cluster_numbers:
+                # Decide on the color and symbol, don't go off the end of the arrays
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_mkr = mpl_mrks[i%len(mpl_mrks)]
+                # print('\t\tcluster:',i,'my_clr:',my_clr,'my_mkr:',my_mkr)
+                # Get relevant data
+                x_data = df_clstrs[df_clstrs.cluster == i][x_key]
+                y_data = df_clstrs[df_clstrs.cluster == i][y_key]
+                alphas = df_clstrs[df_clstrs.cluster == i]['clst_prob']
+                # Plot the points for this cluster with the specified color, marker, and alpha value
+                # ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=alphas, zorder=5)
+                ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                # Plot on twin axes, if specified
+                if not isinstance(tw_x_key, type(None)):
+                    t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
+                    tw_ax_y.scatter(t_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+        #
+    #
+    # Plot on twin axes, if specified
+    if not isinstance(tw_x_key, type(None)):
+        # Adjust bounds on axes
+        tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
+        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+        # Add label to twin axis
+        tw_ax_y.set_xlabel(pp.xlabels[1])
+        # Change color of the axis label on the twin axis
+        tw_ax_y.xaxis.label.set_color(tw_clr)
+        # Change color of the ticks on the twin axis
+        tw_ax_y.tick_params(axis='x', colors=tw_clr)
+        # Add a grid
+        tw_ax_y.grid(color=tw_clr, linestyle='--', alpha=grid_alpha+0.2, axis='x')
+        if invert_tw_y_axis:
+            tw_ax_y.invert_yaxis()
+            print('\t- Inverting twin y axis')
+    if True:
+        # Change color of the axis label
+        ax.xaxis.label.set_color(var_clr)
+        # Change color of the ticks
+        ax.tick_params(axis='x', colors=var_clr)
+    else:
+        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+    # Add legend
+    if legend:
+        lgnd = ax.legend()
+        # Only add the notes_string if it contains something
+        if len(notes_string) > 1:
+            handles, labels = ax.get_legend_handles_labels()
+            handles.append(mpl.patches.Patch(color='none'))
+            labels.append(notes_string)
+            lgnd = ax.legend(handles=handles, labels=labels)
+        # Need to change the marker size for each label in the legend individually
+        for hndl in lgnd.legendHandles:
+            hndl._sizes = [lgnd_mrk_size]
+        #
+    # Add a standard title
+    plt_title = add_std_title(a_group)
+    # Invert z axis if applicable
+    if invert_y_axis:
+        ax.invert_zaxis()
+    # Format the axes for datetimes, if necessary
+    format_datetime_axes(x_key, z_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, y_key)
+    # Since the y and z axes are flipped, return False for invert_y_axis
+    return pp.xlabels[0], pp.zlabels[0], pp.ylabels[0], plt_title, ax, False
 
 ################################################################################
 

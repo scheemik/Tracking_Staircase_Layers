@@ -68,7 +68,7 @@ T2008_fig6a_ax_lims = {'x_lims':[0.026838,0.026878], 'y_lims':[-13e-6,3e-6]}
 # A list of many profiles to plot from ITP2
 start_pf = 1
 import numpy as np
-n_pfs_to_plot = 10
+n_pfs_to_plot = 30
 ITP2_some_pfs = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
 
 # For showing multiple layers grouped into one cluster
@@ -690,6 +690,8 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 # Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
 # ex_pfs1 = {'ITP_002':[188, 189, 208, 209]}
 ex_pfs1 = {'ITP_002':[185]}
+ITP2_ex_pfs   = {'ITP_002':ITP2_some_pfs}
+ITP2_ex_pfs_0 = {'ITP_002':ITP2_some_pfs_0}
 # 
 # ## AIDJEX
 # 
@@ -808,7 +810,7 @@ print('- Creating data sets')
 # ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
 # ds_ITP2 = ahf.Data_Set(ITP2_all, dfs1)
-ds_ITP3 = ahf.Data_Set(ITP3_all, dfs1)
+# ds_ITP3 = ahf.Data_Set(ITP3_all, dfs1)
 
 # ds_ITP_test = ahf.Data_Set({'ITP_098':'all'}, dfs_all)
 
@@ -1313,6 +1315,36 @@ if False:
     # Make the figure
     # ahf.make_figure([group_example_profiles1], use_same_y_axis=False)
     ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3, group_example_profiles4], use_same_y_axis=False)
+
+################################################################################
+## Waterfall plots
+################################################################################
+# Example profiles waterfall plot
+if False:
+    print('')
+    print('- Creating a waterfall figure of example profiles')
+    # Define the Profile Filters
+    pfs_2 = ahf.Profile_Filters(p_range=[600,200])
+    # Make the data set
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, dfs_all)
+    # Make the Plot Parameters
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='waterfall', extra_args={'shift_pfs':True, 'plot_pts':False}, legend=False)
+    # Make the Analysis Groups pfs_BGR1 pfs_0
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_2, pp_pfs_full)
+    # Make the figure
+    ahf.make_figure([group_example_profiles1])
+# Waterfall plot with cluster points colored
+if True:
+    print('')
+    print('- Creating figure of an example profile')
+    # Make the data set
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, dfs_all)
+    # Make the Plot Parameters
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='waterfall', extra_args={'shift_pfs':True, 'plot_pts':False}, legend=False)
+    # Make the Analysis Groups pfs_BGR1 pfs_0
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_2, pp_pfs_full)
+    # Make the figure
+    ahf.make_figure([group_example_profiles1])
 
 ################################################################################
 ## Subsampling
