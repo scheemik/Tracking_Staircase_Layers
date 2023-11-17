@@ -1329,7 +1329,7 @@ def find_geo_region(lon, lat):
 ## Read instrument makes a netcdf for just the given instrument
 if True:
     # read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
-    # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
+    read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
     # read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
     # read_instrmt('ITP', '4', science_data_file_path+'ITPs/itp4/itp4cormat', 'netcdfs/ITP_004.nc')
     # read_instrmt('ITP', '5', science_data_file_path+'ITPs/itp5/itp5cormat', 'netcdfs/ITP_005.nc')
@@ -1356,25 +1356,25 @@ if True:
     # read_instrmt('ITP', '27', science_data_file_path+'ITPs/itp27/itp27cormat', 'netcdfs/ITP_027.nc') # Not in BGR
     # read_instrmt('ITP', '28', science_data_file_path+'ITPs/itp28/itp28cormat', 'netcdfs/ITP_028.nc') # Not in BGR
     # read_instrmt('ITP', '29', science_data_file_path+'ITPs/itp29/itp29cormat', 'netcdfs/ITP_029.nc') # Not in BGR
-    read_instrmt('ITP', '30', science_data_file_path+'ITPs/itp30/itp30cormat', 'netcdfs/ITP_030.nc')
-    read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_032.nc')
-    read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_033.nc')
-    read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_034.nc')
-    read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_035.nc')
+    # read_instrmt('ITP', '30', science_data_file_path+'ITPs/itp30/itp30cormat', 'netcdfs/ITP_030.nc')
+    # read_instrmt('ITP', '32', science_data_file_path+'ITPs/itp32/itp32cormat', 'netcdfs/ITP_032.nc')
+    # read_instrmt('ITP', '33', science_data_file_path+'ITPs/itp33/itp33cormat', 'netcdfs/ITP_033.nc')
+    # read_instrmt('ITP', '34', science_data_file_path+'ITPs/itp34/itp34cormat', 'netcdfs/ITP_034.nc')
+    # read_instrmt('ITP', '35', science_data_file_path+'ITPs/itp35/itp35cormat', 'netcdfs/ITP_035.nc')
     # read_instrmt('ITP', '36', science_data_file_path+'ITPs/itp36/itp36cormat', 'netcdfs/ITP_036.nc') # Not in BGR
     # read_instrmt('ITP', '37', science_data_file_path+'ITPs/itp37/itp37cormat', 'netcdfs/ITP_037.nc') # Not in BGR
     # read_instrmt('ITP', '38', science_data_file_path+'ITPs/itp38/itp38cormat', 'netcdfs/ITP_038.nc') # Not in BGR
-    read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_041.nc')
-    read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_042.nc')
-    read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_043.nc')
+    # read_instrmt('ITP', '41', science_data_file_path+'ITPs/itp41/itp41cormat', 'netcdfs/ITP_041.nc')
+    # read_instrmt('ITP', '42', science_data_file_path+'ITPs/itp42/itp42cormat', 'netcdfs/ITP_042.nc')
+    # read_instrmt('ITP', '43', science_data_file_path+'ITPs/itp43/itp43cormat', 'netcdfs/ITP_043.nc')
     # read_instrmt('ITP', '47', science_data_file_path+'ITPs/itp47/itp47cormat', 'netcdfs/ITP_047.nc') # Not in BGR
     # read_instrmt('ITP', '48', science_data_file_path+'ITPs/itp48/itp48cormat', 'netcdfs/ITP_048.nc') # Not in BGR
     # read_instrmt('ITP', '49', science_data_file_path+'ITPs/itp49/itp49cormat', 'netcdfs/ITP_049.nc') # Not in BGR
     # read_instrmt('ITP', '51', science_data_file_path+'ITPs/itp51/itp51cormat', 'netcdfs/ITP_051.nc') # Not in BGR
-    read_instrmt('ITP', '52', science_data_file_path+'ITPs/itp52/itp52cormat', 'netcdfs/ITP_052.nc')
-    read_instrmt('ITP', '53', science_data_file_path+'ITPs/itp53/itp53cormat', 'netcdfs/ITP_053.nc')
-    read_instrmt('ITP', '54', science_data_file_path+'ITPs/itp54/itp54cormat', 'netcdfs/ITP_054.nc')
-    read_instrmt('ITP', '55', science_data_file_path+'ITPs/itp55/itp55cormat', 'netcdfs/ITP_055.nc')
+    # read_instrmt('ITP', '52', science_data_file_path+'ITPs/itp52/itp52cormat', 'netcdfs/ITP_052.nc')
+    # read_instrmt('ITP', '53', science_data_file_path+'ITPs/itp53/itp53cormat', 'netcdfs/ITP_053.nc')
+    # read_instrmt('ITP', '54', science_data_file_path+'ITPs/itp54/itp54cormat', 'netcdfs/ITP_054.nc')
+    # read_instrmt('ITP', '55', science_data_file_path+'ITPs/itp55/itp55cormat', 'netcdfs/ITP_055.nc')
 
     # read_instrmt('ITP', '117', science_data_file_path+'ITPs/itp117/itp117cormat', 'netcdfs/ITP_117.nc')
     # read_instrmt('ITP', '118', science_data_file_path+'ITPs/itp118/itp118cormat', 'netcdfs/ITP_118.nc')

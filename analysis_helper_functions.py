@@ -817,7 +817,6 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 # print('\t- Applying lt_pCT_max filter')
                 # Get list of profiles
                 pfs = list(set(df['prof_no'].values))
-                # pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
                 # print(ds.Source,ds.Instrument,pfs)
                 # Loop across each profile
                 new_dfs = []
@@ -987,7 +986,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     prefix = split_var[0]
                     var_str = split_var[1]
                     # Get list of profiles
-                    pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
+                    pfs = list(set(df['prof_no'].values))
                     # Loop across each profile
                     for pf in pfs:
                         # Find the data for just that profile
