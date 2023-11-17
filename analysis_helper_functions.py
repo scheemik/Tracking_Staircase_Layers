@@ -3611,7 +3611,9 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         df_noise = df[df.cluster==-1]
         if plt_noise:
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(df_noise, var_key, n_h_bins)
+            if isinstance(n_h_bins, type(None)):
+                n_h_bins = 25
+            h_var, res_bins, median, mean, std_dev = get_hist_params(df_noise, var_key, n_h_bins*n_clusters)
             # Plot the noise histogram on a twin axis
             if orientation == 'vertical':
                 tw_ax = ax.twinx()
@@ -3673,9 +3675,14 @@ def get_hist_params(df, h_key, n_h_bins=25):
     mean    = np.mean(h_var)
     std_dev = np.std(h_var)
     # Define the bins to use in the histogram, np.arange(start, stop, step)
-    start = mean - 3*std_dev
-    stop  = mean + 3*std_dev
-    step  = std_dev / n_h_bins
+    if False:
+        start = mean - 3*std_dev
+        stop  = mean + 3*std_dev
+        step  = std_dev / n_h_bins
+    else:
+        start = min(h_var)
+        stop  = max(h_var)
+        step  = (stop - start) / n_h_bins
     res_bins = np.arange(start, stop, step)
     return h_var, res_bins, median, mean, std_dev
 
@@ -4931,7 +4938,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
+def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=True):
     """
     Redoes the cluster labels so they are sorted in some way
 
@@ -4939,10 +4946,10 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
     n_clusters      The number of clusters
     ax              The axis on which to draw lines, if applicable
     order_by        String of the variable by which to sort clusters
-    use_hist        True/False whether to sort by the valleys in a histogram
+    use_PDF        True/False whether to sort by the valleys in a probability distribution function
     """
     s_key = order_by
-    if True:
+    if use_PDF == False:
         print('\t- Sorting clusters by',order_by)
         ## Figure out the order
         sorting_arr = []
@@ -4974,21 +4981,21 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
             # Increment i
             i += 1
         #
-    if use_hist:
+    if use_PDF:
         # Find the gaps in the valleys of the histogram and order clusters that way
         #   Following Lu et al. 2022
         noise_threshold = 0
         # Find the data which is not noise
         df_no_noise = df[df['cluster']!=-1]
-        # Get the data for the specified variable
-        h_data = df_no_noise[s_key]
         # Get the histogram parameters
-        h_var, res_bins, median, mean, std_dev = get_hist_params(df, s_key, n_h_bins=100)
+        h_var, res_bins, median, mean, std_dev = get_hist_params(df_no_noise, s_key, n_h_bins=1000)
         # Make the histogram
-        # hist_vals, hist_bins, patches = ax.hist(h_data, bins=res_bins)
-        hist_vals, hist_bins = np.histogram(h_data, bins=res_bins)
-        print('hist_vals:',len(hist_vals))
-        print('hist_bins:',len(hist_bins))
+        # hist_vals, hist_bins, patches = ax.hist(h_var, bins=res_bins)
+        hist_vals, hist_bins = np.histogram(h_var, bins=res_bins)
+        # Estimate the PDF using the histogram
+        hist_vals = hist_vals / len(df_no_noise)
+        print('hist_vals:',hist_vals)
+        # print('hist_bins:',len(hist_bins))
         # Gather bin edges to define cluster boundaries
         clstr_bnds = []
         for i in range(len(hist_vals)-1):
@@ -5003,9 +5010,9 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
                 #   set that as the first cluster boundary
                 if not this_val <= noise_threshold:
                     clstr_bnds.append(this_bin)
-                    l_edge = this_bin
-                else:
-                    l_edge = None
+                l_edge = this_bin
+                # else:
+                #     l_edge = None
             # If this bin is above the threshold but the next is below, then this is a left edge
             if this_val > noise_threshold and next_val <= noise_threshold:
                 l_edge = next_bin
@@ -5014,26 +5021,36 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_hist=True):
                 r_edge = this_bin
                 if isinstance(l_edge, type(None)):
                     clstr_bnds.append(r_edge)
+                    continue
                 else:
                     # Find the midpoint between the left and right edge
                     mid_point = (r_edge - l_edge)/2 + l_edge
                     # Add this midpoint as a new cluster boundary
                     clstr_bnds.append(mid_point)
+                    continue
             # Check to see what the far right edge is like
             if i == len(hist_vals)-2:
-                print('i:',i,'r_edge:',r_edge,'l_edge:',l_edge)
                 # If the right-most bin isn't below the threshold, 
                 #   set that as the last cluster boundary
                 if not this_val <= noise_threshold:
                     clstr_bnds.append(this_bin)
                 else:
-                    clstr_bnds.append(l_edge)
-        print(clstr_bnds)
+                    # Add midpoint as last cluster boundary
+                    clstr_bnds.append((this_bin - l_edge)/2 + l_edge)
+                #
+            #
         # Add vertical lines to mark all the cluster boundaries
         for bnd in clstr_bnds:
             ax.axvline(bnd, color='r', linestyle='--')
-        # plt.show()
-        # exit(0)
+        # Adjust cluster labels, looping through each pair of cluster bounds
+        for i in range(len(clstr_bnds)-1):
+            # Make a mask to locate the rows in the dataframe to change
+            this_cluster_mask = (df['cluster']!=-1) & (df[s_key]>clstr_bnds[i]) & (df[s_key]<clstr_bnds[i+1])
+            # Replace the cluster id
+            df.loc[this_cluster_mask, 'cluster'] = i
+        #
+    # plt.show()
+    # exit(0)
     return df
 
 ################################################################################
