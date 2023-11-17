@@ -1282,16 +1282,15 @@ if False:
 ################################################################################
 ## Subsampling ITP data
 # Histograms of the first differences for data sets
-if False:
+if True:
     print('')
     print('- Creating histograms of first differences in pressures')
     # Make the Plot Parameters
-    pp_first_diff_press = ahf.Plot_Parameters(x_vars=['press'], y_vars=['hist'], clr_map='clr_all_same', first_dfs=[True,False])
+    pp_first_dfs_press = ahf.Plot_Parameters(x_vars=['press'], y_vars=['hist'], clr_map='clr_all_same', first_dfs=[True,False])
     # Make the subplot groups
-    # group_AIDJEX_press_hist = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_first_diff_press, plot_title=r'AIDJEX')
-    group_AIDJEX_press_hist = ahf.Analysis_Group(ds_AIDJEX, pfs_BGOS, pp_first_diff_press, plot_title=r'AIDJEX')
+    group_first_dfs_press_hist = ahf.Analysis_Group(ds_ITP3, pfs_BGR1, pp_first_dfs_press)
     # # Make the figure
-    ahf.make_figure([group_AIDJEX_press_hist])#, use_same_x_axis=False, use_same_y_axis=False)
+    ahf.make_figure([group_first_dfs_press_hist])#, use_same_x_axis=False, use_same_y_axis=False)
 # Comparing ITP3 to ssITP3
 if False:
     print('')

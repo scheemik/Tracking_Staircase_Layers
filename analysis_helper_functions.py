@@ -860,20 +860,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Check whether or not to take first differences
             first_dfs = pp.first_dfs
             if any(first_dfs):
-                # print('\t-Applying first_dfs filter')
+                print('\t-Applying first_dfs filter')
                 # Get list of profiles
-                pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
+                pfs = list(set(df['prof_no'].values))
                 # Take first differences in x variables
                 if first_dfs[0]:
-                    # for var in pp.x_vars:
-                    #     dvar = 'd_'+var
-                    #     df[dvar] = np.nan
                     # Loop across each profile
                     new_dfs = []
                     for pf in pfs:
                         # Find the data for just that profile
                         data_pf = df[df['prof_no'] == pf]
-                        # print(data_pf)
                         # Loop across all x variables
                         for var in pp.x_vars:
                             # Replace the plot variable names
@@ -918,9 +914,9 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # Check whether or not to take finite differences
             finit_dfs = pp.finit_dfs
             if any(finit_dfs):
-                # print('\t-Applying finit_dfs filter')
+                print('\t-Applying finit_dfs filter')
                 # Get list of profiles
-                pfs = np.unique(np.array(df['prof_no'], dtype=type('')))
+                pfs = list(set(df['prof_no'].values))
                 # Take finite differences in x variables
                 if finit_dfs[0]:
                     # Find y variable
@@ -3288,6 +3284,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         plt_hist_lines = False
         plt_noise = True
         sort_clstrs = True
+        log_axes = 'None'
     # Load in variables
     if x_key == 'hist':
         var_key = y_key
@@ -3675,7 +3672,7 @@ def get_hist_params(df, h_key, n_h_bins=25):
     mean    = np.mean(h_var)
     std_dev = np.std(h_var)
     # Define the bins to use in the histogram, np.arange(start, stop, step)
-    if False:
+    if True:
         start = mean - 3*std_dev
         stop  = mean + 3*std_dev
         step  = std_dev / n_h_bins
