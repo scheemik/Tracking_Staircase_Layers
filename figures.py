@@ -68,7 +68,7 @@ T2008_fig6a_ax_lims = {'x_lims':[0.026838,0.026878], 'y_lims':[-13e-6,3e-6]}
 # A list of many profiles to plot from ITP2
 start_pf = 1
 import numpy as np
-n_pfs_to_plot = 30
+n_pfs_to_plot = 50
 ITP2_some_pfs = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
 
 # For showing multiple layers grouped into one cluster
@@ -691,6 +691,8 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 # ex_pfs1 = {'ITP_002':[188, 189, 208, 209]}
 ex_pfs1 = {'ITP_002':[185]}
 ITP2_ex_pfs   = {'ITP_002':ITP2_some_pfs}
+BGR04_ex_pfs  = {'BGR04':ITP2_some_pfs}
+
 ITP2_ex_pfs_0 = {'ITP_002':ITP2_some_pfs_0}
 # 
 # ## AIDJEX
@@ -1328,7 +1330,7 @@ if False:
     # Make the data set
     ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, dfs_all)
     # Make the Plot Parameters
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='waterfall', extra_args={'shift_pfs':True, 'plot_pts':False}, legend=False)
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='waterfall', extra_args={'plot_pts':False}, legend=False)
     # Make the Analysis Groups pfs_BGR1 pfs_0
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_2, pp_pfs_full)
     # Make the figure
@@ -1337,14 +1339,16 @@ if False:
 if True:
     print('')
     print('- Creating figure of an example profile')
+    # Define the Profile Filters
+    # pfs_2 = ahf.Profile_Filters(p_range=[220,210])
     # Make the data set
-    ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, dfs_all)
+    ds_ex_pfs = ahf.Data_Set(BGR04_ex_pfs, dfs_all)
     # Make the Plot Parameters
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='waterfall', extra_args={'shift_pfs':True, 'plot_pts':False}, legend=False)
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], clr_map='cluster', plot_type='waterfall', legend=False, add_grid=False)
     # Make the Analysis Groups pfs_BGR1 pfs_0
-    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_2, pp_pfs_full)
+    group_example_profiles1 = ahf.Analysis_Group(ds_ex_pfs, pfs_2, pp_pfs_full)
     # Make the figure
-    ahf.make_figure([group_example_profiles1])
+    ahf.make_figure([group_example_profiles1], row_col_list=[1,1, 0.8, 1.5])
 
 ################################################################################
 ## Subsampling

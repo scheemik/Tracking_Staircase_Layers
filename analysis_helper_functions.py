@@ -148,7 +148,7 @@ mrk_alpha     = 0.5
 noise_alpha   = 0.2
 grid_alpha    = 0.3
 hist_alpha    = 0.8
-pf_alpha      = 0.4
+pf_alpha      = 0.9
 map_alpha     = 0.7
 pf_mrk_alpha  = 0.3
 lgnd_mrk_size = 60
@@ -4151,6 +4151,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     legend = pp.legend
     scale = pp.plot_scale
     ax_lims = pp.ax_lims
+    line_alpha = 0.8
     if scale == 'by_pf':
         print('Cannot use',pp.plot_type,'with plot scale by_pf')
         exit(0)
@@ -4162,8 +4163,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     x_key = pp.x_vars[0]
     y_key = pp.y_vars[0]
     z_key = pp.z_vars[0]
-    # var_clr = get_var_color(x_key)
-    var_clr = std_clr
+    var_clr = get_var_color(x_key)
     # Check for histogram
     if x_key == 'hist' or y_key == 'hist':
         print('Cannot plot histograms with profiles plot type')
@@ -4188,34 +4188,19 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     # Check for twin x and y data keys
     try:
         tw_x_key = pp.x_vars[1]
-        tw_ax_y  = ax.twiny()
-        tw_clr = get_var_color(tw_x_key)
-        if tw_clr == std_clr:
-            tw_clr = alt_std_clr
+        print('Warning: Cannot add twin axes on a 3D plot')
     except:
-        tw_x_key = None
-        tw_ax_y  = None
+        foo = 2
     try:
         tw_y_key = pp.y_vars[1]
-        tw_ax_x  = ax.twinx()
-        tw_clr = get_var_color(tw_y_key)
-        if tw_clr == std_clr:
-            tw_clr = alt_std_clr
+        print('Warning: Cannot add twin axes on a 3D plot')
     except:
-        tw_y_key = None
-        tw_ax_x  = None
+        foo = 2
     # Invert y-axis if specified
     if y_key in y_invert_vars:
         invert_y_axis = True
     else:
         invert_y_axis = False
-    if not isinstance(tw_y_key, type(None)):
-        if tw_y_key in y_invert_vars:
-            invert_tw_y_axis = True
-        else:
-            invert_tw_y_axis = False
-    else:
-        invert_tw_y_axis = False
     # Get extra args dictionary, if it exists
     try:
         extra_args = pp.extra_args
@@ -4234,14 +4219,8 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         CT_max_key = 'SA_CT_max'
     else:
         CT_max_key = False
-    if tw_x_key == 'CT':
-        tw_CT_max_key = 'CT_max'
-    elif tw_x_key == 'SA':
-        tw_CT_max_key = 'SA_CT_max'
-    else:
-        tw_CT_max_key = False
     #   Find all the plotting variables
-    plot_vars = [x_key,y_key,tw_x_key,tw_y_key,clr_map]
+    plot_vars = [x_key,y_key,clr_map]
     for var in plot_vars:
         if var in clstr_vars:
             cluster_this = True
@@ -4265,10 +4244,6 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         #
     # Clean out the null values
     df = df[df[x_key].notnull() & df[y_key].notnull()]
-    if tw_x_key:
-        df = df[df[tw_x_key].notnull()]
-    if tw_y_key:
-        df = df[df[tw_y_key].notnull()]
     # Get notes
     notes_string = ''.join(df.notes.unique())
     # Check for extra arguments
@@ -4343,6 +4318,9 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     for i in range(n_pfs):
         # Pull the dataframe for this profile
         pf_df = profile_dfs[i]
+        # Decide on marker and line styles, don't go off the end of the array
+        mkr     = mpl_mrks[i%len(mpl_mrks)]
+        l_style = l_styles[i%len(l_styles)]
         # Make a label for this profile
         if len(pf_df) > 1:
             try:
@@ -4362,15 +4340,11 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             else:
                 cmap_data = pf_df[clr_map]
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
+            ax.plot(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=std_clr, alpha=line_alpha, label=pf_label, zorder=1)
             # Get the colormap
             this_cmap = get_color_map(clr_map)
             # Plot the points as a heatmap
-            heatmap = ax.scatter(xvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
-            # Plot on twin axes, if specified
-            if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
-                tw_ax_y.scatter(tvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
+            heatmap = ax.scatter(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
             #
             # Create the colorbar, but only on the first profile
             if i == 0:
@@ -4385,44 +4359,31 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             mrk_alpha = 0.9
             # Plot a background line for each profile
             #   NOTE: Switching the y and z axis so the y var is on the vertical
-            ax.plot(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=var_clr, label=pf_label, zorder=1)
+            ax.plot(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=std_clr, alpha=line_alpha, label=pf_label, zorder=1)
             # Plot in 3D
             # ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
             if plot_pts:
                 # Plot every point the same color, size, and marker
-                ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
+                ax.scatter(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
             if False:#CT_max_key:
                 press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
                 print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
-                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+                ax.scatter(CT_max, press_CT_max, zs=pf_df[y_key][0], color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             # Plot on twin axes, if specified
-            if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
-                if plot_pts:
-                    tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
-                if False:#CT_max_key:
-                    print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
-                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, alpha=0.5, label=pf_label, zorder=1)
-            # Make a dataframe with adjusted xvar and tvar
-            df_clstrs = pd.DataFrame({x_key:xvar, tw_x_key:tvar, y_key:pf_df[y_key], 'cluster':pf_df['cluster'], 'clst_prob':pf_df['clst_prob']})
+            ax.plot(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=std_clr, alpha=line_alpha, label=pf_label, zorder=1)
+            # Make a dataframe of the relevant data
+            df_clstrs = pd.DataFrame({x_key:pf_df[x_key], y_key:pf_df[y_key], z_key:pf_df[z_key], 'cluster':pf_df['cluster'], 'clst_prob':pf_df['clst_prob']})
             # Get a list of unique cluster numbers, but delete the noise point label "-1"
             cluster_numbers = np.unique(np.array(df_clstrs['cluster'].values, dtype=int))
             cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
             # print('\tcluster_numbers:',cluster_numbers)
             # Plot noise points first
             if plt_noise:
-                ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
-                #ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
-            # Plot on twin axes, if specified
-            if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, zorder=1)
-                if plt_noise:
-                    tw_ax_y.scatter(df_clstrs[df_clstrs.cluster==-1][tw_x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
+                ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][z_key], zs=df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
             # Loop through each cluster
             for i in cluster_numbers:
                 # Decide on the color and symbol, don't go off the end of the arrays
@@ -4432,39 +4393,28 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                 # Get relevant data
                 x_data = df_clstrs[df_clstrs.cluster == i][x_key]
                 y_data = df_clstrs[df_clstrs.cluster == i][y_key]
+                z_data = df_clstrs[df_clstrs.cluster == i][z_key]
                 alphas = df_clstrs[df_clstrs.cluster == i]['clst_prob']
                 # Plot the points for this cluster with the specified color, marker, and alpha value
                 # ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=alphas, zorder=5)
-                ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
-                # Plot on twin axes, if specified
-                if not isinstance(tw_x_key, type(None)):
-                    t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
-                    tw_ax_y.scatter(t_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                ax.scatter(x_data, z_data, zs=y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+            #
         #
     #
-    # Plot on twin axes, if specified
-    if not isinstance(tw_x_key, type(None)):
-        # Adjust bounds on axes
-        tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
-        # Add label to twin axis
-        tw_ax_y.set_xlabel(pp.xlabels[1])
-        # Change color of the axis label on the twin axis
-        tw_ax_y.xaxis.label.set_color(tw_clr)
-        # Change color of the ticks on the twin axis
-        tw_ax_y.tick_params(axis='x', colors=tw_clr)
-        # Add a grid
-        tw_ax_y.grid(color=tw_clr, linestyle='--', alpha=grid_alpha+0.2, axis='x')
-        if invert_tw_y_axis:
-            tw_ax_y.invert_yaxis()
-            print('\t- Inverting twin y axis')
     if True:
         # Change color of the axis label
         ax.xaxis.label.set_color(var_clr)
         # Change color of the ticks
         ax.tick_params(axis='x', colors=var_clr)
-    else:
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+    # Make the panes in the background transparent
+    ax.w_xaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    ax.w_yaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    ax.w_zaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    # Set the grid transparency
+    # ax.grid(False)
+    # ax.w_xaxis.grid(False)
+    # ax.w_yaxis.grid(False)
+    # ax.w_zaxis.grid(False)
     # Add legend
     if legend:
         lgnd = ax.legend()
@@ -4484,7 +4434,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     if invert_y_axis:
         ax.invert_zaxis()
     # Format the axes for datetimes, if necessary
-    format_datetime_axes(x_key, z_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, y_key)
+    format_datetime_axes(x_key, z_key, ax, z_key=y_key)
     # Since the y and z axes are flipped, return False for invert_y_axis
     return pp.xlabels[0], pp.zlabels[0], pp.ylabels[0], plt_title, ax, False
 
