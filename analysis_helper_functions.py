@@ -688,6 +688,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append('SP')
             elif var == 'ell_size':
                 vars_to_keep.append('press')
+            elif var == 'distance':
+                vars_to_keep.append('lon')
+                vars_to_keep.append('lat')
+                vars_to_keep.append('dt_start')
             # Check for variables that have underscores, ie. profile cluster
             #   average variables and local anomalies
             if '_' in var:
@@ -745,8 +749,8 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         #
         # Remove duplicates
         vars_to_keep = list(set(vars_to_keep))
-        # print('vars_to_keep:')
-        # print(vars_to_keep)
+        print('vars_to_keep:')
+        print(vars_to_keep)
         # exit(0)
         return vars_to_keep
 
@@ -807,7 +811,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # print('plot_vars:',plot_vars)
             for var in plot_vars:
                 # print('\t-Removing null values',var)
-                if var in vars_to_keep:
+                if var in vars_to_keep and var not in ['distance']:
                     # print('\t\t- for:',var)
                     df = df[df[var].notnull()]
             # Add source and instrument columns
@@ -870,6 +874,43 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df[S_var] = salt_rg
                 # Note the regridding in the notes column
                 df['notes'] = df['notes'] + r'$\Delta t_{rg}=$'+str(d_temp)+r', $\Delta s_{rg}=$'+str(d_salt)
+            #
+            # Calculate along-path distance, if applicable
+            if 'distance' in plot_vars:
+                print('\t- Calculating along-path distance')
+                # Add blank column, will add distance values later
+                df['distance'] = ''
+                # Get list of profile times
+                pf_times = list(set(df['dt_start'].values))
+                # Convert them to a datetime series and sort
+                pf_times = pd.to_datetime(pd.Series(pf_times)).sort_values()
+                # Start with the first profile
+                #   Get lat and lon values
+                last_lon = df[df['dt_start']==str(pf_times[0])].lon[0]
+                last_lat = df[df['dt_start']==str(pf_times[0])].lat[0]
+                # Set distance for first profile
+                df.loc[df['dt_start']==str(pf_times[0]), 'distance'] = 0
+                # print('last lon and lat:',last_lon, last_lat)
+                total_distance = 0
+                # Loop over each profile
+                for i in range(len(pf_times)):
+                    # Get lat and lon values
+                    this_lon = df[df['dt_start']==str(pf_times[i])].lon[0]
+                    this_lat = df[df['dt_start']==str(pf_times[i])].lat[0]
+                    # Calculate distance from the last profile
+                    last_lat_lon = (last_lat, last_lon)
+                    this_lat_lon = (this_lat, this_lon)
+                    this_span = geodesic(last_lat_lon, this_lat_lon).km
+                    # Add this to the along-path distance so far
+                    total_distance += this_span
+                    # print('this pf_time:', pf_times[i])
+                    # print('\thas this many rows:',len(df[df['dt_start']==str(pf_times[i])]))
+                    # Assign the rows of this time stamp new distance values
+                    df.loc[df['dt_start']==str(pf_times[i]), 'distance'] = total_distance
+                    # Assign new values to last values for next loop
+                    last_lon = this_lon
+                    last_lat = this_lat
+                #
             #
             # Check whether or not to take first differences
             first_dfs = pp.first_dfs
@@ -1428,7 +1469,7 @@ def get_axis_label(var_key, var_attr_dicts):
                  'BSP':r'$\beta S_P$',
                  'BSt':r'$\beta_{PT} S_P$',
                  'BSA':r'$\beta S_A$',
-                #  'distance':r'Along-path distance (km)',
+                 'distance':r'Along-path distance (km)',
                  'm_pts':r'Minimum density threshold $m_{pts}$',
                  'DBCV':'Relative validity measure (DBCV)',
                  'n_clusters':'Number of clusters',
@@ -5115,6 +5156,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
+            # If this cluster has no points, skip it
+            if len(df_this_cluster) < 1:
+                continue
             # print(df_this_cluster)
             # Get relevant data
             x_data = df_this_cluster[x_key] 
