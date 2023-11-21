@@ -194,6 +194,8 @@ LHW_S_range = [34.366, 35.5]
 test_S_range = [34.4, 34.6]
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
 pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
+pfs_0 = ahf.Profile_Filters()
+pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
 
 ## BGR ITPs 0a
 BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
@@ -333,6 +335,17 @@ BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
                 #    'm_pts':350,
                    }
 
+## BGR ITPs 0508
+BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
+                   'sources_dict':{'BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_these_clstrs,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'None',
+                   }
+
 # Test parameter sweep with ITP3
 ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'sources_dict':{'ITP_003':'all'},
@@ -344,7 +357,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR04_clstr_dict]:
+for clstr_dict in [BGR05060708_clstrs_456]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
@@ -420,6 +433,7 @@ for clstr_dict in [BGR04_clstr_dict]:
         if clstr_dict['m_pts'] == 'None':
             keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
             # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+            # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma', 'cluster', 'clst_prob']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']

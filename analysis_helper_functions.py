@@ -312,8 +312,9 @@ class Profile_Filters:
                             [var, Delta_var] where you specify the variable then the value
                             of the spacing to regrid that value to
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
+    clstrs_to_plot      A list of the cluster id's to plot
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None, clstrs_to_plot=[]):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -328,6 +329,7 @@ class Profile_Filters:
         self.every_nth_row = every_nth_row
         self.regrid_TS = regrid_TS
         self.m_avg_win = m_avg_win
+        self.clstrs_to_plot = clstrs_to_plot
 
 ################################################################################
 
@@ -393,7 +395,8 @@ class Plot_Parameters:
                         Optional 'b_a_w_plt':True/False for box and whisker plots,
                         'm_pts':90 / 'min_samp':90 to specify m_pts or min pts per
                         cluster, 'plot_slopes' to plot lines showing the least
-                        squares slope of each cluster
+                        squares slope of each cluster, 'clstrs_to_plot':[0,1,2] to
+                        plot just specific clusters
                     If doing a parameter sweep of clustering, expects the following:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_ps_tuple':[100,410,50]}
                         where var0/var1/var2 are as specified above, 'cl_ps_tuple' is
@@ -834,6 +837,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 except:
                     print('\t- Keeping no profiles from',ds.Source,ds.Instrument)
                     continue
+            ## Filter to just some cluster id's 
+            if len(profile_filters.clstrs_to_plot) > 0:
+                plt_these_clstrs = profile_filters.clstrs_to_plot
+                # Clusters are labeled starting from 0, so total number of clusters is
+                #   the largest label plus 1
+                # try:
+                n_clusters = int(df['cluster'].max()+1)
+                df = sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=plt_these_clstrs)
+                # except:
+                    # print('Warning: failed to filter to just clusters',plt_these_clstrs)
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # print('\t-Applying regrid_TS filter')
@@ -3286,12 +3299,17 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
             log_axes = pp.extra_args['log_axes']
         except:
             log_axes = 'None'
+        try:
+            clstrs_to_plot = pp.extra_args['clstrs_to_plot']
+        except:
+            clstrs_to_plot = []
     else:
         n_h_bins = None
         plt_hist_lines = False
         plt_noise = True
         sort_clstrs = True
         log_axes = 'None'
+        clstrs_to_plot = []
     # Load in variables
     if x_key == 'hist':
         var_key = y_key
@@ -3576,7 +3594,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         n_clusters  = int(df['cluster'].max()+1)
         # Re-order the cluster labels, if specified
         if sort_clstrs:
-            df = sort_clusters(df, n_clusters, ax)
+            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
@@ -3821,7 +3839,6 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             df = pd.concat(tmp_df_list)
         except:
             foo = 2
-            # extra_args = None
         try:
             plt_noise = extra_args['plt_noise']
         except:
@@ -3838,18 +3855,23 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             plot_pts = extra_args['plot_pts']
         except:
             plot_pts = True
+        try:
+            clstrs_to_plot = extra_args['clstrs_to_plot']
+        except:
+            clstrs_to_plot = []
     else:
         plt_noise = True
         shift_pfs = True
         sort_clstrs = True
         plot_pts = True
+        clstrs_to_plot = []
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
             # Clusters are labeled starting from 0, so total number of clusters is
             #   the largest label plus 1
             n_clusters = int(df['cluster'].max()+1)
-            df = sort_clusters(df, n_clusters, ax)
+            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
         except:
             foo = 2
     # Decide whether to shift the profiles over so they don't overlap or not
@@ -4271,17 +4293,22 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             plot_pts = extra_args['plot_pts']
         except:
             plot_pts = True
+        try:
+            clstrs_to_plot = extra_args['clstrs_to_plot']
+        except:
+            clstrs_to_plot = []
     else:
         plt_noise = True
         sort_clstrs = True
         plot_pts = True
+        clstrs_to_plot = []
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
             # Clusters are labeled starting from 0, so total number of clusters is
             #   the largest label plus 1
             n_clusters = int(df['cluster'].max()+1)
-            df = sort_clusters(df, n_clusters, ax)
+            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
         except:
             foo = 2
     # Find the unique profiles for this instrmt
@@ -4968,9 +4995,14 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             plot_centroid = pp.extra_args['plot_centroid']
         except:
             plot_centroid = None
+        try:
+            clstrs_to_plot = pp.extra_args['clstrs_to_plot']
+        except:
+            clstrs_to_plot = []
     else:
         plt_noise = True
         sort_clstrs = True
+        clstrs_to_plot = []
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
@@ -4991,7 +5023,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             df = df[df[var].notnull()]
     # Re-order the cluster labels, if specified
     if sort_clstrs:
-        df = sort_clusters(df, n_clusters, ax)
+        df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -5249,7 +5281,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
+def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=[]):
     """
     Redoes the cluster labels so they are sorted in some way
 
@@ -5257,7 +5289,8 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
     n_clusters      The number of clusters
     ax              The axis on which to draw lines, if applicable
     order_by        String of the variable by which to sort clusters
-    use_PDF        True/False whether to sort by the valleys in a probability distribution function
+    use_PDF         True/False whether to sort by the valleys in a probability distribution function
+    clstrs_to_plot  If None, returns all clusters. If array, returns clusters with the matching ids
     """
     s_key = order_by
     if use_PDF == False:
@@ -5362,6 +5395,16 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
         #
     # plt.show()
     # exit(0)
+    # Check whether to select only some clusters to plot
+    if len(clstrs_to_plot) > 0:
+        print('\t- Only displaying these clusters:',clstrs_to_plot)
+        # Make a temporary list of dataframes for the profiles to plot
+        tmp_df_list = []
+        for i in range(n_clusters):
+            if i in clstrs_to_plot:
+                # Add the rows with this cluster id to the list
+                tmp_df_list.append(df[df['cluster'] == i])
+        df = pd.concat(tmp_df_list)
     return df
 
 ################################################################################

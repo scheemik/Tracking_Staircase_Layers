@@ -641,6 +641,7 @@ BGR0708 = {'BGR0708_clstrd':'all'}
 BGR0508 = {'BGR0508':'all'}
 BGR050607 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all'}
 BGR05060708 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all', 'BGR0708_clstrd':'all'}
+BGR05060708_clstrs_456 = {'BGR05060708_clstrs_456':'all'}
 BGR_all = {'BGR04_clstrd':'all','BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'}
 # Comparing time periods
 BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
@@ -908,6 +909,7 @@ dfs_to_use = dfs_all
 # ds_BGR050607 = ahf.Data_Set(BGR050607, dfs_to_use)
 # ds_BGR05060708 = ahf.Data_Set(BGR05060708, dfs_to_use)
 # ds_BGR05060708_no_noise = ahf.Data_Set(BGR05060708, dfs_no_noise)
+ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1021,6 +1023,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGR0508
 # ds_this_BGR = ds_BGR050607
 # ds_this_BGR = ds_BGR05060708
+ds_this_BGR = ds_BGR05060708_clstrs_456
 
 ################################################################################
 ################################################################################
@@ -1336,7 +1339,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_example_profiles1])
 # Waterfall plot with cluster points colored
-if True:
+if False:
     print('')
     print('- Creating figure of an example profile')
     # Define the Profile Filters
@@ -1485,6 +1488,23 @@ if False:
     group_clstrs_3 = ahf.Analysis_Group(ds_BGR0708, pfs_0, pp_clstr_span)
     # # Make the figure
     ahf.make_figure([group_clstrs_0, group_clstrs_1, group_clstrs_2, group_clstrs_3])
+
+################################################################################
+## Pre-clustered comparing single clusters across time periods
+################################################################################
+# BGR ITP clustering, comparing specific clusters
+if True:
+    print('')
+    print('- Creating SA-Time plot to look at a single cluster across different periods')
+    # Define the profile filters
+    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
+    # Make the Plot Parameters
+    pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'extra_vars_to_keep':['cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    # Make the subplot groups
+    group_these_clstrs = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_these_clstrs)
+    # # Make the figure
+    ahf.make_figure([group_these_clstrs])
+
 
 ################################################################################
 
@@ -1653,25 +1673,6 @@ if False:
     ahf.make_figure([group_comp_clstrs0, group_comp_clstrs1], row_col_list=[2,1, 0.8, 1.25], filename='test_SA_vs_time.pickle')
     # ahf.make_figure([group_comp_clstrs1])
 
-# BGR ITP clustering, comparing specific clusters
-if False:
-    print('')
-    print('- Creating plots to compare pre-clustered BGR ITP data')
-    # this_ds = ds_BGRa_m110
-    this_ds = ds_BGRm_m410
-    # this_ds = ds_BGRn_m240
-    # this_ds = ds_BGRmn
-    # this_ds = ds_BGRno
-    # this_ds = ds_BGRmno
-    # Make the Plot Parameters
-    pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster']}) 
-    # pp_comp_clstrs = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_CT'], clr_map='clr_by_dataset', extra_args={'extra_vars_to_keep':['cluster'], 'errorbars':True}) 
-    # Make the subplot groups
-    group_comp_clstrs = ahf.Analysis_Group(this_ds, pfs_0, pp_comp_clstrs)
-    # print('done making analysis group')
-    # # Make the figure
-    ahf.make_figure([group_comp_clstrs])
-exit(0)
 # BGR ITP clustering, comparing across time
 if False:
     print('')
@@ -1692,6 +1693,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_pre_clstrd, group_pre_clstrd1, group_pre_clstrd2], use_same_x_axis=False)
 # BGR ITP clustering, SA vs la_CT and SA vs time
+exit(0)
 for ds_this_BGR in [ds_BGR04, ds_BGR0506, ds_BGR0607, ds_BGR0708]:
     if True:
         print('')
