@@ -357,7 +357,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
-for clstr_dict in [BGR05060708_clstrs_456]:
+for clstr_dict in [BGR04_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
@@ -460,35 +460,7 @@ for clstr_dict in [BGR05060708_clstrs_456]:
         dfs = group_test_clstr.data_frames
         # print('len(group_test_clstr.data_frames):',len(dfs))
         # exit(0)
-        # Loop through each dataframe each (avoiding index collisions)
-        # if 'AIDJEX' in gattrs_to_copy['Source']:
-            # print('Avoiding index collisions')
-            # for df in dfs:
-            #     # Get list of instruments
-            #     instrmts = np.unique(np.array(df['instrmt']))
-            #     # Need to make the `Time` values unique for each instrument
-            #     # Can only change values of columns, not indexes, so reset Time
-            #     df.reset_index(inplace=True, level='Time')
-            #     # Loop across each instrument
-            #     i = 0
-            #     for instrmt in instrmts:
-            #         i += 1
-            #         # Add i seconds to all the time values
-            #         df.loc[df['instrmt'] == instrmt, ['Time']] = df.loc[df['instrmt'] == instrmt, ['Time']] + np.timedelta64(i, 's')
-            # new_df = pd.concat(dfs)
-            # # Make `Time` and index again
-            # new_df = new_df.set_index('Time', append=True)
-            # # Turn `Vertical` on and then off again as index to reset index order
-            # new_df.reset_index(inplace=True, level='Vertical')
-            # new_df = new_df.set_index('Vertical', append=True)
-        #else:
         new_df = pd.concat(dfs)
-        # if not 'instrmt' in new_df.index.names:
-        #     print('Avoiding index collisions for ITPs by adding `instrmt` as an index')
-        #     new_df = new_df.set_index('instrmt', append=True)
-        # else:
-        #     # Remove the superfluous 'instrmt' column
-        #     new_df = new_df.drop('instrmt', axis=1)
         if clstr_dict['m_pts'] == 'None':
             # Remove unnecessary variables
             print('variables in new_df:',list(new_df))
@@ -502,6 +474,40 @@ for clstr_dict in [BGR05060708_clstrs_456]:
         # exit(0)
         # Convert back to xarray dataset
         ds = new_df.to_xarray()
+        # xr.set_options(display_max_rows=44)
+        # print('Before:')
+        # print(ds)
+        # print('')
+        # ds = ds.where(np.isnan(ds.entry), drop=True)
+        pf_vars = ahf.pf_vars + ['instrmt', 'source', 'notes', 'SA_CT_max', 'press_max']
+        # Get the values of the dimensions
+        time_vals, vert_vals = ds.indexes.values()
+        # Loop across the Time dimension
+        for this_time in time_vals:
+            for var in ds.variables:
+                if var in pf_vars:
+                    # print('Adjusting this var:',var)
+                    # Get the array of values for this var for this Time
+                    these_vals = ds[var].sel(Time=this_time)
+                    if var in ['BL_yn', 'dt_start', 'dt_end', 'region', 'up_cast', 'instrmt', 'source', 'notes']:
+                        these_vals1 = [x for x in np.array(these_vals) if not isinstance(x, float)]
+                    else:
+                        these_vals1 = np.unique(these_vals[~np.isnan(these_vals)])
+                    if len(these_vals1) > 0:
+                        this_val = these_vals1[0]
+                    else:
+                        this_val = np.nan
+                    # print('\tthis_val:',this_val)
+                    # Copy this value to all `Vertical` entries for this variable
+                    ds[var].loc[dict(Time=this_time)] = this_val
+        # Drop the Vertical dimension for variables which vary in Time only
+        for var in ds.variables:
+            if var in pf_vars:
+                # print('Dropping Vertical dimension for this var:',var)
+                ds[var] = ds[var].isel(Vertical=0, drop=True)
+        # print('After:')
+        # print(ds)
+        # exit(0)
         # Put the global attributes back in
         for attr in gattrs_to_copy:
             ds.attrs[attr] = gattrs_to_copy[attr]

@@ -506,7 +506,6 @@ def apply_data_filters(xarrays, data_filters):
     output_arrs = []
     i = 0
     for ds in xarrays:
-        # print('new ds, i =',i)
         ## Filters on a per-profile basis
         ##      I turned off squeezing because it drops the `Time` dimension if
         ##      you only pass in one profile per dataset
@@ -2940,19 +2939,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # ax.add_feature(cartopy.feature.OCEAN, color=bathy_clrs[0])
         ax.add_feature(cartopy.feature.LAND, color=clr_land, alpha=0.5)
         # Make bathymetry features
-        bathy_0200 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_K_200',scale='10m')
-        bathy_1000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_J_1000',scale='10m')
-        bathy_2000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_I_2000',scale='10m')
-        bathy_3000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_H_3000',scale='10m')
-        bathy_4000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_G_4000',scale='10m')
-        bathy_5000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_F_5000',scale='10m')
-        # Add bathymetry lines
-        # ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
-        # ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
-        # ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
-        # ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
-        # ax.add_feature(bathy_4000, facecolor=bathy_clrs[5], zorder=5)
-        # ax.add_feature(bathy_5000, facecolor=bathy_clrs[6], zorder=6)
+        if False:
+            bathy_0200 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_K_200',scale='10m')
+            bathy_1000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_J_1000',scale='10m')
+            bathy_2000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_I_2000',scale='10m')
+            bathy_3000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_H_3000',scale='10m')
+            bathy_4000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_G_4000',scale='10m')
+            bathy_5000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_F_5000',scale='10m')
+            # Add bathymetry lines
+            ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
+            ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
+            ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
+            ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
+            ax.add_feature(bathy_4000, facecolor=bathy_clrs[5], zorder=5)
+            ax.add_feature(bathy_5000, facecolor=bathy_clrs[6], zorder=6)
         #   Add gridlines to show longitude and latitude
         gl = ax.gridlines(draw_labels=True, color=clr_lines, alpha=grid_alpha, linestyle='--', zorder=7)
         #       x is actually all labels around the edge
@@ -5206,8 +5206,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 m, c, sd_m, sd_c = orthoregress(x_data, y_data)
                 # Plot the least-squares fit line for this cluster through the centroid
                 ax.axline((x_mean, y_mean), slope=m, color=my_clr, zorder=3)
+                print('\t- Slope is',m) # Note, units for dt_start are in days
+                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+                    slope_label = 1/m
+                else:
+                    slope_label = m
                 # Add annotation to say what the slope is
-                ax.annotate('%.2f'%(1/m), xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=std_clr, weight='bold', zorder=12)
+                ax.annotate('%.2f'%(slope_label), xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=std_clr, weight='bold', zorder=12)
             #
             # Record the number of points in this cluster
             pts_per_cluster.append(len(x_data))
