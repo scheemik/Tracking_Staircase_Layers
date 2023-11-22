@@ -2081,7 +2081,7 @@ def get_var_color(var):
     if 'd_' in var:
         var = var[2:]
     # Build dictionary of available colors
-    vars = {
+    var_clrs = {
             'aiT':'salmon',
             'aCT':'salmon',
             'aPT':'salmon',
@@ -2103,10 +2103,10 @@ def get_var_color(var):
         return 'tab:blue'
     elif var in ['ma_sigma', 'la_sigma']:
         return 'tab:purple'
-    if var in vars.keys():
-        return vars[var]
+    if var in var_clrs.keys():
+        return var_clrs[var]
     else:
-        return None
+        return std_clr
 
 ################################################################################
 
@@ -2141,7 +2141,7 @@ def get_color_map(cmap_var):
     if cmap_var in cmaps.keys():
         return cmaps[cmap_var]
     else:
-        return None
+        return 'viridis'
 
 ################################################################################
 
@@ -2326,14 +2326,27 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 else:
                     xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title)
                 return xlabel, ylabel, pp.zlabels[0], plt_title, ax, invert_y_axis
+        # Concatonate all the pandas data frames together
+        df = pd.concat(a_group.data_frames)
+        # Format the dates if necessary
+        if x_key in ['dt_start', 'dt_end']:
+            df[x_key] = mpl.dates.date2num(df[x_key])
+        if y_key in ['dt_start', 'dt_end']:
+            df[y_key] = mpl.dates.date2num(df[y_key])
+        if z_key in ['dt_start', 'dt_end']:
+            df[z_key] = mpl.dates.date2num(df[z_key])
+        # Check for cluster-based variables
+        if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
+            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+        print('df.columns:',np.array(df.columns))
         # Determine the color mapping to be used
-        if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
+        # if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
+        if clr_map in np.array(df.columns) and clr_map != 'cluster':
             if pp.plot_scale == 'by_pf':
                 if clr_map not in pf_vars:
                     print('Cannot use',clr_map,'with plot scale by_pf')
                     exit(0)
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
             # Format the dates if necessary
             if x_key in ['dt_start', 'dt_end']:
                 df[x_key] = mpl.dates.date2num(df[x_key])
@@ -2433,18 +2446,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_all_same':
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
-            # Check for cluster-based variables
-            if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars:
-                m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key, 'nir_SP'])
-            else:
-                # Check whether to plot slopes
-                try:
-                    plot_slopes = pp.extra_args['plot_slopes']
-                except:
-                    plot_slopes = False
+            # Check whether to plot slopes
+            try:
+                plot_slopes = pp.extra_args['plot_slopes']
+                print('\t- Plot slopes:',plot_slopes)
+            except:
+                plot_slopes = False
             # Check for histogram
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend, df=df, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
@@ -2503,7 +2510,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Plot the least-squares fit line for this cluster through the centroid
                 ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
                 # Add annotation to say what the slope is
-                ax.annotate(r'%.2f$\pm$%.2f'%(m,sd_m), xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                # annotation_string = r'%.2f$\pm$%.2f'%(m,sd_m)
+                annotation_string = r'%.2e$\pm$%.2e'%(m,sd_m)
+                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/4), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2549,15 +2558,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
         elif clr_map == 'clr_by_source':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
-            # Find the list of sources
-            sources_list = []
-            for df in a_group.data_frames:
-                # Get unique sources
-                these_sources = np.unique(df['source'])
-                for s in these_sources:
-                    sources_list.append(s)
-            # The pandas version of 'unique()' preserves the original order
-            sources_list = pd.unique(pd.Series(sources_list))
+            # Get unique sources
+            these_sources = np.unique(df['source'])
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
@@ -2565,18 +2567,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 m_size = mrk_size
             i = 0
             lgnd_hndls = []
-            for source in sources_list:
+            for source in these_sources:
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                these_dfs = []
-                for df in a_group.data_frames:
-                    these_dfs.append(df[df['source'] == source])
-                this_df = pd.concat(these_dfs)
-                # Format the dates if necessary
-                if x_key in ['dt_start', 'dt_end']:
-                    this_df[x_key] = mpl.dates.date2num(this_df[x_key])
-                if y_key in ['dt_start', 'dt_end']:
-                    this_df[y_key] = mpl.dates.date2num(this_df[y_key])
+                # Get the data for just this source
+                this_df = df[df['source'] == source] 
                 # Plot every point from this df the same color, size, and marker
                 ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
                 i += 1
@@ -2705,6 +2700,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
         elif clr_map == 'clr_by_instrmt':
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+            # Add column where the source-instrmt combination ensures uniqueness
+            df['source-instrmt'] = df['source']+' '+df['instrmt']
+            # Get unique instrmts
+            these_instrmts = np.unique(df['source-instrmt'])
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
@@ -2713,27 +2712,19 @@ def make_subplot(ax, a_group, fig, ax_pos):
             i = 0
             lgnd_hndls = []
             # Loop through each data frame, the same as looping through instrmts
-            for df in a_group.data_frames:
-                # Format the dates if necessary
-                if x_key in ['dt_start', 'dt_end']:
-                    df[x_key] = mpl.dates.date2num(df[x_key])
-                if y_key in ['dt_start', 'dt_end']:
-                    df[y_key] = mpl.dates.date2num(df[y_key])
-                df['source-instrmt'] = df['source']+' '+df['instrmt']
-                # Get instrument name
-                try:
-                    s_instrmt = np.unique(df['source-instrmt'])[0]
-                except:
-                    continue
+            for instrmt in these_instrmts:
+            # for df in a_group.data_frames:
+                # Get the data for just this instrmt
+                this_df = df[df['source-instrmt'] == instrmt]
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(df[x_key], df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
-                lgnd_label = s_instrmt+': '+str(len(df[x_key]))+' points'
+                lgnd_label = instrmt+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
-                notes_string = ''.join(df.notes.unique())
+                notes_string = ''.join(this_df.notes.unique())
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2764,34 +2755,24 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if plot_hist:
                 print('Cannot use density_hist colormap with the `hist` variable')
                 exit(0)
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
-            # Check for cluster-based variables
-            if x_key in clstr_vars or y_key in clstr_vars:
-                m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-                df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
-            # Format the dates if necessary
-            if x_key in ['dt_start', 'dt_end']:
-                df[x_key] = mpl.dates.date2num(df[x_key])
-            if y_key in ['dt_start', 'dt_end']:
-                df[y_key] = mpl.dates.date2num(df[y_key])
             # Plot a density histogram where each grid box is colored to show how
             #   many points fall within it
             # Get the density histogram plotting parameters from extra args
             d_hist_dict = pp.extra_args
-            if isinstance(d_hist_dict, type(None)):
+            if not isinstance(d_hist_dict, type(None)) and 'clr_min' in d_hist_dict.keys():
+                # Pull out the values from the dictionary provided
+                clr_min = d_hist_dict['clr_min']
+                clr_max = d_hist_dict['clr_max']
+                clr_ext = d_hist_dict['clr_ext']
+                xy_bins = d_hist_dict['xy_bins']
+            else:
                 # If none are given, use the defaults here
                 clr_min = 0
                 clr_max = 20
                 clr_ext = 'max'        # adds arrow indicating values go past the bounds
                 #                       #   use 'min', 'max', or 'both'
                 xy_bins = 250
-            else:
-                # Pull out the values from the dictionary provided
-                clr_min = d_hist_dict['clr_min']
-                clr_max = d_hist_dict['clr_max']
-                clr_ext = d_hist_dict['clr_ext']
-                xy_bins = d_hist_dict['xy_bins']
+            
             # Check whether to change the colorbar axis to log scale
             cbar_scale = None
             if len(log_axes) == 3:
@@ -3196,8 +3177,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
         print('Plot type',plot_type,'not valid')
         exit(0)
     #
-    print('ERROR: Should not have gotten here')
-    return a_group.xlabel, a_group.ylabel, plt_title, ax, False, False
+    print('ERROR: Should not have gotten here. Aborting script')
+    exit(0)
 
 ################################################################################
 # Auxiliary plotting functions #################################################
@@ -4705,6 +4686,10 @@ def calc_extra_cl_vars(df, new_cl_vars):
     n_clusters = int(np.nanmax(df['cluster']+1))
     # Check for variables to calculate
     for this_var in new_cl_vars:
+        # Skip any variables that are just 'None"
+        if isinstance(this_var, type(None)):
+            continue
+        print('\t\t\tCalculating',this_var)
         # Split the prefix from the original variable (assumes an underscore split)
         split_var = this_var.split('_', 1)
         prefix = split_var[0]
@@ -4837,7 +4822,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
             clstr_df = pd.DataFrame(data=np.arange(n_clusters), columns=['cluster'])
             clstr_df['clstr_mean'] = None
             clstr_df['clstr_rnge'] = None
-            print('cluster,std_'+var)
+            # print('cluster,std_'+var)
             # Loop over each cluster
             for i in range(n_clusters):
                 # Find the data from this cluster
@@ -5137,10 +5122,11 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         plot_centroid = False
         plot_slopes = False
     # Look for outliers
-    if 'nir' in x_key or 'cRL' in x_key or 'ca' in x_key:
+    if 'nir' in x_key or 'cRL' in x_key:# or 'ca' in x_key:
         mrk_outliers = True
     else:
         mrk_outliers = False
+    print('\t- Mark outliers:',mrk_outliers)
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
     # Which colormap?

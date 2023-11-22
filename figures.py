@@ -1500,8 +1500,8 @@ if False:
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
     # Make the Plot Parameters
-    pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lat'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    # pp_these_clstrs = ahf.Plot_Parameters(x_vars=['BSA'], y_vars=['aCT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    # pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lat'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_these_clstrs = ahf.Plot_Parameters(x_vars=['BSA'], y_vars=['aCT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
     # Make the subplot groups
     group_these_clstrs = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_these_clstrs)
     # # Make the figure
@@ -1523,13 +1523,31 @@ if False:
     group_lat_and_lon = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_lat_and_lon)
     # # Make the figure
     ahf.make_figure([group_SA_and_CT, group_lat_and_lon], row_col_list=[2,1, 0.45, 1.4])
-if True:
+# BGR ITP clustering, analyzing one specific cluster vs. time
+if False:
     print('')
     print('- Creating SA-Time plot to look at a single cluster across different periods')
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
-    pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    # pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT','pca_CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    # pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press','pca_press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
+    # group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
+    # group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
+    # # Make the figure
+    # ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
+    ahf.make_figure([group_SA])
+# Maps of one cluster's profile averages
+if False:
+    print('')
+    print('- Creating SA-Time plot to look at a single cluster across different periods')
+    # Define the profile filters
+    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
+    # Make the Plot Parameters
+    pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     # pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
     # group_map_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_SA)
