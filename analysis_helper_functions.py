@@ -1054,12 +1054,12 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 #
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
-            # Drop dimensions, if needed
-            if 'Vertical' in df.index.names:
-                # Drop duplicates along the `Time` dimension
-                #   (need to make the index `Time` a column first)
-                df.reset_index(level=['Time'], inplace=True)
-                df.drop_duplicates(inplace=True, subset=['Time'])
+            # # Drop dimensions, if needed
+            # if 'Vertical' in df.index.names:
+            #     # Drop duplicates along the `Time` dimension
+            #     #   (need to make the index `Time` a column first)
+            #     df.reset_index(level=['Time'], inplace=True)
+            #     df.drop_duplicates(inplace=True, subset=['Time'])
             # Add a notes column
             df['notes'] = ''
             # Filter to just one entry per profile
@@ -2126,13 +2126,17 @@ def get_color_map(cmap_var):
              'R_rho':'ocean',
              'density_hist':'inferno'
              }
-    if cmap_var in ['press', 'depth', 'press_CT_max']:
+    # if cmap_var in ['press', 'depth', 'press_CT_max']:
+    if 'press' in cmap_var or 'depth' in cmap_var:
         return 'cividis'
-    elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
-        return 'Reds'
-    elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
+    # elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
+    elif 'SP' in cmap_var or 'SA' in cmap_var or 'BS' in cmap_var or cmap_var=='beta':
         return 'Blues'
-    elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
+    # elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
+    elif 'iT' in cmap_var or 'CT' in cmap_var or 'PT' in cmap_var or cmap_var=='alpha':
+        return 'Reds'
+    # elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
+    elif 'sigma' in cmap_var:
         return 'Purples'
     elif cmap_var in ['BL_yn', 'up_cast', 'ss_mask']:
         cmap = mpl.colors.ListedColormap(['green'])
@@ -2339,28 +2343,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
-        print('df.columns:',np.array(df.columns))
         # Determine the color mapping to be used
-        # if clr_map in a_group.vars_to_keep and clr_map != 'cluster':
         if clr_map in np.array(df.columns) and clr_map != 'cluster':
             if pp.plot_scale == 'by_pf':
                 if clr_map not in pf_vars:
                     print('Cannot use',clr_map,'with plot scale by_pf')
                     exit(0)
-            # Format the dates if necessary
-            if x_key in ['dt_start', 'dt_end']:
-                df[x_key] = mpl.dates.date2num(df[x_key])
-            if y_key in ['dt_start', 'dt_end']:
-                df[y_key] = mpl.dates.date2num(df[y_key])
+            # Set whether to plot in 3D
             if isinstance(z_key, type(None)):
                 plot_3d = False
-            elif z_key in ['dt_start', 'dt_end']:
-                df_z_key = mpl.dates.date2num(df[z_key])
-                plot_3d = True
             else:
                 df_z_key = df[z_key]
                 plot_3d = True
-            if clr_map == 'dt_start' or clr_map == 'dt_end':
+            # Format color map dates if necessary
+            if clr_map in ['dt_start', 'dt_end']:
                 cmap_data = mpl.dates.date2num(df[clr_map])
             else:
                 cmap_data = df[clr_map]
@@ -2421,7 +2417,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Create the colorbar
                 cbar = plt.colorbar(heatmap, ax=ax)
             # Format the colorbar ticks, if necessary
-            if clr_map == 'dt_start' or clr_map == 'dt_end':
+            if clr_map in ['dt_start', 'dt_end']:
                 loc = mpl.dates.AutoDateLocator()
                 cbar.ax.yaxis.set_major_locator(loc)
                 cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2455,21 +2451,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check for histogram
             if plot_hist:
                 return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend, df=df, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
-            # Format the dates if necessary
-            if x_key in ['dt_start', 'dt_end']:
-                df[x_key] = mpl.dates.date2num(df[x_key])
-            if y_key in ['dt_start', 'dt_end']:
-                df[y_key] = mpl.dates.date2num(df[y_key])
+            # Set whether to plot in 3D
             if isinstance(z_key, type(None)):
                 df_z_key = 0
                 # Drop duplicates
                 df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
                 plot_3d = False
-            elif z_key in ['dt_start', 'dt_end']:
-                df_z_key = mpl.dates.date2num(df[z_key])
-                # Drop duplicates
-                df.drop_duplicates(subset=[x_key, y_key, z_key], keep='first', inplace=True)
-                plot_3d = True
             else:
                 df_z_key = df[z_key]
                 # Drop duplicates
@@ -2711,9 +2698,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 m_size = mrk_size
             i = 0
             lgnd_hndls = []
-            # Loop through each data frame, the same as looping through instrmts
+            # Loop through each instrument
             for instrmt in these_instrmts:
-            # for df in a_group.data_frames:
                 # Get the data for just this instrmt
                 this_df = df[df['source-instrmt'] == instrmt]
                 # Decide on the color, don't go off the end of the array
@@ -3015,42 +3001,22 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
                 ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+        # Concatonate all the pandas data frames together
+        df = pd.concat(a_group.data_frames)
+        # Check for cluster-based variables
+        if clr_map in clstr_vars:
+            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[clr_map])
+        # Drop dimensions, if needed
+        if 'Vertical' in df.index.names:
+            # Drop duplicates along the `Time` dimension
+            #   (need to make the index `Time` a column first)
+            print('Dropping `Vertical` dimension')
+            df = df.droplevel('Vertical')
+            df.reset_index(level=['Time'], inplace=True)
+            df.drop_duplicates(inplace=True, subset=['Time'])
         # Determine the color mapping to be used
-        if clr_map in a_group.vars_to_keep:
-            # Make sure it isn't a vertical variable
-            if clr_map in vertical_vars:
-                print('Cannot use',clr_map,'as colormap for a map plot')
-                exit(0)
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
-            # If not plotting very many points, increase the marker size
-            if len(df) < 10:
-                mrk_s = big_map_mrkr
-            else:
-                mrk_s = map_mrk_size
-            # Format the dates if necessary
-            if clr_map == 'dt_start' or clr_map == 'dt_end':
-                cmap_data = mpl.dates.date2num(df[clr_map])
-            else:
-                cmap_data = df[clr_map]
-            # The color of each point corresponds to the number of the profile it came from
-            heatmap = ax.scatter(df['lon'], df['lat'], c=cmap_data, cmap=get_color_map(clr_map), s=mrk_s, marker=map_marker, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
-            # Create the colorbar
-            cbar = plt.colorbar(heatmap, ax=ax)
-            # Format the colorbar ticks, if necessary
-            if clr_map == 'dt_start' or clr_map == 'dt_end':
-                loc = mpl.dates.AutoDateLocator()
-                cbar.ax.yaxis.set_major_locator(loc)
-                cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
-            cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
-            # Add a standard legend
-            add_std_legend(ax, df, 'lon')
-            # Add a standard title
-            plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         if clr_map == 'clr_all_same':
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
             # If not plotting very many points, increase the marker size
             if len(df) < 10:
                 mrk_s = big_map_mrkr
@@ -3064,30 +3030,21 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         elif clr_map == 'clr_by_source':
-            # Find the list of sources
-            sources_list = []
-            for df in a_group.data_frames:
-                # Get unique sources
-                these_sources = np.unique(df['source'])
-                for s in these_sources:
-                    sources_list.append(s)
-            # The pandas version of 'unique()' preserves the original order
-            sources_list = pd.unique(pd.Series(sources_list))
+            # Get unique sources
+            these_sources = np.unique(df['source'])
+            # If not plotting very many points, increase the marker size
+            if len(df) < 10:
+                mrk_s = big_map_mrkr
+            else:
+                mrk_s = map_mrk_size
             i = 0
             lgnd_hndls = []
             notes_string = ''
-            for source in sources_list:
+            for source in these_sources:
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                these_dfs = []
-                for df in a_group.data_frames:
-                    these_dfs.append(df[df['source'] == source])
-                this_df = pd.concat(these_dfs)
-                # If not plotting very many points, increase the marker size
-                if len(this_df) < 10:
-                    mrk_s = big_map_mrkr
-                else:
-                    mrk_s = map_mrk_size
+                # Get the data for just this source
+                this_df = df[df['source'] == source]
                 # Plot every point from this df the same color, size, and marker
                 ax.scatter(this_df['lon'], this_df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=mrk_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
                 i += 1
@@ -3105,44 +3062,44 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         elif clr_map == 'clr_by_instrmt':
+            # Add column where the source-instrmt combination ensures uniqueness
+            df['source-instrmt'] = df['source']+' '+df['instrmt']
+            # Get unique instrmts
+            these_instrmts = np.unique(df['source-instrmt'])
+            # If not plotting very many points, increase the marker size
+            if len(df) < 10:
+                if map_extent == 'Canada_Basin':
+                    mrk_s = big_map_mrkr
+                else:
+                    mrk_s = map_mrk_size
+            else:
+                if map_extent == 'Canada_Basin':
+                    mrk_s = map_mrk_size
+                else:
+                    mrk_s = sml_map_mrkr
             i = 0
             lgnd_hndls = []
-            # Loop through each data frame, the same as looping through instrmts
-            for df in a_group.data_frames:
-                df['source-instrmt'] = df['source']+' '+df['instrmt']
-                # If not plotting very many points, increase the marker size
-                if len(df) < 10:
-                    if map_extent == 'Canada_Basin':
-                        mrk_s = big_map_mrkr
-                    else:
-                        mrk_s = map_mrk_size
-                else:
-                    if map_extent == 'Canada_Basin':
-                        mrk_s = map_mrk_size
-                    else:
-                        mrk_s = sml_map_mrkr
-                # Get instrument name
-                try:
-                    s_instrmt = np.unique(df['source-instrmt'])[0]
-                except:
-                    continue
+            # Loop through each instrument
+            for instrmt in these_instrmts:
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # Get the data for just this instrmt
+                this_df = df[df['source-instrmt'] == instrmt]
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(df['lon'], df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=map_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+                ax.scatter(this_df['lon'], this_df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=map_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
                 # Find first and last profile, based on entry
-                entries = df['entry'].values
-                first_pf_df = df[df['entry']==min(entries)]
-                last_pf_df  = df[df['entry']==max(entries)]
+                entries = this_df['entry'].values
+                first_pf_df = this_df[this_df['entry']==min(entries)]
+                last_pf_df  = this_df[this_df['entry']==max(entries)]
                 # Plot first and last profiles on map
                 ax.scatter(first_pf_df['lon'], first_pf_df['lat'], color=my_clr, s=mrk_s*5, marker='>', alpha=map_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=11)
                 ax.scatter(last_pf_df['lon'], last_pf_df['lat'], color=my_clr, s=mrk_s*5, marker='s', alpha=map_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=11)
                 # Increase i to get next color in the array
                 i += 1
                 # Add legend to report the total number of points for this instrmt
-                lgnd_label = s_instrmt+': '+str(len(df['lon']))+' profiles'
+                lgnd_label = instrmt+': '+str(len(this_df['lon']))+' profiles'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
-                notes_string = ''.join(df.notes.unique())
+                notes_string = ''.join(this_df.notes.unique())
             # Only add the notes_string if it contains something
             if len(notes_string) > 1:
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -3163,6 +3120,42 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cbar.ax.set_yticklabels(['','3000','2000','1000','200','0'])
                 cbar.ax.tick_params(labelsize=font_size_ticks)
                 cbar.set_label('Bathymetry (m)', size=font_size_labels)
+            # Add a standard title
+            plt_title = add_std_title(a_group)
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
+        else:
+            # Make sure it isn't a vertical variable
+            if clr_map in vertical_vars:
+                print('Cannot use',clr_map,'as colormap for a map plot')
+                exit(0)
+            # print('df.columns:',df.columns)
+            # print(df)
+            if clr_map not in np.array(df.columns):
+                print('Error: Could not find variable',clr_map,'to use as colormap. Aborting script')
+                exit(0)
+            # If not plotting very many points, increase the marker size
+            if len(df) < 10:
+                mrk_s = big_map_mrkr
+            else:
+                mrk_s = map_mrk_size
+            # Format the dates if necessary
+            if clr_map == 'dt_start' or clr_map == 'dt_end':
+                cmap_data = mpl.dates.date2num(df[clr_map])
+            else:
+                cmap_data = df[clr_map]
+            # The color of each point corresponds to the number of the profile it came from
+            heatmap = ax.scatter(df['lon'], df['lat'], c=cmap_data, cmap=get_color_map(clr_map), s=mrk_s, marker=map_marker, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+            # Create the colorbar
+            cbar = plt.colorbar(heatmap, ax=ax)
+            # Format the colorbar ticks, if necessary
+            if clr_map == 'dt_start' or clr_map == 'dt_end':
+                loc = mpl.dates.AutoDateLocator()
+                cbar.ax.yaxis.set_major_locator(loc)
+                cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+            # cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
+            cbar.set_label(pp.clabel)
+            # Add a standard legend
+            add_std_legend(ax, df, 'lon')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -4681,7 +4674,8 @@ def calc_extra_cl_vars(df, new_cl_vars):
     df                  A pandas data frame of the data to plot
     new_cl_vars         A list of clustering-related variables to calculate
     """
-    # print('\t- Calculating extra cluster variables')
+    print('\t- Calculating extra cluster variables')
+    # print(np.unique(np.array(df['cluster'].values)))
     # Find the number of clusters
     n_clusters = int(np.nanmax(df['cluster']+1))
     # Check for variables to calculate
@@ -4705,12 +4699,14 @@ def calc_extra_cl_vars(df, new_cl_vars):
             # Calculate the per profile cluster average version of the variable
             #   Reduces the number of points to just one per cluster per profile
             # Loop over each profile
+            # print(np.unique(np.array(df['cluster'].values)))
             n_pfs = int(max(df['entry'].values))
             for pf in range(n_pfs+1):
                 # Find the data from just this profile
                 df_this_pf = df[df['entry']==pf]
                 # Get a list of clusters in this profile
                 clstr_ids = np.unique(np.array(df_this_pf['cluster'].values))
+                clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
                 # Remove the noise points
                 clstr_ids = clstr_ids[clstr_ids != -1]
                 # Loop over every cluster in this profile
@@ -4733,6 +4729,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 df_this_pf = df[df['entry']==pf]
                 # Get a list of clusters in this profile
                 clstr_ids = np.unique(np.array(df_this_pf['cluster'].values))
+                clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
                 # Remove the noise points
                 clstr_ids = clstr_ids[clstr_ids != -1]
                 # Loop over every cluster in this profile
