@@ -2858,9 +2858,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.remove()
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
-            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            # print('plot_slopes:',plot_slopes)
-            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=min_s, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
+            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_s, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -4610,9 +4609,9 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
             if attr not in ['Last clustered', 'Clustering m_pts', 'Clustering DBCV'] and len(gcattr_dict[attr]) > 1:
                 re_run = True
                 print('-- found multiple distinct values of',attr,'in list, re_run:',re_run)
-        if gcattr_dict['Last clustered'][0] == 'Never':
-            re_run = True
-            print('-- `Last clustered` attr is `Never`, re_run:',re_run)
+        # if gcattr_dict['Last clustered'][0] == 'Never':
+        #     re_run = True
+        #     print('-- `Last clustered` attr is `Never`, re_run:',re_run)
     print('\t- Re-run HDBSCAN:',re_run)
     if re_run:
         print('in HDBSCAN_(), m_pts:',m_pts)
@@ -4998,7 +4997,7 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
 
 ################################################################################
 
-def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp=None, box_and_whisker=True, plot_slopes=False):
+def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp, rel_val, ell, box_and_whisker=True, plot_slopes=False):
     """
     Plots the clusters found by HDBSCAN on the x-y plane
 
@@ -5012,8 +5011,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     cl_y_var        String of the name of the column used on y-axis of clustering
     cl_z_var        String of the name of the column used on z-axis of clustering
     clr_map         String of the name of the colormap to use (ex: 'clusters')
-    m_pts          An integer, the minimum number of points for a cluster
+    m_pts           An integer, the minimum number of points for a cluster
     min_samp        An integer, number of points in neighborhood for a core point
+    rel_val
+    ell
     box_and_whisker True/False whether to include the box and whisker plot
     plot_slopes     True/False whether to plot lines of least-squares slopes for
                         each cluster
@@ -5053,7 +5054,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         else:
             plot_centroid = True
     # Run the HDBSCAN algorithm on the provided dataframe
-    df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
+    # df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
     # print('in plot_clusters(), m_pts:',m_pts)
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
@@ -5444,6 +5445,8 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
         #
     return df
 
+################################################################################
+
 def filter_to_these_clstrs(df, n_clusters, clstrs_to_plot=[]):
     """
     Filters to just the clusters listed
@@ -5651,5 +5654,5 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     return xlabel, ylabel
 
 ################################################################################
-
+################################################################################
 ################################################################################

@@ -903,8 +903,8 @@ dfs_to_use = dfs_all
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
-# ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
-# ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
+ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
+ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
@@ -1429,7 +1429,7 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if True:
+if False:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
@@ -1452,7 +1452,7 @@ if True:
 # Make the Plot Parameters
 pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
 # BGR ITP clustering
-if False:
+if True:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
     pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
@@ -1512,12 +1512,21 @@ if False:
 ################################################################################
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
+# Define the profile filters
+pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
+# Just one cluster in SA vs. la_CT space
+if False:
+    print('')
+    print('- Creating plot of pre-clustered BGR ITP data for just one cluster')
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    # Make the subplot groups
+    group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_pre_clstrd)
+    # Plot the figure
+    ahf.make_figure([group_pre_clstrd], use_same_y_axis=False)
 # BGR ITP clustering, analyzing one specific cluster vs. time
 if False:
     print('')
     print('- Creating plots across time to look at a single cluster across different periods')
-    # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_SA_and_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA','CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
     pp_lat_and_lon = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lon','lat'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
@@ -1530,8 +1539,6 @@ if False:
 if False:
     print('')
     print('- Creating plots across time to look at a single cluster across different periods')
-    # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA', 'pca_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
     pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT','pca_CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
@@ -1546,8 +1553,6 @@ if False:
 if False:
     print('')
     print('- Creating maps of one cluster`s profile averages in SA, CT, and press')
-    # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     pp_map_CT = ahf.Plot_Parameters(plot_type='map', clr_map='pca_CT', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
@@ -1568,8 +1573,6 @@ if False:
 if False:
     print('')
     print('- Creating maps of one cluster`s profile spans in SA, CT, and press')
-    # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pcs_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     pp_map_CT = ahf.Plot_Parameters(plot_type='map', clr_map='pcs_CT', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
@@ -1590,8 +1593,6 @@ if False:
 if False:
     print('')
     print('- Creating test histograms of one cluster`s profile averages')
-    # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_hist_SA = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pca_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
     pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_SA'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})

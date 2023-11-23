@@ -372,8 +372,8 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
 
 xr.set_options(display_max_rows=44)
 
-# for clstr_dict in [BGR04_clstr_456]:
-for clstr_dict in [BGR04_clstr_dict]:
+for clstr_dict in [BGR04_clstr_456]:
+# for clstr_dict in [BGR04_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
