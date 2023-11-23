@@ -1530,31 +1530,76 @@ if False:
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
-    pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    # pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT','pca_CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
-    # pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press','pca_press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA', 'pca_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT','pca_CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press','pca_press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
     group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
-    # group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
-    # group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
-    # # Make the figure
-    # ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
-    ahf.make_figure([group_SA])
-# Maps of one cluster's profile averages
+    group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
+    group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
+    # Make the figure
+    ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
+# Maps and histograms of one cluster's profile averages in SA, CT, and press
 if False:
     print('')
-    print('- Creating SA-Time plot to look at a single cluster across different periods')
+    print('- Creating maps of one cluster`s profile averages in SA, CT, and press')
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
     pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
-    # pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_map_CT = ahf.Plot_Parameters(plot_type='map', clr_map='pca_CT', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_map_press = ahf.Plot_Parameters(plot_type='map', clr_map='pca_press', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_SA = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pca_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pca_CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_press = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pca_press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
-    # group_map_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_SA)
-    group_map_SA = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_SA)
-    # group_map_SA1 = ahf.Analysis_Group(ds_ITP2, pfs_0, pp_map_SA)
+    group_map_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_SA)
+    group_map_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_CT)
+    group_map_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_press)
+    group_hist_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_SA)
+    group_hist_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_CT)
+    group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_press)
     # # Make the figure
-    ahf.make_figure([group_map_SA])#, row_col_list=[2,1, 0.45, 1.4])
+    ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
+# Maps and histograms of one cluster's profile spans in SA, CT, and press
+if False:
+    print('')
+    print('- Creating maps of one cluster`s profile spans in SA, CT, and press')
+    # Define the profile filters
+    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
+    # Make the Plot Parameters
+    pp_map_SA = ahf.Plot_Parameters(plot_type='map', clr_map='pcs_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_map_CT = ahf.Plot_Parameters(plot_type='map', clr_map='pcs_CT', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_map_press = ahf.Plot_Parameters(plot_type='map', clr_map='pcs_press', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_SA = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_press = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_map_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_SA)
+    group_map_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_CT)
+    group_map_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_press)
+    group_hist_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_SA)
+    group_hist_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_CT)
+    group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_press)
+    # # Make the figure
+    ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
+# Test histograms of one cluster's profile averages
+if True:
+    print('')
+    print('- Creating test histograms of one cluster`s profile averages')
+    # Define the profile filters
+    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
+    # Make the Plot Parameters
+    pp_hist_SA = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pca_SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_SA'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    # pp_hist_press = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_press'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_hist_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_SA)
+    group_hist_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_CT)
+    # group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_hist_press)
+    # # Make the figure
+    # ahf.make_figure([group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
+    ahf.make_figure([group_hist_SA, group_hist_CT])
 
 ################################################################################
 

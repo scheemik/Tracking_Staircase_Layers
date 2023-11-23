@@ -185,7 +185,6 @@ max_prefix = 'max_' # maximum
 max_vars   = [ f'{max_prefix}{var}'  for var in vertical_vars]
 min_prefix = 'min_' # maximum
 min_vars   = [ f'{min_prefix}{var}'  for var in vertical_vars]
-pf_vars = pf_vars + max_vars + min_vars
 # Make lists of clustering variables
 pca_prefix = 'pca_' # profile cluster average
 pca_vars   = [ f'{pca_prefix}{var}' for var in vertical_vars]
@@ -205,6 +204,8 @@ nir_prefix = 'nir_' # normalized inter-cluster range
 nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
 # Make a complete list of cluster-related variables
 clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars
+# Make a complete list of per profile variables
+pf_vars = pf_vars + max_vars + min_vars + ['cRL', 'cRl'] + pca_vars + pcs_vars
 # For parameter sweeps of clustering
 #   Independent variables
 clstr_ps_ind_vars = ['m_pts', 'n_pfs', 'ell_size']
@@ -845,11 +846,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 plt_these_clstrs = profile_filters.clstrs_to_plot
                 # Clusters are labeled starting from 0, so total number of clusters is
                 #   the largest label plus 1
-                # try:
                 n_clusters = int(df['cluster'].max()+1)
                 df = sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=plt_these_clstrs)
-                # except:
-                    # print('Warning: failed to filter to just clusters',plt_these_clstrs)
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # print('\t-Applying regrid_TS filter')
@@ -1054,18 +1052,21 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 #
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
-            # # Drop dimensions, if needed
-            # if 'Vertical' in df.index.names:
-            #     # Drop duplicates along the `Time` dimension
-            #     #   (need to make the index `Time` a column first)
-            #     df.reset_index(level=['Time'], inplace=True)
-            #     df.drop_duplicates(inplace=True, subset=['Time'])
             # Add a notes column
             df['notes'] = ''
+            ## Filter to just some cluster id's 
+            if len(profile_filters.clstrs_to_plot) > 0:
+                plt_these_clstrs = profile_filters.clstrs_to_plot
+                # Clusters are labeled starting from 0, so total number of clusters is
+                #   the largest label plus 1
+                n_clusters = int(df['cluster'].max()+1)
+                df = sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=plt_these_clstrs)
             # Filter to just one entry per profile
             #   Turns out, if `vars_to_keep` doesn't have any multi-dimensional
             #       vars like 'temp' or 'salt', the resulting dataframe only has
             #       one row per profile automatically. Neat
+            #   Actually, need to wait until later to do this anyway to allow for 
+            #       variables that are per profile but involve clustering, like `pca_`
             # Remove missing data (actually, don't because it will get rid of all
             #   data if one var isn't filled, like dt_end often isn't)
             # for var in vars_to_keep:
@@ -1404,13 +1405,14 @@ def get_axis_label(var_key, var_attr_dicts):
     if 'pca_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return 'PCA '+ var_attr_dicts[0][var_str]['label']
+        return 'PCA of '+ var_attr_dicts[0][var_str]['label']
         # return 'Profile cluster average of '+ var_attr_dicts[0][var_str]['label']
     # Check for profile cluster span variables
     if 'pcs_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return 'Profile cluster span of '+ var_attr_dicts[0][var_str]['label']
+        # return 'Profile cluster span of '+ var_attr_dicts[0][var_str]['label']
+        return 'PCS of '+ var_attr_dicts[0][var_str]['label']
     # Check for cluster mean-centered variables
     elif 'cmc_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
@@ -2343,6 +2345,16 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+        # If plotting per profile, collapse the vertical dimension
+        if pp.plot_scale == 'by_pf':
+            # Drop dimensions, if needed
+            if 'Vertical' in df.index.names:
+                # Drop duplicates along the `Time` dimension
+                #   (need to make the index `Time` a column first)
+                print('\t- Dropping `Vertical` dimension')
+                df = df.droplevel('Vertical')
+                df.reset_index(level=['Time'], inplace=True)
+                df.drop_duplicates(inplace=True, subset=['Time'])
         # Determine the color mapping to be used
         if clr_map in np.array(df.columns) and clr_map != 'cluster':
             if pp.plot_scale == 'by_pf':
@@ -2364,7 +2376,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             this_cmap = get_color_map(clr_map)
             #
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map=clr_map, legend=pp.legend)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
@@ -2450,7 +2462,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 plot_slopes = False
             # Check for histogram
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend, df=df, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
             # Set whether to plot in 3D
             if isinstance(z_key, type(None)):
                 df_z_key = 0
@@ -2544,7 +2556,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_source':
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key,clr_map, legend=pp.legend)
             # Get unique sources
             these_sources = np.unique(df['source'])
             # If there aren't that many points, make the markers bigger
@@ -2594,7 +2606,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_dataset':
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
             # # Check for cluster-based variables
             new_cl_vars = []
             for key in [x_key, y_key, z_key]:
@@ -2686,7 +2698,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_by_instrmt':
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
             # Add column where the source-instrmt combination ensures uniqueness
             df['source-instrmt'] = df['source']+' '+df['instrmt']
             # Get unique instrmts
@@ -2805,11 +2817,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             #   Legend is handled inside plot_clusters()
-            # Concatonate all the pandas data frames together
-            df = pd.concat(a_group.data_frames)
             # Check for histogram
             if plot_hist:
-                return plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=pp.legend, df=df, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, clstr_dict={'m_pts':m_pts, 'rel_val':rel_val})
             # Format the dates if necessary
             if x_key in ['dt_start', 'dt_end']:
                 df[x_key] = mpl.dates.date2num(df[x_key])
@@ -3011,7 +3021,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if 'Vertical' in df.index.names:
             # Drop duplicates along the `Time` dimension
             #   (need to make the index `Time` a column first)
-            print('Dropping `Vertical` dimension')
+            print('\t- Dropping `Vertical` dimension')
             df = df.droplevel('Vertical')
             df.reset_index(level=['Time'], inplace=True)
             df.drop_duplicates(inplace=True, subset=['Time'])
@@ -3273,25 +3283,28 @@ def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=
 
 ################################################################################
 
-def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None, txk=None, tay=None, tyk=None, tax=None):
+def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=None, tay=None, tyk=None, tax=None, clstr_dict=None):
     """
     Takes in an Analysis_Group object which has the data and plotting parameters
     to produce a subplot of individual profiles. Returns the x and y labels and
     the subplot title
 
+    a_group     A Analysis_Group object containing the info to create this subplot
+    ax          The axis on which to make the plot
+    pp          The Plot_Parameters object for a_group
+    df          A pandas dataframe
     x_key       The string of the name for the x data on the main axis
     y_key       The string of the name for the y data on the main axis
-    ax          The axis on which to make the plot
-    a_group     A Analysis_Group object containing the info to create this subplot
-    pp          The Plot_Parameters object for a_group
     clr_map     A string to determine what color map to use in the plot
     legend      True/False whether to add a legend
-    df          A pandas dataframe
     txk         Twin x variable key
     tay         Twin y axis
     tyk         Twin y variable key
     tax         Twin x axis
+    clstr_dict  A dictionary of clustering values: m_pts, rel_val
     """
+    # print('in plot_histogram()')
+    # print(df)
     # Find the histogram parameters, if given
     if not isinstance(pp.extra_args, type(None)):
         try:
@@ -3432,27 +3445,15 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_source':
-        # Can't make this type of plot for certain variables yet
-        if var_key in clstr_vars:
-            print('Cannot yet make a histogram plot of',var_key)
-        # Find the list of sources
-        sources_list = []
-        for df in a_group.data_frames:
-            # Get unique sources
-            these_sources = np.unique(df['source'])
-            for s in these_sources:
-                sources_list.append(s)
-        # The pandas version of 'unique()' preserves the original order
-        sources_list = pd.unique(pd.Series(sources_list))
+        # Get unique sources
+        these_sources = np.unique(df['source'])
         i = 0
         lgnd_hndls = []
-        for source in sources_list:
+        for source in these_sources:
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
-            these_dfs = []
-            for df in a_group.data_frames:
-                these_dfs.append(df[df['source'] == source])
-            this_df = pd.concat(these_dfs)
+            # Get the data for just this source
+            this_df = df[df['source'] == source]
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
             # Plot the histogram
@@ -3540,21 +3541,18 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_instrmt':
-        # Can't make this type of plot for certain variables yet
-        if var_key in clstr_vars:
-            print('Cannot yet make a histogram plot of',var_key)
+        # Add column where the source-instrmt combination ensures uniqueness
+        df['source-instrmt'] = df['source']+' '+df['instrmt']
+        # Get unique instrmts
+        these_instrmts = np.unique(df['source-instrmt'])
         i = 0
         lgnd_hndls = []
-        # Loop through each data frame, the same as looping through instrmts
-        for df in a_group.data_frames:
-            df['source-instrmt'] = df['source']+' '+df['instrmt']
-            # Get instrument name
-            try:
-                s_instrmt = np.unique(df['source-instrmt'])[0]
-            except:
-                continue
+        # Loop through each instrument
+        for instrmt in these_instrmts:
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
+            # Get the data for just this instrmt
+            this_df = df[df['source-instrmt'] == instrmt]
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
             # Plot the histogram
@@ -3571,7 +3569,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
                     ax.axhline(mean+2*std_dev, color='r', linestyle='--')
             i += 1
             # Add legend to report the total number of points for this instrmt
-            lgnd_label = s_instrmt+': '+str(len(df[var_key]))+' points'
+            lgnd_label = instrmt+': '+str(len(df[var_key]))+' points, Median:'+'%.4f'%median
             lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
             # Add legend handle to report overall statistics
             lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
@@ -3599,14 +3597,14 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'cluster':
-        # Run clustering algorithm
-        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key])
-        # Remove rows where the plot variables are null
-        df = df[df[var_key].notnull()]
-        # Clusters are labeled starting from 0, so total number of clusters is
-        #   the largest label plus 1
-        n_clusters  = int(df['cluster'].max()+1)
+        # Find the list of cluster ids 
+        clstr_ids  = np.unique(np.array(df['cluster'].values, dtype=int))
+        if -1 in clstr_ids: 
+            clstr_ids.remove(-1)
+        n_clusters = int(len(clstr_ids))
+        # Get cluster parameters from the dictionary
+        m_pts = clstr_dict['m_pts']
+        rel_val = clstr_dict['rel_val']
         # Re-order the cluster labels, if specified
         if sort_clstrs:
             df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
@@ -3615,7 +3613,7 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
         clstr_means = []
         clstr_stdvs = []
         # Loop through each cluster
-        for i in range(n_clusters):
+        for i in clstr_ids:
             # Decide on the color and symbol, don't go off the end of the arrays
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
@@ -3644,9 +3642,9 @@ def plot_histogram(x_key, y_key, ax, a_group, pp, clr_map, legend=True, df=None,
                 # ax.scatter(h_max, bin_h_max, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             #
         # Noise points are labeled as -1
-        # Plot noise points
         df_noise = df[df.cluster==-1]
-        if plt_noise:
+        # Plot noise points
+        if plt_noise and len(df_noise) > 0:
             # Get histogram parameters
             if isinstance(n_h_bins, type(None)):
                 n_h_bins = 25
@@ -4739,8 +4737,8 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     # Find the span of this var for this cluster for this profile
                     pf_clstr_span = max(df_this_pf_this_cluster[var].values) - min(df_this_pf_this_cluster[var].values)
                     # Replace any values of zero with `None`
-                    if pf_clstr_span == 0:
-                        pf_clstr_span = None
+                    # if pf_clstr_span == 0:
+                    #     pf_clstr_span = None
                     # Put that value back into the original dataframe
                     #   Need to make a mask first for some reason
                     this_pf_this_cluster = (df['entry']==pf) & (df['cluster']==i)
