@@ -774,6 +774,12 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
         for key in pp.extra_args.keys():
             if key in ['cl_x_var', 'cl_y_var', 'cl_z_var']:
                 plot_vars.append(pp.extra_args[key])
+        if 'sort_clstrs' in pp.extra_args.keys():
+            sort_clstrs = pp.extra_args['sort_clstrs']
+        else:
+            sort_clstrs = False
+    else:
+        sort_clstrs = False
     # Make an empty list
     output_dfs = []
     # What's the plot scale?
@@ -808,7 +814,6 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df = df.iloc[::n, :]
                 print('after:',len(df))
             # Remove rows where the plot variables are null
-            # print('plot_vars:',plot_vars)
             for var in plot_vars:
                 # print('\t-Removing null values',var)
                 if var in vars_to_keep and var not in ['distance']:
@@ -846,8 +851,12 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 plt_these_clstrs = profile_filters.clstrs_to_plot
                 # Clusters are labeled starting from 0, so total number of clusters is
                 #   the largest label plus 1
-                n_clusters = int(df['cluster'].max()+1)
-                df = sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=plt_these_clstrs)
+                n_clusters = int(np.nanmax(df['cluster']+1))
+                # Sort clusters first?
+                if sort_clstrs:
+                    df = sort_clusters(df, n_clusters, ax=None)
+                # Filter to just some clusters
+                df = filter_to_these_clstrs(df, n_clusters, plt_these_clstrs)
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # print('\t-Applying regrid_TS filter')
@@ -1059,8 +1068,12 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 plt_these_clstrs = profile_filters.clstrs_to_plot
                 # Clusters are labeled starting from 0, so total number of clusters is
                 #   the largest label plus 1
-                n_clusters = int(df['cluster'].max()+1)
-                df = sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=plt_these_clstrs)
+                n_clusters = int(np.nanmax(df['cluster']+1))
+                # Sort clusters first?
+                if sort_clstrs:
+                    df = sort_clusters(df, n_clusters, ax=None)
+                # Filter to just some clusters
+                df = filter_to_these_clstrs(df, n_clusters, plt_these_clstrs)
             # Filter to just one entry per profile
             #   Turns out, if `vars_to_keep` doesn't have any multi-dimensional
             #       vars like 'temp' or 'salt', the resulting dataframe only has
@@ -3607,7 +3620,9 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         rel_val = clstr_dict['rel_val']
         # Re-order the cluster labels, if specified
         if sort_clstrs:
-            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
+            df = sort_clusters(df, n_clusters, ax)
+        if len(clstrs_to_plot) > 0:
+            df = filter_to_these_clstrs(df, n_clusters, clstrs_to_plot)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
@@ -3883,10 +3898,12 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         try:
             # Clusters are labeled starting from 0, so total number of clusters is
             #   the largest label plus 1
-            n_clusters = int(df['cluster'].max()+1)
-            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
+            n_clusters = int(np.nanmax(df['cluster']+1))
+            df = sort_clusters(df, n_clusters, ax)
         except:
             foo = 2
+    if len(clstrs_to_plot) > 0:
+        df = filter_to_these_clstrs(df, n_clusters, clstrs_to_plot)
     # Decide whether to shift the profiles over so they don't overlap or not
     if shift_pfs:
         shift_pfs = 1
@@ -4320,10 +4337,13 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         try:
             # Clusters are labeled starting from 0, so total number of clusters is
             #   the largest label plus 1
-            n_clusters = int(df['cluster'].max()+1)
-            df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
+            n_clusters = int(np.nanmax(df['cluster']+1))
+            df = sort_clusters(df, n_clusters, ax)
         except:
             foo = 2
+    if len(clstrs_to_plot) > 0:
+        n_clusters = int(np.nanmax(df['cluster']+1))
+        df = filter_to_these_clstrs(df, n_clusters, clstrs_to_plot)
     # Find the unique profiles for this instrmt
     #   Make sure to match the variable type
     pfs_in_this_df = []
@@ -5037,14 +5057,14 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     # print('in plot_clusters(), m_pts:',m_pts)
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
-    n_clusters = int(df['cluster'].max()+1)
+    n_clusters = int(np.nanmax(df['cluster']+1))
     # Remove rows where the plot variables are null
     for var in [x_key, y_key, z_key]:
         if not isinstance(var, type(None)):
             df = df[df[var].notnull()]
     # Re-order the cluster labels, if specified
     if sort_clstrs:
-        df = sort_clusters(df, n_clusters, ax, clstrs_to_plot=clstrs_to_plot)
+        df = sort_clusters(df, n_clusters, ax)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -5311,7 +5331,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_to_plot=[]):
+def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
     """
     Redoes the cluster labels so they are sorted in some way
 
@@ -5320,7 +5340,6 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_
     ax              The axis on which to draw lines, if applicable
     order_by        String of the variable by which to sort clusters
     use_PDF         True/False whether to sort by the valleys in a probability distribution function
-    clstrs_to_plot  If None, returns all clusters. If array, returns clusters with the matching ids
     """
     s_key = order_by
     if use_PDF == False:
@@ -5423,8 +5442,16 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False, clstrs_
             # Replace the cluster id
             df.loc[this_cluster_mask, 'cluster'] = i
         #
-    # plt.show()
-    # exit(0)
+    return df
+
+def filter_to_these_clstrs(df, n_clusters, clstrs_to_plot=[]):
+    """
+    Filters to just the clusters listed
+
+    df              A pandas data frame output from HDBSCAN_
+    n_clusters      The number of clusters
+    clstrs_to_plot  If None, returns all clusters. If array, returns clusters with the matching ids
+    """
     # Check whether to select only some clusters to plot
     if len(clstrs_to_plot) > 0:
         print('\t- Only displaying these clusters:',clstrs_to_plot)
@@ -5581,7 +5608,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
             elif y_key == 'n_clusters':
                 # Clusters are labeled starting from 0, so total number of clusters is
                 #   the largest label plus 1
-                y_var_array.append(new_df['cluster'].max()+1)
+                y_var_array.append(int(np.nanmax(new_df['cluster']+1)))
                 ylabel = 'Number of clusters'
             if tw_y_key:
                 if tw_y_key == 'DBCV':
@@ -5591,12 +5618,12 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 elif tw_y_key == 'n_clusters':
                     # Clusters are labeled starting from 0, so total number of clusters is
                     #   the largest label plus 1
-                    tw_y_var_array.append(new_df['cluster'].max()+1)
+                    tw_y_var_array.append(int(np.nanmax(new_df['cluster']+1)))
                     tw_ylabel = 'Number of clusters'
                 #
             #
             # f = open(sweep_txt_file,'a')
-            lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+            lines.append(str(m_pts)+','+str(ell)+','+str(int(np.nanmax(new_df['cluster']+1)))+','+str(rel_val)+'\n')
             # f.close()
         if False:
             ax.plot(x_var_array, y_var_array, color=std_clr, linestyle=l_styles[i], label=zlabel)

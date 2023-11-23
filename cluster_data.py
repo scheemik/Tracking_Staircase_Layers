@@ -159,6 +159,7 @@ BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_340_ell_050.nc',
 
 
 # Data filters
+dfs0 = ahf.Data_Filters()
 this_min_press = 400
 dfs1 = ahf.Data_Filters(min_press=this_min_press)
 dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/11 00:00:00','2008/09/18 00:00:00'])
@@ -335,6 +336,17 @@ BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
                 #    'm_pts':350,
                    }
 
+### Just certain clusters
+## BGR ITPs 04 cluster 5
+BGR04_clstr_456 = {'netcdf_file':'netcdfs/BGR04_clstrs_456.nc',
+                   'sources_dict':{'BGR04_clstrd':'all'},
+                   'data_filters':dfs0,
+                   'pfs_object':pfs_these_clstrs,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'second',
+                   }
 ## BGR ITPs 0508
 BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
                    'sources_dict':{'BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'},
@@ -357,6 +369,10 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
                    'm_pts':350
                    }
 
+
+xr.set_options(display_max_rows=44)
+
+# for clstr_dict in [BGR04_clstr_456]:
 for clstr_dict in [BGR04_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
@@ -396,11 +412,13 @@ for clstr_dict in [BGR04_clstr_dict]:
         # ds_coord_info = {}
         # Create data set object
         ds_object = ahf.Data_Set(clstr_dict['sources_dict'], clstr_dict['data_filters'])
+        # print('Before:')
         # Copy down the global attributes to put into the new netcdf later
-        # Loop through each dataset (one for each instrument)
+        #   Loop through each dataset (one for each instrument)
         for ds in ds_object.arr_of_ds:
             # Loop through the variables to get the information
             # print(ds.variables)
+            # print(ds)
             # exit(0)
             for var in ds.variables:
                 var_ = ds.variables[var]
@@ -433,18 +451,20 @@ for clstr_dict in [BGR04_clstr_dict]:
         if clstr_dict['m_pts'] == 'None':
             keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
             # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma', 'cluster', 'clst_prob']
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
+        elif clstr_dict['m_pts'] == 'second':
+            keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma', 'cluster', 'clst_prob']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
         # Create analysis group
-        print('creating analysis group')
+        print('Creating analysis group')
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
         # Make a figure to run clustering algorithm and check results
         print('making figure')
-        ahf.make_figure([group_test_clstr])
+        ahf.make_figure([group_test_clstr])#, filename='test.txt')
 
         # Does this netcdf already exist?
         try:
@@ -468,13 +488,12 @@ for clstr_dict in [BGR04_clstr_dict]:
             for var in list(new_df):
                 if not var in only_need_these_vars:
                     new_df = new_df.drop(var, axis=1)
-        print('after, vars in new_df:',list(new_df))
+        # print('after, vars in new_df:',list(new_df))
         # print('Duplicated indices')
         # print(new_df.index[new_df.index.duplicated()].unique())
         # exit(0)
         # Convert back to xarray dataset
         ds = new_df.to_xarray()
-        # xr.set_options(display_max_rows=44)
         # print('Before:')
         # print(ds)
         # print('')
@@ -489,7 +508,7 @@ for clstr_dict in [BGR04_clstr_dict]:
                     # print('Adjusting this var:',var)
                     # Get the array of values for this var for this Time
                     these_vals = ds[var].sel(Time=this_time)
-                    if var in ['BL_yn', 'dt_start', 'dt_end', 'region', 'up_cast', 'instrmt', 'source', 'notes']:
+                    if var in ['dt_start', 'dt_end', 'region', 'instrmt', 'source', 'notes']:
                         these_vals1 = [x for x in np.array(these_vals) if not isinstance(x, float)]
                     else:
                         these_vals1 = np.unique(these_vals[~np.isnan(these_vals)])
@@ -500,6 +519,8 @@ for clstr_dict in [BGR04_clstr_dict]:
                     # print('\tthis_val:',this_val)
                     # Copy this value to all `Vertical` entries for this variable
                     ds[var].loc[dict(Time=this_time)] = this_val
+                #
+            #
         # Drop the Vertical dimension for variables which vary in Time only
         for var in ds.variables:
             if var in pf_vars:

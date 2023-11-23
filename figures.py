@@ -635,6 +635,7 @@ BGR05060708 = {'BGRm350_0506':'all', 'BGRm350_0607':'all', 'BGRm350_0708':'all'}
 BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
 # With m_pts fixed automatically
 BGR04   = {'BGR04_clstrd':'all'}
+BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
 BGR0506 = {'BGR0506_clstrd':'all'}
 BGR0607 = {'BGR0607_clstrd':'all'}
 BGR0708 = {'BGR0708_clstrd':'all'}
@@ -845,7 +846,7 @@ print('- Creating data sets')
 # ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
 
 # by different time periods
-# ds_BGR04 = ahf.Data_Set(BGRITPs04, dfs1)
+ds_BGR04 = ahf.Data_Set(BGRITPs04, dfs1)
 # ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
 # ds_BGR0708 = ahf.Data_Set(BGRITPs0708, dfs1_BGR0708)
@@ -902,7 +903,8 @@ dfs_to_use = dfs_all
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
-ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
+# ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
+# ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
@@ -1017,6 +1019,7 @@ pfs_this_BGR = pfs_0
 
 # by year
 ds_this_BGR = ds_BGR04
+# ds_this_BGR = ds_BGR04_clstrs_456
 # ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR0607
 # ds_this_BGR = ds_BGR0708
@@ -1426,12 +1429,12 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if False:
+if True:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':166, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1452,7 +1455,7 @@ pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cl
 if False:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
     # Plot the figure
@@ -1512,11 +1515,11 @@ if False:
 # BGR ITP clustering, analyzing one specific cluster vs. time
 if False:
     print('')
-    print('- Creating SA-Time plot to look at a single cluster across different periods')
+    print('- Creating plots across time to look at a single cluster across different periods')
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
-    pp_SA_and_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA','CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_SA_and_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA','CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
     pp_lat_and_lon = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lon','lat'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
     # Make the subplot groups
     group_SA_and_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA_and_CT)
@@ -1526,7 +1529,7 @@ if False:
 # BGR ITP clustering, analyzing one specific cluster vs. time
 if False:
     print('')
-    print('- Creating SA-Time plot to look at a single cluster across different periods')
+    print('- Creating plots across time to look at a single cluster across different periods')
     # Define the profile filters
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
     # Make the Plot Parameters
@@ -1584,7 +1587,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Test histograms of one cluster's profile averages
-if True:
+if False:
     print('')
     print('- Creating test histograms of one cluster`s profile averages')
     # Define the profile filters
