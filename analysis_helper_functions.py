@@ -43,7 +43,7 @@ import string
 import scipy.ndimage as ndimage
 # For interpolating
 from scipy import interpolate
-# For getting zscores to find outliers
+# For getting zscores to find outliers and for least squares
 from scipy import stats
 # For making clusters
 import hdbscan
@@ -395,9 +395,9 @@ class Plot_Parameters:
                         variables can be any that work for an 'xy' plot
                         Optional 'b_a_w_plt':True/False for box and whisker plots,
                         'm_pts':90 / 'min_samp':90 to specify m_pts or min pts per
-                        cluster, 'plot_slopes' to plot lines showing the least
-                        squares slope of each cluster, 'clstrs_to_plot':[0,1,2] to
-                        plot just specific clusters
+                        cluster, 'plot_slopes' as OLS or TLS to plot lines showing the 
+                        ordinary or least squares slope of each cluster, 
+                        'clstrs_to_plot':[0,1,2] to plot just specific clusters
                     If doing a parameter sweep of clustering, expects the following:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_ps_tuple':[100,410,50]}
                         where var0/var1/var2 are as specified above, 'cl_ps_tuple' is
@@ -2540,11 +2540,18 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Get data
                     x_data = np.array(df[x_key].values, dtype=np.float64)
                     y_data = np.array(df[y_key].values, dtype=np.float64)
-                # Find the slope of the ordinary least-squares of the points for this cluster
-                # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                # Find the slope of the total least-squares of the points for this cluster
-                m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                print('\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                if plot_slopes == 'OLS':
+                    # Find the slope of the ordinary least-squares of the points for this cluster
+                    # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+                    # sd_m, sd_c = 0, 0
+                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                    print('\t\t- R^2 value is',rvalue)
+                else:
+                    # Find the slope of the total least-squares of the points for this cluster
+                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
                 # Find mean and standard deviation of x and y data
                 x_mean = df.loc[:,x_key].mean()
                 y_mean = df.loc[:,y_key].mean()
@@ -2556,7 +2563,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
                     annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
                 else:
-                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(-1,3))
+                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
                 ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
@@ -4572,7 +4579,6 @@ def get_cluster_args(pp):
         plot_slopes = cluster_plt_dict['plot_slopes']
     except:
         plot_slopes = False
-    # print('plot_slopes b:',plot_slopes)
     # Check whether or not the box and whisker plots were called for
     try:
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
@@ -5235,19 +5241,26 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             if plot_slopes and 'cRL' not in [x_key, y_key]:
-                # Find the slope of the ordinary least-squares of the points for this cluster
-                # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                # Find the slope of the total least-squares of the points for this cluster
-                m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                # Plot the least-squares fit line for this cluster through the centroid
-                ax.axline((x_mean, y_mean), slope=m, color=my_clr, zorder=3)
-                print('\t- Slope is',m) # Note, units for dt_start are in days
-                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-                    slope_label = 1/m
+                if plot_slopes == 'OLS':
+                    # Find the slope of the ordinary least-squares of the points for this cluster
+                    # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+                    # sd_m, sd_c = 0, 0
+                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                    print('\t\t- R^2 value is',rvalue)
                 else:
-                    slope_label = m
+                    # Find the slope of the total least-squares of the points for this cluster
+                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                # Plot the least-squares fit line for this cluster through the centroid
+                ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
                 # Add annotation to say what the slope is
-                ax.annotate('%.2f'%(slope_label), xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=std_clr, weight='bold', zorder=12)
+                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+                    annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+                else:
+                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
+                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
             #
             # Record the number of points in this cluster
             pts_per_cluster.append(len(x_data))
