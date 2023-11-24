@@ -749,8 +749,8 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         #
         # Remove duplicates
         vars_to_keep = list(set(vars_to_keep))
-        print('vars_to_keep:')
-        print(vars_to_keep)
+        # print('vars_to_keep:')
+        # print(vars_to_keep)
         # exit(0)
         return vars_to_keep
 
@@ -2196,20 +2196,41 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
 
 ################################################################################
 
-def format_sci_notation(x, ndp=2):
+def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
     """
     Formats a number into scientific notation
 
     x       The number to format
     ndp     The number of decimal places
+    pm_val  The uncertainty value to put after a $\pm$ symbol
     """
-    s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
-    m, e = s.split('e')
-    # Check to see whether it's outside the scientific notation exponent limits
-    if int(e) < min(sci_lims) or int(e) > max(sci_lims):
-        return r'{m:s}\times 10^{{{e:d}}}'.format(m=m, e=int(e))
+    if isinstance(pm_val, type(None)):
+        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+        m, e = s.split('e')
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'{m:s}$\times$10$^{{{e:d}}}$'.format(m=m, e=int(e))
+        else:
+            return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
     else:
-        return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
+        # Find magnitude and base 10 exponent for x
+        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+        m, e = s.split('e')
+        # Find magnitude and base 10 exponent for pm_val
+        pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
+        pm_m, pm_e = pm_s.split('e')
+        # Find difference between exponents to use as new number of decimal places
+        new_ndp = max(2, int(e)-int(pm_e))
+        # Reformat x
+        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=new_ndp)
+        m, e = s.split('e')
+        # Shift value of pm_val to correct exponent
+        pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'{m:s}$\pm${pm_m:s}$\times$10$^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
+        else:
+            return r'{x:0.{ndp:d}f}$\pm${pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
 ################################################################################
 
@@ -2289,6 +2310,15 @@ def make_subplot(ax, a_group, fig, ax_pos):
     mpi_run = False
     if not isinstance(pp.extra_args, type(None)):
         extra_args = pp.extra_args
+        if 'plot_slopes' in extra_args.keys():
+            plot_slopes = extra_args['plot_slopes']
+            print('\t- Plot slopes:',plot_slopes)
+        else:
+            plot_slopes = False
+        if 'mrk_outliers' in extra_args.keys():
+            mrk_outliers = extra_args['mrk_outliers']
+        else:
+            mrk_outliers = False
         if 'isopycnals' in extra_args.keys():
             isopycnals = extra_args['isopycnals']
             if not isinstance(isopycnals, type(None)) and not isopycnals is False:
@@ -2467,12 +2497,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         elif clr_map == 'clr_all_same':
-            # Check whether to plot slopes
-            try:
-                plot_slopes = pp.extra_args['plot_slopes']
-                print('\t- Plot slopes:',plot_slopes)
-            except:
-                plot_slopes = False
             # Check for histogram
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
@@ -2506,14 +2530,21 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
             if plot_slopes:
                 # Mark outliers
-                mark_outliers(ax, df, x_key, y_key)
-                # Get data without outliers
-                x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
-                y_data = np.array(df[df['out_'+x_key]==False][y_key].values, dtype=np.float64)
+                if mrk_outliers:
+                    print('\t- Marking outliers')
+                    mark_outliers(ax, df, x_key, y_key)
+                    # Get data without outliers
+                    x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
+                    y_data = np.array(df[df['out_'+x_key]==False][y_key].values, dtype=np.float64)
+                else:
+                    # Get data
+                    x_data = np.array(df[x_key].values, dtype=np.float64)
+                    y_data = np.array(df[y_key].values, dtype=np.float64)
                 # Find the slope of the ordinary least-squares of the points for this cluster
                 # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
                 # Find the slope of the total least-squares of the points for this cluster
                 m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                print('\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
                 # Find mean and standard deviation of x and y data
                 x_mean = df.loc[:,x_key].mean()
                 y_mean = df.loc[:,y_key].mean()
@@ -2522,9 +2553,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Plot the least-squares fit line for this cluster through the centroid
                 ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
                 # Add annotation to say what the slope is
-                # annotation_string = r'%.2f$\pm$%.2f'%(m,sd_m)
-                annotation_string = r'%.2e$\pm$%.2e'%(m,sd_m)
-                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/4), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+                    annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+                else:
+                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(-1,3))
+                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True

@@ -355,7 +355,7 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None',
+                   'm_pts':'second',
                    }
 
 # Test parameter sweep with ITP3
@@ -372,7 +372,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
 
 xr.set_options(display_max_rows=44)
 
-for clstr_dict in [BGR04_clstr_456]:
+for clstr_dict in [BGR05060708_clstrs_456]:
 # for clstr_dict in [BGR04_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
