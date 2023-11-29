@@ -51,6 +51,8 @@ import hdbscan
 from geopy.distance import geodesic
 # For calculating Orthogonal Distance Regression for Total Least Squares
 from orthoregress import orthoregress
+# For special colormaps
+from cmcrameri import cm
 
 """
 To install Cartopy and its dependencies, follow:
@@ -1418,14 +1420,14 @@ def get_axis_label(var_key, var_attr_dicts):
     if 'pca_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return 'PCA of '+ var_attr_dicts[0][var_str]['label']
+        return 'CA/P of '+ var_attr_dicts[0][var_str]['label']
         # return 'Profile cluster average of '+ var_attr_dicts[0][var_str]['label']
     # Check for profile cluster span variables
     if 'pcs_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
         # return 'Profile cluster span of '+ var_attr_dicts[0][var_str]['label']
-        return 'PCS of '+ var_attr_dicts[0][var_str]['label']
+        return 'CS/P of '+ var_attr_dicts[0][var_str]['label']
     # Check for cluster mean-centered variables
     elif 'cmc_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
@@ -2131,6 +2133,7 @@ def get_color_map(cmap_var):
 
     cmap_var    A string of the variable name for the colormap
     """
+    return cm.davos.reversed()
     # Build dictionary of axis labels
     cmaps = {'entry':'plasma',
              'prof_no':'plasma',

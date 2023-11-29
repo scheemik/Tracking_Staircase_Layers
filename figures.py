@@ -813,7 +813,7 @@ print('- Creating data sets')
 
 # ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
-# ds_ITP2 = ahf.Data_Set(ITP002_all, dfs1)
+ds_ITP2 = ahf.Data_Set(ITP002_all, dfs1)
 # ds_ITP3 = ahf.Data_Set(ITP003_all, dfs1)
 # ds_this_BGR = ds_ITP2
 
@@ -1089,6 +1089,20 @@ if False:
     # Make the Analysis Group
     group_test = ahf.Analysis_Group(ds_BGRmn, pfs_0, pp_test)
     ahf.cluster_stats([group_test], stat_vars=['SA'])
+
+################################################################################
+## Basic plots
+################################################################################
+# TS
+if False:
+    print('')
+    print('- Creating TS plot')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press')
+    # Make the subplot groups
+    group_TS = ahf.Analysis_Group(ds_ITP2, pfs_0, pp_TS)
+    # Make the figure
+    ahf.make_figure([group_TS])#, filename='test_clstr.pickle')
 
 ################################################################################
 ## Maps and distances
@@ -1536,7 +1550,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_SA_and_CT, group_lat_and_lon], row_col_list=[2,1, 0.45, 1.4])
 # Just one cluster plotting SA, CT, and press vs. time with trend lines
-if True:
+if False:
     print('')
     print('- Creating plots across time to look at a single cluster across different periods')
     # Make the Plot Parameters
@@ -1550,7 +1564,7 @@ if True:
     # Make the figure
     ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
 # Just one cluster plotting SA, CT, and press vs. longitude with trend lines
-if True:
+if False:
     print('')
     print('- Creating plots across longitude to look at a single cluster across different periods')
     # Make the Plot Parameters
@@ -1564,7 +1578,7 @@ if True:
     # Make the figure
     ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
 # Just one cluster plotting SA, CT, and press vs. latitude with trend lines
-if True:
+if False:
     print('')
     print('- Creating plots across latitude to look at a single cluster across different periods')
     # Make the Plot Parameters
@@ -1618,11 +1632,11 @@ if False:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Test plots for one cluster
-if False:
+if True:
     print('')
     print('- Creating test plots for one cluster')
     # Make the Plot Parameters
-    pp_test_1 = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_test_1 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
     # pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_SA'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
     # pp_hist_press = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_press'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
