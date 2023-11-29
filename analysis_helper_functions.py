@@ -604,7 +604,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         return vars_to_keep
     else:
         # Always include the entry and profile numbers
-        vars_to_keep = ['entry', 'prof_no']
+        vars_to_keep = ['entry', 'prof_no', 'source', 'instrmt']
         # Add vars based on plot type
         if pp.plot_type == 'map':
             vars_to_keep.append('lon')
@@ -4763,12 +4763,15 @@ def calc_extra_cl_vars(df, new_cl_vars):
         if prefix == 'pca':
             # Calculate the per profile cluster average version of the variable
             #   Reduces the number of points to just one per cluster per profile
+            # Make a new column with the combination of instrument and profile number
+            #   This avoids accidentally lumping two profiles with the same number from
+            #   different instruments together, which would give the incorrect result
+            df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
+            instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
             # Loop over each profile
-            # print(np.unique(np.array(df['cluster'].values)))
-            n_pfs = int(max(df['entry'].values))
-            for pf in range(n_pfs+1):
+            for pf in instrmt_pf_nos:
                 # Find the data from just this profile
-                df_this_pf = df[df['entry']==pf]
+                df_this_pf = df[df['instrmt-prof_no']==pf]
                 # Get a list of clusters in this profile
                 clstr_ids = np.unique(np.array(df_this_pf['cluster'].values))
                 clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
@@ -4782,16 +4785,20 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     pf_clstr_mean = np.mean(df_this_pf_this_cluster[var].values)
                     # Put that value back into the original dataframe
                     #   Need to make a mask first for some reason
-                    this_pf_this_cluster = (df['entry']==pf) & (df['cluster']==i)
+                    this_pf_this_cluster = (df['instrmt-prof_no']==pf) & (df['cluster']==i)
                     df.loc[this_pf_this_cluster, this_var] = pf_clstr_mean
         elif prefix == 'pcs':
             # Calculate the per profile cluster span version of the variable
             #   Reduces the number of points to just one per cluster per profile
+            # Make a new column with the combination of instrument and profile number
+            #   This avoids accidentally lumping two profiles with the same number from
+            #   different instruments together, which would give the incorrect result
+            df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
+            instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
             # Loop over each profile
-            n_pfs = int(max(df['entry'].values))
-            for pf in range(n_pfs+1):
+            for pf in instrmt_pf_nos:
                 # Find the data from just this profile
-                df_this_pf = df[df['entry']==pf]
+                df_this_pf = df[df['instrmt-prof_no']==pf]
                 # Get a list of clusters in this profile
                 clstr_ids = np.unique(np.array(df_this_pf['cluster'].values))
                 clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
@@ -4808,7 +4815,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     #     pf_clstr_span = None
                     # Put that value back into the original dataframe
                     #   Need to make a mask first for some reason
-                    this_pf_this_cluster = (df['entry']==pf) & (df['cluster']==i)
+                    this_pf_this_cluster = (df['instrmt-prof_no']==pf) & (df['cluster']==i)
                     df.loc[this_pf_this_cluster, this_var] = pf_clstr_span
         elif prefix == 'cmc':
             # Calculate the cluster mean-centered version of the variable
