@@ -373,7 +373,7 @@ ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
 xr.set_options(display_max_rows=44)
 
 for clstr_dict in [BGR05060708_clstrs_456]:
-# for clstr_dict in [BGR04_clstr_dict]:
+# for clstr_dict in [BGR0506_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
@@ -451,10 +451,10 @@ for clstr_dict in [BGR05060708_clstrs_456]:
         if clstr_dict['m_pts'] == 'None':
             keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
             # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         elif clstr_dict['m_pts'] == 'second':
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma', 'cluster', 'clst_prob']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']

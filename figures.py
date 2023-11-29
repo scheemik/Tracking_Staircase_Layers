@@ -813,7 +813,7 @@ print('- Creating data sets')
 
 # ds_ITP = ahf.Data_Set(all_ITPs, dfs1_CB)
 
-ds_ITP2 = ahf.Data_Set(ITP002_all, dfs1)
+# ds_ITP2 = ahf.Data_Set(ITP002_all, dfs1)
 # ds_ITP3 = ahf.Data_Set(ITP003_all, dfs1)
 # ds_this_BGR = ds_ITP2
 
@@ -1054,7 +1054,7 @@ if False:
     print('')
     print('- Creating TS plot, colored by instrument')
     # Make the Plot Parameters
-    pp_TS_instrmt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='clr_by_instrmt')
+    pp_TS_instrmt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='instrmt')
     # Make the Analysis Group pfs_fltrd pfs_AOA1
     group_TS_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS_instrmt)
     # Make the figure
@@ -1068,7 +1068,7 @@ if False:
     print('')
     print('- Creating plot of ITP number vs time')
     # Make the Plot Parameters
-    pp_ITP_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['instrmt'], clr_map='clr_by_instrmt', legend=False)
+    pp_ITP_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['instrmt'], clr_map='instrmt', legend=False)
     # Make the Analysis Group
     group_ITP_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_ITP_vs_time)
     # Make the figure
@@ -1107,8 +1107,8 @@ if False:
 ################################################################################
 ## Maps and distances
 ################################################################################
-pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Western_Arctic'})
-pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_by_instrmt', extra_args={'map_extent':'Full_Arctic'})#, legend=False, add_grid=False)
+pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})
+pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Full_Arctic'})#, legend=False, add_grid=False)
 pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
 ## Map of all profiles for all sources
 if False:
@@ -1592,7 +1592,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
 # Maps and histograms of one cluster's profile averages in SA, CT, and press
-if False:
+if True:
     print('')
     print('- Creating maps of one cluster`s profile averages in SA, CT, and press')
     # Make the Plot Parameters
@@ -1612,7 +1612,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Maps and histograms of one cluster's profile spans in SA, CT, and press
-if False:
+if True:
     print('')
     print('- Creating maps of one cluster`s profile spans in SA, CT, and press')
     # Make the Plot Parameters
@@ -1632,13 +1632,12 @@ if False:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Test plots for one cluster
-if True:
+if False:
     print('')
     print('- Creating test plots for one cluster')
     # Make the Plot Parameters
-    pp_test_1 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
-    # pp_hist_CT = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_SA'], clr_map='clr_by_instrmt', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
-    # pp_hist_press = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['hist'], y_vars=['pcs_press'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})
+    pp_test_1 = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['pca_CT'], clr_map='source', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
+    # pp_test_1= ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
     group_test_1 = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_test_1)
     # group_hist_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_CT)
@@ -1655,7 +1654,7 @@ if False:
     print('')
     print('- Creating TS and TS-time plots')
     # Make the Plot Parameters
-    pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_by_instrmt', legend=True)
+    pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='instrmt', legend=True)
     # pp_CT_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':10, 'clr_ext':'max', 'xy_bins':1000, 'log_axes':[False,False,True]})
     # pp_CT_SA_3d = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], z_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'dt_start', 'cl_z_var':'la_CT', 'm_pts':280, 'b_a_w_plt':False})
     # Make the Analysis Group pfs_fltrd pfs_BGR1
@@ -1669,7 +1668,7 @@ if False:
     print('')
     print('- Creating lon-time plots')
     # Make the Plot Parameters
-    pp_lon_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lon'], clr_map='clr_by_instrmt')
+    pp_lon_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lon'], clr_map='instrmt')
     # Make the Analysis Group pfs_fltrd pfs_BGR1
     group_lon_dt_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_lon_dt)
     # Make the figure

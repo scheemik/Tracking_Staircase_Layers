@@ -359,11 +359,11 @@ class Plot_Parameters:
                       'la_PT', 'la_SA','la_sigma'
     z_vars          A list of strings of the variables to plot on the z axis
     clr_map         A string to determine what color map to use in the plot
-                    'xy' can use 'clr_all_same', 'clr_by_source',
-                      'clr_by_instrmt', 'density_hist', 'cluster', or any
+                    'xy' can use 'clr_all_same', 'source',
+                      'instrmt', 'density_hist', 'cluster', or any
                       regular variable
-                    'map' can use 'clr_all_same', 'clr_by_source',
-                      'clr_by_instrmt', or any 'by_pf' regular variable
+                    'map' can use 'clr_all_same', 'source',
+                      'instrmt', or any 'by_pf' regular variable
                     'profiles' can use 'clr_all_same' or any regular variable
     first_dfs       A list of booleans of whether to take the first differences
                       of the plot_vars before analysis. Defaults to all False
@@ -821,9 +821,11 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 if var in vars_to_keep and var not in ['distance']:
                     # print('\t\t- for:',var)
                     df = df[df[var].notnull()]
-            # Add source and instrument columns
-            df['source'] = ds.Source
-            df['instrmt'] = ds.Instrument
+            # Add source and instrument columns if applicable
+            if not 'source' in list(df):
+                df['source'] = ds.Source
+            if not 'instrmt' in list(df):
+                df['instrmt'] = ds.Instrument
             # print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
@@ -1039,9 +1041,11 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
         for ds in arr_of_ds:
             # Convert to a pandas data frame
             df = ds[vars_to_keep].to_dataframe()
-            # Add source and instrument columns
-            df['source'] = ds.Source
-            df['instrmt'] = ds.Instrument
+            # Add source and instrument columns if applicable
+            if not 'source' in list(df):
+                df['source'] = ds.Source
+            if not 'instrmt' in list(df):
+                df['instrmt'] = ds.Instrument
             # Calculate extra variables, as needed
             for var in plot_vars:
                 if 'max' in var:
@@ -2342,6 +2346,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
+    print('plot_type:',plot_type)
     # Decide on a plot type
     if plot_type == 'xy':
         ## Make a standard x vs. y scatter plot
@@ -2402,104 +2407,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df.reset_index(level=['Time'], inplace=True)
                 df.drop_duplicates(inplace=True, subset=['Time'])
         # Determine the color mapping to be used
-        if clr_map in np.array(df.columns) and clr_map != 'cluster':
-            if pp.plot_scale == 'by_pf':
-                if clr_map not in pf_vars:
-                    print('Cannot use',clr_map,'with plot scale by_pf')
-                    exit(0)
-            # Set whether to plot in 3D
-            if isinstance(z_key, type(None)):
-                plot_3d = False
-            else:
-                df_z_key = df[z_key]
-                plot_3d = True
-            # Format color map dates if necessary
-            if clr_map in ['dt_start', 'dt_end']:
-                cmap_data = mpl.dates.date2num(df[clr_map])
-            else:
-                cmap_data = df[clr_map]
-            # Get the colormap
-            this_cmap = get_color_map(clr_map)
-            #
-            if plot_hist:
-                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
-            # If there aren't that many points, make the markers bigger
-            if len(df[x_key]) < 1000:
-                m_size = map_mrk_size
-            else: 
-                m_size = mrk_size
-            if plot_3d:
-                # Remove the current axis
-                ax.remove()
-                # Replace axis with one that has 3 dimensions
-                ax = fig.add_subplot(ax_pos, projection='3d')
-                heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
-            else:
-                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
-            # Plot on twin axes, if specified
-            if not isinstance(tw_x_key, type(None)):
-                tw_clr = get_var_color(tw_x_key)
-                if tw_clr == std_clr:
-                    tw_clr = alt_std_clr
-                # Add backing x to distinguish from main axis
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
-                tw_ax_y.set_xlabel(pp.xlabels[1])
-                # Change color of the axis label on the twin axis
-                tw_ax_y.xaxis.label.set_color(tw_clr)
-                # Change color of the ticks on the twin axis
-                tw_ax_y.tick_params(axis='x', colors=tw_clr)
-                # Create the colorbar
-                cbar = plt.colorbar(heatmap, ax=tw_ax_y)
-            elif not isinstance(tw_y_key, type(None)):
-                tw_clr = get_var_color(tw_y_key)
-                if tw_clr == std_clr:
-                    tw_clr = alt_std_clr
-                # Add backing x to distinguish from main axis
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
-                # Invert y-axis if specified
-                if tw_y_key in y_invert_vars:
-                    tw_ax_x.invert_yaxis()
-                tw_ax_x.set_ylabel(pp.ylabels[1])
-                # Change color of the axis label on the twin axis
-                tw_ax_x.yaxis.label.set_color(tw_clr)
-                # Change color of the ticks on the twin axis
-                tw_ax_x.tick_params(axis='y', colors=tw_clr)
-                # Create the colorbar
-                cbar = plt.colorbar(heatmap, ax=tw_ax_x)
-            else:
-                # Create the colorbar
-                cbar = plt.colorbar(heatmap, ax=ax)
-            # Format the colorbar ticks, if necessary
-            if clr_map in ['dt_start', 'dt_end']:
-                loc = mpl.dates.AutoDateLocator()
-                cbar.ax.yaxis.set_major_locator(loc)
-                cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
-            cbar.set_label(pp.clabel)
-            # Add a standard legend
-            if pp.legend:
-                add_std_legend(ax, df, x_key)
-            # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
-            # Check whether to plot isopycnals
-            if add_isos:
-                add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
-            # Check whether to change any axes to log scale
-            if len(log_axes) == 3:
-                if log_axes[0]:
-                    ax.set_xscale('log')
-                if log_axes[1]:
-                    ax.set_yscale('log')
-                if log_axes[2]:
-                    ax.set_zscale('log')
-            # Add a standard title
-            plt_title = add_std_title(a_group)
-            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
-        elif clr_map == 'clr_all_same':
+        if clr_map == 'clr_all_same':
             # Check for histogram
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
@@ -2610,7 +2518,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
-        elif clr_map == 'clr_by_source':
+        elif clr_map == 'source':
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key,clr_map, legend=pp.legend)
             # Get unique sources
@@ -2752,7 +2660,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
-        elif clr_map == 'clr_by_instrmt':
+        elif clr_map == 'instrmt':
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
             # Add column where the source-instrmt combination ensures uniqueness
@@ -2918,6 +2826,103 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     ax.set_zscale('log')
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
             #
+        elif clr_map in np.array(df.columns):
+            if pp.plot_scale == 'by_pf':
+                if clr_map not in pf_vars:
+                    print('Cannot use',clr_map,'with plot scale by_pf')
+                    exit(0)
+            # Set whether to plot in 3D
+            if isinstance(z_key, type(None)):
+                plot_3d = False
+            else:
+                df_z_key = df[z_key]
+                plot_3d = True
+            # Format color map dates if necessary
+            if clr_map in ['dt_start', 'dt_end']:
+                cmap_data = mpl.dates.date2num(df[clr_map])
+            else:
+                cmap_data = df[clr_map]
+            # Get the colormap
+            this_cmap = get_color_map(clr_map)
+            #
+            if plot_hist:
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
+            # If there aren't that many points, make the markers bigger
+            if len(df[x_key]) < 1000:
+                m_size = map_mrk_size
+            else: 
+                m_size = mrk_size
+            if plot_3d:
+                # Remove the current axis
+                ax.remove()
+                # Replace axis with one that has 3 dimensions
+                ax = fig.add_subplot(ax_pos, projection='3d')
+                heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+            else:
+                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+            # Invert y-axis if specified
+            if y_key in y_invert_vars:
+                invert_y_axis = True
+            # Plot on twin axes, if specified
+            if not isinstance(tw_x_key, type(None)):
+                tw_clr = get_var_color(tw_x_key)
+                if tw_clr == std_clr:
+                    tw_clr = alt_std_clr
+                # Add backing x to distinguish from main axis
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
+                tw_ax_y.set_xlabel(pp.xlabels[1])
+                # Change color of the axis label on the twin axis
+                tw_ax_y.xaxis.label.set_color(tw_clr)
+                # Change color of the ticks on the twin axis
+                tw_ax_y.tick_params(axis='x', colors=tw_clr)
+                # Create the colorbar
+                cbar = plt.colorbar(heatmap, ax=tw_ax_y)
+            elif not isinstance(tw_y_key, type(None)):
+                tw_clr = get_var_color(tw_y_key)
+                if tw_clr == std_clr:
+                    tw_clr = alt_std_clr
+                # Add backing x to distinguish from main axis
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
+                # Invert y-axis if specified
+                if tw_y_key in y_invert_vars:
+                    tw_ax_x.invert_yaxis()
+                tw_ax_x.set_ylabel(pp.ylabels[1])
+                # Change color of the axis label on the twin axis
+                tw_ax_x.yaxis.label.set_color(tw_clr)
+                # Change color of the ticks on the twin axis
+                tw_ax_x.tick_params(axis='y', colors=tw_clr)
+                # Create the colorbar
+                cbar = plt.colorbar(heatmap, ax=tw_ax_x)
+            else:
+                # Create the colorbar
+                cbar = plt.colorbar(heatmap, ax=ax)
+            # Format the colorbar ticks, if necessary
+            if clr_map in ['dt_start', 'dt_end']:
+                loc = mpl.dates.AutoDateLocator()
+                cbar.ax.yaxis.set_major_locator(loc)
+                cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+            cbar.set_label(pp.clabel)
+            # Add a standard legend
+            if pp.legend:
+                add_std_legend(ax, df, x_key)
+            # Format the axes for datetimes, if necessary
+            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+            # Check whether to plot isopycnals
+            if add_isos:
+                add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    ax.set_xscale('log')
+                if log_axes[1]:
+                    ax.set_yscale('log')
+                if log_axes[2]:
+                    ax.set_zscale('log')
+            # Add a standard title
+            plt_title = add_std_title(a_group)
+            return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
         else:
             # Did not provide a valid clr_map
             print('Colormap',clr_map,'not valid')
@@ -2926,6 +2931,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     #
     elif plot_type == 'map':
         ## Plot profile locations on a map of the Arctic Ocean
+        print('\t- Making a map')
         # Get the map plotting parameters from extra args
         map_dict = pp.extra_args
         # See what was in that dictionary
@@ -3094,7 +3100,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
-        elif clr_map == 'clr_by_source':
+        elif clr_map == 'source':
             # Get unique sources
             these_sources = np.unique(df['source'])
             # If not plotting very many points, increase the marker size
@@ -3126,7 +3132,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
-        elif clr_map == 'clr_by_instrmt':
+        elif clr_map == 'instrmt':
             # Add column where the source-instrmt combination ensures uniqueness
             df['source-instrmt'] = df['source']+' '+df['instrmt']
             # Get unique instrmts
@@ -3193,7 +3199,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if clr_map in vertical_vars:
                 print('Cannot use',clr_map,'as colormap for a map plot')
                 exit(0)
-            # print('df.columns:',df.columns)
+            print('df.columns:',df.columns)
             # print(df)
             if clr_map not in np.array(df.columns):
                 print('Error: Could not find variable',clr_map,'to use as colormap. Aborting script')
@@ -3499,7 +3505,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
-    elif clr_map == 'clr_by_source':
+    elif clr_map == 'source':
         # Get unique sources
         these_sources = np.unique(df['source'])
         i = 0
@@ -3595,7 +3601,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
-    elif clr_map == 'clr_by_instrmt':
+    elif clr_map == 'instrmt':
         # Add column where the source-instrmt combination ensures uniqueness
         df['source-instrmt'] = df['source']+' '+df['instrmt']
         # Get unique instrmts
