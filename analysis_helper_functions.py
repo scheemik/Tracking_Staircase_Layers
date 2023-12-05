@@ -52,7 +52,10 @@ from geopy.distance import geodesic
 # For calculating Orthogonal Distance Regression for Total Least Squares
 from orthoregress import orthoregress
 # For special colormaps
-from cmcrameri import cm
+try:
+    from cmcrameri import cm
+except:
+    foo = 2
 
 """
 To install Cartopy and its dependencies, follow:
