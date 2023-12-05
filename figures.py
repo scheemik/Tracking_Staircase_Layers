@@ -588,7 +588,7 @@ BGRITPs0708 = { 'ITP_004':'all',
                 'ITP_008':'all',
                 # 'ITP_009':'all', # Not in BGR
                 # 'ITP_010':'all', # Not in BGR
-                # 'ITP_011':'all', # Not in this time period
+                'ITP_011':'all', # Not in this time period
                 # 'ITP_012':'all', # Not in BGR
                 'ITP_013':'all',
                 # 'ITP_014':'all', # Not in BGR
@@ -601,7 +601,7 @@ BGRITPs0708 = { 'ITP_004':'all',
                 # 'ITP_022':'all', # Not in BGR
                 # 'ITP_023':'all', # Not in BGR
                 # 'ITP_024':'all', # Not in BGR
-                # 'ITP_025':'all', # Not in this time period
+                'ITP_025':'all', # Not in this time period
                 # 'ITP_026':'all', # Not in BGR
                 # 'ITP_027':'all', # Not in BGR
                 # 'ITP_028':'all', # Not in BGR

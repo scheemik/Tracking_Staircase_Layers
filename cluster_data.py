@@ -222,7 +222,7 @@ BGR04_minimal   = {'netcdf_file':'netcdfs/minimal_BGR04.nc',
                    'm_pts':'None'
                    }
 # BGR ITPs 0506
-BGR0506_minimal = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
+BGR0506_minimal = {'netcdf_file':'netcdfs/minimal_BGR0506.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
                    'data_filters':dfs1_BGR0506,
                    'pfs_object':pfs_test,
@@ -232,31 +232,24 @@ BGR0506_minimal = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
                    'm_pts':'None'
                    }
 # BGR ITPs 0607
-BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
+BGR0607_minimal = {'netcdf_file':'netcdfs/minimal_BGR0607.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
-                #    'sources_dict':{'BGR0607':'all'},
                    'data_filters':dfs1_BGR0607,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':230,
-                #    'm_pts':350,
+                   'm_pts':'None'
                    }
 # BGR ITPs 0708
-BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
-                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                #    'sources_dict':{'BGR0708':'all'},
+BGR0708_minimal = {'netcdf_file':'netcdfs/minimal_BGR0708.nc',
+                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
                    'data_filters':dfs1_BGR0708,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':350,
+                   'm_pts':'None'
                    }
 ################################################################################
 
@@ -285,7 +278,7 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
 xr.set_options(display_max_rows=44)
 
 # for clstr_dict in [BGR05060708_clstrs_456]:
-for clstr_dict in [BGR04_clstr_dict]:
+for clstr_dict in [BGR0506_minimal, BGR0607_minimal, BGR0708_minimal]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',

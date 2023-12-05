@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'BGR0508'
+this_plot_title = 'BGR0506'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -68,10 +68,10 @@ if rank%rf == 0:
 ################################################################################
 
     ## Preclustered files
-    BGR04 = {'BGR04':'all'}
-    BGR0506 = {'BGR0506':'all'}
-    BGR0607 = {'BGR0607':'all'}
-    BGR0708 = {'BGR0708':'all'}
+    BGR04   = {'minimal_BGR04':'all'}
+    BGR0506 = {'minimal_BGR0506':'all'}
+    BGR0607 = {'minimal_BGR0607':'all'}
+    BGR0708 = {'minimal_BGR0708':'all'}
     BGR0508 = {'BGR0508':'all'}
     ITP2 = {'ITP_002':'all'}
 
@@ -92,10 +92,10 @@ if rank%rf == 0:
 ################################################################################
 
     # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
-    # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
-    ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 
 ################################################################################

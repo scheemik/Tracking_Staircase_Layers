@@ -4,7 +4,7 @@
 
 # Run this script to use secure copy to transfer netcdf files to Niagara
 # Takes in optional arguments:
-#	$ bash HPC_scp_from_Niagara.sh -f <file name> 				 
+#	$ bash HPC_scp_to_Niagara.sh -f <file name> 				 
 
 # Having a ":" after a flag means an option is required to invoke that flag
 while getopts f: option
