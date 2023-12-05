@@ -468,6 +468,7 @@ def list_xarrays(sources_dict):
     xarrays = []
     var_attr_dicts = []
     for source in sources_dict.keys():
+        print('Loading data from netcdfs/'+source+'.nc')
         ds = xr.load_dataset('netcdfs/'+source+'.nc')
         # Build the dictionary of netcdf attributes, variables, units, etc.
         var_attrs = {}

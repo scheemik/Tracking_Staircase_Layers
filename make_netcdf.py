@@ -186,9 +186,30 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     # Make a blank array for each dimension
     Time_blank = [None]*len(list_of_datetimes_start)
     Vertical_blank = [[None]*max_vert_count]*len(list_of_datetimes_start)
+    # Make arrays for the source and instrument names
+    list_of_sources  = [source]*len(list_of_datetimes_start)
+    list_of_instrmts = [instrmt_name]*len(list_of_datetimes_start)
 
     # Define variables with data and attributes
     nc_vars = {
+                'source':(
+                        ['Time'],
+                        list_of_sources,
+                        {
+                            'units':'N/A',
+                            'label':'Source',
+                            'long_name':'Name of the expedition on which the data was collected'
+                        }
+                ),
+                'instrmt':(
+                        ['Time'],
+                        list_of_instrmts,
+                        {
+                            'units':'N/A',
+                            'label':'Instrument',
+                            'long_name':'Instrument identifier'
+                        }
+                ),
                 'entry':(
                         ['Time'],
                         np.array(list_of_entries, dtype=np.int32),

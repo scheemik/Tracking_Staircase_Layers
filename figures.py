@@ -635,6 +635,7 @@ ITP3t = {'ITP3t':'all'}
 # BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
 # With m_pts fixed automatically
 BGR04   = {'BGR04_clstrd':'all'}
+# BGR04   = {'minimal_BGR04':'all'}
 BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
 BGR0506 = {'BGR0506_clstrd':'all'}
 BGR0607 = {'BGR0607_clstrd':'all'}
@@ -903,7 +904,7 @@ dfs_to_use = dfs_all
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
-# ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
+ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
 # ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
@@ -912,7 +913,7 @@ dfs_to_use = dfs_all
 # ds_BGR050607 = ahf.Data_Set(BGR050607, dfs_to_use)
 # ds_BGR05060708 = ahf.Data_Set(BGR05060708, dfs_to_use)
 # ds_BGR05060708_no_noise = ahf.Data_Set(BGR05060708, dfs_no_noise)
-ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
+# ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1018,7 +1019,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGR_ITPs_0r
 
 # by year
-# ds_this_BGR = ds_BGR04
+ds_this_BGR = ds_BGR04
 # ds_this_BGR = ds_BGR04_clstrs_456
 # ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR0607
@@ -1027,7 +1028,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGR0508
 # ds_this_BGR = ds_BGR050607
 # ds_this_BGR = ds_BGR05060708
-ds_this_BGR = ds_BGR05060708_clstrs_456
+# ds_this_BGR = ds_BGR05060708_clstrs_456
 
 ################################################################################
 ################################################################################
@@ -1417,7 +1418,7 @@ if False:
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,121,10]}) #[10,721,10]
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,810,10]}) #[10,721,10]
     # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
     group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep, plot_title='BGR04')
@@ -1592,7 +1593,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
 # Maps and histograms of one cluster's profile averages in SA, CT, and press
-if True:
+if False:
     print('')
     print('- Creating maps of one cluster`s profile averages in SA, CT, and press')
     # Make the Plot Parameters
@@ -1612,7 +1613,7 @@ if True:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Maps and histograms of one cluster's profile spans in SA, CT, and press
-if True:
+if False:
     print('')
     print('- Creating maps of one cluster`s profile spans in SA, CT, and press')
     # Make the Plot Parameters
@@ -1636,7 +1637,7 @@ if False:
     print('')
     print('- Creating test plots for one cluster')
     # Make the Plot Parameters
-    pp_test_1 = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['pca_CT'], clr_map='source', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
+    pp_test_1 = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['pca_CT'], clr_map='clr_all_same', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
     # pp_test_1= ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
     # Make the subplot groups
     group_test_1 = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_test_1)

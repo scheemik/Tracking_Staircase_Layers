@@ -47,117 +47,6 @@ LHW_S_range = [34.366, 35.5]
 pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
 pfs_fltrd_ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
 
-## Reproducing figures from Timmermans et al. 2008
-ITP2_clstr_dict = {#'netcdf_file':'netcdfs/ITP_2.nc',
-                   'sources_dict':{'ITP_2':'all'},
-                   'data_filters':dfs0,
-                   'pfs_object':ahf.Profile_Filters(SP_range=[34.05,34.75]),
-                   'cl_x_var':'SP',
-                   'cl_y_var':'la_CT',
-                   'm_pts':170
-                   }
-
-## Reproducing figures from Lu et al. 2022
-ITP3_clstr_dict = {#'netcdf_file':'netcdfs/ITP_3.nc',
-                   'sources_dict':{'ITP_3':'all'},
-                   'data_filters':dfs0,
-                   'SP_range':[34.21,34.82],
-                   'cl_x_var':'SP',
-                   'cl_y_var':'la_CT',
-                   'm_pts':580
-                   }
-
-## AIDJEX BigBear
-ABB_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_BigBear.nc',
-                   'sources_dict':{'AIDJEX_BigBear':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':300
-                   }
-
-## AIDJEX
-AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_500_ell_010.nc',
-                   'sources_dict':{'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':500
-                   }
-AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_300_ell_100.nc',
-                   'sources_dict':{'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':300
-                   }
-AJX_clstr_dict =  {'netcdf_file':'netcdfs/AIDJEX_mpts_490_ell_050.nc',
-                   'sources_dict':{'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':490
-                   }
-
-## BGOS
-BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_440_ell_010.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':440
-                   }
-BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_360_ell_100.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':360
-                   }
-BGOS_clstr_dict = {'netcdf_file':'netcdfs/BGOS_mpts_280_ell_050.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':280
-                   }
-
-## BGOSss
-BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_260_ell_010.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd_ss,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':260
-                   }
-BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_220_ell_100.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd_ss,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':220
-                   }
-BGOSss_clstr_dict = {'netcdf_file':'netcdfs/BGOSss_mpts_340_ell_050.nc',
-                   'sources_dict':{'ITP_33':'all','ITP_34':'all','ITP_35':'all','ITP_41':'all','ITP_42':'all','ITP_43':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_fltrd_ss,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'm_pts':340
-                   }
-
-
-
-
 # Data filters
 dfs0 = ahf.Data_Filters()
 this_min_press = 400
@@ -198,6 +87,7 @@ pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[100
 pfs_0 = ahf.Profile_Filters()
 pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
 
+################################################################################
 ## BGR ITPs 0a
 BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
                    'sources_dict':{'ITP_002':'all'},
@@ -219,7 +109,6 @@ BGRb_clstr_dict = {'netcdf_file':'netcdfs/BGRb_mpts_380.nc',
                    'cl_z_var':'None',
                    'm_pts':380
                    }
-
 ## BGR ITPs 0f
 BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_310.nc',
                    'sources_dict':{'ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
@@ -230,7 +119,6 @@ BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_310.nc',
                    'cl_z_var':'None',
                    'm_pts':310
                    }
-
 ## BGR ITPs 0m
 BGRm_clstr_dict = {'netcdf_file':'netcdfs/BGRm_mpts_410.nc',
                    'sources_dict':{'ITP_097':'all','ITP_099':'all'},
@@ -241,7 +129,6 @@ BGRm_clstr_dict = {'netcdf_file':'netcdfs/BGRm_mpts_410.nc',
                    'cl_z_var':'None',
                    'm_pts':410
                    }
-
 ## BGR ITPs 0n
 BGRn_clstr_dict = {'netcdf_file':'netcdfs/BGRn_mpts_240.nc',
                    'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
@@ -252,7 +139,6 @@ BGRn_clstr_dict = {'netcdf_file':'netcdfs/BGRn_mpts_240.nc',
                    'cl_z_var':'None',
                    'm_pts':240
                    }
-
 ## BGR ITPs 0o
 BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
                    'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
@@ -264,9 +150,11 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
                    'm_pts':390
                    }
 
-# By year
-
-## BGR ITPs 04
+################################################################################
+### By year
+################################################################################
+## Clustered
+# BGR ITPs 04
 BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
                    'sources_dict':{'ITP_002':'all'},
                 #    'sources_dict':{'BGR04':'all'},
@@ -280,7 +168,7 @@ BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
                 #    'm_pts':190,
                 #    'm_pts':250,
                    }
-## BGR ITPs 0506
+# BGR ITPs 0506
 BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
                 #    'sources_dict':{'BGR0506':'all'},
@@ -294,7 +182,7 @@ BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
                 #    'm_pts':670,
                 #    'm_pts':350,
                    }
-## BGR ITPs 0607
+# BGR ITPs 0607
 BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
                 #    'sources_dict':{'BGR0607':'all'},
@@ -308,7 +196,7 @@ BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
                 #    'm_pts':230,
                 #    'm_pts':350,
                    }
-## BGR ITPs 0708
+# BGR ITPs 0708
 BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
                 #    'sources_dict':{'BGR0708':'all'},
@@ -321,20 +209,56 @@ BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
                 #    'm_pts':'None',
                 #    'm_pts':350,
                    }
-
-## BGR ITPs 0508
-BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                #    'sources_dict':{'BGR0708':'all'},
-                   'data_filters':dfs1_BGR0508,
+################################################################################
+## Paired down, minimal variables, just to run parameter sweeps on HPC
+# BGR ITPs 04
+BGR04_minimal   = {'netcdf_file':'netcdfs/minimal_BGR04.nc',
+                   'sources_dict':{'ITP_002':'all'},
+                   'data_filters':dfs1,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                #    'm_pts':'auto',
-                   'm_pts':'None',
+                   'm_pts':'None'
+                   }
+# BGR ITPs 0506
+BGR0506_minimal = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                   'data_filters':dfs1_BGR0506,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'None'
+                   }
+# BGR ITPs 0607
+BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
+                #    'sources_dict':{'BGR0607':'all'},
+                   'data_filters':dfs1_BGR0607,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                #    'm_pts':'None',
+                #    'm_pts':230,
                 #    'm_pts':350,
                    }
+# BGR ITPs 0708
+BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
+                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                #    'sources_dict':{'BGR0708':'all'},
+                   'data_filters':dfs1_BGR0708,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                #    'm_pts':'None',
+                #    'm_pts':350,
+                   }
+################################################################################
 
 ### Just certain clusters
 ## BGR ITPs 04 cluster 5
@@ -358,22 +282,10 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
                    'm_pts':'second',
                    }
 
-# Test parameter sweep with ITP3
-ITP3t_clstr_dict = {'netcdf_file':'netcdfs/ITP3t.nc',
-                   'sources_dict':{'ITP_003':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':350
-                   }
-
-
 xr.set_options(display_max_rows=44)
 
-for clstr_dict in [BGR05060708_clstrs_456]:
-# for clstr_dict in [BGR0506_clstr_dict]:
+# for clstr_dict in [BGR05060708_clstrs_456]:
+for clstr_dict in [BGR04_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
@@ -449,7 +361,7 @@ for clstr_dict in [BGR05060708_clstrs_456]:
         pfs_object = clstr_dict['pfs_object']
         # Create plot parameters object
         if clstr_dict['m_pts'] == 'None':
-            keep_these_vars = ['ma_CT', 'entry', 'prof_no', 'CT', 'SA']
+            keep_these_vars = ['source', 'instrmt', 'entry', 'prof_no', 'SA', 'CT', 'ma_CT']
             # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         elif clstr_dict['m_pts'] == 'second':
@@ -484,7 +396,7 @@ for clstr_dict in [BGR05060708_clstrs_456]:
         if clstr_dict['m_pts'] == 'None':
             # Remove unnecessary variables
             print('variables in new_df:',list(new_df))
-            only_need_these_vars = ['entry','prof_no','CT','ma_CT','SA',]
+            only_need_these_vars = keep_these_vars #['entry','prof_no','CT','ma_CT','SA',]
             for var in list(new_df):
                 if not var in only_need_these_vars:
                     new_df = new_df.drop(var, axis=1)
