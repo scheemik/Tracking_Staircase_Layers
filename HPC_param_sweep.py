@@ -72,6 +72,9 @@ if rank%rf == 0:
     BGR0506 = {'minimal_BGR0506':'all'}
     BGR0607 = {'minimal_BGR0607':'all'}
     BGR0708 = {'minimal_BGR0708':'all'}
+    BGR0809 = {'minimal_BGR0809':'all'}
+    BGR0910 = {'minimal_BGR0910':'all'}
+    BGR1011 = {'minimal_BGR1011':'all'}
     BGR0508 = {'BGR0508':'all'}
     ITP2 = {'ITP_002':'all'}
 
@@ -95,6 +98,9 @@ if rank%rf == 0:
     # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
     ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0809, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR0910, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 

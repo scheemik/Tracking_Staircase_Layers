@@ -1623,13 +1623,13 @@ def report_range(df, key, name_and_units):
     if len(this_arr) > 1:
         this_min = min(this_arr)
         this_max = max(this_arr)
-        if key != 'dt_start' and key != 'dt_end':
+        if key in ['source', 'instrmt', 'dt_start', 'dt_end']:
+            return "\t\t"+key+': '+name_str+" \n\t\t\trange: \n\t\t\t"+str(this_min)+" to "+str(this_max)+" "+units
+        else:#if key != 'dt_start' and key != 'dt_end':
             # This line formats all the numbers to have just 2 digits after the decimal point
             return "\t\t"+key+': '+name_str+" \n\t\t\trange: %.2f"%(this_max-this_min)+" "+units+"\n\t\t\t%.2f"%this_min+" to %.2f"%this_max+" "+units
             # This line outputs the numbers with all available digits after the decimal point
             # return "\t\t"+name_str+" range: "+str(this_max-this_min)+" "+units+"\n\t\t\t"+str(this_min)+" to "+str(this_max)+" "+units
-        else:
-            return "\t\t"+key+': '+name_str+" \n\t\t\trange: \n\t\t\t"+str(this_min)+" to "+str(this_max)+" "+units
     else:
         return "\t\t"+key+': '+name_str+" \n\t\t\trange: N/A \n\t\t\tN/A"
 
@@ -2346,6 +2346,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             mpi_run = extra_args['mpi_run']
     else:
         extra_args = False
+        plot_slopes = False
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis

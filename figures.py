@@ -580,7 +580,7 @@ BGRITPs0607 = { 'ITP_001':'all',
                 # 'ITP_016':'all', # Not in BGR
                 # 'ITP_017':'all', # Not in BGR
                 }
-## 2007-08-15 00:00:01 to 2008-08-14 00:24:17
+## 2007-08-15 00:00:01 to 2008-08-14 00:24:17, gap: 1 day, duration: 
 BGRITPs0708 = { 'ITP_004':'all',
                 'ITP_005':'all',
                 'ITP_006':'all',
@@ -588,7 +588,7 @@ BGRITPs0708 = { 'ITP_004':'all',
                 'ITP_008':'all',
                 # 'ITP_009':'all', # Not in BGR
                 # 'ITP_010':'all', # Not in BGR
-                'ITP_011':'all', # Not in this time period
+                # 'ITP_011':'all', # Not in this time period
                 # 'ITP_012':'all', # Not in BGR
                 'ITP_013':'all',
                 # 'ITP_014':'all', # Not in BGR
@@ -601,12 +601,60 @@ BGRITPs0708 = { 'ITP_004':'all',
                 # 'ITP_022':'all', # Not in BGR
                 # 'ITP_023':'all', # Not in BGR
                 # 'ITP_024':'all', # Not in BGR
-                'ITP_025':'all', # Not in this time period
+                # 'ITP_025':'all', # Not in this time period
                 # 'ITP_026':'all', # Not in BGR
                 # 'ITP_027':'all', # Not in BGR
                 # 'ITP_028':'all', # Not in BGR
                 # 'ITP_029':'all', # Not in BGR
                 'ITP_030':'all',
+                }
+## 2008-08-15 00:00:03 to 2009-08-12 00:00:07, gap: 1 day, duration: 
+BGRITPs0809 = { 'ITP_008':'all',
+                # 'ITP_009':'all', # Not in BGR
+                # 'ITP_010':'all', # Not in BGR
+                'ITP_011':'all',
+                # 'ITP_012':'all', # Not in BGR
+                # 'ITP_013':'all', # Not in this time period
+                # 'ITP_014':'all', # Not in BGR
+                # 'ITP_015':'all', # Not in BGR
+                # 'ITP_016':'all', # Not in BGR
+                # 'ITP_017':'all', # Not in BGR
+                'ITP_018':'all',
+                # 'ITP_019':'all', # Not in BGR
+                'ITP_021':'all',
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                'ITP_025':'all',
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                'ITP_030':'all',
+                }
+## 2009-08-19 00:00:07 to 2010-08-14 00:00:06
+BGRITPs0910 = { 'ITP_021':'all',
+                # 'ITP_022':'all', # Not in BGR
+                # 'ITP_023':'all', # Not in BGR
+                # 'ITP_024':'all', # Not in BGR
+                # 'ITP_025':'all', # Not in this time period
+                # 'ITP_026':'all', # Not in BGR
+                # 'ITP_027':'all', # Not in BGR
+                # 'ITP_028':'all', # Not in BGR
+                # 'ITP_029':'all', # Not in BGR
+                # 'ITP_030':'all', # Not in this time period
+                'ITP_032':'all',
+                'ITP_033':'all',
+                'ITP_034':'all',
+                'ITP_035':'all',
+                # 'ITP_036':'all', # Not in BGR
+                # 'ITP_037':'all', # Not in BGR
+                # 'ITP_038':'all', # Not in BGR
+                }
+## 2010-08-15 00:00:06 to 2011-08-14 00:00:06
+BGRITPs1011 = { 'ITP_041':'all',
+                'ITP_042':'all',
+                'ITP_043':'all',
                 }
 
 ## All
@@ -626,6 +674,14 @@ ITP3t = {'ITP3t':'all'}
 # BGR0506 = {'BGR0506':'all'}
 # BGR0607 = {'BGR0607':'all'}
 # BGR0708 = {'BGR0708':'all'}
+# With minimal variables to reduce size
+BGR04   = {'minimal_BGR04':'all'}
+BGR0506 = {'minimal_BGR0506':'all'}
+BGR0607 = {'minimal_BGR0607':'all'}
+BGR0708 = {'minimal_BGR0708':'all'}
+BGR0809 = {'minimal_BGR0809':'all'}
+BGR0910 = {'minimal_BGR0910':'all'}
+BGR1011 = {'minimal_BGR1011':'all'}
 # With m_pts fixed manually
 # BGR04   = {'BGRm250_04':'all'}
 # BGR0506 = {'BGRm350_0506':'all'}
@@ -634,12 +690,11 @@ ITP3t = {'ITP3t':'all'}
 # BGR05060708 = {'BGRm350_0506':'all', 'BGRm350_0607':'all', 'BGRm350_0708':'all'}
 # BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
 # With m_pts fixed automatically
-BGR04   = {'BGR04_clstrd':'all'}
-# BGR04   = {'minimal_BGR04':'all'}
-BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
-BGR0506 = {'BGR0506_clstrd':'all'}
-BGR0607 = {'BGR0607_clstrd':'all'}
-BGR0708 = {'BGR0708_clstrd':'all'}
+# BGR04   = {'BGR04_clstrd':'all'}
+# BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
+# BGR0506 = {'BGR0506_clstrd':'all'}
+# BGR0607 = {'BGR0607_clstrd':'all'}
+# BGR0708 = {'BGR0708_clstrd':'all'}
 BGR0508 = {'BGR0508':'all'}
 BGR050607 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all'}
 BGR05060708 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all', 'BGR0708_clstrd':'all'}
@@ -650,24 +705,6 @@ BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
 BGRno = {'BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 BGRmno = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
 
-# # All profiles from all AIDJEX camps
-# all_AIDJEX = {'AIDJEX_BigBear':'all','AIDJEX_BlueFox':'all','AIDJEX_Caribou':'all','AIDJEX_Snowbird':'all'}
-# 
-# # Pre-clustered files
-# all_AIDJEX_clstrd = {'AIDJEX_all':'all'}
-# #   ell = 10
-# AIDJEX_m500_e010 = {'AIDJEX_mpts_500_ell_010':'all'}
-# BGOS_m440_e010 = {'BGOS_mpts_440_ell_010':'all'}
-# BGOSss_m260_e010 = {'BGOSss_mpts_260_ell_010':'all'}
-# #   ell = 10
-# AIDJEX_m490_e050 = {'AIDJEX_mpts_490_ell_050':'all'}
-# BGOS_m280_e050 = {'BGOS_mpts_280_ell_050':'all'}
-# BGOSss_m340_e050 = {'BGOSss_mpts_340_ell_050':'all'}
-# #   ell = 100
-# AIDJEX_m300_e100 = {'AIDJEX_mpts_300_ell_100':'all'}
-# BGOS_m360_e100 = {'BGOS_mpts_360_ell_100':'all'}
-# BGOSss_m220_e100 = {'BGOSss_mpts_220_ell_100':'all'}
-# 
 # # All profiles from certain ITPs
 ITP2_all  = {'ITP_2':'all'}
 ITP002_all  = {'ITP_002':'all'}
@@ -697,42 +734,6 @@ ITP2_ex_pfs   = {'ITP_002':ITP2_some_pfs}
 BGR04_ex_pfs  = {'BGR04':ITP2_some_pfs}
 
 ITP2_ex_pfs_0 = {'ITP_002':ITP2_some_pfs_0}
-# 
-# ## AIDJEX
-# 
-# AIDJEX_BigBear_all = {'AIDJEX_BigBear':'all'}
-# AIDJEX_BlueFox_all = {'AIDJEX_BlueFox':'all'}
-# AIDJEX_Caribou_all = {'AIDJEX_Caribou':'all'}
-# AIDJEX_Snowbird_all = {'AIDJEX_Snowbird':'all'}
-# 
-# AIDJEX_BigBear_blacklist = {'AIDJEX_BigBear':[531, 535, 537, 539, 541, 543, 545, 547, 549]}
-# AIDJEX_BlueFox_blacklist = {'AIDJEX_BlueFox':[94, 308, 310]}
-# AIDJEX_Snowbird_blacklist = {'AIDJEX_Snowbird':[443]}
-# 
-# AIDJEX_missing_ll = {'AIDJEX_BigBear':[4, 5, 6, 7, 8, 9, 10, 13, 14, 22]}#, 28, 30, 32]}
-# 
-# AIDJEX_ex_stairs = {'AIDJEX_Snowbird':[1]}
-# 
-# ## SHEBA
-# 
-# all_SHEBA = {'SHEBA_Seacat':'all'}
-# SHEBA_Seacat_blacklist = {'SHEBA_Seacat':['SH15200.UP', 'SH03200', 'SH30500', 'SH34100']}
-# # SHEBA_example_profile = {'SHEBA_Seacat':['CT165654']}
-# SHEBA_example_profile = {'SHEBA_Seacat':['SH31200','SH31900']}
-# 
-# ## filtered out by p_max > 400 dbar
-# pmax_lt_400_AIDJEX_BigBear = {'AIDJEX_BigBear':[14]}
-# pmax_lt_400_AIDJEX_BlueFox = {'AIDJEX_BlueFox':[30, 144, 168, 262, 431]}
-# pmax_lt_400_AIDJEX_Caribou = {'AIDJEX_Caribou':[39, 47, 55, 63, 71, 79, 83, 91, 96, 98, 102, 104, 105, 113, 117, 123, 125, 128, 136, 144, 152, 159, 163, 169, 177, 185, 231, 440, 552, 610, 687, 694, 700, 704, 722, 727, 852]}
-# pmax_lt_400_AIDJEX_Snowbird = {'AIDJEX_Snowbird':[320, 369, 404, 412, 414]}
-# ITP 33 had none filtered out
-# ITP 34 had none filtered out
-pmax_lt_400_ITP_35 = {'ITP_035':
-    [3, 4, 6, 7, 11, 12, 14, 15, 19, 22, 23, 27, 30, 31, 35, 36, 38, 43, 44, 46, 47, 51, 52, 54, 55, 59, 60, 62, 63, 67, 70, 71, 75, 76, 78, 79, 83, 84, 86, 87, 91, 92, 94, 99, 100, 102, 103, 107, 108, 110, 111, 115, 116, 118, 119, 123, 124, 126, 127, 131, 132, 134, 135, 139, 140, 142, 143, 147, 150, 151, 155, 156, 158, 159, 163, 164, 166, 167, 171, 172, 174, 175, 179, 180, 182, 187, 188, 190, 195, 196, 198, 203, 204, 206, 207, 211, 214, 219, 220, 222, 223, 227, 228, 230, 231, 235, 236, 238, 239, 243, 244, 246, 247, 251, 252, 254, 255, 259, 260, 262, 267, 268, 270, 271, 275, 276, 278, 279, 283, 284, 286, 287, 291, 292, 294, 295, 299, 300, 302, 307, 308, 310, 311, 315, 318, 323, 324, 326, 330, 331, 333, 334, 338, 339, 341, 342, 346, 347, 349, 350, 354, 355, 357, 358, 362, 363, 365, 366, 370, 372, 377, 378, 380, 381, 385, 386, 388, 389, 393, 394, 396, 397, 401, 402, 404, 405, 409, 410, 412, 413, 417, 420, 425, 426, 428, 429, 433, 434, 436, 441, 442, 444, 445, 449, 452, 457, 460, 465, 466, 468, 469, 473, 474, 476, 477, 481, 482, 484, 485, 489, 492, 493, 497, 498, 500, 505, 506, 508, 509, 513, 514, 516, 521, 522, 524, 525, 529, 532, 533, 537, 538, 540, 541, 545, 546, 548, 549, 553, 554, 556, 561, 564, 565, 569, 570, 572, 577, 578, 580, 585, 586, 588, 589, 593, 594, 596, 597, 601, 602, 604, 605, 609, 610, 612, 617, 618, 620, 621, 625, 626, 628, 629, 633, 634, 636, 637, 641, 642, 644, 645, 649, 650, 652, 653, 657, 658, 660, 661, 665, 666, 668, 669, 672, 673, 675, 680, 681, 683, 684, 688, 691, 696, 697, 699, 700, 704, 707, 708, 712, 713, 715, 716, 720, 722, 723, 727, 728, 730, 735, 738, 739, 743, 744, 746, 747, 749, 752, 753, 757, 758, 760, 761, 765, 766, 768, 769, 773, 774, 776, 777, 781, 782, 783, 788, 789, 791, 792, 796, 797, 799, 800, 804, 805, 807, 808, 812, 813, 815, 816, 820, 821, 823, 824, 828, 829, 831, 832, 834, 837, 841, 845, 846, 848, 849, 853, 854, 856, 857, 861, 862, 864, 865, 869, 871, 872, 876, 877, 879, 884, 885, 887, 888, 892, 893, 895, 896, 900, 901, 903, 904, 908, 909, 911, 916, 917, 919, 920, 924, 925, 927, 928, 932, 933, 935, 936, 940, 941, 943, 944, 948, 951, 952, 956, 957, 961, 962, 964, 965, 969, 971, 972, 976, 977, 979, 980, 984, 985, 987, 988, 992, 993, 995, 1000, 1001, 1003, 1004, 1008, 1009, 1011, 1012, 1016, 1017, 1019, 1024, 1025, 1027, 1033, 1034, 1039, 1040, 1042, 1043, 1047, 1048, 1050, 1051, 1055, 1056, 1058, 1059, 1063, 1064, 1066, 1067, 1071, 1072, 1076, 1077, 1078, 1079, 1083, 1086, 1087, 1091, 1092, 1094, 1095, 1099, 1100, 1102, 1103, 1107, 1108, 1110, 1111, 1115, 1116, 1118, 1119, 1123, 1124, 1126, 1127, 1131, 1132, 1134, 1135, 1139, 1140, 1142, 1143, 1147, 1148, 1150, 1151, 1155, 1156, 1158, 1159, 1163, 1166, 1171, 1172, 1174, 1175, 1179, 1180, 1182, 1183, 1187, 1190, 1191, 1195, 1196, 1198, 1199, 1203, 1204, 1206, 1207, 1211, 1214, 1215, 1219, 1220, 1222, 1223, 1227, 1228, 1230, 1235, 1238, 1239, 1243, 1244, 1246, 1247, 1251, 1252, 1254, 1258, 1261, 1266, 1267, 1269, 1270, 1274, 1275, 1277, 1278, 1282, 1283, 1285, 1286, 1290, 1293, 1298, 1299, 1301, 1305, 1307, 1308, 1312, 1313, 1314, 1315, 1319, 1322, 1326, 1327, 1329, 1330, 1334, 1337, 1342, 1343, 1345, 1350, 1351, 1353]}
-pmax_lt_400_ITP_41 = {'ITP_041':[1393, 1395, 1397, 1399, 1401, 1403, 1405, 1407, 1409, 1411, 1413, 1417, 1419, 1423, 1425, 1427, 1429, 1431, 1433, 1435, 1439, 1441, 1443, 1445, 1447, 1449, 1451, 1453, 1457, 1459, 1461, 1463, 1465, 1467, 1469, 1471, 1473, 1477, 1479]}
-pmax_lt_400_ITP_42 = {'ITP_042':[203, 204, 205, 206, 207, 208, 209]}
-# ITP 43 had none filtered out
-# pmax_lt_400_SHEBA_Seacat = {'SHEBA_Seacat':['CT205515', 'SH12200', 'SH14400', 'SH17400', 'SH17701', 'SH12900']}
 
 ################################################################################
 # Create data filtering objects
@@ -773,6 +774,14 @@ dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/1
 dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
 dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
 dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
+dfs1_BGR1011 = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/08/15 00:00:00','2011/08/15 00:00:00'])
+dfs1_BGR1112 = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/08/15 00:00:00','2012/08/15 00:00:00'])
+dfs1_BGR1213 = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/15 00:00:00','2013/08/15 00:00:00'])
+dfs1_BGR1314 = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/15 00:00:00','2014/08/15 00:00:00'])
+dfs1_BGR1415 = ahf.Data_Filters(min_press=this_min_press, date_range=['2014/08/15 00:00:00','2015/08/15 00:00:00'])
+dfs1_BGR1516 = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/08/15 00:00:00','2016/08/15 00:00:00'])
+dfs1_BGR1617 = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/08/15 00:00:00','2017/08/15 00:00:00'])
+dfs1_BGR1718 = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/15 00:00:00','2018/08/15 00:00:00'])
 
 ## combo
 dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
@@ -847,11 +856,14 @@ print('- Creating data sets')
 # ds_BGR_ITPs_0r = ahf.Data_Set(BGR_ITPs_0r, dfs1_BGR_0r)
 
 # by different time periods
-# ds_BGR04 = ahf.Data_Set(BGRITPs04, dfs1)
+# ds_BGR04   = ahf.Data_Set(BGRITPs04, dfs1)
 # ds_BGR0506 = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # ds_BGR0607 = ahf.Data_Set(BGRITPs0607, dfs1_BGR0607)
 # ds_BGR0708 = ahf.Data_Set(BGRITPs0708, dfs1_BGR0708)
-# ds_BGR0508 = ahf.Data_Set(BGRITPs0508, dfs1_BGR0508)
+# ds_BGR0809 = ahf.Data_Set(BGRITPs0809, dfs1_BGR0809)
+# ds_BGR0910 = ahf.Data_Set(BGRITPs0910, dfs1_BGR0910)
+# ds_BGR1011 = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
+# ds_this_BGR = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -904,11 +916,18 @@ dfs_to_use = dfs_all
 # ds_BGRo_m390 = ahf.Data_Set(BGRo_m390, dfs_to_use)
 # ds_ITP3t = ahf.Data_Set(ITP3t, dfs_to_use)
 # By year
-ds_BGR04 = ahf.Data_Set(BGR04, dfs_to_use)
-# ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
+# ds_BGR04   = ahf.Data_Set(BGR04, dfs_to_use)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
+# ds_BGR0809 = ahf.Data_Set(BGR0809, dfs_to_use)
+# ds_BGR0910 = ahf.Data_Set(BGR0910, dfs_to_use)
+# ds_BGR1011 = ahf.Data_Set(BGR1011, dfs_to_use)
+
+# ds_this_BGR = ahf.Data_Set(BGR1011, dfs_to_use)
+
+
+# ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0508 = ahf.Data_Set(BGR0508, dfs_to_use)
 # ds_BGR050607 = ahf.Data_Set(BGR050607, dfs_to_use)
 # ds_BGR05060708 = ahf.Data_Set(BGR05060708, dfs_to_use)
@@ -1019,7 +1038,7 @@ pfs_this_BGR = pfs_0
 # ds_this_BGR = ds_BGR_ITPs_0r
 
 # by year
-ds_this_BGR = ds_BGR04
+# ds_this_BGR = ds_BGR04
 # ds_this_BGR = ds_BGR04_clstrs_456
 # ds_this_BGR = ds_BGR0506
 # ds_this_BGR = ds_BGR0607
@@ -1040,7 +1059,7 @@ ds_this_BGR = ds_BGR04
 ## Basic TS plots
 ################################################################################
 # TS plot
-if False:
+if True:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1090,20 +1109,6 @@ if False:
     # Make the Analysis Group
     group_test = ahf.Analysis_Group(ds_BGRmn, pfs_0, pp_test)
     ahf.cluster_stats([group_test], stat_vars=['SA'])
-
-################################################################################
-## Basic plots
-################################################################################
-# TS
-if False:
-    print('')
-    print('- Creating TS plot')
-    # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press')
-    # Make the subplot groups
-    group_TS = ahf.Analysis_Group(ds_ITP2, pfs_0, pp_TS)
-    # Make the figure
-    ahf.make_figure([group_TS])#, filename='test_clstr.pickle')
 
 ################################################################################
 ## Maps and distances
@@ -1163,6 +1168,31 @@ if False:
     # ahf.make_figure([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
     # Find the maximum distance between any two profiles for each data set in the group
     ahf.find_max_distance([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43])
+
+################################################################################
+## Basic plots
+################################################################################
+# SA vs time
+if False:
+    print('')
+    print('- Creating TS plot')
+    # Make the Plot Parameters
+    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='instrmt')
+    # Make the subplot groups
+    group_SA_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_SA_vs_time)
+    # Make the figure
+    ahf.make_figure([group_SA_vs_time], row_col_list=[1,1, 0.27, 1.0])
+# TS and map
+if False:
+    print('')
+    print('- Creating TS plot')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
+    # Make the subplot groups
+    group_TS = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
+    group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map)
+    # Make the figure
+    ahf.make_figure([group_TS, group_map], row_col_list=[1,2, 0.31, 1.1])
 
 ################################################################################
 ## Filter effects
