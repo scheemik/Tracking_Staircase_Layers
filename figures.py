@@ -924,7 +924,7 @@ dfs_to_use = dfs_all
 # ds_BGR0910 = ahf.Data_Set(BGR0910, dfs_to_use)
 # ds_BGR1011 = ahf.Data_Set(BGR1011, dfs_to_use)
 
-# ds_this_BGR = ahf.Data_Set(BGR1011, dfs_to_use)
+ds_this_BGR = ahf.Data_Set(BGR0708, dfs_to_use)
 
 
 # ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
@@ -1059,7 +1059,7 @@ pfs_this_BGR = pfs_0
 ## Basic TS plots
 ################################################################################
 # TS plot
-if True:
+if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1474,12 +1474,12 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if False:
+if True:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':166, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':550, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure

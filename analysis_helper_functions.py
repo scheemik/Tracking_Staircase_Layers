@@ -722,6 +722,9 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         if re_run_clstr:
             try:
                 vars_to_keep.remove('cluster')
+            except:
+                foo = 2
+            try:
                 vars_to_keep.remove('clst_prob')
             except:
                 foo = 2
