@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'BGR1011'
+this_plot_title = 'BGR0506'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -95,12 +95,12 @@ if rank%rf == 0:
 ################################################################################
 
     # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
-    # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0809, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0910, dfs_all)
-    ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
 
@@ -134,7 +134,7 @@ if rank%rf == 0:
         print('- Creating clustering parameter sweep for BGR ITP data')
         test_mpts = 360
         # Make the Plot Parameters
-        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,801,10], 'mpi_run':True}) #[10,721,10]
+        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':1000, 'cl_ps_tuple':[10,801,10], 'mpi_run':True}) #[10,721,10]
         # Make the subplot groups
         group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=this_plot_title)
         # Run the parameter sweep
