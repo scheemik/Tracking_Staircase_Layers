@@ -156,7 +156,7 @@ if rank%rf == 0:
     y_key = pp.y_vars[0]
     print('\trank',rank,'plotting these x values of',x_key,':',x_var_array)
     # Get cluster arguments
-    m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = ahf.get_cluster_args(pp)
+    m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = ahf.get_cluster_args(pp)
     # If limiting the number of pfs, find total number of pfs in the given df
     #   In the multi-index of df, level 0 is 'Time'
     if x_key == 'n_pfs':
@@ -184,19 +184,19 @@ if rank%rf == 0:
             this_df = this_df[this_df['prof_no'] <= pf_nos[x-1]].copy()
             xlabel = 'Number of profiles included'
         if x_key == 'm_pts':
-            # min cluster size must be an integer
+            # min_samples must be an integer
             m_pts = int(x)
             xlabel = r'$m_{pts}$'
-        elif x_key == 'min_samps':
-            # min samples must be an integer, or None
+        elif x_key == 'm_cls':
+            # min_cluster_size must be an integer, or None
             if not isinstance(x, type(None)):
-                min_s = int(x)
+                m_cls = int(x)
             else:
-                min_s = x
-            xlabel = 'Minimum samples'
+                m_cls = x
+            xlabel = r'$m_{cls}$'
         # Run the HDBSCAN algorithm on the provided dataframe
         try:
-            new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+            new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
         except:
             print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
             break

@@ -5654,7 +5654,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     m_cls = int(x)
                 else:
                     m_cls = x
-                xlabel = 'Minimum samples'
+                xlabel = r'$m_{cls}$'
             if z_key == 'm_pts':
                 # min_samples must be an integer
                 m_pts = int(z_list[i])
@@ -5665,7 +5665,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     m_cls = int(z_list[i])
                 else:
                     m_cls = z_list[i]
-                zlabel = 'Minimum samples: '+str(m_cls)
+                zlabel = r'$m_{cls}=$'+str(m_cls)
             # Run the HDBSCAN algorithm on the provided dataframe
             try:
                 new_df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
