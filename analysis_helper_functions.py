@@ -399,14 +399,14 @@ class Plot_Parameters:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_z_var':var2} where the
                         variables can be any that work for an 'xy' plot
                         Optional 'b_a_w_plt':True/False for box and whisker plots,
-                        'm_pts':90 / 'min_samp':90 to specify m_pts or min pts per
-                        cluster, 'plot_slopes' as OLS or TLS to plot lines showing the 
+                        'm_pts':90 / 'm_cls':90 to specify m_pts or m_cls,
+                        'plot_slopes' as OLS or TLS to plot lines showing the 
                         ordinary or least squares slope of each cluster, 
                         'clstrs_to_plot':[0,1,2] to plot just specific clusters
                     If doing a parameter sweep of clustering, expects the following:
                         {'cl_x_var':var0, 'cl_y_var':var1, 'cl_ps_tuple':[100,410,50]}
                         where var0/var1/var2 are as specified above, 'cl_ps_tuple' is
-                        the [start,stop,step] for the xvar can be 'm_pts', 'min_samps'
+                        the [start,stop,step] for the xvar can be 'm_pts', 'm_cls'
                         'n_pfs' or 'ell_size', and yvar(s) must be 'DBCV' or 'n_clusters'
                         Optional: {'z_var':'m_pts', 'z_list':[90,120,240]} where
                         z_var can be any variable that var0 can be
@@ -2402,8 +2402,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df[z_key] = mpl.dates.date2num(df[z_key])
         # Check for cluster-based variables
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
-            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+            m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
         # If plotting per profile, collapse the vertical dimension
         if pp.plot_scale == 'by_pf':
             # Drop dimensions, if needed
@@ -2818,7 +2818,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
             # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
-            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_s, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -3084,8 +3084,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
         df = pd.concat(a_group.data_frames)
         # Check for cluster-based variables
         if clr_map in clstr_vars:
-            m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=[clr_map])
+            m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map])
         # Drop dimensions, if needed
         if 'Vertical' in df.index.names:
             # Drop duplicates along the `Time` dimension
@@ -3888,8 +3888,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             cluster_this = True
         #
     if cluster_this:
-        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
+        m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         try:
@@ -4334,8 +4334,8 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             cluster_this = True
         #
     if cluster_this:
-        m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, extra_cl_vars=plot_vars)
+        m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         print('Warning: Specifying ax_lims does not work as expected in waterfall plots')
@@ -4565,20 +4565,20 @@ def get_cluster_args(pp):
     # Get the dictionary stored in extra_args
     cluster_plt_dict = pp.extra_args
     # print('cluster_plt_dict:',cluster_plt_dict)
-    # Get minimum cluster size parameter, if it was given
+    # Get min_samples parameter, if it was given
     try:
         m_pts = cluster_plt_dict['m_pts']
         if m_pts != 'auto':
             m_pts = int(m_pts)
     except:
         m_pts = None
-    # Get minimum samples parameter, if it was given
+    # Get min_cluster_size parameter, if it was given
     try:
-        min_s = cluster_plt_dict['min_samp']
-        if not isinstance(min_s, type(None)):
-            min_s = int(min_s)
+        m_cls = cluster_plt_dict['m_cls']
+        if not isinstance(m_cls, type(None)):
+            m_cls = int(m_cls)
     except:
-        min_s = None
+        m_cls = None
     # Get x and y parameters, if given
     try:
         cl_x_var = cluster_plt_dict['cl_x_var']
@@ -4601,11 +4601,11 @@ def get_cluster_args(pp):
         b_a_w_plt = cluster_plt_dict['b_a_w_plt']
     except:
         b_a_w_plt = False
-    return m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt
+    return m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt
 
 ################################################################################
 
-def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_vars=[None], param_sweep=False):
+def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_vars=[None], param_sweep=False):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
@@ -4616,8 +4616,8 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
     x_key       String of the name of the column to use on the x-axis
     y_key       String of the name of the column to use on the y-axis
     z_key       String of the name of the column to use on the z-axis (optional)
-    m_pts      An integer, the minimum number of points for a cluster
-    min_samp    An integer, number of points in neighborhood for a core point
+    m_pts       An integer, 'min_samples', number of points in neighborhood for a core point
+    m_cls       An integer, 'min_cluster_size', the minimum number of points for a cluster
     extra_cl_vars   A list of extra variables to potentially calculate
     """
     # print('-- in HDBSCAN')
@@ -4670,7 +4670,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
         #     print('-- `Last clustered` attr is `Never`, re_run:',re_run)
     print('\t- Re-run HDBSCAN:',re_run)
     if re_run:
-        print('in HDBSCAN_(), m_pts:',m_pts)
+        # print('in HDBSCAN_(), m_pts:',m_pts)
         if m_pts == 'auto':
             # m_pts = int(len(df) / 500 + 200)
             m_pts = int(7*(len(df)**(1/3)))
@@ -4678,10 +4678,11 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, min_samp=None, extra_cl_
         print('\t\tClustering y-axis:',y_key)
         print('\t\tClustering z-axis:',z_key)
         print('\t\tClustering m_pts: ',m_pts)
+        print('\t\tClustering m_cls: ',m_cls)
         print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
-        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_pts, min_samples=min_samp, cluster_selection_method='leaf')
+        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='leaf')
         # The datetime variables need to be scaled to match
         dt_scale_factor = 10000
         for var in [x_key, y_key, z_key]:
@@ -5060,7 +5061,7 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
 
 ################################################################################
 
-def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, min_samp, rel_val, ell, box_and_whisker=True, plot_slopes=False):
+def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=True, plot_slopes=False):
     """
     Plots the clusters found by HDBSCAN on the x-y plane
 
@@ -5074,8 +5075,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     cl_y_var        String of the name of the column used on y-axis of clustering
     cl_z_var        String of the name of the column used on z-axis of clustering
     clr_map         String of the name of the colormap to use (ex: 'clusters')
-    m_pts           An integer, the minimum number of points for a cluster
-    min_samp        An integer, number of points in neighborhood for a core point
+    m_pts       An integer, 'min_samples', number of points in neighborhood for a core point
+    m_cls       An integer, 'min_cluster_size', the minimum number of points for a cluster
     rel_val
     ell
     box_and_whisker True/False whether to include the box and whisker plot
@@ -5116,9 +5117,6 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             plot_centroid = False
         else:
             plot_centroid = True
-    # Run the HDBSCAN algorithm on the provided dataframe
-    # df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_samp, extra_cl_vars=[x_key,y_key])
-    # print('in plot_clusters(), m_pts:',m_pts)
     # Clusters are labeled starting from 0, so total number of clusters is
     #   the largest label plus 1
     n_clusters = int(np.nanmax(df['cluster']+1))
@@ -5375,7 +5373,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
         m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
-        n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{clusters}$: '+str(n_clusters), marker='*', linewidth=0)
+        n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
         n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
         rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
         if legend:
@@ -5564,7 +5562,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     except:
         tw_y_key = None
     # Get cluster arguments
-    m_pts, min_s, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
+    m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
     # Get the parameter sweep tuple, expect the form [start,stop,step]
     try:
         cl_ps_tuple = cluster_plt_dict['cl_ps_tuple']
@@ -5647,30 +5645,30 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 this_df = this_df[this_df['prof_no'] <= pf_nos[z_list[i]-1]].copy()
                 zlabel = r'$n_{profiles}=$'+str(z_list[i])
             if x_key == 'm_pts':
-                # min cluster size must be an integer
+                # min_samples must be an integer
                 m_pts = int(x)
                 xlabel = r'$m_{pts}$'
-            elif x_key == 'min_samps':
-                # min samples must be an integer, or None
+            elif x_key == 'm_cls':
+                # min_cluster_size must be an integer, or None
                 if not isinstance(x, type(None)):
-                    min_s = int(x)
+                    m_cls = int(x)
                 else:
-                    min_s = x
+                    m_cls = x
                 xlabel = 'Minimum samples'
             if z_key == 'm_pts':
-                # min cluster size must be an integer
+                # min_samples must be an integer
                 m_pts = int(z_list[i])
                 zlabel = r'$m_{pts}=$: '+str(m_pts)
-            elif z_key == 'min_samps':
-                # min samps must be an integer, or None
+            elif z_key == 'm_cls':
+                # min_cluster_size must be an integer, or None
                 if not isinstance(z_list[i], type(None)):
-                    min_s = int(z_list[i])
+                    m_cls = int(z_list[i])
                 else:
-                    min_s = z_list[i]
-                zlabel = 'Minimum samples: '+str(min_s)
+                    m_cls = z_list[i]
+                zlabel = 'Minimum samples: '+str(m_cls)
             # Run the HDBSCAN algorithm on the provided dataframe
             try:
-                new_df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, min_samp=min_s, param_sweep=True)
+                new_df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
             except:
                 break
             # Record outputs to plot
