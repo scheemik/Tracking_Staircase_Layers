@@ -162,10 +162,10 @@ BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
 ### By year
 ################################################################################
 ## Clustered
+test_cls = 1000
 # BGR ITPs 04
 BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
                    'sources_dict':{'ITP_002':'all'},
-                #    'sources_dict':{'BGR04':'all'},
                    'data_filters':dfs1,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
@@ -179,43 +179,86 @@ BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
 # BGR ITPs 0506
 BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                #    'sources_dict':{'BGR0506':'all'},
                    'data_filters':dfs1_BGR0506,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':670,
-                #    'm_pts':350,
+                   'm_pts':680,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
                    }
 # BGR ITPs 0607
 BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
-                #    'sources_dict':{'BGR0607':'all'},
                    'data_filters':dfs1_BGR0607,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':230,
-                #    'm_pts':350,
+                   'm_pts':220,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
                    }
 # BGR ITPs 0708
 BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                #    'sources_dict':{'BGR0708':'all'},
                    'data_filters':dfs1_BGR0708,
                    'pfs_object':pfs_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':350,
+                   'm_pts':550,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
+                   }
+# BGR ITPs 0809
+BGR0809_clstr_dict = {'netcdf_file':'netcdfs/BGR0809_clstrd.nc',
+                   'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
+                   'data_filters':dfs1_BGR0809,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':760,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
+                   }
+# BGR ITPs 0910
+BGR0910_clstr_dict = {'netcdf_file':'netcdfs/BGR0910_clstrd.nc',
+                   'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
+                   'data_filters':dfs1_BGR0910,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':140,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
+                   }
+# BGR ITPs 1011
+BGR1011_clstr_dict = {'netcdf_file':'netcdfs/BGR1011_clstrd.nc',
+                   'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
+                   'data_filters':dfs1_BGR1011,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':100,
+                #    'm_pts':'auto',
+                   'm_cls':'auto',
+                #    'm_pts':200,
+                #    'm_cls':1000,
                    }
 ################################################################################
 ## Paired down, minimal variables, just to run parameter sweeps on HPC
@@ -316,8 +359,8 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
 xr.set_options(display_max_rows=44)
 
 # for clstr_dict in [BGR05060708_clstrs_456]:
-for clstr_dict in [BGR1011_minimal]:
-# for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
+# for clstr_dict in [BGR0506_clstr_dict]:
+for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -401,7 +444,7 @@ for clstr_dict in [BGR1011_minimal]:
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'm_cls':clstr_dict['m_cls'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
         # Create analysis group
         print('Creating analysis group')
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
@@ -483,6 +526,7 @@ for clstr_dict in [BGR1011_minimal]:
         ds.attrs['Clustering x-axis'] = clstr_dict['cl_x_var']
         ds.attrs['Clustering y-axis'] = clstr_dict['cl_y_var']
         ds.attrs['Clustering z-axis'] = clstr_dict['cl_z_var']
+        ds.attrs['Clustering m_cls'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering m_cls']
         ds.attrs['Clustering m_pts'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering m_pts']
         ds.attrs['Clustering filters'] = ahf.print_profile_filters(clstr_dict['pfs_object'])
         ds.attrs['Clustering DBCV'] = group_test_clstr.data_set.arr_of_ds[0].attrs['Clustering DBCV']

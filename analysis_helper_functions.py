@@ -2354,7 +2354,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
-    print('plot_type:',plot_type)
+    # print('plot_type:',plot_type)
     # Decide on a plot type
     if plot_type == 'xy':
         ## Make a standard x vs. y scatter plot
@@ -2403,7 +2403,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check for cluster-based variables
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
         # If plotting per profile, collapse the vertical dimension
         if pp.plot_scale == 'by_pf':
             # Drop dimensions, if needed
@@ -2792,11 +2792,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Check for histogram
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, clstr_dict={'m_pts':m_pts, 'rel_val':rel_val})
-            # Format the dates if necessary
-            if x_key in ['dt_start', 'dt_end']:
-                df[x_key] = mpl.dates.date2num(df[x_key])
-            if y_key in ['dt_start', 'dt_end']:
-                df[y_key] = mpl.dates.date2num(df[y_key])
+            # Format the dates if necessary (don't need this because it's done above)
+            # if x_key in ['dt_start', 'dt_end']:
+            #     print(df[x_key])
+            #     df[x_key] = mpl.dates.date2num(df[x_key])
+            # if y_key in ['dt_start', 'dt_end']:
+            #     df[y_key] = mpl.dates.date2num(df[y_key])
             if isinstance(z_key, type(None)):
                 df_z_key = 0
                 # Drop duplicates
@@ -2818,7 +2819,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
             # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
-            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+            invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering m_cls'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax)
             # Check whether to plot isopycnals
@@ -3085,7 +3086,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check for cluster-based variables
         if clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map])
+            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map])
         # Drop dimensions, if needed
         if 'Vertical' in df.index.names:
             # Drop duplicates along the `Time` dimension
@@ -3889,7 +3890,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         #
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         try:
@@ -4335,7 +4336,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         #
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         print('Warning: Specifying ax_lims does not work as expected in waterfall plots')
@@ -4575,7 +4576,7 @@ def get_cluster_args(pp):
     # Get min_cluster_size parameter, if it was given
     try:
         m_cls = cluster_plt_dict['m_cls']
-        if not isinstance(m_cls, type(None)):
+        if not isinstance(m_cls, type('')):
             m_cls = int(m_cls)
     except:
         m_cls = None
@@ -4621,6 +4622,8 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
     extra_cl_vars   A list of extra variables to potentially calculate
     """
     # print('-- in HDBSCAN')
+    # print('-- m_pts:',m_pts)
+    # print('-- m_cls:',m_cls)
     # print('-- df columns:',df.columns.values.tolist())
     # Find the value of ell, the moving average window
     ell_sizes = []
@@ -4650,6 +4653,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
                        'Clustering y-axis':[],
                        'Clustering z-axis':[],
                        'Clustering m_pts':[],
+                       'Clustering m_cls':[],
                        'Moving average window':[],
                        'Clustering filters':[],
                        'Clustering DBCV':[]}
@@ -4662,7 +4666,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
         re_run = False
         for attr in gcattr_dict.keys():
             gcattr_dict[attr] = list(set(gcattr_dict[attr]))
-            if attr not in ['Last clustered', 'Clustering m_pts', 'Clustering DBCV'] and len(gcattr_dict[attr]) > 1:
+            if attr not in ['Last clustered', 'Clustering m_pts', 'Clustering m_cls', 'Clustering DBCV'] and len(gcattr_dict[attr]) > 1:
                 re_run = True
                 print('-- found multiple distinct values of',attr,'in list, re_run:',re_run)
         # if gcattr_dict['Last clustered'][0] == 'Never':
@@ -4671,9 +4675,13 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
     print('\t- Re-run HDBSCAN:',re_run)
     if re_run:
         # print('in HDBSCAN_(), m_pts:',m_pts)
+        print('len(df):',len(df))
         if m_pts == 'auto':
             # m_pts = int(len(df) / 500 + 200)
-            m_pts = int(7*(len(df)**(1/3)))
+            # m_pts = int(7*(len(df)**(1/3)))
+            m_pts = int(len(df) / 250 - 150)
+        if m_cls == 'auto':
+            m_cls = m_pts
         print('\t\tClustering x-axis:',x_key)
         print('\t\tClustering y-axis:',y_key)
         print('\t\tClustering z-axis:',z_key)
@@ -4717,7 +4725,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
         # if not param_sweep:
         #     run_group.data_frames = [df]
         #     run_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = rel_val
-        return df, rel_val, m_pts, ell_size
+        return df, rel_val, m_pts, m_cls, ell_size
     else:
         # Use the clustering results that are already in the dataframe
         print('\t- Using clustering results from file')
@@ -4725,6 +4733,8 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
         print('\t\tClustering y-axis:',gcattr_dict['Clustering y-axis'])
         m_pts = int(gcattr_dict['Clustering m_pts'][0])
         print('\t\tClustering m_pts: ',gcattr_dict['Clustering m_pts'])
+        m_cls = int(gcattr_dict['Clustering m_cls'][0])
+        print('\t\tClustering m_cls: ',gcattr_dict['Clustering m_cls'])
         print('\t\tMoving average window:',gcattr_dict['Moving average window'])
         print('\t\tClustering filters:',gcattr_dict['Clustering filters'])
         print('\t\tClustering DBCV:  ',gcattr_dict['Clustering DBCV'])
@@ -4736,7 +4746,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
         if len(new_cl_vars) > 0:
             print('\t\tCalculating extra clustering variables')
             df = calc_extra_cl_vars(df, new_cl_vars)
-        return df, gcattr_dict['Clustering DBCV'][0], m_pts, ell_size
+        return df, gcattr_dict['Clustering DBCV'][0], m_pts, m_cls, ell_size
 
 ################################################################################
 
@@ -5396,7 +5406,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if y_key in y_invert_vars:
             invert_y_axis = True
     #
-    return invert_y_axis, [df], m_pts, rel_val
+    return invert_y_axis, [df], m_pts, m_cls, rel_val
 
 ################################################################################
 
@@ -5668,7 +5678,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 zlabel = r'$m_{cls}=$'+str(m_cls)
             # Run the HDBSCAN algorithm on the provided dataframe
             try:
-                new_df, rel_val, m_pts, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
+                new_df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
             except:
                 break
             # Record outputs to plot

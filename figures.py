@@ -652,7 +652,13 @@ BGRITPs0910 = { 'ITP_021':'all',
                 # 'ITP_038':'all', # Not in BGR
                 }
 ## 2010-08-15 00:00:06 to 2011-08-14 00:00:06
-BGRITPs1011 = { 'ITP_041':'all',
+BGRITPs1011 = { 'ITP_033':'all',
+                # 'ITP_034':'all', # Not in this time period
+                # 'ITP_035':'all', # Not in this time period
+                # 'ITP_036':'all', # Not in BGR
+                # 'ITP_037':'all', # Not in BGR
+                # 'ITP_038':'all', # Not in BGR
+                'ITP_041':'all',
                 'ITP_042':'all',
                 'ITP_043':'all',
                 }
@@ -682,6 +688,7 @@ BGR0708 = {'minimal_BGR0708':'all'}
 BGR0809 = {'minimal_BGR0809':'all'}
 BGR0910 = {'minimal_BGR0910':'all'}
 BGR1011 = {'minimal_BGR1011':'all'}
+
 # With m_pts fixed manually
 # BGR04   = {'BGRm250_04':'all'}
 # BGR0506 = {'BGRm350_0506':'all'}
@@ -689,17 +696,30 @@ BGR1011 = {'minimal_BGR1011':'all'}
 # BGR0708 = {'BGRm350_0708':'all'}
 # BGR05060708 = {'BGRm350_0506':'all', 'BGRm350_0607':'all', 'BGRm350_0708':'all'}
 # BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
+
 # With m_pts fixed automatically
 # BGR04   = {'BGR04_clstrd':'all'}
 # BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
-# BGR0506 = {'BGR0506_clstrd':'all'}
-# BGR0607 = {'BGR0607_clstrd':'all'}
-# BGR0708 = {'BGR0708_clstrd':'all'}
+BGR0506 = {'BGR0506_clstrd':'all'}
+BGR0607 = {'BGR0607_clstrd':'all'}
+BGR0708 = {'BGR0708_clstrd':'all'}
+BGR0809 = {'BGR0809_clstrd':'all'}
+BGR0910 = {'BGR0910_clstrd':'all'}
+BGR1011 = {'BGR1011_clstrd':'all'}
+
 BGR0508 = {'BGR0508':'all'}
 BGR050607 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all'}
 BGR05060708 = {'BGR0506_clstrd':'all', 'BGR0607_clstrd':'all', 'BGR0708_clstrd':'all'}
 BGR05060708_clstrs_456 = {'BGR05060708_clstrs_456':'all'}
-BGR_all = {'BGR04_clstrd':'all','BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'}
+BGR_all = {
+            # 'BGR04_clstrd':'all',
+            'BGR0506_clstrd':'all',
+            'BGR0607_clstrd':'all',
+            'BGR0708_clstrd':'all',
+            'BGR0809_clstrd':'all',
+            'BGR0910_clstrd':'all',
+            'BGR1011_clstrd':'all',
+        }
 # Comparing time periods
 BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
 BGRno = {'BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
@@ -863,6 +883,7 @@ print('- Creating data sets')
 # ds_BGR0809 = ahf.Data_Set(BGRITPs0809, dfs1_BGR0809)
 # ds_BGR0910 = ahf.Data_Set(BGRITPs0910, dfs1_BGR0910)
 # ds_BGR1011 = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
+
 # ds_this_BGR = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
 
 # Data Sets without filtering based on CT_max
@@ -924,7 +945,7 @@ dfs_to_use = dfs_all
 # ds_BGR0910 = ahf.Data_Set(BGR0910, dfs_to_use)
 # ds_BGR1011 = ahf.Data_Set(BGR1011, dfs_to_use)
 
-ds_this_BGR = ahf.Data_Set(BGR04, dfs_to_use)
+# ds_this_BGR = ahf.Data_Set(BGR0506, dfs_to_use)
 
 
 # ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
@@ -934,6 +955,9 @@ ds_this_BGR = ahf.Data_Set(BGR04, dfs_to_use)
 # ds_BGR05060708_no_noise = ahf.Data_Set(BGR05060708, dfs_no_noise)
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
+
+ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
 # ds_BGRno = ahf.Data_Set(BGRno, dfs_to_use)
@@ -1448,10 +1472,10 @@ if False:
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,810,10]}) #[10,721,10]
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':1000, 'cl_ps_tuple':[10,110,10]}) #[10,721,10]
     # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
-    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep, plot_title='BGR04')
+    group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep)#, plot_title='BGR04')
     # group_ell_param_sweep  = ahf.Analysis_Group(ds_BGOS, pfs_fltrd, pp_ell_param_sweep, plot_title='BGR04')
     # # Make the figure
     # ahf.make_figure([group_mpts_param_sweep, group_ell_param_sweep], filename='test_param_sweep_BGR.pickle')
@@ -1474,12 +1498,12 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if True:
+if False:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':300, 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1517,6 +1541,20 @@ if False:
     group_pre_clstrd_3 = ahf.Analysis_Group(ds_BGR0708, pfs_0, pp_pre_clstrd)
     # Plot the figure
     ahf.make_figure([group_pre_clstrd_1, group_pre_clstrd_2, group_pre_clstrd_3])
+
+################################################################################
+## Pre-clustered plots vs. time
+################################################################################
+# Salinity vs. time
+if True:
+    print('')
+    print('- Creating plots of salinity vs time')
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'plt_noise':True})
+    # Make the subplot groups ds_BGOS_m280_e050 ds_BGOS
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt)
+    # Make the figure
+    ahf.make_figure([group_SA_vs_dt])
 
 ################################################################################
 pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
@@ -1704,31 +1742,6 @@ if False:
     group_lon_dt_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_lon_dt)
     # Make the figure
     ahf.make_figure([group_lon_dt_plot])
-
-
-## Plotting vs time
-# salinity vs time
-if False:
-    print('')
-    print('- Creating plots of salinity vs time')
-    # Make the Plot Parameters
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['dt_start'], clr_map='cluster', extra_args={'plt_noise':True})
-    # Make the subplot groups ds_BGOS_m280_e050 ds_BGOS
-    group_BGOS = ahf.Analysis_Group(ds_BGOS_m280_e050, pfs_fltrd, pp_SA_vs_dt, plot_title=r'BGOS ITPs')
-    # Make the figure
-    ahf.make_figure([group_BGOS], use_same_x_axis=False, use_same_y_axis=False)
-
-    # Make the subplot groups
-    # group_AIDJEX = ahf.Analysis_Group(ds_AIDJEX, pfs_fltrd, pp_SA_vs_dt, plot_title=r'BGOS ITPs')
-    # # Make the figure
-    # ahf.make_figure([group_AIDJEX], use_same_x_axis=False, use_same_y_axis=False)
-
-    # Make the subplot groups
-    # group_SHEBA = ahf.Analysis_Group(ds_SHEBA, pfs_fltrd, pp_SA_vs_dt, plot_title=r'BGOS ITPs')
-    # # Make the figure
-    # ahf.make_figure([group_SHEBA], use_same_x_axis=False, use_same_y_axis=False)
-
-
 
 ## Comparing multiple BGR ITP time period clusterings
 # BGR ITP clustering
