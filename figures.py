@@ -884,7 +884,7 @@ print('- Creating data sets')
 # ds_BGR0910 = ahf.Data_Set(BGRITPs0910, dfs1_BGR0910)
 # ds_BGR1011 = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
 
-# ds_this_BGR = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
+ds_this_BGR = ahf.Data_Set(BGRITPs04, dfs1)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -956,7 +956,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1033,9 +1033,9 @@ pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
 ################################################################################
 
 # Use these things
-pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-# pfs_this_BGR = pfs_BGR_test
+pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1498,12 +1498,12 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if False:
+if True:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':'auto', 'b_a_w_plt':True, 'relab_these':{1:2, 2:3, 5:6}, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure
@@ -1546,7 +1546,7 @@ if False:
 ## Pre-clustered plots vs. time
 ################################################################################
 # Salinity vs. time
-if True:
+if False:
     print('')
     print('- Creating plots of salinity vs time')
     # Make the Plot Parameters

@@ -860,14 +860,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ## Filter to just some cluster id's 
             if len(profile_filters.clstrs_to_plot) > 0:
                 plt_these_clstrs = profile_filters.clstrs_to_plot
-                # Clusters are labeled starting from 0, so total number of clusters is
-                #   the largest label plus 1
-                n_clusters = int(np.nanmax(df['cluster']+1))
+                # Find the cluster labels that exist in the dataframe
+                cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+                #   Delete the noise point label "-1"
+                cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+                n_clusters = int(len(cluster_numbers))
                 # Sort clusters first?
                 if sort_clstrs:
-                    df = sort_clusters(df, n_clusters, ax=None)
+                    df = sort_clusters(df, cluster_numbers, ax=None)
                 # Filter to just some clusters
-                df = filter_to_these_clstrs(df, n_clusters, plt_these_clstrs)
+                df = filter_to_these_clstrs(df, cluster_numbers, plt_these_clstrs)
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # print('\t-Applying regrid_TS filter')
@@ -1079,14 +1081,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ## Filter to just some cluster id's 
             if len(profile_filters.clstrs_to_plot) > 0:
                 plt_these_clstrs = profile_filters.clstrs_to_plot
-                # Clusters are labeled starting from 0, so total number of clusters is
-                #   the largest label plus 1
-                n_clusters = int(np.nanmax(df['cluster']+1))
+                # Find the cluster labels that exist in the dataframe
+                cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+                #   Delete the noise point label "-1"
+                cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+                n_clusters = int(len(cluster_numbers))
                 # Sort clusters first?
                 if sort_clstrs:
-                    df = sort_clusters(df, n_clusters, ax=None)
+                    df = sort_clusters(df, cluster_numbers, ax=None)
                 # Filter to just some clusters
-                df = filter_to_these_clstrs(df, n_clusters, plt_these_clstrs)
+                df = filter_to_these_clstrs(df, cluster_numbers, plt_these_clstrs)
             # Filter to just one entry per profile
             #   Turns out, if `vars_to_keep` doesn't have any multi-dimensional
             #       vars like 'temp' or 'salt', the resulting dataframe only has
@@ -3677,9 +3681,9 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         rel_val = clstr_dict['rel_val']
         # Re-order the cluster labels, if specified
         if sort_clstrs:
-            df = sort_clusters(df, n_clusters, ax)
+            df = sort_clusters(df, clstr_ids, ax)
         if len(clstrs_to_plot) > 0:
-            df = filter_to_these_clstrs(df, n_clusters, clstrs_to_plot)
+            df = filter_to_these_clstrs(df, clstr_ids, clstrs_to_plot)
         # Make blank lists to record values
         pts_per_cluster = []
         clstr_means = []
@@ -3953,14 +3957,16 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
-            # Clusters are labeled starting from 0, so total number of clusters is
-            #   the largest label plus 1
-            n_clusters = int(np.nanmax(df['cluster']+1))
-            df = sort_clusters(df, n_clusters, ax)
+            # Find the cluster labels that exist in the dataframe
+            cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+            #   Delete the noise point label "-1"
+            cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+            n_clusters = int(len(cluster_numbers))
+            df = sort_clusters(df, cluster_numbers, ax)
         except:
             foo = 2
     if len(clstrs_to_plot) > 0:
-        df = filter_to_these_clstrs(df, n_clusters, clstrs_to_plot)
+        df = filter_to_these_clstrs(df, cluster_numbers, clstrs_to_plot)
     # Decide whether to shift the profiles over so they don't overlap or not
     if shift_pfs:
         shift_pfs = 1
@@ -4392,10 +4398,12 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
-            # Clusters are labeled starting from 0, so total number of clusters is
-            #   the largest label plus 1
-            n_clusters = int(np.nanmax(df['cluster']+1))
-            df = sort_clusters(df, n_clusters, ax)
+            # Find the cluster labels that exist in the dataframe
+            cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+            #   Delete the noise point label "-1"
+            cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+            n_clusters = int(len(cluster_numbers))
+            df = sort_clusters(df, cluster_numbers, ax)
         except:
             foo = 2
     if len(clstrs_to_plot) > 0:
@@ -4839,8 +4847,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'cmc':
             # Calculate the cluster mean-centered version of the variable
             #   Should not change the number of points to display
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the mean of this var for this cluster
@@ -4852,9 +4865,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'ca':
             # Calculate the cluster average version of the variable
             #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            # print('cluster,'+var)
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the mean of this var for this cluster
@@ -4865,8 +4882,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'cs':
             # Calculate the cluster span version of the variable
             #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the mean of this var for this cluster
@@ -4876,9 +4898,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'csd':
             # Calculate the cluster standard deviation of the variable
             #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            # print('cluster,'+var)
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the std of this var for this cluster
@@ -4889,8 +4915,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'cmm':
             # Find the min/max of each cluster for the variable
             #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the min/max of this var for this cluster
@@ -4910,9 +4941,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
             clstr_df = pd.DataFrame(data=np.arange(n_clusters), columns=['cluster'])
             clstr_df['clstr_mean'] = None
             clstr_df['clstr_rnge'] = None
-            # print('cluster,std_'+var)
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the mean and standard deviation of this var for this cluster
@@ -4975,8 +5010,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
         if this_var == 'cRL':
             # Find the lateral density ratio R_L for each cluster
             #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
             # Loop over each cluster
-            for i in range(n_clusters):
+            for i in clstr_ids:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the variables needed
@@ -5108,6 +5148,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         except:
             sort_clstrs = True
         try:
+            relab_these = pp.extra_args['relab_these']
+        except:
+            relab_these = False
+        try:
             plot_centroid = pp.extra_args['plot_centroid']
         except:
             plot_centroid = None
@@ -5127,16 +5171,20 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             plot_centroid = False
         else:
             plot_centroid = True
-    # Clusters are labeled starting from 0, so total number of clusters is
-    #   the largest label plus 1
-    n_clusters = int(np.nanmax(df['cluster']+1))
+    # Find the cluster labels that exist in the dataframe
+    cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+    #   Delete the noise point label "-1"
+    cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
     # Remove rows where the plot variables are null
     for var in [x_key, y_key, z_key]:
         if not isinstance(var, type(None)):
             df = df[df[var].notnull()]
     # Re-order the cluster labels, if specified
     if sort_clstrs:
-        df = sort_clusters(df, n_clusters, ax)
+        df = sort_clusters(df, cluster_numbers, ax)
+    # Relabel clusters, if specified
+    if relab_these:
+        df, cluster_numbers = relabel_clusters(df, cluster_numbers, relab_these)
     # Noise points are labeled as -1
     # Plot noise points first
     df_noise = df[df.cluster==-1]
@@ -5223,7 +5271,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         clstr_means = []
         clstr_stdvs = []
         # Loop through each cluster
-        for i in range(n_clusters):
+        for i in cluster_numbers:
             # Decide on the color and symbol, don't go off the end of the arrays
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
@@ -5383,6 +5431,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
         m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
+        n_clusters = int(len(cluster_numbers))
         n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
         n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
         rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
@@ -5410,23 +5459,24 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
 
 ################################################################################
 
-def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
+def sort_clusters(df, cluster_numbers, ax=None, order_by='SA', use_PDF=False):
     """
     Redoes the cluster labels so they are sorted in some way
 
     df              A pandas data frame output from HDBSCAN_
-    n_clusters      The number of clusters
+    cluster_numbers A list of all the labels for the clusterst in df
     ax              The axis on which to draw lines, if applicable
     order_by        String of the variable by which to sort clusters
     use_PDF         True/False whether to sort by the valleys in a probability distribution function
     """
+    n_clusters = int(len(cluster_numbers))
     s_key = order_by
     if use_PDF == False:
         print('\t- Sorting clusters by',order_by)
         ## Figure out the order
         sorting_arr = []
         # Loop through each cluster
-        for i in range(n_clusters):
+        for i in cluster_numbers:
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
             # Get relevant data for sorting
@@ -5525,7 +5575,49 @@ def sort_clusters(df, n_clusters, ax=None, order_by='SA', use_PDF=False):
 
 ################################################################################
 
-def filter_to_these_clstrs(df, n_clusters, clstrs_to_plot=[]):
+def relabel_clusters(df, cluster_numbers, relab_these=None):
+    """
+    Relabels the clusters, swapping the labels in the keys of the relab_these
+    dictionary for those in the values
+
+    df              A pandas data frame output from HDBSCAN_
+    relab_these     A dictionary of cluster label swaps to make
+    """
+    print('\t- Relabeling clusters')
+    # print('\tcluster_numbers:',cluster_numbers)
+    # Confirm that all the keys of relab_these are cluster labels that exist
+    for i in relab_these.keys():
+        if i not in cluster_numbers:
+            print('Error: Cluster number',i,'not found, aborting script')
+            exit(0)
+    # Loop through each cluster in the keys of relab_these
+    for i in relab_these.keys():
+        if i not in cluster_numbers:
+            continue
+        print('\t\t- Changing cluster',i,'to be cluster',relab_these[i])
+        # Change cluster id to a temp number in the original dataframe
+        #   Need to make a mask first for some reason
+        this_cluster_mask = (df['cluster']==i)
+        temp_i = int(-i - +2)
+        df.loc[this_cluster_mask, 'cluster'] = temp_i
+        # Change the key in relab_these to the temp number
+        relab_these[temp_i] = relab_these[i]
+        del relab_these[i]
+    # Loop through the temp cluster labels now in the keys of relab_these
+    for i in relab_these.keys():
+        # Change cluster id to the value of this dictionary key
+        #   Need to make a mask first for some reason
+        this_cluster_mask = (df['cluster']==i)
+        df.loc[this_cluster_mask, 'cluster'] = relab_these[i]
+    # Find the cluster labels that exist in the dataframe
+    cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+    #   Delete the noise point label "-1"
+    cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+    return df, cluster_numbers
+
+################################################################################
+
+def filter_to_these_clstrs(df, cluster_numbers, clstrs_to_plot=[]):
     """
     Filters to just the clusters listed
 
@@ -5538,7 +5630,7 @@ def filter_to_these_clstrs(df, n_clusters, clstrs_to_plot=[]):
         print('\t- Only displaying these clusters:',clstrs_to_plot)
         # Make a temporary list of dataframes for the profiles to plot
         tmp_df_list = []
-        for i in range(n_clusters):
+        for i in cluster_numbers:
             if i in clstrs_to_plot:
                 # Add the rows with this cluster id to the list
                 tmp_df_list.append(df[df['cluster'] == i])
