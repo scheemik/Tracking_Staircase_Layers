@@ -798,8 +798,6 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ds = calc_extra_vars(ds, vars_to_keep)
             # Convert to a pandas data frame
             df = ds[vars_to_keep].to_dataframe()
-            # Find average variables, if applicable
-            # df = calc_avg_vars(df, vars_to_keep)
             # Add a notes column
             df['notes'] = ''
             #   If the m_avg_win is not None, take the moving average of the data
@@ -5584,31 +5582,32 @@ def relabel_clusters(df, cluster_numbers, relab_these=None):
     relab_these     A dictionary of cluster label swaps to make
     """
     print('\t- Relabeling clusters')
-    # print('\tcluster_numbers:',cluster_numbers)
     # Confirm that all the keys of relab_these are cluster labels that exist
     for i in relab_these.keys():
         if i not in cluster_numbers:
             print('Error: Cluster number',i,'not found, aborting script')
             exit(0)
+    # Prepare second dictionary 
+    relab_these2 = {}
     # Loop through each cluster in the keys of relab_these
     for i in relab_these.keys():
-        if i not in cluster_numbers:
-            continue
         print('\t\t- Changing cluster',i,'to be cluster',relab_these[i])
+        if i not in cluster_numbers:
+            print('This cluster label is not available')
+            continue
         # Change cluster id to a temp number in the original dataframe
         #   Need to make a mask first for some reason
         this_cluster_mask = (df['cluster']==i)
-        temp_i = int(-i - +2)
+        temp_i = int(-i - 2)
         df.loc[this_cluster_mask, 'cluster'] = temp_i
         # Change the key in relab_these to the temp number
-        relab_these[temp_i] = relab_these[i]
-        del relab_these[i]
+        relab_these2.update({temp_i:relab_these[i]})
     # Loop through the temp cluster labels now in the keys of relab_these
-    for i in relab_these.keys():
+    for i in relab_these2.keys():
         # Change cluster id to the value of this dictionary key
         #   Need to make a mask first for some reason
         this_cluster_mask = (df['cluster']==i)
-        df.loc[this_cluster_mask, 'cluster'] = relab_these[i]
+        df.loc[this_cluster_mask, 'cluster'] = relab_these2[i]
     # Find the cluster labels that exist in the dataframe
     cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
     #   Delete the noise point label "-1"

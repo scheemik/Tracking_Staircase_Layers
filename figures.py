@@ -697,7 +697,7 @@ BGR1011 = {'minimal_BGR1011':'all'}
 # BGR05060708 = {'BGRm350_0506':'all', 'BGRm350_0607':'all', 'BGRm350_0708':'all'}
 # BGR_all = {'BGRm350_0506':'all','BGRm350_0607':'all','BGRm350_0708':'all'}
 
-# With m_pts fixed automatically
+# With m_pts fixed manually
 # BGR04   = {'BGR04_clstrd':'all'}
 # BGR04_clstrs_456 = {'BGR04_clstrs_456':'all'}
 BGR0506 = {'BGR0506_clstrd':'all'}
@@ -720,6 +720,23 @@ BGR_all = {
             'BGR0910_clstrd':'all',
             'BGR1011_clstrd':'all',
         }
+
+# With m_pts fixed automatically
+BGR0506 = {'mpts_auto_BGR0506_clstrd':'all'}
+BGR0607 = {'mpts_auto_BGR0607_clstrd':'all'}
+BGR0708 = {'mpts_auto_BGR0708_clstrd':'all'}
+BGR0809 = {'mpts_auto_BGR0809_clstrd':'all'}
+BGR0910 = {'mpts_auto_BGR0910_clstrd':'all'}
+BGR1011 = {'mpts_auto_BGR1011_clstrd':'all'}
+BGR_all = {
+            'mpts_auto_BGR0506_clstrd':'all',
+            'mpts_auto_BGR0607_clstrd':'all',
+            'mpts_auto_BGR0708_clstrd':'all',
+            'mpts_auto_BGR0809_clstrd':'all',
+            'mpts_auto_BGR0910_clstrd':'all',
+            'mpts_auto_BGR1011_clstrd':'all',
+        }
+
 # Comparing time periods
 BGRmn = {'BGRm_mpts_410':'all','BGRn_mpts_240':'all'}
 BGRno = {'BGRn_mpts_240':'all','BGRo_mpts_390':'all'}
@@ -884,7 +901,7 @@ print('- Creating data sets')
 # ds_BGR0910 = ahf.Data_Set(BGRITPs0910, dfs1_BGR0910)
 # ds_BGR1011 = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
 
-ds_this_BGR = ahf.Data_Set(BGRITPs04, dfs1)
+# ds_this_BGR = ahf.Data_Set(BGRITPs04, dfs1)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -910,20 +927,6 @@ ds_this_BGR = ahf.Data_Set(BGRITPs04, dfs1)
 # ds_ITP35_some_pfs0 = ahf.Data_Set(ITP35_pfs0, dfs0)
 # ds_ITP35_some_pfs1 = ahf.Data_Set(ITP35_pfs1, dfs0)
 # ds_ITP35_some_pfs2 = ahf.Data_Set(ITP35_pfs2, dfs0)
-
-# Pre-clustered
-#   ell = 10
-# ds_AIDJEX_m500_e010 = ahf.Data_Set(AIDJEX_m500_e010, dfs_all)
-# ds_BGOS_m440_e010 = ahf.Data_Set(BGOS_m440_e010, dfs_all)
-# ds_BGOSss_m260_e010 = ahf.Data_Set(BGOSss_m260_e010, dfs_all)
-#   ell = 50
-# ds_AIDJEX_m490_e050 = ahf.Data_Set(AIDJEX_m490_e050, dfs_all)
-# ds_BGOS_m280_e050 = ahf.Data_Set(BGOS_m280_e050, dfs_all)
-# ds_BGOSss_m340_e050 = ahf.Data_Set(BGOSss_m340_e050, dfs_all)
-#   ell = 100
-# ds_AIDJEX_m300_e100 = ahf.Data_Set(AIDJEX_m300_e100, dfs_all)
-# ds_BGOS_m360_e100 = ahf.Data_Set(BGOS_m360_e100, dfs_all)
-# ds_BGOSss_m220_e100 = ahf.Data_Set(BGOSss_m220_e100, dfs_all)
 
 ## Pre-clustered
 dfs_to_use = dfs_all
@@ -956,7 +959,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1033,9 +1036,9 @@ pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
 ################################################################################
 
 # Use these things
-# pfs_this_BGR = pfs_0
+pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-pfs_this_BGR = pfs_BGR_test
+# pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1192,6 +1195,20 @@ if False:
     # ahf.make_figure([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
     # Find the maximum distance between any two profiles for each data set in the group
     ahf.find_max_distance([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43])
+
+################################################################################
+## Density ratio plots
+################################################################################
+# Map of vertical density ratio
+if True:
+    print('')
+    print('- Creating TS plot')
+    # Make the Plot Parameters
+    pp_R_rho_map = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', extra_args={'map_extent':'Western_Arctic'})
+    # Make the subplot groups
+    group_R_rho_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_R_rho_map)
+    # Make the figure
+    ahf.make_figure([group_R_rho_map])
 
 ################################################################################
 ## Basic plots
@@ -1498,7 +1515,7 @@ if False:
 ## Test clustering (live)
 ################################################################################
 # test clustering
-if True:
+if False:
     print('')
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
@@ -1520,11 +1537,14 @@ if True:
 ################################################################################
 # Make the Plot Parameters
 pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'b_a_w_plt':True})
+# relab_these_test = {2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14}
+relab_these_test = {}
 # BGR ITP clustering
 if False:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True, 'relab_these':relab_these_test}, ax_lims={'x_lims':test_S_range})
+    # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
     # Plot the figure
@@ -1555,6 +1575,18 @@ if False:
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt)
     # Make the figure
     ahf.make_figure([group_SA_vs_dt])
+# Temperature vs. time and pressure vs. time
+if False:
+    print('')
+    print('- Creating plots of temperature and pressure vs time')
+    # Make the Plot Parameters
+    pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'plt_noise':False, 'extra_vars_to_keep':['SA','cluster']}, legend=False)
+    pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'plt_noise':False, 'extra_vars_to_keep':['SA','cluster']}, legend=False)
+    # Make the subplot groups ds_BGOS_m280_e050 ds_BGOS
+    group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt)
+    group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt)
+    # Make the figure
+    ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.45, 1.4])
 
 ################################################################################
 pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
@@ -1562,7 +1594,7 @@ pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='clust
 ################################################################################
 ## Pre-clustered spans and averages in variables
 ################################################################################
-# Spans in pressure
+# Spans in pressure, individual time periods
 if False:
     print('')
     print('- Creating plots of cluster span in pressure')
@@ -1575,6 +1607,16 @@ if False:
     group_clstrs_3 = ahf.Analysis_Group(ds_BGR0708, pfs_0, pp_clstr_span)
     # # Make the figure
     ahf.make_figure([group_clstrs_0, group_clstrs_1, group_clstrs_2, group_clstrs_3])
+# Spans in pressure, all time periods
+if False:
+    print('')
+    print('- Creating plots of cluster span in pressure')
+    # Make the Plot Parameters
+    pp_clstr_span = ahf.Plot_Parameters(x_vars=['pcs_press'], y_vars=['pca_press'], clr_map='cluster', extra_args={'plt_noise':False, 'extra_vars_to_keep':['SA']}, legend=True) 
+    # Make the subplot groups
+    group_clstrs_0 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_clstr_span)
+    # # Make the figure
+    ahf.make_figure([group_clstrs_0])
 
 ################################################################################
 ## Pre-clustered comparing clusters across time periods
@@ -1596,7 +1638,7 @@ if False:
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
 # Define the profile filters
-pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[5])
+pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[6])
 # Just one cluster in SA vs. la_CT space
 if False:
     print('')

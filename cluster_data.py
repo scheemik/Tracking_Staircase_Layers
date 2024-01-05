@@ -260,6 +260,94 @@ BGR1011_clstr_dict = {'netcdf_file':'netcdfs/BGR1011_clstrd.nc',
                 #    'm_pts':200,
                 #    'm_cls':1000,
                    }
+
+################################################################################
+## Clustered, auto mpts selection
+# BGR ITPs 04
+BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
+                   'sources_dict':{'ITP_002':'all'},
+                   'data_filters':dfs1,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                #    'm_pts':'None',
+                #    'm_pts':190,
+                #    'm_pts':250,
+                   }
+# BGR ITPs 0506
+BGR0506_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0506_clstrd.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+                   'data_filters':dfs1_BGR0506,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{2:1},
+                   }
+# BGR ITPs 0607
+BGR0607_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0607_clstrd.nc',
+                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
+                   'data_filters':dfs1_BGR0607,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+                   }
+# BGR ITPs 0708
+BGR0708_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0708_clstrd.nc',
+                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+                   'data_filters':dfs1_BGR0708,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{},
+                   }
+# BGR ITPs 0809
+BGR0809_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0809_clstrd.nc',
+                   'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
+                   'data_filters':dfs1_BGR0809,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+                   }
+# BGR ITPs 0910
+BGR0910_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0910_clstrd.nc',
+                   'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
+                   'data_filters':dfs1_BGR0910,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{3:4,4:5,5:6,6:7,7:8,8:9,9:15,12:11,13:12,14:13,15:14},
+                   }
+# BGR ITPs 1011
+BGR1011_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1011_clstrd.nc',
+                   'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
+                   'data_filters':dfs1_BGR1011,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
 ################################################################################
 ## Paired down, minimal variables, just to run parameter sweeps on HPC
 # BGR ITPs 04
@@ -359,7 +447,7 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
 xr.set_options(display_max_rows=44)
 
 # for clstr_dict in [BGR05060708_clstrs_456]:
-# for clstr_dict in [BGR0506_clstr_dict]:
+# for clstr_dict in [BGR0607_clstr_dict, BGR0708_clstr_dict]:
 for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
@@ -437,14 +525,15 @@ for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, B
         if clstr_dict['m_pts'] == 'None':
             keep_these_vars = ['source', 'instrmt', 'entry', 'prof_no', 'SA', 'CT', 'ma_CT']
             # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars, 'relab_these':clstr_dict['relab_these']}, legend=True)
         elif clstr_dict['m_pts'] == 'second':
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma', 'cluster', 'clst_prob']
             pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
         else:
             # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
             keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
-            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'm_cls':clstr_dict['m_cls'], 'extra_vars_to_keep':keep_these_vars}, legend=True)
+            pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'm_cls':clstr_dict['m_cls'], 'extra_vars_to_keep':keep_these_vars, 'relab_these':clstr_dict['relab_these']}, legend=True)
+            # pp_clstr = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'm_cls':clstr_dict['m_cls'], 'extra_vars_to_keep':keep_these_vars, 'relab_these':clstr_dict['relab_these']}, legend=True)
         # Create analysis group
         print('Creating analysis group')
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
