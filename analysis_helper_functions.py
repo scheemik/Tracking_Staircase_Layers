@@ -379,7 +379,8 @@ class Plot_Parameters:
     legend          True/False whether to add a legend on this plot. Default:True
     add_grid        True/False whether to add a grid on this plot. Default:True
     ax_lims         An optional dictionary of the limits on the axes for the final plot
-                      Ex: {'x_lims':[x_min,x_max], 'y_lims':[y_min,y_max]}
+                      Ex: {'x_lims':[x_min,x_max], 'y_lims':[y_min,y_max], 
+                           'z_lims':[z_min,z_max], 'c_lims':[c_min,c_max], 'clr_ext':'max'}
     extra_args      A general use argument for passing extra info for the plot
                     'map' expects a dictionary following this format:
                         {'map_extent':'Canada_Basin'}
@@ -1923,6 +1924,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 print('\t- Set y_lims to',pp.ax_lims['y_lims'])
             except:
                 foo = 2
+            try:
+                ax.set_zlim(pp.ax_lims['z_lims'])
+                print('\t- Set z_lims to',pp.ax_lims['z_lims'])
+            except:
+                foo = 2
             # 
         # If called for, add a grid to the plot by default
         print('\t- Adding grid lines:',pp.add_grid)
@@ -2946,6 +2952,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 loc = mpl.dates.AutoDateLocator()
                 cbar.ax.yaxis.set_major_locator(loc)
                 cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+            # Change the colorbar limits, if necessary
+            ax_lims_keys = list(pp.ax_lims.keys())
+            if 'c_lims' in ax_lims_keys:
+                cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             cbar.set_label(pp.clabel)
             # Add a standard legend
             if pp.legend:
@@ -3266,6 +3277,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 loc = mpl.dates.AutoDateLocator()
                 cbar.ax.yaxis.set_major_locator(loc)
                 cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+            # Change the colorbar limits, if necessary
+            ax_lims_keys = list(pp.ax_lims.keys())
+            if 'c_lims' in ax_lims_keys:
+                cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             # cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
             cbar.set_label(pp.clabel)
             # Add a standard legend
@@ -4172,6 +4188,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                     loc = mpl.dates.AutoDateLocator()
                     cbar.ax.yaxis.set_major_locator(loc)
                     cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+                # Change the colorbar limits, if necessary
+                ax_lims_keys = list(pp.ax_lims.keys())
+                if 'c_lims' in ax_lims_keys:
+                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
@@ -4509,6 +4530,11 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                     loc = mpl.dates.AutoDateLocator()
                     cbar.ax.yaxis.set_major_locator(loc)
                     cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+                # Change the colorbar limits, if necessary
+                ax_lims_keys = list(pp.ax_lims.keys())
+                if 'c_lims' in ax_lims_keys:
+                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9

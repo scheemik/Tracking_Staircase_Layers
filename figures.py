@@ -804,6 +804,7 @@ BGRITPs2223 = { 'ITP_122':'all',
 
 ## All
 BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
+BGRITPsAll  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011, **BGRITPs1112, **BGRITPs1213, **BGRITPs1314, **BGRITPs1415, **BGRITPs1516, **BGRITPs1617, **BGRITPs1718, **BGRITPs1819, **BGRITPs1920, **BGRITPs2021, **BGRITPs2122, **BGRITPs2223}
 
 ## Pre-clustered files
 # Single time periods
@@ -1056,7 +1057,9 @@ print('- Creating data sets')
 # ds_BGR2021 = ahf.Data_Set(BGRITPs2021, dfs1_BGR2021)
 # ds_BGR2122 = ahf.Data_Set(BGRITPs2122, dfs1_BGR2122)
 
-ds_this_BGR = ahf.Data_Set(BGRITPs2223, dfs1_BGR2223)
+ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
+
+# ds_this_BGR = ahf.Data_Set(BGRITPsAll, dfs1)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -1277,7 +1280,7 @@ if False:
     ahf.make_figure([group_ITP_vs_time])
 
 # Output summary
-if True:
+if False:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
@@ -1349,23 +1352,35 @@ if False:
 ## Density ratio plots
 ################################################################################
 # Map and histogram of vertical density ratio per profile
-if False:
+if True:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
-    pp_map_R_rho = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', extra_args={'map_extent':'Western_Arctic'})
+    pp_map_R_rho = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', ax_lims={'c_lims':[0,10]}, extra_args={'map_extent':'Western_Arctic'})
     pp_hist_R_rho = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['R_rho'], y_vars=['hist'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA']})
     # Make the subplot groups
-    group_map_R_rho = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_R_rho)
+    # group_map_R_rho = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_R_rho)
     group_hist_R_rho = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_hist_R_rho)
     # Make the figure
-    ahf.make_figure([group_map_R_rho, group_hist_R_rho])
+    # ahf.make_figure([group_map_R_rho, group_hist_R_rho])
+    ahf.make_figure([group_hist_R_rho])
 
 ################################################################################
 ## Basic plots
 ################################################################################
+# TS 
+if False:
+    print('')
+    print('- Creating TS plot')
+    # Make the Plot Parameters
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press', ax_lims={'c_lims':[180,240]})
+    # Make the subplot groups
+    group_TS = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
+    # Make the figure
+    ahf.make_figure([group_TS])
+
 # SA vs time
-if True:
+if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1375,7 +1390,7 @@ if True:
     # Make the figure
     ahf.make_figure([group_SA_vs_time], row_col_list=[1,1, 0.27, 1.0])
 # TS and map
-if True:
+if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1671,7 +1686,8 @@ if False:
     print('- Creating clustering plot')
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':'auto', 'b_a_w_plt':True, 'relab_these':{1:2, 2:3, 5:6}, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    # pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':'auto', 'b_a_w_plt':True, 'relab_these':{1:2, 2:3, 5:6}, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure

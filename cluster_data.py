@@ -82,6 +82,11 @@ dfs1_BGR1415 = ahf.Data_Filters(min_press=this_min_press, date_range=['2014/08/1
 dfs1_BGR1516 = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/08/15 00:00:00','2016/08/15 00:00:00'])
 dfs1_BGR1617 = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/08/15 00:00:00','2017/08/15 00:00:00'])
 dfs1_BGR1718 = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/15 00:00:00','2018/08/15 00:00:00'])
+dfs1_BGR1819 = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/15 00:00:00','2019/08/15 00:00:00'])
+dfs1_BGR1920 = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/08/15 00:00:00','2020/08/15 00:00:00'])
+dfs1_BGR2021 = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/08/15 00:00:00','2021/08/15 00:00:00'])
+dfs1_BGR2122 = ahf.Data_Filters(min_press=this_min_press, date_range=['2021/08/15 00:00:00','2022/08/15 00:00:00'])
+dfs1_BGR2223 = ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08/15 00:00:00'])
 ## combo
 dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 
@@ -348,6 +353,151 @@ BGR1011_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1011_clstrd.nc',
                    'm_cls':'auto',
                    'relab_these':{3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
+# BGR ITPs 1112
+BGR1112_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1112_clstrd.nc',
+                   'sources_dict':{'ITP_041':'all','ITP_052':'all','ITP_053':'all','ITP_054':'all','ITP_055':'all'},
+                   'data_filters':dfs1_BGR1112,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1213
+BGR1213_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1213_clstrd.nc',
+                   'sources_dict':{'ITP_041':'all','ITP_062':'all','ITP_064':'all','ITP_065':'all'},
+                   'data_filters':dfs1_BGR1213,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1314
+BGR1314_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1314_clstrd.nc',
+                   'sources_dict':{'ITP_064':'all','ITP_068':'all','ITP_069':'all','ITP_070':'all','ITP_077':'all','ITP_078':'all','ITP_079':'all','ITP_080':'all'},
+                   'data_filters':dfs1_BGR1314,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1415
+BGR1415_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1415_clstrd.nc',
+                   'sources_dict':{'ITP_077':'all','ITP_079':'all','ITP_080':'all','ITP_081':'all','ITP_082':'all','ITP_084':'all','ITP_085':'all','ITP_086':'all','ITP_087':'all'},
+                   'data_filters':dfs1_BGR1415,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1516
+BGR1516_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1516_clstrd.nc',
+                   'sources_dict':{'ITP_082':'all','ITP_085':'all','ITP_086':'all','ITP_088':'all','ITP_089':'all'},
+                   'data_filters':dfs1_BGR1516,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1617
+BGR1617_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1617_clstrd.nc',
+                   'sources_dict':{'ITP_097':'all','ITP_098':'all'},
+                   'data_filters':dfs1_BGR1617,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1718
+BGR1718_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1718_clstrd.nc',
+                   'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
+                   'data_filters':dfs1_BGR1718,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1819
+BGR1819_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1819_clstrd.nc',
+                   'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
+                   'data_filters':dfs1_BGR1819,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 1920
+BGR1920_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1920_clstrd.nc',
+                   'sources_dict':{'ITP_105':'all','ITP_113':'all','ITP_114':'all','ITP_117':'all','ITP_118':'all'},
+                   'data_filters':dfs1_BGR1920,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 2021
+BGR2021_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2021_clstrd.nc',
+                   'sources_dict':{'ITP_113':'all','ITP_114':'all','ITP_120':'all','ITP_121':'all'},
+                   'data_filters':dfs1_BGR2021,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 2122
+BGR2122_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2122_clstrd.nc',
+                   'sources_dict':{'ITP_120':'all','ITP_121':'all','ITP_122':'all','ITP_123':'all'},
+                   'data_filters':dfs1_BGR2122,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+# BGR ITPs 2223
+BGR2223_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2223_clstrd.nc',
+                   'sources_dict':{'ITP_122':'all'},
+                   'data_filters':dfs1_BGR2223,
+                   'pfs_object':pfs_test,
+                   'cl_x_var':'SA',
+                   'cl_y_var':'la_CT',
+                   'cl_z_var':'None',
+                   'm_pts':'auto',
+                   'm_cls':'auto',
+                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   }
+
 ################################################################################
 ## Paired down, minimal variables, just to run parameter sweeps on HPC
 # BGR ITPs 04
