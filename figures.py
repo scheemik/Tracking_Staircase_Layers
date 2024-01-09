@@ -662,6 +662,145 @@ BGRITPs1011 = { 'ITP_033':'all',
                 'ITP_042':'all',
                 'ITP_043':'all',
                 }
+## 2011-08-15 00:00:01 to 2012-08-14 00:00:07
+BGRITPs1112 = { 'ITP_041':'all',
+                # 'ITP_042':'all', # Not in this time period
+                # 'ITP_043':'all', # Not in this time period
+                # 'ITP_047':'all', # Not in BGR
+                # 'ITP_048':'all', # Not in BGR
+                # 'ITP_049':'all', # Not in BGR
+                # 'ITP_051':'all', # Not in BGR
+                'ITP_052':'all',
+                'ITP_053':'all',
+                'ITP_054':'all',
+                'ITP_055':'all',
+                }
+## 2012-08-15 00:00:06 to 2013-08-12 00:00:06
+BGRITPs1213 = { 'ITP_041':'all',
+                # 'ITP_042':'all', # Not in this time period
+                # 'ITP_043':'all', # Not in this time period
+                # 'ITP_052':'all', # Not in this time period
+                # 'ITP_053':'all', # Not in this time period
+                # 'ITP_054':'all', # Not in this time period
+                # 'ITP_055':'all', # Not in this time period
+                # 'ITP_056':'all', # Not in BGR
+                # 'ITP_057':'all', # Not in BGR
+                # 'ITP_058':'all', # Not in BGR
+                # 'ITP_059':'all', # Not in BGR
+                # 'ITP_060':'all', # Not in BGR
+                # 'ITP_061':'all', # Not in BGR
+                'ITP_062':'all',
+                # 'ITP_063':'all', # Not in BGR
+                'ITP_064':'all',
+                'ITP_065':'all',
+                }
+## 2013-08-22 00:02:02 to 2014-08-14 00:02:02
+BGRITPs1314 = { 'ITP_064':'all',
+                # 'ITP_065':'all', # Not in BGR
+                'ITP_068':'all',
+                'ITP_069':'all',
+                'ITP_070':'all',
+                # 'ITP_072':'all', # Not in BGR
+                # 'ITP_073':'all', # Not in BGR
+                # 'ITP_074':'all', # Not in BGR
+                # 'ITP_075':'all', # Not in BGR
+                # 'ITP_076':'all', # Not in BGR
+                'ITP_077':'all',
+                'ITP_078':'all',
+                'ITP_079':'all',
+                'ITP_080':'all',
+                }
+## 2014-08-15 00:02:02 to 2015-08-14 00:02:02
+BGRITPs1415 = { 'ITP_077':'all',
+                # 'ITP_078':'all', # Not in this time period
+                'ITP_079':'all',
+                'ITP_080':'all',
+                'ITP_081':'all',
+                'ITP_082':'all',
+                # 'ITP_083':'all', # Not in BGR
+                'ITP_084':'all',
+                'ITP_085':'all',
+                'ITP_086':'all',
+                'ITP_087':'all',
+                }
+## 2015-08-15 00:02:01 to 2016-05-02 00:02:01
+BGRITPs1516 = { 'ITP_082':'all',
+                # 'ITP_083':'all', # Not in BGR
+                # 'ITP_084':'all', # Not in this time period
+                'ITP_085':'all',
+                'ITP_086':'all',
+                # 'ITP_087':'all', # Not in this time period
+                'ITP_088':'all',
+                'ITP_089':'all',
+                # 'ITP_090':'all', # Not in BGR
+                # 'ITP_091':'all', # Not in BGR
+                # 'ITP_092':'all', # Not in BGR
+                # 'ITP_094':'all', # Not in BGR
+                # 'ITP_095':'all', # Not in BGR
+                }
+## 2016-10-03 00:02:02 to 2017-08-04 00:02:01
+BGRITPs1617 = { 'ITP_097':'all',
+                # 'ITP_098':'all', # Not in BGR
+                'ITP_099':'all',
+                }
+## 2017-09-17 00:02:02 to 2018-07-21 00:02:02
+BGRITPs1718 = { 'ITP_097':'all',
+                # 'ITP_098':'all', # Not in BGR
+                # 'ITP_099':'all', # Not in this time period
+                'ITP_100':'all',
+                'ITP_101':'all',
+                # 'ITP_102':'all', # Not in BGR
+                # 'ITP_103':'all', # Not in this time period
+                # 'ITP_104':'all', # Not in this time period
+                # 'ITP_105':'all', # Not in this time period
+                # 'ITP_107':'all', # Not in this time period
+                'ITP_108':'all',
+                }
+## 2018-09-19 00:02:03 to 2019-08-14 00:02:02
+BGRITPs1819 = { 'ITP_103':'all',
+                'ITP_104':'all',
+                'ITP_105':'all',
+                'ITP_107':'all',
+                # 'ITP_108':'all', # Not in this time period
+                'ITP_109':'all',
+                'ITP_110':'all',
+                }
+## 2019-08-16 00:02:01 to 2020-08-14 17:33:46
+BGRITPs1920 = { 'ITP_105':'all',
+                # 'ITP_107':'all', # Not in this time period
+                # 'ITP_108':'all', # Not in this time period
+                # 'ITP_109':'all', # Not in this time period
+                # 'ITP_110':'all', # Not in this time period
+                # 'ITP_111':'all',
+                'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                'ITP_117':'all',
+                'ITP_118':'all',
+                }
+## 2020-08-18 17:33:46 to 2021-08-14 00:02:02
+BGRITPs2021 = { 'ITP_113':'all',
+                'ITP_114':'all',
+                # 'ITP_116':'all', # Not in BGR
+                # 'ITP_117':'all', # Not in this time period
+                # 'ITP_118':'all', # Not in this time period
+                'ITP_120':'all',
+                'ITP_121':'all',
+                }
+## 2021-08-15 00:02:02 to 2022-08-11 12:02:02
+BGRITPs2122 = { 'ITP_120':'all',
+                'ITP_121':'all',
+                'ITP_122':'all',
+                'ITP_123':'all',
+                # 'ITP_125':'all',
+                # 'ITP_128':'all',
+                }
+## 2022-08-21 12:02:02 to 2022-12-23 00:02:02
+BGRITPs2223 = { 'ITP_122':'all',
+                # 'ITP_123':'all',
+                # 'ITP_125':'all',
+                # 'ITP_128':'all',
+                }
 
 ## All
 BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
@@ -819,6 +958,11 @@ dfs1_BGR1415 = ahf.Data_Filters(min_press=this_min_press, date_range=['2014/08/1
 dfs1_BGR1516 = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/08/15 00:00:00','2016/08/15 00:00:00'])
 dfs1_BGR1617 = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/08/15 00:00:00','2017/08/15 00:00:00'])
 dfs1_BGR1718 = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/15 00:00:00','2018/08/15 00:00:00'])
+dfs1_BGR1819 = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/15 00:00:00','2019/08/15 00:00:00'])
+dfs1_BGR1920 = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/08/15 00:00:00','2020/08/15 00:00:00'])
+dfs1_BGR2021 = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/08/15 00:00:00','2021/08/15 00:00:00'])
+dfs1_BGR2122 = ahf.Data_Filters(min_press=this_min_press, date_range=['2021/08/15 00:00:00','2022/08/15 00:00:00'])
+dfs1_BGR2223 = ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08/15 00:00:00'])
 
 ## combo
 dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
@@ -900,8 +1044,19 @@ print('- Creating data sets')
 # ds_BGR0809 = ahf.Data_Set(BGRITPs0809, dfs1_BGR0809)
 # ds_BGR0910 = ahf.Data_Set(BGRITPs0910, dfs1_BGR0910)
 # ds_BGR1011 = ahf.Data_Set(BGRITPs1011, dfs1_BGR1011)
+# ds_BGR1112 = ahf.Data_Set(BGRITPs1112, dfs1_BGR1112)
+# ds_BGR1213 = ahf.Data_Set(BGRITPs1213, dfs1_BGR1213)
+# ds_BGR1314 = ahf.Data_Set(BGRITPs1314, dfs1_BGR1314)
+# ds_BGR1415 = ahf.Data_Set(BGRITPs1415, dfs1_BGR1415)
+# ds_BGR1516 = ahf.Data_Set(BGRITPs1516, dfs1_BGR1516)
+# ds_BGR1617 = ahf.Data_Set(BGRITPs1617, dfs1_BGR1617)
+# ds_BGR1718 = ahf.Data_Set(BGRITPs1718, dfs1_BGR1718)
+# ds_BGR1819 = ahf.Data_Set(BGRITPs1819, dfs1_BGR1819)
+# ds_BGR1920 = ahf.Data_Set(BGRITPs1920, dfs1_BGR1920)
+# ds_BGR2021 = ahf.Data_Set(BGRITPs2021, dfs1_BGR2021)
+# ds_BGR2122 = ahf.Data_Set(BGRITPs2122, dfs1_BGR2122)
 
-# ds_this_BGR = ahf.Data_Set(BGRITPs04, dfs1)
+ds_this_BGR = ahf.Data_Set(BGRITPs2223, dfs1_BGR2223)
 
 # Data Sets without filtering based on CT_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
@@ -959,7 +1114,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1036,9 +1191,9 @@ pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
 ################################################################################
 
 # Use these things
-pfs_this_BGR = pfs_0
+# pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-# pfs_this_BGR = pfs_BGR_test
+pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1122,7 +1277,7 @@ if False:
     ahf.make_figure([group_ITP_vs_time])
 
 # Output summary
-if False:
+if True:
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start']})
     # Make the Analysis Group
@@ -1157,10 +1312,9 @@ if False:
     print('')
     print('- Creating a map of profiles in the Beaufort Gyre Region')
     # Make the subplot groups
-    # group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
     group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+    ahf.make_figure([group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
 ## Map of all upgoing profiles for all sources
 if False:
     print('')
@@ -1180,41 +1334,38 @@ if False:
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle') 
 ### Date and Distance spans
-## Maps of BGOS ITPs by date
+## Map of all BGR profiles
 if False:
     print('')
-    print('- Creating maps for each BGOS ITP')
+    print('- Creating map all BGR profiles')
     # Make the subplot groups
-    group_ITP33 = ahf.Analysis_Group(ds_ITP33, pfs_AOA, pp_map_by_date)
-    group_ITP34 = ahf.Analysis_Group(ds_ITP34, pfs_AOA, pp_map_by_date)
-    group_ITP35 = ahf.Analysis_Group(ds_ITP35, pfs_AOA, pp_map_by_date)
-    group_ITP41 = ahf.Analysis_Group(ds_ITP41, pfs_AOA, pp_map_by_date)
-    group_ITP42 = ahf.Analysis_Group(ds_ITP42, pfs_AOA, pp_map_by_date)
-    group_ITP43 = ahf.Analysis_Group(ds_ITP43, pfs_AOA, pp_map_by_date)
+    group_BGR_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_by_date)
     # Make the figure
-    # ahf.make_figure([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    ahf.make_figure([group_BGR_map_by_date], use_same_x_axis=False, use_same_y_axis=False)
     # Find the maximum distance between any two profiles for each data set in the group
-    ahf.find_max_distance([group_ITP33, group_ITP34, group_ITP35, group_ITP41, group_ITP42, group_ITP43])
+    # ahf.find_max_distance([group_BGR_map_by_date])
 
 ################################################################################
 ## Density ratio plots
 ################################################################################
-# Map of vertical density ratio
-if True:
+# Map and histogram of vertical density ratio per profile
+if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
-    pp_R_rho_map = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', extra_args={'map_extent':'Western_Arctic'})
+    pp_map_R_rho = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', extra_args={'map_extent':'Western_Arctic'})
+    pp_hist_R_rho = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['R_rho'], y_vars=['hist'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA']})
     # Make the subplot groups
-    group_R_rho_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_R_rho_map)
+    group_map_R_rho = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map_R_rho)
+    group_hist_R_rho = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_hist_R_rho)
     # Make the figure
-    ahf.make_figure([group_R_rho_map])
+    ahf.make_figure([group_map_R_rho, group_hist_R_rho])
 
 ################################################################################
 ## Basic plots
 ################################################################################
 # SA vs time
-if False:
+if True:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1224,7 +1375,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_SA_vs_time], row_col_list=[1,1, 0.27, 1.0])
 # TS and map
-if False:
+if True:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
@@ -1589,8 +1740,19 @@ if False:
     ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.45, 1.4])
 
 ################################################################################
-pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
-pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
+# cRL and nir_SA for all clusters
+if False:
+    print('')
+    print('- Creating plots of lateral density ratio and normalized intercluster range vs pressure')
+    # Make the Plot Parameters
+    pp_nir_SA = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False})
+    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map='cluster', extra_args={'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True})
+    # Make the subplot groups
+    group_nir_SA = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_nir_SA)
+    group_cRL = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_cRL)
+    # Make the figure
+    ahf.make_figure([group_cRL, group_nir_SA])
+
 ################################################################################
 ## Pre-clustered spans and averages in variables
 ################################################################################
@@ -1756,6 +1918,63 @@ if False:
     # # Make the figure
     # ahf.make_figure([group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
     ahf.make_figure([group_test_1])
+
+################################################################################
+## Pre-clustered comparing multiple clusters across time periods
+################################################################################
+# Define the profile filters
+pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6,7,8,9])
+# Multiple clusters in SA vs. la_CT space
+if False:
+    print('')
+    print('- Creating plot of pre-clustered BGR ITP data for multiple cluster')
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    # Make the subplot groups
+    group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_pre_clstrd)
+    # Plot the figure
+    ahf.make_figure([group_pre_clstrd], use_same_y_axis=False)
+# Multiple clusters plotting SA, CT, and press vs. time with trend lines
+if False:
+    print('')
+    print('- Creating plots across time to look at multiple clusters across different periods')
+    # Make the Plot Parameters
+    pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
+    group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
+    group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
+    # Make the figure
+    ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
+# Multiple clusters plotting SA, CT, and press vs. longitude with trend lines
+if False:
+    print('')
+    print('- Creating plots across longitude to look at multiple clusters across different periods')
+    # Make the Plot Parameters
+    pp_SA = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
+    group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
+    group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
+    # Make the figure
+    ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
+# Multiple clusters plotting SA, CT, and press vs. latitude with trend lines
+if False:
+    print('')
+    print('- Creating plots across latitude to look at multiple clusters across different periods')
+    # Make the Plot Parameters
+    pp_SA = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_press = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    # Make the subplot groups
+    group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
+    group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
+    group_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press)
+    # Make the figure
+    ahf.make_figure([group_SA, group_CT, group_press], row_col_list=[3,1, 0.45, 1.4])
 
 ################################################################################
 
