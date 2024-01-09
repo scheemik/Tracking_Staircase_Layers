@@ -658,6 +658,14 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append(var)
             if var == 'cluster':
                 vars_to_keep.append('clst_prob')
+            if var == 'R_rho':
+                vars_to_keep.append(var)
+                vars_to_keep.append('aCT')
+                vars_to_keep.append('alpha')
+                vars_to_keep.append('CT')
+                vars_to_keep.append('BSA')
+                vars_to_keep.append('beta')
+                vars_to_keep.append('SA')
             if var == 'aiT':
                 vars_to_keep.append(var)
                 vars_to_keep.append('alpha_iT')
@@ -1046,6 +1054,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
         #
     elif plot_scale == 'by_pf':
         for ds in arr_of_ds:
+            # Find extra variables, if applicable
+            ds = calc_extra_vars(ds, vars_to_keep)
             # Convert to a pandas data frame
             df = ds[vars_to_keep].to_dataframe()
             # Add source and instrument columns if applicable
@@ -1071,6 +1081,28 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                         # Fill this profile's max_var with that value
                         df.loc[df['prof_no']==pf, var] = this_pf_max
                     # 
+                    # Calculate vertical density ratio R_rho, if applicable
+                if var == 'R_rho':
+                    print('\t- Calculating vertical density ratio')
+                    # Get list of profile entries
+                    entries = list(set(df['entry'].values))
+                    # Loop over each profile
+                    for i in entries:
+                        # Get aCT and BSA values for this profile
+                        these_aCT = df[df['entry']==i].aCT.values
+                        these_BSA = df[df['entry']==i].BSA.values
+                        # Remove null values
+                        these_aCT = these_aCT[~np.isnan(these_aCT)]
+                        these_BSA = these_BSA[~np.isnan(these_BSA)]
+                        # Find the slope of this profile in aT-BS space
+                        # m, c = np.linalg.lstsq(np.array([BSs, np.ones(len(BSs))]).T, aTs, rcond=None)[0]
+                        # Find the slope of the total least-squares of the points for this cluster
+                        m, c, sd_m, sd_c = orthoregress(these_BSA, these_aCT)
+                        # The lateral density ratio is the inverse of the slope
+                        this_R_rho = 1/m
+                        # Assign the rows of this entry to be this vertical density ratio
+                        df.loc[df['entry']==i, 'R_rho'] = this_R_rho
+                    #
                 #
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
@@ -3210,7 +3242,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if clr_map in vertical_vars:
                 print('Cannot use',clr_map,'as colormap for a map plot')
                 exit(0)
-            print('df.columns:',df.columns)
+            # print('df.columns:',df.columns)
             # print(df)
             if clr_map not in np.array(df.columns):
                 print('Error: Could not find variable',clr_map,'to use as colormap. Aborting script')
