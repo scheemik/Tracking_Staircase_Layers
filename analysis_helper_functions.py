@@ -1085,24 +1085,35 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     # Calculate vertical density ratio R_rho, if applicable
                 if var == 'R_rho':
                     print('\t- Calculating vertical density ratio')
-                    # Get list of profile entries
-                    entries = list(set(df['entry'].values))
+                    # Make a new column with the combination of instrument and profile number
+                    #   This avoids accidentally lumping two profiles with the same number from
+                    #   different instruments together, which would give the incorrect result
+                    df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
+                    instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
                     # Loop over each profile
-                    for i in entries:
+                    for pf in instrmt_pf_nos:
+                        # Find the data from just this profile
+                        df_this_pf = df[df['instrmt-prof_no']==pf]
                         # Get aCT and BSA values for this profile
-                        these_aCT = df[df['entry']==i].aCT.values
-                        these_BSA = df[df['entry']==i].BSA.values
+                        these_aCT = df_this_pf.aCT.values
+                        these_BSA = df_this_pf.BSA.values
                         # Remove null values
                         these_aCT = these_aCT[~np.isnan(these_aCT)]
                         these_BSA = these_BSA[~np.isnan(these_BSA)]
-                        # Find the slope of this profile in aT-BS space
-                        # m, c = np.linalg.lstsq(np.array([BSs, np.ones(len(BSs))]).T, aTs, rcond=None)[0]
-                        # Find the slope of the total least-squares of the points for this cluster
-                        m, c, sd_m, sd_c = orthoregress(these_BSA, these_aCT)
-                        # The lateral density ratio is the inverse of the slope
-                        this_R_rho = 1/m
-                        # Assign the rows of this entry to be this vertical density ratio
-                        df.loc[df['entry']==i, 'R_rho'] = this_R_rho
+                        if len(these_aCT) > 0 and len(these_BSA) > 0:
+                            # Find the slope of this profile in aT-BS space
+                            # m, c = np.linalg.lstsq(np.array([BSs, np.ones(len(BSs))]).T, aTs, rcond=None)[0]
+                            # Find the slope of the total least-squares of the points for this cluster
+                            m, c, sd_m, sd_c = orthoregress(these_BSA, these_aCT)
+                            # The lateral density ratio is the inverse of the slope
+                            this_R_rho = 1/m
+                            # Assign the rows of this entry to be this vertical density ratio
+                            df.loc[df['instrmt-prof_no']==pf, 'R_rho'] = this_R_rho
+                        else:
+                            # Either these_aCT and/or these_BSA were empty
+                            print('\t\t- Unable to calculate R_rho for',pf)
+                            # Assign the rows of this entry to be this vertical density ratio
+                            df.loc[df['instrmt-prof_no']==pf, 'R_rho'] = None
                     #
                 #
             ## Filter each profile to certain ranges
@@ -1990,6 +2001,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     print('\t- Set y_lims to',this_ax_pp.ax_lims['y_lims'])
                 except:
                     foo = 2
+                try:
+                    ax.set_zlim(this_ax_pp.ax_lims['z_lims'])
+                    print('\t- Set z_lims to',this_ax_pp.ax_lims['z_lims'])
+                except:
+                    foo = 2
                 #
             # If called for, add a grid to the plot by default
             print('\t- Adding grid lines:',this_ax_pp.add_grid)
@@ -2499,31 +2515,34 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Get data
                     x_data = np.array(df[x_key].values, dtype=np.float64)
                     y_data = np.array(df[y_key].values, dtype=np.float64)
-                if plot_slopes == 'OLS':
-                    # Find the slope of the ordinary least-squares of the points for this cluster
-                    # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                    # sd_m, sd_c = 0, 0
-                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
-                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                    print('\t\t- R^2 value is',rvalue)
+                if plot_3d:
+                    foo = 2
                 else:
-                    # Find the slope of the total least-squares of the points for this cluster
-                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                # Find mean and standard deviation of x and y data
-                x_mean = df.loc[:,x_key].mean()
-                y_mean = df.loc[:,y_key].mean()
-                x_stdv = df.loc[:,x_key].std()
-                y_stdv = df.loc[:,y_key].std()
-                # Plot the least-squares fit line for this cluster through the centroid
-                ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
-                # Add annotation to say what the slope is
-                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-                    annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
-                else:
-                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
-                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    if plot_slopes == 'OLS':
+                        # Find the slope of the ordinary least-squares of the points for this cluster
+                        # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+                        # sd_m, sd_c = 0, 0
+                        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                        print('\t\t- R^2 value is',rvalue)
+                    else:
+                        # Find the slope of the total least-squares of the points for this cluster
+                        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                    # Find mean and standard deviation of x and y data
+                    x_mean = df.loc[:,x_key].mean()
+                    y_mean = df.loc[:,y_key].mean()
+                    x_stdv = df.loc[:,x_key].std()
+                    y_stdv = df.loc[:,y_key].std()
+                    # Plot the least-squares fit line for this cluster through the centroid
+                    ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
+                    # Add annotation to say what the slope is
+                    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+                        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+                    else:
+                        annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
+                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
