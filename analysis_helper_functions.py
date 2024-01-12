@@ -2515,9 +2515,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Get data
                     x_data = np.array(df[x_key].values, dtype=np.float64)
                     y_data = np.array(df[y_key].values, dtype=np.float64)
-                if plot_3d:
-                    foo = 2
-                else:
+                if plot_3d == False:
                     if plot_slopes == 'OLS':
                         # Find the slope of the ordinary least-squares of the points for this cluster
                         # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
@@ -2543,6 +2541,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     else:
                         annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
                     ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                else:
+                    # Fit a 2d polynomial to the z data
+                    polyfit2d(ax, pp, x_data, y_data, df_z_key)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2926,6 +2927,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
                 heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+                if plot_slopes:
+                    # Fit a 2d polynomial to the z data
+                    polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
             else:
                 heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
@@ -4640,6 +4644,72 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
 
 ################################################################################
 
+def polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50):
+    """
+    Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
+    and plots the result as a surface.
+
+    ax          The axis on which to make the plot
+    pp          The Plot_Parameters object for a_group
+    x_data      1D array of the x values
+    y_data      1D array of the y values
+    z_data      1D array of the z values
+    kx          Polynomial order in x
+    order       int or None, default is None
+                    If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
+                    If int, coefficients up to a maximum of kx+ky <= order are considered.
+
+    Return paramters from np.linalg.lstsq:
+        soln: np.ndarray
+            Array of polynomial coefficients.
+        residuals: np.ndarray
+        rank: int
+        s: np.ndarray
+    """
+    print('in polyfit2d')
+    print('x_data.shape:',x_data.shape)
+    print('y_data.shape:',y_data.shape)
+    print('z_data.shape:',z_data.shape)
+    # Prepare coefficient array, up to x^kx, y^ky
+    coeffs = np.ones((kx+1, ky+1))
+    # Prepare solution array
+    a = np.zeros((coeffs.size, x_data.size))
+
+    # for each coefficient produce array x^i, y^j
+    for index, (j, i) in enumerate(np.ndindex(coeffs.shape)):
+        # do not include powers greater than order
+        if order is not None and i + j > order:
+            arr = np.zeros_like(x_data)
+        else:
+            arr = coeffs[i, j] * x_data**i * y_data**j
+        a[index] = arr.ravel()
+
+    # Do leastsq fitting and save the result
+    soln, residuals, rank, s =  np.linalg.lstsq(a.T, np.ravel(z_data), rcond=None)
+    # Print out equation
+    print('\t- Fitted equation:')
+    which_coeff = [' + ','*X + ','*X^2 + ','*Y + ','*XY + ','*X^2Y + ','*Y^2 + ','*XY^2 + ','*X^2Y^2']
+    eq_string = 'Z = '
+    for i in range(len(which_coeff)):
+        eq_string += format_sci_notation(soln[i])+which_coeff[i]
+    print('\t ', eq_string)
+    # exit(0)
+    # Make a grid for the solution to plot on 
+    x_range = np.linspace(min(x_data), max(x_data), n_grid_pts)
+    y_range = np.linspace(min(y_data), max(y_data), n_grid_pts)
+    x_grid, y_grid = np.meshgrid(x_range, y_range)
+    # Define a function to take a grid and the coefficients and 
+    #   calculate the values of the polynomial
+    def poly2Dreco(X, Y, c):
+        return (c[0] + X*c[1] + X**2*c[2] + Y*c[3] + X*Y*c[4] + X**2*Y*c[5] + Y**2*c[6] + X*Y**2*c[7] + X**2*Y**2*c[8])
+    # Either of these work, very slight differences
+    # fitted_surf = np.polynomial.polynomial.polygrid2d(x_grid, y_grid, soln.reshape((kx+1,ky+1)))
+    fitted_surf = poly2Dreco(x_grid, y_grid, soln)
+    # Plot fit as a surface
+    surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=cm.davos.reversed(), linewidth=0, alpha=0.5)
+
+################################################################################
+
 def get_cluster_args(pp):
     """
     Finds cluster-realted variables in the extra_args dictionary
@@ -5280,7 +5350,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Plot in 3D
             ax.scatter(df_noise[x_key], df_noise[y_key], zs=df_noise_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
             plot_centroid = False
-            plot_slopes = False
+            # plot_slopes = False
     n_noise_pts = len(df_noise)
     # Check whether to just plot one point per cluster
     if x_key in ca_vars:
@@ -5395,27 +5465,33 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+            print('plot slopes is',plot_slopes)
             if plot_slopes and 'cRL' not in [x_key, y_key]:
-                if plot_slopes == 'OLS':
-                    # Find the slope of the ordinary least-squares of the points for this cluster
-                    # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                    # sd_m, sd_c = 0, 0
-                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
-                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                    print('\t\t- R^2 value is',rvalue)
+                print('ploooooting slopes')
+                if plot_3d == False:
+                    if plot_slopes == 'OLS':
+                        # Find the slope of the ordinary least-squares of the points for this cluster
+                        # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+                        # sd_m, sd_c = 0, 0
+                        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                        print('\t\t- R^2 value is',rvalue)
+                    else:
+                        # Find the slope of the total least-squares of the points for this cluster
+                        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                    # Plot the least-squares fit line for this cluster through the centroid
+                    ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
+                    # Add annotation to say what the slope is
+                    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+                        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+                    else:
+                        annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
+                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
                 else:
-                    # Find the slope of the total least-squares of the points for this cluster
-                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                # Plot the least-squares fit line for this cluster through the centroid
-                ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
-                # Add annotation to say what the slope is
-                if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-                    annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
-                else:
-                    annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
-                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    # Fit a 2d polynomial to the z data
+                    polyfit2d(ax, pp, x_data, y_data, df_z_key)
             #
             # Record the number of points in this cluster
             pts_per_cluster.append(len(x_data))

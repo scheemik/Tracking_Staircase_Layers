@@ -1057,7 +1057,7 @@ print('- Creating data sets')
 # ds_BGR2021 = ahf.Data_Set(BGRITPs2021, dfs1_BGR2021)
 # ds_BGR2122 = ahf.Data_Set(BGRITPs2122, dfs1_BGR2122)
 
-ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
+# ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, dfs1)
 
@@ -1117,7 +1117,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1351,10 +1351,10 @@ if False:
 ################################################################################
 ## Density ratio plots
 ################################################################################
-# Map and histogram of vertical density ratio per profile
-if True:
+# Map and histogram of vertical density ratio per profile NOT WORKING CURRENTLY
+if False:
     print('')
-    print('- Creating TS plot')
+    print('- Creating map of vertical density ratio')
     # Make the Plot Parameters
     pp_map_R_rho = ahf.Plot_Parameters(plot_type='map', clr_map='R_rho', ax_lims={'c_lims':[0,10]}, extra_args={'map_extent':'Western_Arctic'})
     pp_hist_R_rho = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['R_rho'], y_vars=['hist'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA']})
@@ -1921,19 +1921,18 @@ if False:
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 # Test plots for one cluster
-if False:
+if True:
     print('')
-    print('- Creating test plots for one cluster')
+    print('- Creating test plots for one cluster') 
     # Make the Plot Parameters
-    pp_test_1 = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['pca_CT'], clr_map='clr_all_same', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})
-    # pp_test_1= ahf.Plot_Parameters(plot_type='map', clr_map='pca_SA', legend=False, extra_args={'map_extent':'Western_Arctic', 'extra_vars_to_keep':['SA','cluster']})
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':[350,150]})
+    pp_3d_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['press'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[350,150]})
     # Make the subplot groups
-    group_test_1 = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_test_1)
-    # group_hist_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_CT)
-    # group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_hist_press)
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d)
+    group_3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_3d_fit)
     # # Make the figure
     # ahf.make_figure([group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
-    ahf.make_figure([group_test_1])
+    ahf.make_figure([group_2d, group_3d])
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods
