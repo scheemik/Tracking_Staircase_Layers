@@ -2543,7 +2543,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
                 else:
                     # Fit a 2d polynomial to the z data
-                    polyfit2d(ax, pp, x_data, y_data, df_z_key)
+                    plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -2929,7 +2929,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
                 if plot_slopes:
                     # Fit a 2d polynomial to the z data
-                    polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
+                    plot_polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
             else:
                 heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
@@ -4644,13 +4644,10 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
 
 ################################################################################
 
-def polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50):
+def polyfit2d(x_data, y_data, z_data, kx=2, ky=2, order=None):
     """
-    Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
-    and plots the result as a surface.
+    Finds a polynomial fit of the z data across the x_data and y_data
 
-    ax          The axis on which to make the plot
-    pp          The Plot_Parameters object for a_group
     x_data      1D array of the x values
     y_data      1D array of the y values
     z_data      1D array of the z values
@@ -4666,10 +4663,6 @@ def polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts
         rank: int
         s: np.ndarray
     """
-    print('in polyfit2d')
-    print('x_data.shape:',x_data.shape)
-    print('y_data.shape:',y_data.shape)
-    print('z_data.shape:',z_data.shape)
     # Prepare coefficient array, up to x^kx, y^ky
     coeffs = np.ones((kx+1, ky+1))
     # Prepare solution array
@@ -4685,14 +4678,50 @@ def polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts
         a[index] = arr.ravel()
 
     # Do leastsq fitting and save the result
-    soln, residuals, rank, s =  np.linalg.lstsq(a.T, np.ravel(z_data), rcond=None)
-    # Print out equation
-    print('\t- Fitted equation:')
+    return np.linalg.lstsq(a.T, np.ravel(z_data), rcond=None)
+
+################################################################################
+
+def print_polyfit2d_eq(soln):
+    """
+    Takes in the solution coefficients from polyfit2d() and prints out the fit equation
+
+    soln        Array of polynomial coefficients from polyfit2d()
+    """
     which_coeff = [' + ','*X + ','*X^2 + ','*Y + ','*XY + ','*X^2Y + ','*Y^2 + ','*XY^2 + ','*X^2Y^2']
     eq_string = 'Z = '
     for i in range(len(which_coeff)):
         eq_string += format_sci_notation(soln[i])+which_coeff[i]
-    print('\t ', eq_string)
+    return eq_string
+
+################################################################################
+
+def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50):
+    """
+    Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
+    and plots the result as a surface.
+
+    ax          The axis on which to make the plot
+    pp          The Plot_Parameters object for a_group
+    x_data      1D array of the x values
+    y_data      1D array of the y values
+    z_data      1D array of the z values
+    kx          Polynomial order in x
+    order       int or None, default is None
+                    If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
+                    If int, coefficients up to a maximum of kx+ky <= order are considered.
+    n_grid_pts  int of the number of points per x and y range to make the grid for the 
+                    fit surface
+    """
+    print('in plot_polyfit2d')
+    print('x_data.shape:',x_data.shape)
+    print('y_data.shape:',y_data.shape)
+    print('z_data.shape:',z_data.shape)
+    # Find the solution to the polyfit
+    soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
+    # Print out equation
+    print('\t- Fitted equation:')
+    print('\t ', print_polyfit2d_eq(soln))
     # exit(0)
     # Make a grid for the solution to plot on 
     x_range = np.linspace(min(x_data), max(x_data), n_grid_pts)
@@ -5491,7 +5520,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
                 else:
                     # Fit a 2d polynomial to the z data
-                    polyfit2d(ax, pp, x_data, y_data, df_z_key)
+                    plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
             #
             # Record the number of points in this cluster
             pts_per_cluster.append(len(x_data))
