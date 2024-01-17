@@ -1526,7 +1526,7 @@ if False:
 ## Example profile plots
 ################################################################################
 # Example profile plot, iT and SP
-if False:
+if True:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
@@ -1857,9 +1857,9 @@ if False:
     print('')
     print('- Creating plots across longitude to look at a single cluster across different periods')
     # Make the Plot Parameters
-    pp_SA = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    pp_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
-    pp_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
+    pp_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
     # Make the subplot groups
     group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
     group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
@@ -1871,9 +1871,9 @@ if False:
     print('')
     print('- Creating plots across latitude to look at a single cluster across different periods')
     # Make the Plot Parameters
-    pp_SA = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    pp_CT = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
-    pp_press = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
+    pp_press = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
     # Make the subplot groups
     group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
     group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
@@ -1920,10 +1920,13 @@ if False:
     group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_press)
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
-# Test plots for one cluster
-if True:
+################################################################################
+## Pre-clustered correcting single clusters with polyfit2d
+################################################################################
+# Plotting a cluster across lat-lon with a polyfit2d in pressure in 2D / 3D
+if False:
     print('')
-    print('- Creating test plots for one cluster') 
+    print('- Creating plot for one cluster with a lat-lon-press polyfit2d') 
     # Make the Plot Parameters
     pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':[350,150]})
     pp_3d_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['press'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[350,150]})
@@ -1931,8 +1934,58 @@ if True:
     group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d)
     group_3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_3d_fit)
     # # Make the figure
-    # ahf.make_figure([group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
     ahf.make_figure([group_2d, group_3d])
+# Plotting a cluster's pressure-polyfit2d across lat-lon in 2D / 3D
+if False:
+    print('')
+    print('- Creating plot for one cluster press minus lat-lon-press polyfit2d') 
+    # Make the Plot Parameters
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
+    pp_minus_fit3d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['press-fit'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[-70,70]})
+    # Make the subplot groups
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit)
+    group_minus_fit3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit3d)
+    # # Make the figure
+    ahf.make_figure([group_minus_fit, group_minus_fit3d])
+# Comparing plots along time for pressure and pressure-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster press minus lat-lon-press polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-press polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along longitude for pressure and pressure-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster press minus lat-lon-press polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-press polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along latitude for pressure and pressure-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along latitude for one cluster press minus lat-lon-press polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lat_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-press polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods
@@ -1967,9 +2020,9 @@ if False:
     print('')
     print('- Creating plots across longitude to look at multiple clusters across different periods')
     # Make the Plot Parameters
-    pp_SA = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    pp_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
-    pp_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
+    pp_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
     # Make the subplot groups
     group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
     group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)
@@ -1981,9 +2034,9 @@ if False:
     print('')
     print('- Creating plots across latitude to look at multiple clusters across different periods')
     # Make the Plot Parameters
-    pp_SA = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    pp_CT = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
-    pp_press = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_SA = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], clr_map='cluster', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_CT = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
+    pp_press = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
     # Make the subplot groups
     group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA)
     group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT)

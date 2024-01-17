@@ -180,7 +180,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'press_CT_max']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'press_CT_max']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -645,6 +645,11 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                             vars_to_keep.append('SA')
                         if not 'iT' in vars_to_keep:
                             vars_to_keep.append('iT')
+                # If adding variables over which to run polyfit2d
+                if key == 'fit_vars':
+                    for var in pp.extra_args[key]:
+                        vars_to_keep.append(var)
+                    #
                 # If adding extra variables to keep
                 if key == 'extra_vars_to_keep':
                     for var in pp.extra_args[key]:
@@ -725,7 +730,16 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 if prefix in ['la']:
                     vars_to_keep.append(var)
                     vars_to_keep.append(var_str)
-                #
+            # Check for variables for which to normalize by subtracting a polyfit2d
+            #   ex: `press-fit`
+            if '-' in var:
+                print('this - var:',var)
+                # Split the prefix from the original variable (assumes a hyphen split)
+                split_var = var.split('-', 1)
+                var_str = split_var[0]
+                suffix = split_var[1]
+                # Add var to the list
+                vars_to_keep.append(var_str)
             #
         # If re-running the clustering, remove 'cluster' from vars_to_keep
         if re_run_clstr:
@@ -1532,6 +1546,11 @@ def get_axis_label(var_key, var_attr_dicts):
         var_str = var_key[4:]
         return r'Normalized inter-cluster range $IR_{S_P}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
+    # Check for variables normalized by subtracting a polyfit2d
+    elif '-fit' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[:-4]
+        return var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
     # Build dictionary of axis labels
     ax_labels = {
                  'instrmt':r'Instrument',
@@ -2200,7 +2219,8 @@ def get_color_map(cmap_var):
 
     cmap_var    A string of the variable name for the colormap
     """
-    return cm.davos.reversed()
+    return cm.batlow.reversed()
+    # return cm.davos.reversed()
     # Build dictionary of axis labels
     cmaps = {'entry':'plasma',
              'prof_no':'plasma',
@@ -2399,6 +2419,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
             errorbars = extra_args['errorbars']
         else:
             place_isos = False
+        if 'fit_vars' in extra_args.keys():
+            fit_vars = extra_args['fit_vars']
+        else:
+            fit_vars = False
         if 'log_axes' in extra_args.keys():
             log_axes = extra_args['log_axes']
         if 'mpi_run' in extra_args.keys():
@@ -2418,6 +2442,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         x_key = pp.x_vars[0]
         y_key = pp.y_vars[0]
         z_key = pp.z_vars[0]
+        # print('test print of plot vars 1:',x_key, y_key, z_key, clr_map)
         # Check for histogram
         if x_key == 'hist' or y_key == 'hist':
             plot_hist = True
@@ -2460,6 +2485,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+        # Check whether to normalize by subtracting a polyfit2d
+        # print('test print of plot vars:',x_key, y_key, z_key, clr_map)
+        if fit_vars:
+            df = calc_fit_vars(df, (x_key, y_key, z_key, clr_map), fit_vars)
         # If plotting per profile, collapse the vertical dimension
         if pp.plot_scale == 'by_pf':
             # Drop dimensions, if needed
@@ -4682,6 +4711,19 @@ def polyfit2d(x_data, y_data, z_data, kx=2, ky=2, order=None):
 
 ################################################################################
 
+def poly2Dreco(X, Y, c):
+    """
+    Calculates the Z values on X and Y for the polynomial based on the  
+    coefficients calculated by polyfit2d, from the variable soln
+
+    X       An array of x values
+    Y       An array of y values (needs to be the same size as X)
+    c       An array of coefficients from polyfit2d (soln)
+    """
+    return (c[0] + X*c[1] + X**2*c[2] + Y*c[3] + X*Y*c[4] + X**2*Y*c[5] + Y**2*c[6] + X*Y**2*c[7] + X**2*Y**2*c[8])
+
+################################################################################
+
 def print_polyfit2d_eq(soln):
     """
     Takes in the solution coefficients from polyfit2d() and prints out the fit equation
@@ -4693,6 +4735,56 @@ def print_polyfit2d_eq(soln):
     for i in range(len(which_coeff)):
         eq_string += format_sci_notation(soln[i])+which_coeff[i]
     return eq_string
+
+################################################################################
+
+def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
+    """
+    Takes in a dataframe and the keys for the variable to calculate (plt_var) and
+    the variables on which to calculate the fit (fit_vars). Finds a polynomial fit 
+    for plt_var data on fit_vars, the adds a new column to the dataframe which
+    is the original plt_var data minus the fit
+
+    pp          The Plot_Parameters object for a_group
+    x_data      1D array of the x values
+    y_data      1D array of the y values
+    z_data      1D array of the z values
+    kx          Polynomial order in x
+    order       int or None, default is None
+                    If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
+    """
+    print('in calc_fit_vars')
+    print('plt_vars:',plt_vars)
+    print('fit_vars:',fit_vars)
+    # Find which of the plot variables has `-fit` in it
+    plt_var = None
+    for var in plt_vars:
+        if not isinstance(var, type(None)):
+            if '-fit' in var:
+                plt_var = var
+                print('\t- Calculating fit of',plt_var,'on',fit_vars)
+                # Split the suffix from the original variable (assumes a hyphen split)
+                split_var = var.split('-', 1)
+                var_str = split_var[0]
+                suffix = split_var[1]
+    if isinstance(plt_var, type(None)):
+        print('Did not find `-fit` in z_key, aborting script')
+        exit(0)
+    # Get the x, y, and z data based on the keys
+    x_data = df[fit_vars[0]]
+    y_data = df[fit_vars[1]]
+    z_data = df[var_str]
+    # print('x_data.shape:',x_data.shape)
+    # print('y_data.shape:',y_data.shape)
+    # print('z_data.shape:',z_data.shape)
+    # Find the solution to the polyfit
+    soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
+    # Use the solution to calculate the fitted z values
+    fitted_z = poly2Dreco(x_data, y_data, soln)
+    # Add new column for difference between z and fitted z
+    df[plt_var] = z_data - fitted_z
+    # print(df)
+    return df
 
 ################################################################################
 
@@ -4727,15 +4819,11 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_gri
     x_range = np.linspace(min(x_data), max(x_data), n_grid_pts)
     y_range = np.linspace(min(y_data), max(y_data), n_grid_pts)
     x_grid, y_grid = np.meshgrid(x_range, y_range)
-    # Define a function to take a grid and the coefficients and 
-    #   calculate the values of the polynomial
-    def poly2Dreco(X, Y, c):
-        return (c[0] + X*c[1] + X**2*c[2] + Y*c[3] + X*Y*c[4] + X**2*Y*c[5] + Y**2*c[6] + X*Y**2*c[7] + X**2*Y**2*c[8])
     # Either of these work, very slight differences
     # fitted_surf = np.polynomial.polynomial.polygrid2d(x_grid, y_grid, soln.reshape((kx+1,ky+1)))
     fitted_surf = poly2Dreco(x_grid, y_grid, soln)
     # Plot fit as a surface
-    surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=cm.davos.reversed(), linewidth=0, alpha=0.5)
+    surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=get_color_map(pp.z_vars[0]), linewidth=0, alpha=0.5)
 
 ################################################################################
 
