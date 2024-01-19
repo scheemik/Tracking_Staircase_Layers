@@ -2256,7 +2256,8 @@ def get_color_map(cmap_var):
 
 def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None):
     """
-    Formats any datetime axes to show actual dates, as appropriate
+    Formats any datetime axes to show actual dates, as appropriate. Also adds
+    vertical lines at every August 15th, if applicable
 
     x_key       The string of the name for the x data on the main axis
     y_key       The string of the name for the y data on the main axis
@@ -2267,10 +2268,35 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
     tw_ax_x     The twin x axis on which to format
     z_key       The string of the name for the z data on the main axis
     """
+    # Make an array of all August 15ths
+    all_08_15s = [  '2005/08/15 00:00:00', 
+                    '2006/08/15 00:00:00', 
+                    '2007/08/15 00:00:00', 
+                    '2008/08/15 00:00:00', 
+                    '2009/08/15 00:00:00',
+                    '2010/08/15 00:00:00', 
+                    '2011/08/15 00:00:00', 
+                    '2012/08/15 00:00:00', 
+                    '2013/08/15 00:00:00', 
+                    '2014/08/15 00:00:00',
+                    '2015/08/15 00:00:00',
+                    '2016/08/15 00:00:00', 
+                    '2017/08/15 00:00:00', 
+                    '2018/08/15 00:00:00', 
+                    '2019/08/15 00:00:00', 
+                    '2020/08/15 00:00:00',
+                    '2021/08/15 00:00:00', 
+                    '2022/08/15 00:00:00'
+                 ]
+    all_08_15s = [datetime.strptime(date, r'%Y/%m/%d %H:%M:%S').date() for date in all_08_15s]
+    # Make the date locator
     loc = mpl.dates.AutoDateLocator()
     if x_key in ['dt_start', 'dt_end']:
         ax.xaxis.set_major_locator(loc)
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
+        # Add vertical lines
+        for aug_15 in all_08_15s:
+            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2396,6 +2422,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     # Check the extra arguments
     add_isos = False
     errorbars = False
+    fit_vars = False
     log_axes = 'None'
     mpi_run = False
     if not isinstance(pp.extra_args, type(None)):
@@ -2481,6 +2508,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df[y_key] = mpl.dates.date2num(df[y_key])
         if z_key in ['dt_start', 'dt_end']:
             df[z_key] = mpl.dates.date2num(df[z_key])
+        # Format the ITP numbers if necessary
+        if x_key == 'instrmt':
+            df[x_key] = df[x_key].str.zfill(3)
+        if y_key == 'instrmt':
+            df[y_key] = df[y_key].str.zfill(3)
+        if z_key == 'instrmt':
+            df[z_key] = df[z_key].str.zfill(3)
         # Check for cluster-based variables
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
@@ -2761,7 +2795,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
             # Add column where the source-instrmt combination ensures uniqueness
-            df['source-instrmt'] = df['source']+' '+df['instrmt']
+            df['source-instrmt'] = df['source']+' '+df['instrmt'].astype("string")
             # Get unique instrmts
             these_instrmts = np.unique(df['source-instrmt'])
             # If there aren't that many points, make the markers bigger
@@ -3240,7 +3274,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         elif clr_map == 'instrmt':
             # Add column where the source-instrmt combination ensures uniqueness
-            df['source-instrmt'] = df['source']+' '+df['instrmt']
+            df['source-instrmt'] = df['source']+' '+df['instrmt'].astype("string")
             # Get unique instrmts
             these_instrmts = np.unique(df['source-instrmt'])
             # If not plotting very many points, increase the marker size
@@ -3714,7 +3748,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         return x_label, y_label, None, plt_title, ax, invert_y_axis
     elif clr_map == 'instrmt':
         # Add column where the source-instrmt combination ensures uniqueness
-        df['source-instrmt'] = df['source']+' '+df['instrmt']
+        df['source-instrmt'] = df['source']+' '+df['instrmt'].astype("string")
         # Get unique instrmts
         these_instrmts = np.unique(df['source-instrmt'])
         i = 0

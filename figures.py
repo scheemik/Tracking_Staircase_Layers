@@ -906,7 +906,19 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 # Example profiles
 # Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
 # ex_pfs1 = {'ITP_002':[188, 189, 208, 209]}
-ex_pfs1 = {'ITP_002':[185]}
+ex_pfs1 = {
+            'ITP_001':[1257],               # Shibley2017 Figure 3b, 800-0 m, 235-200 m
+            # 'ITP_002':[113],                # Bebieva2019a Figure 1, 750-0 m, 385-230 m
+            # 'ITP_002':[185],                # Timmermans2008 Figure 4, 260-220 m
+            'ITP_003':[1073],               # Timmermans2008 Figure 2, 740-0 m, 290-240 m
+            'ITP_004':[453],                # Lu2022 Figure 2, 750-0 m, 350-270 m
+            'ITP_006':[475, 747],           # Toole2011 Figure 6, 300-0 m
+            'ITP_008':[1301],               # Shibley2017 Figure 3a, 800-0 m, 260-230 m
+            'ITP_041':[515],                # Bebieva2017(unpub) Figure 1, 750-0 m, 390-230 m
+            'ITP_064':[377],                # vanderBoog2021a Figure A1, 750-250 m
+          }
+ex_pfs1_zoom_range = [390,230] # [260,220]
+
 ITP2_ex_pfs   = {'ITP_002':ITP2_some_pfs}
 BGR04_ex_pfs  = {'BGR04':ITP2_some_pfs}
 
@@ -1117,7 +1129,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1525,16 +1537,29 @@ if False:
 ################################################################################
 ## Example profile plots
 ################################################################################
-# Example profile plot, iT and SP
-if True:
+# Example profile plots, CT and SA, full and zoomed
+if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
     ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
     # Make the Plot Parameters
-    zoom_range = [260,220]
     pp_pfs_full = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
-    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':zoom_range})
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':ex_pfs1_zoom_range})
+    # Make the Analysis Groups
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
+    group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_zoom, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
+# Example profile plot, iT and SP, full and zoomed
+if False:
+    print('')
+    print('- Creating figure of an example profile')
+    # Make the data set
+    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+    # Make the Plot Parameters
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
     group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_zoom, plot_title='')
@@ -1920,6 +1945,7 @@ if False:
     group_hist_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist_press)
     # # Make the figure
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
+
 ################################################################################
 ## Pre-clustered correcting single clusters with polyfit2d
 ################################################################################
