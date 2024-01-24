@@ -906,6 +906,8 @@ ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
 # Example profiles
 # Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
 # ex_pfs1 = {'ITP_002':[188, 189, 208, 209]}
+
+## Example profiles that appeared in other studies
 ex_pfs1 = {
             'ITP_001':[1257],               # Shibley2017 Figure 3b, 800-0 m, 235-200 m
             # 'ITP_002':[113],                # Bebieva2019a Figure 1, 750-0 m, 385-230 m
@@ -913,11 +915,31 @@ ex_pfs1 = {
             'ITP_003':[1073],               # Timmermans2008 Figure 2, 740-0 m, 290-240 m
             'ITP_004':[453],                # Lu2022 Figure 2, 750-0 m, 350-270 m
             'ITP_006':[475, 747],           # Toole2011 Figure 6, 300-0 m
-            'ITP_008':[1301],               # Shibley2017 Figure 3a, 800-0 m, 260-230 m
+            # 'ITP_008':[1301],               # Shibley2017 Figure 3a, 800-0 m, 260-230 m
             'ITP_041':[515],                # Bebieva2017(unpub) Figure 1, 750-0 m, 390-230 m
             'ITP_064':[377],                # vanderBoog2021a Figure A1, 750-250 m
           }
-ex_pfs1_zoom_range = [390,230] # [260,220]
+ex_pfs1_zoom_range = [280,250]
+
+## Example profiles spaced roughly evenly in time
+ex_pfs2 = {
+            'ITP_001':[1,365,1457],
+            'ITP_003':[701,1057],
+            'ITP_004':[331,693],
+            'ITP_005':[205],
+            'ITP_006':[505],
+            'ITP_008':[739],
+            'ITP_011':[949,1345],
+            'ITP_013':[209,621],
+            'ITP_018':[389],
+            'ITP_021':[391,747],
+            'ITP_033':[263,441,625],
+            'ITP_035':[297],
+            'ITP_041':[271,449,631],
+            'ITP_042':[83],
+          }
+## test quarterly slices
+dfs1_q = ahf.Data_Filters(date_range=['2011/05/14 18:00:00','2011/05/16 00:00:00'])
 
 ITP2_ex_pfs   = {'ITP_002':ITP2_some_pfs}
 BGR04_ex_pfs  = {'BGR04':ITP2_some_pfs}
@@ -1100,6 +1122,7 @@ print('- Creating data sets')
 
 ## Pre-clustered
 dfs_to_use = dfs_all
+# dfs_to_use = dfs1_q
 # dfs_to_use = dfs_clstr_lbl
 # Single time periods
 # ds_BGRa_m110 = ahf.Data_Set(BGRa_m110, dfs_to_use)
@@ -1129,7 +1152,7 @@ dfs_to_use = dfs_all
 # ds_BGR05060708_clstrs_456 = ahf.Data_Set(BGR05060708_clstrs_456, dfs_all)
 # ds_BGR_all = ahf.Data_Set(BGR_all, dfs_to_use)
 
-# ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
+ds_this_BGR = ahf.Data_Set(BGR_all, dfs_to_use)
 
 # Comparing time periods
 # ds_BGRmn = ahf.Data_Set(BGRmn, dfs_to_use)
@@ -1206,9 +1229,9 @@ pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
 ################################################################################
 
 # Use these things
-# pfs_this_BGR = pfs_0
+pfs_this_BGR = pfs_0
 # pfs_this_BGR = pfs_BGR1
-pfs_this_BGR = pfs_BGR_test
+# pfs_this_BGR = pfs_BGR_test
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1542,13 +1565,13 @@ if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
-    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs2, dfs_all)
     # Make the Plot Parameters
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
-    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':ex_pfs1_zoom_range})
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False}, legend=False)
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
-    group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_zoom, plot_title='')
+    group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
     # Make the figure
     ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
 # Example profile plot, iT and SP, full and zoomed
@@ -1582,30 +1605,23 @@ if False:
     group_example_profiles2 = ahf.Analysis_Group(this_ds, pfs_1, pp_pfs_zoomed)#, plot_title='')
     # Make the figure
     ahf.make_figure([group_example_profiles1, group_example_profiles2])
-## Example profiles from all sources (ITP, SHEBA, AIDJEX)
+## Example profiles with clustering marked
 if False:
     print('')
-    print('- Creating figure of example profiles')
+    print('- Creating figure of clustered example profiles')
     # Make the Plot Parameters
-    zoom_range = [425,300]
-    pp_pfs_CT_ = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':False})
-    pp_pfs_SA_ = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':False})
-    pp_pfs_CTz = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':False}, ax_lims={'y_lims':zoom_range})
-    pp_pfs_SAz = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':False}, ax_lims={'y_lims':zoom_range})
-    # Make the Analysis Group
-    this_ds = ds_all_sources_ex_pfs
-    group_example_profiles1 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_CT_, plot_title='')
-    group_example_profiles2 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_SA_, plot_title='')
-    group_example_profiles3 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_CTz, plot_title='')
-    group_example_profiles4 = ahf.Analysis_Group(this_ds, pfs_0, pp_pfs_SAz, plot_title='')
+    pp_pfs_SA = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], clr_map='cluster', plot_type='profiles', extra_args={'plot_pts':True, 'extra_vars_to_keep':['dt_start'], 'dts_to_plot':['2005-08-16 06:00:01', '2006-08-15 06:00:03', '2005-11-15 06:00:03', '2006-05-15 06:00:02', '2006-02-15 06:00:03']}, legend=False)
+    pp_pfs_CT = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['press'], clr_map='cluster', plot_type='profiles', extra_args={'plot_pts':True, 'extra_vars_to_keep':['dt_start'], 'dts_to_plot':['2005-08-16 06:00:01', '2006-08-15 06:00:03', '2005-11-15 06:00:03', '2006-05-15 06:00:02', '2006-02-15 06:00:03']}, legend=False)
+    # Make the Analysis Groups
+    group_ex_pfs_SA = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pfs_SA, plot_title='')
+    group_ex_pfs_CT = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pfs_CT, plot_title='')
     # Make the figure
-    # ahf.make_figure([group_example_profiles1], use_same_y_axis=False)
-    ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3, group_example_profiles4], use_same_y_axis=False)
+    ahf.make_figure([group_ex_pfs_SA, group_ex_pfs_CT], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
 
 ################################################################################
 ## Waterfall plots
 ################################################################################
-# Example profiles waterfall plot
+# ITP2 Example profiles waterfall plot
 if False:
     print('')
     print('- Creating a waterfall figure of example profiles')
@@ -1619,7 +1635,7 @@ if False:
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_2, pp_pfs_full)
     # Make the figure
     ahf.make_figure([group_example_profiles1])
-# Waterfall plot with cluster points colored
+# ITP2 Waterfall plot with cluster points colored
 if False:
     print('')
     print('- Creating figure of an example profile')
@@ -1633,6 +1649,35 @@ if False:
     group_example_profiles1 = ahf.Analysis_Group(ds_ex_pfs, pfs_2, pp_pfs_full)
     # Make the figure
     ahf.make_figure([group_example_profiles1], row_col_list=[1,1, 0.8, 1.5])
+# BGR Example profiles waterfall plot
+if False:
+    print('')
+    print('- Creating a waterfall figure of example profiles')
+    # Define the Profile Filters
+    pfs_2 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[410,210], lt_pCT_max=True)#, SA_range=test_S_range)
+    # Make the data set
+    # ds_ex_pfs2 = ahf.Data_Set(ex_pfs2, dfs_all)
+    # Make the Plot Parameters
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press-fit'], clr_map='cluster', plot_type='waterfall', extra_args={'plot_pts':True, 'extra_vars_to_keep':['dt_start'], 'dts_to_plot':[13011.250011574075, 13375.250034722223, 13102.250034722223, 13283.250023148148, 13194.250034722223, 13559.000104166667, 13740.00019675926, 13467.000023148148, 13648.000023148148, 14106.000034722223, 14379.016851851851, 14198.016863425926, 13832.016863425926, 14014.016863425926, 13924.016863425926, 14468.00008101852, 14290.00008101852, 14744.000069444444, 14836.000069444444, 14655.000069444444, 14563.00162037037, 15109.00008101852, 15200.000069444444, 15020.00008101852, 14928.00008101852], 'fit_vars':['lon','lat']}, legend=False)
+    # pp_pfs_full = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['dt_start'], y_vars=['prof_no'], clr_map='instrmt', legend=True)
+    # Make the Analysis Groups 
+    group_example_profiles2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pfs_full)
+    # group_example_profiles2 = ahf.Analysis_Group(ds_ex_pfs2, pfs_2, pp_pfs_full)
+    # Make the figure
+    ahf.make_figure([group_example_profiles2])
+
+    # # Make the data set
+    # ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs2, dfs_all)
+    # # Make the Plot Parameters
+    # pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False}, legend=False)
+    # pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
+    # pp_pfs_map  = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
+    # # Make the Analysis Groups
+    # group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
+    # group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
+    # group_example_profiles3 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_map, plot_title='')
+    # # Make the figure
+    # ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3], use_same_y_axis=False)
 
 ################################################################################
 ## Subsampling
@@ -1735,8 +1780,8 @@ relab_these_test = {}
 if False:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True, 'relab_these':relab_these_test}, ax_lims={'x_lims':test_S_range})
-    # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True, 'relab_these':relab_these_test}, ax_lims={'x_lims':test_S_range})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
     # Plot the figure
@@ -1947,7 +1992,139 @@ if False:
     ahf.make_figure([group_map_SA, group_map_CT, group_map_press, group_hist_SA, group_hist_CT, group_hist_press])#, row_col_list=[2,1, 0.45, 1.4])
 
 ################################################################################
-## Pre-clustered correcting single clusters with polyfit2d
+## Pre-clustered correcting single clusters with polyfit2d for salinity
+################################################################################
+# Plotting a cluster across lat-lon with a polyfit2d in salinity in 2D / 3D
+if False:
+    print('')
+    print('- Creating plot for one cluster with a lat-lon-SA polyfit2d') 
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':[34.4925,34.4700]})
+    pp_3d_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['SA'], clr_map='SA', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[34.4925,34.4700]})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d)
+    group_3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_3d_fit)
+    # # Make the figure
+    ahf.make_figure([group_2d, group_3d])
+# Plotting a cluster's salinity-polyfit2d across lat-lon in 2D / 3D
+if False:
+    print('')
+    print('- Creating plot for one cluster SA minus lat-lon-SA polyfit2d') 
+    # Make the Plot Parameters
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
+    pp_minus_fit3d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['SA-fit'], clr_map='SA-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[-0.011,0.011]})
+    # Make the subplot groups
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit)
+    group_minus_fit3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit3d)
+    # # Make the figure
+    ahf.make_figure([group_minus_fit, group_minus_fit3d])
+# Comparing plots along time for salinity and salinity-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster SA minus lat-lon-SA polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-SA polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along longitude for salinity and salinity-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster SA minus lat-lon-SA polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['SA-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-SA polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along latitude for salinity and salinity-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along latitude for one cluster SA minus lat-lon-SA polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['SA-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lat_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-SA polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+################################################################################
+## Pre-clustered correcting single clusters with polyfit2d for temperature
+################################################################################
+# Plotting a cluster across lat-lon with a polyfit2d in temperature in 2D / 3D
+if False:
+    print('')
+    print('- Creating plot for one cluster with a lat-lon-CT polyfit2d') 
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['CT','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':[-1.1,-0.45]})
+    pp_3d_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['CT'], clr_map='CT', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[-1.1,-0.45]})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d)
+    group_3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_3d_fit)
+    # # Make the figure
+    ahf.make_figure([group_2d, group_3d])
+# Plotting a cluster's temperature-polyfit2d across lat-lon in 2D / 3D
+if False:
+    print('')
+    print('- Creating plot for one cluster CT minus lat-lon-CT polyfit2d') 
+    # Make the Plot Parameters
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
+    pp_minus_fit3d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], z_vars=['CT-fit'], clr_map='CT-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'z_lims':[-0.42,0.12]})
+    # Make the subplot groups
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit)
+    group_minus_fit3d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit3d)
+    # # Make the figure
+    ahf.make_figure([group_minus_fit, group_minus_fit3d])
+# Comparing plots along time for temperature and temperature-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster CT minus lat-lon-CT polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-CT polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along longitude for temperature and temperature-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along longitude for one cluster CT minus lat-lon-CT polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lon_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-CT polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Comparing plots along latitude for temperature and temperature-polyfit2d with trendlines
+if False:
+    print('')
+    print('- Comparing plots along latitude for one cluster CT minus lat-lon-CT polyfit2d') 
+    # Make the Plot Parameters
+    pp_p_v_lat = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lat_BGR})
+    pp_minus_fit = ahf.Plot_Parameters(x_vars=['lat'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':lat_BGR})
+    # Make the subplot groups
+    group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title='Uncorrected')
+    group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='Corrected by lat-lon-CT polyfit2d')
+    # # Make the figure
+    # ahf.make_figure([group_p_v_lat])
+    ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+################################################################################
+## Pre-clustered correcting single clusters with polyfit2d for pressure
 ################################################################################
 # Plotting a cluster across lat-lon with a polyfit2d in pressure in 2D / 3D
 if False:
@@ -2012,6 +2189,18 @@ if False:
     # # Make the figure
     # ahf.make_figure([group_p_v_lat])
     ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
+# Plotting across lat-lon a cluster's pressure, polyfit2d, and residual
+if True:
+    print('')
+    print('- Creating lat-lon plots for one cluster`s pressure, polyfit2d, and residual') 
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':[350,150]})
+    pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d)
+    group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res)
+    # # Make the figure
+    ahf.make_figure([group_2d, group_res])
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods

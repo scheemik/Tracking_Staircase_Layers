@@ -149,9 +149,10 @@ mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
 mrk_size      = 0.5
-mrk_alpha     = 0.5
+mrk_alpha     = 1.0 #0.5
 noise_alpha   = 0.2
 grid_alpha    = 0.3
+plt.rcParams['grid.color'] = (0.5,0.5,0.5,grid_alpha)
 hist_alpha    = 0.8
 pf_alpha      = 0.9
 map_alpha     = 0.7
@@ -180,7 +181,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'press_CT_max']
+y_invert_vars = ['press', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_CT_max']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -2276,17 +2277,17 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
                     '2009/08/15 00:00:00',
                     '2010/08/15 00:00:00', 
                     '2011/08/15 00:00:00', 
-                    '2012/08/15 00:00:00', 
-                    '2013/08/15 00:00:00', 
-                    '2014/08/15 00:00:00',
-                    '2015/08/15 00:00:00',
-                    '2016/08/15 00:00:00', 
-                    '2017/08/15 00:00:00', 
-                    '2018/08/15 00:00:00', 
-                    '2019/08/15 00:00:00', 
-                    '2020/08/15 00:00:00',
-                    '2021/08/15 00:00:00', 
-                    '2022/08/15 00:00:00'
+                    # '2012/08/15 00:00:00', 
+                    # '2013/08/15 00:00:00', 
+                    # '2014/08/15 00:00:00',
+                    # '2015/08/15 00:00:00',
+                    # '2016/08/15 00:00:00', 
+                    # '2017/08/15 00:00:00', 
+                    # '2018/08/15 00:00:00', 
+                    # '2019/08/15 00:00:00', 
+                    # '2020/08/15 00:00:00',
+                    # '2021/08/15 00:00:00', 
+                    # '2022/08/15 00:00:00'
                  ]
     all_08_15s = [datetime.strptime(date, r'%Y/%m/%d %H:%M:%S').date() for date in all_08_15s]
     # Make the date locator
@@ -2295,8 +2296,8 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_locator(loc)
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
-        for aug_15 in all_08_15s:
-            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
+        # for aug_15 in all_08_15s:
+        #     ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2513,6 +2514,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df[x_key] = df[x_key].str.zfill(3)
         if y_key == 'instrmt':
             df[y_key] = df[y_key].str.zfill(3)
+        if y_key == 'prof_no':
+            df[y_key] = df[y_key].astype(str)
         if z_key == 'instrmt':
             df[z_key] = df[z_key].str.zfill(3)
         # Check for cluster-based variables
@@ -2520,7 +2523,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
         # Check whether to normalize by subtracting a polyfit2d
-        # print('test print of plot vars:',x_key, y_key, z_key, clr_map)
         if fit_vars:
             df = calc_fit_vars(df, (x_key, y_key, z_key, clr_map), fit_vars)
         # If plotting per profile, collapse the vertical dimension
@@ -2554,6 +2556,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.remove()
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
+                # Turn the panes transparent
+                ax.w_xaxis.pane.fill = False
+                ax.w_yaxis.pane.fill = False
+                ax.w_zaxis.pane.fill = False
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
@@ -2798,6 +2804,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df['source-instrmt'] = df['source']+' '+df['instrmt'].astype("string")
             # Get unique instrmts
             these_instrmts = np.unique(df['source-instrmt'])
+            if len(these_instrmts) < 1:
+                print('No instruments included, aborting script')
+                exit(0)
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
@@ -2941,6 +2950,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.remove()
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
+                # Turn the panes transparent
+                ax.w_xaxis.pane.fill = False
+                ax.w_yaxis.pane.fill = False
+                ax.w_zaxis.pane.fill = False
             # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
             invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering m_cls'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
@@ -2989,6 +3002,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.remove()
                 # Replace axis with one that has 3 dimensions
                 ax = fig.add_subplot(ax_pos, projection='3d')
+                # Turn the panes transparent
+                ax.w_xaxis.pane.fill = False
+                ax.w_yaxis.pane.fill = False
+                ax.w_zaxis.pane.fill = False
+                # Plot
                 heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
                 if plot_slopes:
                     # Fit a 2d polynomial to the z data
@@ -4060,6 +4078,16 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             df = pd.concat(tmp_df_list)
         except:
             foo = 2
+        # Check whether to narrow down the datetimes to plot
+        try:
+            dts_to_plot = extra_args['dts_to_plot']
+            # Make a temporary list of dataframes for the profiles to plot
+            tmp_df_list = []
+            for dt in dts_to_plot:
+                tmp_df_list.append(df[df['dt_start'] == dt])
+            df = pd.concat(tmp_df_list)
+        except:
+            foo = 2
         try:
             plt_noise = extra_args['plt_noise']
         except:
@@ -4400,6 +4428,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     pp              The Plot_Parameters object for a_group
     clr_map         A string to determine what color map to use in the plot
     """
+    print('in plot_waterfall()')
     legend = pp.legend
     scale = pp.plot_scale
     ax_lims = pp.ax_lims
@@ -4422,6 +4451,20 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         exit(0)
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
+    # Get extra args dictionary, if it exists
+    try:
+        extra_args = pp.extra_args
+        # print('extra_args:',extra_args)
+        if 'fit_vars' in extra_args.keys():
+            fit_vars = extra_args['fit_vars']
+        else:
+            fit_vars = False
+    except:
+        extra_args = False
+        fit_vars = False
+    # Check whether to normalize by subtracting a polyfit2d
+    if fit_vars:
+        df = calc_fit_vars(df, (x_key, y_key, z_key, clr_map), fit_vars)
     # Set up z(y) axis
     if isinstance(z_key, type(None)):
         z_key = 'dt_start'
@@ -4453,12 +4496,6 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         invert_y_axis = True
     else:
         invert_y_axis = False
-    # Get extra args dictionary, if it exists
-    try:
-        extra_args = pp.extra_args
-        print('extra_args:',extra_args)
-    except:
-        extra_args = False
     # Make a blank list for dataframes of each profile
     profile_dfs = []
     # Check whether to run the clustering algorithm
@@ -4510,6 +4547,16 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             df = pd.concat(tmp_df_list)
         except:
             foo = 2
+        # Check whether to narrow down the datetimes to plot
+        try:
+            dts_to_plot = extra_args['dts_to_plot']
+            # Make a temporary list of dataframes for the profiles to plot
+            tmp_df_list = []
+            for dt in dts_to_plot:
+                tmp_df_list.append(df[df['dt_start'] == dt])
+            df = pd.concat(tmp_df_list)
+        except:
+            foo = 2
             # extra_args = None
         try:
             plt_noise = extra_args['plt_noise']
@@ -4553,6 +4600,13 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         if pf_no not in pfs_in_this_df:
             pfs_in_this_df.append(pf_no)
         #
+    dts_in_this_df = []
+    for dt in df['dt_start'].values:
+        if dt not in dts_in_this_df:
+            dts_in_this_df.append(dt)
+        #
+    print('Datetimes in this plot:',len(dts_in_this_df))
+    print(dts_in_this_df)
     # Make sure you're not trying to plot too many profiles
     if len(pfs_in_this_df) > 100:
         print('You are trying to plot',len(pfs_in_this_df),'profiles')
@@ -4574,7 +4628,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         print('No profiles loaded')
         # Add a standard title
         plt_title = add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
     # 
     # Plot each profile
     for i in range(n_pfs):
@@ -4674,9 +4728,19 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         # Change color of the ticks
         ax.tick_params(axis='x', colors=var_clr)
     # Make the panes in the background transparent
-    ax.w_xaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
-    ax.w_yaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
-    ax.w_zaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    # ax.w_xaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    # ax.w_yaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    # ax.w_zaxis.set_pane_color([1.0, 1.0, 1.0, 0.05])
+    # Turn the panes transparent
+    ax.w_xaxis.pane.fill = False
+    ax.w_yaxis.pane.fill = False
+    ax.w_zaxis.pane.fill = False
+    # Give the pane edges color
+    # ax.w_zaxis.pane.set_edgecolor('r')
+    # ax.w_zaxis.line.set_color('r')
+    # ax.w_xaxis._axinfo.update({'grid' : {'color': (0, 0, 0, 1)}})
+    # ax.w_yaxis._axinfo.update({'grid' : {'color': (0, 0, 0, 1)}})
+    # ax.w_zaxis._axinfo.update({'grid' : {'color': (0, 0, 0, 1)}})
     # Set the grid transparency
     # ax.grid(False)
     # ax.w_xaxis.grid(False)
@@ -5616,9 +5680,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
-            print('plot slopes is',plot_slopes)
+            # print('plot slopes is',plot_slopes)
             if plot_slopes and 'cRL' not in [x_key, y_key]:
-                print('ploooooting slopes')
+                # print('ploooooting slopes')
                 if plot_3d == False:
                     if plot_slopes == 'OLS':
                         # Find the slope of the ordinary least-squares of the points for this cluster
