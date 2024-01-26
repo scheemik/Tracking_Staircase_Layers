@@ -1547,6 +1547,11 @@ def get_axis_label(var_key, var_attr_dicts):
         var_str = var_key[4:]
         return r'Normalized inter-cluster range $IR_{S_P}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
+    # Check for the polyfit2d of a variable
+    elif 'fit_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'polyfit2d of ' + var_attr_dicts[0][var_str]['label']
     # Check for variables normalized by subtracting a polyfit2d
     elif '-fit' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -2220,38 +2225,45 @@ def get_color_map(cmap_var):
 
     cmap_var    A string of the variable name for the colormap
     """
-    return cm.batlow.reversed()
+    print('in get_color_map()')
+    print('cmap_var:',cmap_var)
+    # For diverging colormaps
+    return cm.roma
+    if not isinstance(cmap_var,type(None)) and cmap_var[-4:]=='-fit':
+        return cm.roma
+    else:
+        return cm.batlow.reversed()
     # return cm.davos.reversed()
     # Build dictionary of axis labels
-    cmaps = {'entry':'plasma',
-             'prof_no':'plasma',
-             'dt_start':'viridis',
-             'dt_end':'viridis',
-             'lon':'YlOrRd',
-             'lat':'PuBuGn',
-             'R_rho':'ocean',
-             'density_hist':'inferno'
-             }
-    # if cmap_var in ['press', 'depth', 'press_CT_max']:
-    if 'press' in cmap_var or 'depth' in cmap_var:
-        return 'cividis'
-    # elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
-    elif 'SP' in cmap_var or 'SA' in cmap_var or 'BS' in cmap_var or cmap_var=='beta':
-        return 'Blues'
-    # elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
-    elif 'iT' in cmap_var or 'CT' in cmap_var or 'PT' in cmap_var or cmap_var=='alpha':
-        return 'Reds'
-    # elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
-    elif 'sigma' in cmap_var:
-        return 'Purples'
-    elif cmap_var in ['BL_yn', 'up_cast', 'ss_mask']:
-        cmap = mpl.colors.ListedColormap(['green'])
-        cmap.set_bad(color='red')
-        return cmap
-    if cmap_var in cmaps.keys():
-        return cmaps[cmap_var]
-    else:
-        return 'viridis'
+    # cmaps = {'entry':'plasma',
+    #          'prof_no':'plasma',
+    #          'dt_start':'viridis',
+    #          'dt_end':'viridis',
+    #          'lon':'YlOrRd',
+    #          'lat':'PuBuGn',
+    #          'R_rho':'ocean',
+    #          'density_hist':'inferno'
+    #          }
+    # # if cmap_var in ['press', 'depth', 'press_CT_max']:
+    # if 'press' in cmap_var or 'depth' in cmap_var:
+    #     return 'cividis'
+    # # elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
+    # elif 'SP' in cmap_var or 'SA' in cmap_var or 'BS' in cmap_var or cmap_var=='beta':
+    #     return 'Blues'
+    # # elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
+    # elif 'iT' in cmap_var or 'CT' in cmap_var or 'PT' in cmap_var or cmap_var=='alpha':
+    #     return 'Reds'
+    # # elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
+    # elif 'sigma' in cmap_var:
+    #     return 'Purples'
+    # elif cmap_var in ['BL_yn', 'up_cast', 'ss_mask']:
+    #     cmap = mpl.colors.ListedColormap(['green'])
+    #     cmap.set_bad(color='red')
+    #     return cmap
+    # if cmap_var in cmaps.keys():
+    #     return cmaps[cmap_var]
+    # else:
+    #     return 'viridis'
 
 ################################################################################
 
@@ -3013,6 +3025,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     plot_polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
             else:
                 heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+                if plot_slopes and x_key=='lon' and y_key=='lat':
+                    # Fit a 2d polynomial to the z data
+                    plot_polyfit2d(ax, pp, df[x_key], df[y_key], df[clr_map], in_3D=False)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -4779,6 +4794,7 @@ def polyfit2d(x_data, y_data, z_data, kx=2, ky=2, order=None):
     y_data      1D array of the y values
     z_data      1D array of the z values
     kx          Polynomial order in x
+    ky          Polynomial order in y
     order       int or None, default is None
                     If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
                     If int, coefficients up to a maximum of kx+ky <= order are considered.
@@ -4864,9 +4880,16 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
                 # Split the suffix from the original variable (assumes a hyphen split)
                 split_var = var.split('-', 1)
                 var_str = split_var[0]
-                suffix = split_var[1]
+                affix = split_var[1]
+            elif 'fit_' in var:
+                plt_var = var
+                print('\t- Calculating fit of',plt_var,'on',fit_vars)
+                # Split the suffix from the original variable (assumes an underscore split)
+                split_var = var.split('_', 1)
+                var_str = split_var[1]
+                affix = split_var[0]
     if isinstance(plt_var, type(None)):
-        print('Did not find `-fit` in z_key, aborting script')
+        print('Did not find `fit` in z_key, aborting script')
         exit(0)
     # Get the x, y, and z data based on the keys
     x_data = df[fit_vars[0]]
@@ -4879,14 +4902,19 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
     # Use the solution to calculate the fitted z values
     fitted_z = poly2Dreco(x_data, y_data, soln)
-    # Add new column for difference between z and fitted z
-    df[plt_var] = z_data - fitted_z
+    # See whether to return the fit, or the residual
+    if split_var[0] == 'fit':
+        # Add new column for fitted z
+        df[plt_var] = fitted_z
+    elif split_var[1] == 'fit':
+        # Add new column for difference between z and fitted z
+        df[plt_var] = z_data - fitted_z
     # print(df)
     return df
 
 ################################################################################
 
-def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50):
+def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50, in_3D=True):
     """
     Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
     and plots the result as a surface.
@@ -4903,10 +4931,10 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_gri
     n_grid_pts  int of the number of points per x and y range to make the grid for the 
                     fit surface
     """
-    print('in plot_polyfit2d')
-    print('x_data.shape:',x_data.shape)
-    print('y_data.shape:',y_data.shape)
-    print('z_data.shape:',z_data.shape)
+    # print('in plot_polyfit2d')
+    # print('x_data.shape:',x_data.shape)
+    # print('y_data.shape:',y_data.shape)
+    # print('z_data.shape:',z_data.shape)
     # Find the solution to the polyfit
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
     # Print out equation
@@ -4920,8 +4948,17 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_gri
     # Either of these work, very slight differences
     # fitted_surf = np.polynomial.polynomial.polygrid2d(x_grid, y_grid, soln.reshape((kx+1,ky+1)))
     fitted_surf = poly2Dreco(x_grid, y_grid, soln)
-    # Plot fit as a surface
-    surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=get_color_map(pp.z_vars[0]), linewidth=0, alpha=0.5)
+    if in_3D:
+        # Plot fit as a surface
+        surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=get_color_map(pp.z_vars[0]), linewidth=0, alpha=0.5)
+    else:
+        # Plot the contours
+        CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
+        # Change the colorbar limits, if necessary
+        # ax_lims_keys = list(pp.ax_lims.keys())
+        # if 'c_lims' in ax_lims_keys:
+        #     cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+        #     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
 
 ################################################################################
 
