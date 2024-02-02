@@ -149,7 +149,8 @@ mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
 mrk_size      = 0.5
-mrk_alpha     = 1.0 #0.5
+mrk_size2     = 10
+mrk_alpha     = 0.5
 noise_alpha   = 0.2
 grid_alpha    = 0.3
 plt.rcParams['grid.color'] = (0.5,0.5,0.5,grid_alpha)
@@ -2228,7 +2229,7 @@ def get_color_map(cmap_var):
     print('in get_color_map()')
     print('cmap_var:',cmap_var)
     # For diverging colormaps
-    return cm.roma
+    return cm.roma.reversed()
     if not isinstance(cmap_var,type(None)) and cmap_var[-4:]=='-fit':
         return cm.roma
     else:
@@ -2575,6 +2576,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
+            elif len(df[x_key]) < 100000:
+                m_size = mrk_size2
             else: 
                 m_size = mrk_size
             # Plot every point the same color, size, and marker
@@ -2675,6 +2678,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
+            elif len(df[x_key]) < 100000:
+                m_size = mrk_size2
             else: 
                 m_size = mrk_size
             i = 0
@@ -2822,6 +2827,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
+            elif len(df[x_key]) < 100000:
+                m_size = mrk_size2
             else: 
                 m_size = mrk_size
             i = 0
@@ -3007,6 +3014,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # If there aren't that many points, make the markers bigger
             if len(df[x_key]) < 1000:
                 m_size = map_mrk_size
+            elif len(df[x_key]) < 100000:
+                m_size = mrk_size2
             else: 
                 m_size = mrk_size
             if plot_3d:
@@ -3024,10 +3033,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
             else:
-                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
                 if plot_slopes and x_key=='lon' and y_key=='lat':
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, df[x_key], df[y_key], df[clr_map], in_3D=False)
+                    # Plot the scatter
+                    heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
+                else:
+                    heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
@@ -4786,18 +4798,17 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
 
 ################################################################################
 
-def polyfit2d(x_data, y_data, z_data, kx=2, ky=2, order=None):
+def polyfit2d(x_data, y_data, z_data, kx=3, ky=3, order=3):
     """
     Finds a polynomial fit of the z data across the x_data and y_data
 
     x_data      1D array of the x values
     y_data      1D array of the y values
     z_data      1D array of the z values
-    kx          Polynomial order in x
-    ky          Polynomial order in y
+    kx          int, maximum order of polynomial in x
+    ky          int, maximum order of polynomial in y (bug note: needs to be equal to kx)
     order       int or None, default is None
                     If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
-                    If int, coefficients up to a maximum of kx+ky <= order are considered.
 
     Return paramters from np.linalg.lstsq:
         soln: np.ndarray
@@ -4825,34 +4836,68 @@ def polyfit2d(x_data, y_data, z_data, kx=2, ky=2, order=None):
 
 ################################################################################
 
-def poly2Dreco(X, Y, c):
+def reco_polyfit2d(X, Y, coeffs, kx, ky, order):
     """
     Calculates the Z values on X and Y for the polynomial based on the  
     coefficients calculated by polyfit2d, from the variable soln
 
-    X       An array of x values
-    Y       An array of y values (needs to be the same size as X)
-    c       An array of coefficients from polyfit2d (soln)
+    X           An array of x values
+    Y           An array of y values (needs to be the same size as X)
+    coeffs      An array of coefficients from polyfit2d (soln)
+    kx          int, maximum order of polynomial in x
+    ky          int, maximum order of polynomial in y (bug note: needs to be equal to kx)
+    order       int or None
+                    If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
     """
-    return (c[0] + X*c[1] + X**2*c[2] + Y*c[3] + X*Y*c[4] + X**2*Y*c[5] + Y**2*c[6] + X*Y**2*c[7] + X**2*Y**2*c[8])
-
-################################################################################
-
-def print_polyfit2d_eq(soln):
-    """
-    Takes in the solution coefficients from polyfit2d() and prints out the fit equation
-
-    soln        Array of polynomial coefficients from polyfit2d()
-    """
-    which_coeff = [' + ','*X + ','*X^2 + ','*Y + ','*XY + ','*X^2Y + ','*Y^2 + ','*XY^2 + ','*X^2Y^2']
+    # Prepare blank variable on which to build the solution
+    recro = 0
+    # Make a string on which to build the equation
     eq_string = 'Z = '
-    for i in range(len(which_coeff)):
-        eq_string += format_sci_notation(soln[i])+which_coeff[i]
-    return eq_string
+    # Cycle through the coefficients
+    c = 0
+    for j in range(ky+1):
+        for i in range(kx+1):
+            # do not include powers greater than order
+            if i + j <= order:
+                # print('i:',i,'j:',j,'c:',c)
+                if i == 0:
+                    if j == 0:
+                        recro += coeffs[c]
+                        eq_string += format_sci_notation(coeffs[c])
+                    elif j == 1:
+                        recro += coeffs[c]*(Y)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*Y'
+                    else:
+                        recro += coeffs[c]*(Y**j)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*Y^' + str(j)
+                elif i == 1:
+                    if j == 0:
+                        recro += coeffs[c]*(X)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*X'
+                    elif j == 1:
+                        recro += coeffs[c]*(X)*(Y)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*XY'
+                    else:
+                        recro += coeffs[c]*(X)*(Y**j)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*XY^' + str(j)
+                else:
+                    if j == 0:
+                        recro += coeffs[c]*(X**i)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*X^' + str(i)
+                    elif j == 1:
+                        recro += coeffs[c]*(X**i)*(Y)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*X^' + str(i) + 'Y'
+                    else:
+                        recro += coeffs[c]*(X**i)*(Y**j)
+                        eq_string += ' + ' + format_sci_notation(coeffs[c]) + '*X^' + str(i) + 'Y^' + str(j)
+            c += 1
+    print('\t- Fitted equation:')
+    print('\t'+eq_string)
+    return recro
 
 ################################################################################
 
-def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
+def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     """
     Takes in a dataframe and the keys for the variable to calculate (plt_var) and
     the variables on which to calculate the fit (fit_vars). Finds a polynomial fit 
@@ -4863,13 +4908,14 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
     x_data      1D array of the x values
     y_data      1D array of the y values
     z_data      1D array of the z values
-    kx          Polynomial order in x
+    kx          int, maximum order of polynomial in x
+    ky          int, maximum order of polynomial in y (bug note: needs to be equal to kx)
     order       int or None, default is None
                     If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
     """
-    print('in calc_fit_vars')
-    print('plt_vars:',plt_vars)
-    print('fit_vars:',fit_vars)
+    # print('in calc_fit_vars')
+    # print('plt_vars:',plt_vars)
+    # print('fit_vars:',fit_vars)
     # Find which of the plot variables has `-fit` in it
     plt_var = None
     for var in plt_vars:
@@ -4901,7 +4947,7 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
     # Find the solution to the polyfit
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
     # Use the solution to calculate the fitted z values
-    fitted_z = poly2Dreco(x_data, y_data, soln)
+    fitted_z = reco_polyfit2d(x_data, y_data, soln, kx, ky, order)
     # See whether to return the fit, or the residual
     if split_var[0] == 'fit':
         # Add new column for fitted z
@@ -4914,7 +4960,7 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=2, ky=2, order=None):
 
 ################################################################################
 
-def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_grid_pts=50, in_3D=True):
+def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_pts=50, in_3D=True):
     """
     Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
     and plots the result as a surface.
@@ -4924,7 +4970,8 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_gri
     x_data      1D array of the x values
     y_data      1D array of the y values
     z_data      1D array of the z values
-    kx          Polynomial order in x
+    kx          int, maximum order of polynomial in x
+    ky          int, maximum order of polynomial in y (bug note: needs to be equal to kx)
     order       int or None, default is None
                     If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
                     If int, coefficients up to a maximum of kx+ky <= order are considered.
@@ -4937,23 +4984,24 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=2, ky=2, order=None, n_gri
     # print('z_data.shape:',z_data.shape)
     # Find the solution to the polyfit
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
-    # Print out equation
-    print('\t- Fitted equation:')
-    print('\t ', print_polyfit2d_eq(soln))
-    # exit(0)
     # Make a grid for the solution to plot on 
     x_range = np.linspace(min(x_data), max(x_data), n_grid_pts)
     y_range = np.linspace(min(y_data), max(y_data), n_grid_pts)
     x_grid, y_grid = np.meshgrid(x_range, y_range)
     # Either of these work, very slight differences
     # fitted_surf = np.polynomial.polynomial.polygrid2d(x_grid, y_grid, soln.reshape((kx+1,ky+1)))
-    fitted_surf = poly2Dreco(x_grid, y_grid, soln)
+    fitted_surf = reco_polyfit2d(x_grid, y_grid, soln, kx, ky, order)
     if in_3D:
         # Plot fit as a surface
         surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=get_color_map(pp.z_vars[0]), linewidth=0, alpha=0.5)
     else:
         # Plot the contours
-        CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
+        try:
+            # if c_lims are provided
+            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
+        except:
+            # if c_lims are not provided
+            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(z_data), vmax=max(z_data))
         # Change the colorbar limits, if necessary
         # ax_lims_keys = list(pp.ax_lims.keys())
         # if 'c_lims' in ax_lims_keys:

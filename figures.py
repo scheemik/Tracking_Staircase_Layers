@@ -1994,6 +1994,31 @@ if False:
 ################################################################################
 ## Pre-clustered correcting single clusters with polyfit2d for salinity
 ################################################################################
+# Plotting across lat-lon a cluster's salinity, polyfit2d, and residual
+if False:
+    print('')
+    print('- Creating lat-lon plots for one cluster`s salinity, polyfit2d, and residual') 
+    SA_lims = [34.4925,34.4700]
+    res_lims = [-0.01125,0.01125]
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':SA_lims})
+    pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':SA_lims})
+
+    pp_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':SA_lims})
+    pp_og_vs_res = ahf.Plot_Parameters(x_vars=['fit_SA'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':SA_lims, 'y_lims':SA_lims})
+
+    pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
+    pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
+    group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
+    group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
+    group_res_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res_hist, plot_title='Residuals')
+    # # Make the figure
+    ahf.make_figure([group_2d, group_fit, group_res, group_2d_hist, group_og_vs_res, group_res_hist])
+    # ahf.make_figure([group_2d])
 # Plotting a cluster across lat-lon with a polyfit2d in salinity in 2D / 3D
 if False:
     print('')
@@ -2060,6 +2085,31 @@ if False:
 ################################################################################
 ## Pre-clustered correcting single clusters with polyfit2d for temperature
 ################################################################################
+# Plotting across lat-lon a cluster's temperature, polyfit2d, and residual
+if False:
+    print('')
+    print('- Creating lat-lon plots for one cluster`s temperature, polyfit2d, and residual') 
+    CT_lims = [-0.83,-0.48]
+    res_lims = [.175,-.175]
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':CT_lims})
+    pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':CT_lims})
+
+    pp_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':CT_lims})
+    pp_og_vs_res = ahf.Plot_Parameters(x_vars=['fit_CT'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':CT_lims, 'y_lims':CT_lims})
+
+    pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
+    pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
+    group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
+    group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
+    group_res_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res_hist, plot_title='Residuals')
+    # # Make the figure
+    ahf.make_figure([group_2d, group_fit, group_res, group_2d_hist, group_og_vs_res, group_res_hist])
+    # ahf.make_figure([group_2d])
 # Plotting a cluster across lat-lon with a polyfit2d in temperature in 2D / 3D
 if False:
     print('')
@@ -2126,6 +2176,31 @@ if False:
 ################################################################################
 ## Pre-clustered correcting single clusters with polyfit2d for pressure
 ################################################################################
+# Plotting across lat-lon a cluster's pressure, polyfit2d, and residual
+if False:
+    print('')
+    print('- Creating lat-lon plots for one cluster`s pressure, polyfit2d, and residual') 
+    press_lims = [300,170]
+    res_lims = [65,-65]
+    # Make the Plot Parameters
+    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':press_lims})
+    pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':press_lims})
+
+    pp_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':press_lims})
+    pp_og_vs_res = ahf.Plot_Parameters(x_vars=['fit_press'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':press_lims, 'y_lims':press_lims})
+
+    pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
+    pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
+    # Make the subplot groups
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
+    group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
+    group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
+    group_res_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res_hist, plot_title='Residuals')
+    # # Make the figure
+    ahf.make_figure([group_2d, group_fit, group_res, group_2d_hist, group_og_vs_res, group_res_hist])
+    # ahf.make_figure([group_2d])
 # Plotting a cluster across lat-lon with a polyfit2d in pressure in 2D / 3D
 if False:
     print('')
@@ -2189,31 +2264,48 @@ if False:
     # # Make the figure
     # ahf.make_figure([group_p_v_lat])
     ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
-# Plotting across lat-lon a cluster's pressure, polyfit2d, and residual
+
+################################################################################
+## Pre-clustered correcting many clusters with polyfit2d for pressure
+################################################################################
+pfs_clstr_4 = ahf.Profile_Filters(clstrs_to_plot=[4])
+pfs_clstr_5 = ahf.Profile_Filters(clstrs_to_plot=[5])
+pfs_clstr_6 = ahf.Profile_Filters(clstrs_to_plot=[6])
+pfs_clstr_7 = ahf.Profile_Filters(clstrs_to_plot=[7])
+pfs_clstr_8 = ahf.Profile_Filters(clstrs_to_plot=[8])
+pfs_clstr_9 = ahf.Profile_Filters(clstrs_to_plot=[9])
+# Plotting across lat-lon many clusters' pressure and polyfit2d
 if True:
     print('')
-    print('- Creating lat-lon plots for one cluster`s pressure, polyfit2d, and residual') 
+    print('- Creating lat-lon plots for many clusters` pressure and polyfit2d') 
     press_lims = [300,170]
-    res_lims = [65,-65]
     # Make the Plot Parameters
-    pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':press_lims})
-    pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':press_lims})
-
     pp_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':press_lims})
-    pp_og_vs_res = ahf.Plot_Parameters(x_vars=['fit_press'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':press_lims, 'y_lims':press_lims})
-
-    pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
-    pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
     # Make the subplot groups
-    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
-    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
-    group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
-    group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
-    group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
-    group_res_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res_hist, plot_title='Residuals')
+    group_clstr_4 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_4, pp_fit, plot_title='Cluster 4')
+    group_clstr_5 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_5, pp_fit, plot_title='Cluster 5')
+    group_clstr_6 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_6, pp_fit, plot_title='Cluster 6')
+    group_clstr_7 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_7, pp_fit, plot_title='Cluster 7')
+    group_clstr_8 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_8, pp_fit, plot_title='Cluster 8')
+    group_clstr_9 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_9, pp_fit, plot_title='Cluster 9')
     # # Make the figure
-    ahf.make_figure([group_2d, group_fit, group_res, group_2d_hist, group_og_vs_res, group_res_hist])
-    # ahf.make_figure([group_fit])
+    ahf.make_figure([group_clstr_4, group_clstr_5, group_clstr_6, group_clstr_7, group_clstr_8, group_clstr_9])
+# Plotting histograms of many clusters' pressure and polyfit2d
+if False:
+    print('')
+    print('- Creating histograms for many clusters` pressure and polyfit2d') 
+    press_lims = [300,170]
+    # Make the Plot Parameters
+    pp_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']})#, ax_lims={'y_lims':press_lims})
+    # Make the subplot groups
+    group_clstr_4 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_4, pp_hist, plot_title='Cluster 4')
+    group_clstr_5 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_5, pp_hist, plot_title='Cluster 5')
+    group_clstr_6 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_6, pp_hist, plot_title='Cluster 6')
+    group_clstr_7 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_7, pp_hist, plot_title='Cluster 7')
+    group_clstr_8 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_8, pp_hist, plot_title='Cluster 8')
+    group_clstr_9 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_9, pp_hist, plot_title='Cluster 9')
+    # # Make the figure
+    ahf.make_figure([group_clstr_4, group_clstr_5, group_clstr_6, group_clstr_7, group_clstr_8, group_clstr_9])
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods
