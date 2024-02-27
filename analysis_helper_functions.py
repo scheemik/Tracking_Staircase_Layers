@@ -311,6 +311,7 @@ class Profile_Filters:
     d_range             [d_min, d_max] where the values are floats in m
     *T_range            [T_min, T_max] where the values are floats in degrees C
     S*_range            [S_min, S_max] where the values are floats in g/kg
+    sig_range           [sig_min, sig_max] where the values are floats in kg/m^3
     lon_range           [lon_min,lon_max] where the values are floats in degrees
     lat_range           [lat_min,lat_max] where the values are floats in degrees
     lt_pCT_max          True/False whether to only keep points with p < p(CT_max)
@@ -322,7 +323,7 @@ class Profile_Filters:
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     clstrs_to_plot      A list of the cluster id's to plot
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None, clstrs_to_plot=[]):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, sig_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None, clstrs_to_plot=[]):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -330,6 +331,7 @@ class Profile_Filters:
         self.PT_range = PT_range
         self.SP_range = SP_range
         self.SA_range = SA_range
+        self.sig_range = sig_range
         self.lon_range = lon_range
         self.lat_range = lat_range
         self.lt_pCT_max = lt_pCT_max
@@ -858,7 +860,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df['instrmt'] = ds.Instrument
             # print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
-            df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
+            df = filter_profile_ranges(df, profile_filters, 'press', 'depth', 'sigma', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
             # print('\t- actually done filtering profile ranges')
             # Filter to just pressures above p(CT_max)
             if profile_filters.lt_pCT_max:
@@ -1133,7 +1135,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     #
                 #
             ## Filter each profile to certain ranges
-            df = filter_profile_ranges(df, profile_filters, 'press', 'depth', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
+            df = filter_profile_ranges(df, profile_filters, 'press', 'depth', 'sigma', iT_key='iT', CT_key='CT', PT_key='PT', SP_key='SP', SA_key='SA')
             # Add a notes column
             df['notes'] = ''
             ## Filter to just some cluster id's 
@@ -1233,7 +1235,7 @@ def take_m_avg(df, m_avg_win, vars_available):
 
 ################################################################################
 
-def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key=None, PT_key=None, SP_key=None, SA_key=None):
+def filter_profile_ranges(df, profile_filters, p_key, d_key, sig_key, iT_key=None, CT_key=None, PT_key=None, SP_key=None, SA_key=None):
     """
     Returns the same pandas dataframe, but with the filters provided applied to
     the data within
@@ -1242,6 +1244,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
     profile_filters     A custom Profile_Filters object that contains the filters to apply
     p_key               A string of the pressure variable to filter
     d_key               A string of the depth variable to filter
+    sig_key             A string of the density anomaly variable to filter
     iT_key              A string of the in-situ temperature variable to filter
     CT_key              A string of the conservative temperature variable to filter
     PT_key              A string of the potential temperature variable to filter
@@ -1283,6 +1286,14 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, iT_key=None, CT_key
         d_min = min(profile_filters.d_range)
         # Filter the data frame to the specified depth range
         df = df[(df[d_key] < d_max) & (df[d_key] > d_min)]
+    #   Filter to a certain density anomaly range
+    if not isinstance(profile_filters.sig_range, type(None)):
+        # print('\t\t-Applying d_range filter')
+        # Get endpoints of depth range
+        sig_max = max(profile_filters.sig_range)
+        sig_min = min(profile_filters.sig_range)
+        # Filter the data frame to the specified density anomaly range
+        df = df[(df[sig_key] < sig_max) & (df[sig_key] > sig_min)]
     #   Filter to a certain in-situ temperature range
     if not isinstance(profile_filters.iT_range, type(None)):
         # print('\t\t-Applying iT_range filter')
@@ -2226,8 +2237,8 @@ def get_color_map(cmap_var):
 
     cmap_var    A string of the variable name for the colormap
     """
-    print('in get_color_map()')
-    print('cmap_var:',cmap_var)
+    # print('in get_color_map()')
+    # print('cmap_var:',cmap_var)
     # For diverging colormaps
     return cm.roma.reversed()
     if not isinstance(cmap_var,type(None)) and cmap_var[-4:]=='-fit':
@@ -3084,10 +3095,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cbar.ax.yaxis.set_major_locator(loc)
                 cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
             # Change the colorbar limits, if necessary
-            ax_lims_keys = list(pp.ax_lims.keys())
-            if 'c_lims' in ax_lims_keys:
-                cbar.mappable.set_clim(pp.ax_lims['c_lims'])
-                print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+            try:
+                ax_lims_keys = list(pp.ax_lims.keys())
+                if 'c_lims' in ax_lims_keys:
+                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+            except:
+                foo = 2
             cbar.set_label(pp.clabel)
             # Add a standard legend
             if pp.legend:
@@ -3409,10 +3423,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cbar.ax.yaxis.set_major_locator(loc)
                 cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
             # Change the colorbar limits, if necessary
-            ax_lims_keys = list(pp.ax_lims.keys())
-            if 'c_lims' in ax_lims_keys:
-                cbar.mappable.set_clim(pp.ax_lims['c_lims'])
-                print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+            try:
+                ax_lims_keys = list(pp.ax_lims.keys())
+                if 'c_lims' in ax_lims_keys:
+                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+            except:
+                foo = 2
             # cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
             cbar.set_label(pp.clabel)
             # Add a standard legend
@@ -4330,10 +4347,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                     cbar.ax.yaxis.set_major_locator(loc)
                     cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
                 # Change the colorbar limits, if necessary
-                ax_lims_keys = list(pp.ax_lims.keys())
-                if 'c_lims' in ax_lims_keys:
-                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
-                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+                try:
+                    ax_lims_keys = list(pp.ax_lims.keys())
+                    if 'c_lims' in ax_lims_keys:
+                        cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                        print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+                except:
+                    foo = 2
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
@@ -4698,10 +4718,13 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                     cbar.ax.yaxis.set_major_locator(loc)
                     cbar.ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
                 # Change the colorbar limits, if necessary
-                ax_lims_keys = list(pp.ax_lims.keys())
-                if 'c_lims' in ax_lims_keys:
-                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
-                    print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+                try:
+                    ax_lims_keys = list(pp.ax_lims.keys())
+                    if 'c_lims' in ax_lims_keys:
+                        cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                        print('\t- Set c_lims to',pp.ax_lims['c_lims'])
+                except:
+                    foo = 2
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
@@ -5002,11 +5025,6 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         except:
             # if c_lims are not provided
             CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(z_data), vmax=max(z_data))
-        # Change the colorbar limits, if necessary
-        # ax_lims_keys = list(pp.ax_lims.keys())
-        # if 'c_lims' in ax_lims_keys:
-        #     cbar.mappable.set_clim(pp.ax_lims['c_lims'])
-        #     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
 
 ################################################################################
 
