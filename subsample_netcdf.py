@@ -71,69 +71,114 @@ def keep_every(vert, n_pts):
 ################################################################################
 # Select the netcdf to modify
 ncs_to_modify = [
-                "netcdfs/ITP_001.nc",
-                "netcdfs/ITP_002.nc",
-                "netcdfs/ITP_003.nc",
-                "netcdfs/ITP_004.nc",
-                "netcdfs/ITP_005.nc",
-                "netcdfs/ITP_006.nc",
-                "netcdfs/ITP_008.nc",
-                "netcdfs/ITP_011.nc",
-                "netcdfs/ITP_013.nc",
-                "netcdfs/ITP_018.nc",
-                "netcdfs/ITP_021.nc",
-                "netcdfs/ITP_025.nc",
-                "netcdfs/ITP_030.nc",
-                "netcdfs/ITP_032.nc",
-                "netcdfs/ITP_033.nc",
-                "netcdfs/ITP_034.nc",
-                "netcdfs/ITP_035.nc",
-                "netcdfs/ITP_041.nc",
-                "netcdfs/ITP_042.nc",
-                "netcdfs/ITP_043.nc",
-                "netcdfs/ITP_052.nc",
-                "netcdfs/ITP_053.nc",
-                "netcdfs/ITP_054.nc",
-                "netcdfs/ITP_055.nc",
-                "netcdfs/ITP_062.nc",
-                "netcdfs/ITP_064.nc",
-                "netcdfs/ITP_065.nc",
-                "netcdfs/ITP_068.nc",
-                "netcdfs/ITP_069.nc",
-                "netcdfs/ITP_070.nc",
-                "netcdfs/ITP_077.nc",
-                "netcdfs/ITP_078.nc",
-                "netcdfs/ITP_079.nc",
-                "netcdfs/ITP_080.nc",
-                "netcdfs/ITP_081.nc",
-                "netcdfs/ITP_082.nc",
-                "netcdfs/ITP_084.nc",
-                "netcdfs/ITP_085.nc",
-                "netcdfs/ITP_086.nc",
-                "netcdfs/ITP_087.nc",
-                "netcdfs/ITP_088.nc",
-                "netcdfs/ITP_089.nc",
-                "netcdfs/ITP_097.nc",
-                "netcdfs/ITP_100.nc",
-                "netcdfs/ITP_101.nc",
-                "netcdfs/ITP_103.nc",
-                "netcdfs/ITP_104.nc",
-                "netcdfs/ITP_105.nc",
-                "netcdfs/ITP_107.nc",
-                "netcdfs/ITP_108.nc",
-                "netcdfs/ITP_109.nc",
-                "netcdfs/ITP_110.nc",
-                "netcdfs/ITP_113.nc",
-                "netcdfs/ITP_114.nc",
-                "netcdfs/ITP_117.nc",
-                "netcdfs/ITP_118.nc",
-                "netcdfs/ITP_120.nc",
-                "netcdfs/ITP_121.nc",
-                "netcdfs/ITP_122.nc",
-                "netcdfs/ITP_123.nc",
-                "netcdfs/ITP_125.nc",
-                "netcdfs/ITP_128.nc"
-                ]
+                 'netcdfs/ITP_001.nc',
+                 'netcdfs/ITP_002.nc', # Not in time period
+                 'netcdfs/ITP_003.nc',
+                 'netcdfs/ITP_004.nc',
+                 'netcdfs/ITP_005.nc',
+                 'netcdfs/ITP_006.nc',
+                #  'netcdfs/ITP_007.nc', # Not in BGR
+                 'netcdfs/ITP_008.nc',
+                #  'netcdfs/ITP_009.nc', # Not in BGR
+                #  'netcdfs/ITP_010.nc', # Not in BGR
+                 'netcdfs/ITP_011.nc',
+                #  'netcdfs/ITP_012.nc', # Not in BGR
+                 'netcdfs/ITP_013.nc',
+                #  'netcdfs/ITP_014.nc', # Not in BGR
+                #  'netcdfs/ITP_015.nc', # Not in BGR
+                #  'netcdfs/ITP_016.nc', # Not in BGR
+                #  'netcdfs/ITP_017.nc', # Not in BGR
+                 'netcdfs/ITP_018.nc',
+                #  'netcdfs/ITP_019.nc', # Not in BGR
+                 'netcdfs/ITP_021.nc',
+                #  'netcdfs/ITP_022.nc', # Not in BGR
+                #  'netcdfs/ITP_023.nc', # Not in BGR
+                #  'netcdfs/ITP_024.nc', # Not in BGR
+                 'netcdfs/ITP_025.nc',
+                #  'netcdfs/ITP_026.nc', # Not in BGR
+                #  'netcdfs/ITP_027.nc', # Not in BGR
+                #  'netcdfs/ITP_028.nc', # Not in BGR
+                #  'netcdfs/ITP_029.nc', # Not in BGR
+                 'netcdfs/ITP_030.nc',
+                 'netcdfs/ITP_032.nc',
+                 'netcdfs/ITP_033.nc',
+                 'netcdfs/ITP_034.nc',
+                 'netcdfs/ITP_035.nc',
+                #  'netcdfs/ITP_036.nc', # Not in BGR
+                #  'netcdfs/ITP_037.nc', # Not in BGR
+                #  'netcdfs/ITP_038.nc', # Not in BGR
+                 'netcdfs/ITP_041.nc',
+                 'netcdfs/ITP_042.nc',
+                 'netcdfs/ITP_043.nc',
+                #  'netcdfs/ITP_047.nc', # Not in BGR
+                #  'netcdfs/ITP_048.nc', # Not in BGR
+                #  'netcdfs/ITP_049.nc', # Not in BGR
+                #  'netcdfs/ITP_051.nc', # Not in BGR
+                 'netcdfs/ITP_052.nc',
+                 'netcdfs/ITP_053.nc',
+                 'netcdfs/ITP_054.nc',
+                 'netcdfs/ITP_055.nc',
+                #  'netcdfs/ITP_056.nc', # Not in BGR
+                #  'netcdfs/ITP_057.nc', # Not in BGR
+                #  'netcdfs/ITP_058.nc', # Not in BGR
+                #  'netcdfs/ITP_059.nc', # Not in BGR
+                #  'netcdfs/ITP_060.nc', # Not in BGR
+                #  'netcdfs/ITP_061.nc', # Not in BGR
+                 'netcdfs/ITP_062.nc',
+                #  'netcdfs/ITP_063.nc', # Not in BGR
+                 'netcdfs/ITP_064.nc',
+                 'netcdfs/ITP_065.nc',
+                 'netcdfs/ITP_068.nc',
+                 'netcdfs/ITP_069.nc',
+                 'netcdfs/ITP_070.nc',
+                #  'netcdfs/ITP_072.nc', # Not in BGR
+                #  'netcdfs/ITP_073.nc', # Not in BGR
+                #  'netcdfs/ITP_074.nc', # Not in BGR
+                #  'netcdfs/ITP_075.nc', # Not in BGR
+                #  'netcdfs/ITP_076.nc', # Not in BGR
+                 'netcdfs/ITP_077.nc',
+                 'netcdfs/ITP_078.nc',
+                 'netcdfs/ITP_079.nc',
+                 'netcdfs/ITP_080.nc',
+                 'netcdfs/ITP_081.nc',
+                 'netcdfs/ITP_082.nc',
+                #  'netcdfs/ITP_083.nc', # Not in BGR
+                 'netcdfs/ITP_084.nc',
+                 'netcdfs/ITP_085.nc',
+                 'netcdfs/ITP_086.nc',
+                 'netcdfs/ITP_087.nc',
+                 'netcdfs/ITP_088.nc',
+                 'netcdfs/ITP_089.nc',
+                #  'netcdfs/ITP_090.nc', # Not in BGR
+                #  'netcdfs/ITP_091.nc', # Not in BGR
+                #  'netcdfs/ITP_092.nc', # Not in BGR
+                #  'netcdfs/ITP_094.nc', # Not in BGR
+                #  'netcdfs/ITP_095.nc', # Not in BGR
+                 'netcdfs/ITP_097.nc',
+                #  'netcdfs/ITP_098.nc', # Not in BGR
+                 'netcdfs/ITP_099.nc',
+                 'netcdfs/ITP_100.nc',
+                 'netcdfs/ITP_101.nc',
+                #  'netcdfs/ITP_102.nc', # Not in BGR
+                 'netcdfs/ITP_103.nc',
+                 'netcdfs/ITP_104.nc',
+                 'netcdfs/ITP_105.nc',
+                 'netcdfs/ITP_107.nc',
+                 'netcdfs/ITP_108.nc',
+                 'netcdfs/ITP_109.nc',
+                 'netcdfs/ITP_110.nc',
+                 'netcdfs/ITP_113.nc',
+                 'netcdfs/ITP_114.nc',
+                #  'netcdfs/ITP_116.nc', # Not in BGR
+                 'netcdfs/ITP_117.nc',
+                 'netcdfs/ITP_118.nc',
+                 'netcdfs/ITP_120.nc',
+                 'netcdfs/ITP_121.nc',
+                 'netcdfs/ITP_122.nc',
+                 'netcdfs/ITP_123.nc',
+                #  'netcdfs/ITP_125.nc',
+                #  'netcdfs/ITP_128.nc',
+                 ]
 
 # Loop through the netcdfs to modify
 for my_nc in ncs_to_modify:
