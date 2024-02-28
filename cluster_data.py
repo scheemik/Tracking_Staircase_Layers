@@ -508,7 +508,9 @@ BGR04_minimal   = {'netcdf_file':'netcdfs/minimal_BGR04.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0506
 BGR0506_minimal = {'netcdf_file':'netcdfs/minimal_BGR0506.nc',
@@ -518,7 +520,9 @@ BGR0506_minimal = {'netcdf_file':'netcdfs/minimal_BGR0506.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0607
 BGR0607_minimal = {'netcdf_file':'netcdfs/minimal_BGR0607.nc',
@@ -528,7 +532,9 @@ BGR0607_minimal = {'netcdf_file':'netcdfs/minimal_BGR0607.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0708
 BGR0708_minimal = {'netcdf_file':'netcdfs/minimal_BGR0708.nc',
@@ -538,7 +544,9 @@ BGR0708_minimal = {'netcdf_file':'netcdfs/minimal_BGR0708.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0809
 BGR0809_minimal = {'netcdf_file':'netcdfs/minimal_BGR0809.nc',
@@ -548,7 +556,9 @@ BGR0809_minimal = {'netcdf_file':'netcdfs/minimal_BGR0809.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0910
 BGR0910_minimal = {'netcdf_file':'netcdfs/minimal_BGR0910.nc',
@@ -558,7 +568,9 @@ BGR0910_minimal = {'netcdf_file':'netcdfs/minimal_BGR0910.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 1011
 BGR1011_minimal = {'netcdf_file':'netcdfs/minimal_BGR1011.nc',
@@ -568,7 +580,9 @@ BGR1011_minimal = {'netcdf_file':'netcdfs/minimal_BGR1011.nc',
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
-                   'm_pts':'None'
+                   'm_pts':'None',
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 ################################################################################
 
@@ -596,9 +610,9 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
 
 xr.set_options(display_max_rows=44)
 
-# for clstr_dict in [BGR05060708_clstrs_456]:
+for clstr_dict in [BGR04_minimal]:
 # for clstr_dict in [BGR0607_clstr_dict, BGR0708_clstr_dict]:
-for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
+# for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
