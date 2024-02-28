@@ -199,7 +199,7 @@ if rank%rf == 0:
             xlabel = r'$m_{cls}$'
         # Run the HDBSCAN algorithm on the provided dataframe
         try:
-            new_df, rel_val, m_pts, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
+            new_df, rel_val, m_pts, m_cls, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
         except:
             print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
             break
