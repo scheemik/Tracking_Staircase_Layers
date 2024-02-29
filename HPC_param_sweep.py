@@ -55,9 +55,6 @@ if rank == 0:
     f.write('m_pts,ell_size,n_clusters,DBCV\n')
     f.close()
 
-# Create dataframe to add outputs to
-output_df = pd.DataFrame([], columns=['m_pts','ell_size','n_clusters','DBCV'])
-
 # Reduce the number of active processes
 rf = 4
 if rank%rf == 0:
@@ -173,6 +170,7 @@ if rank%rf == 0:
     #
     x_len = len(x_var_array)
     lines = []
+    output_dfs = []
     for x in x_var_array:
         # Set initial values for some variables
         zlabel = None
@@ -208,14 +206,16 @@ if rank%rf == 0:
             break
         # Record outputs to output object
         lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
-        output_df.loc[len(output_df)] = [m_pts, ell, new_df['cluster'].max()+1, rel_val]
+        this_output_df = pd.DataFrame([m_pts, ell, new_df['cluster'].max()+1, rel_val], columns=['m_pts','ell_size','n_clusters','DBCV'])
+        output_dfs.append(this_output_df)
 else:
     lines = ''
+    output_dfs = pd.DataFrame([], columns=['m_pts','ell_size','n_clusters','DBCV'])
 ################################################################################
 
 # Gather the data from all the processes
 lines = comm.gather(lines, root=0)
-output_df = comm.gather(output_df, root=0)
+output_dfs = comm.gather(output_dfs, root=0)
 if rank == 0:
     output_lines = []
     for entry in lines:
@@ -224,8 +224,11 @@ if rank == 0:
     f = open(sweep_txt_file,'a')
     f.write(''.join(output_lines))
     f.close()
+    # Concatonate the output dataframes
+    output_df = pd.concat(output_dfs)
     # Sort the output dataframe by m_pts
     output_df.sort_values(by=['m_pts'], inplace=True)
+    # Save the output dataframe to a csv file
     output_df.to_csv('outputs/'+this_plot_title+'_ps2.csv', index=False)
 
 
