@@ -207,7 +207,7 @@ if rank%rf == 0:
             break
         # Record outputs to output object
         lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
-        output_df.loc[len(ouptput_df)] = [m_pts, ell, new_df['cluster'].max()+1, rel_val]
+        output_df.loc[len(output_df)] = [m_pts, ell, new_df['cluster'].max()+1, rel_val]
 else:
     lines = ''
 ################################################################################
