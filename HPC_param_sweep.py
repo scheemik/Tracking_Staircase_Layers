@@ -55,6 +55,9 @@ if rank == 0:
     f.write('m_pts,ell_size,n_clusters,DBCV\n')
     f.close()
 
+# Create dataframe to add outputs to
+output_df = pd.DataFrame([], columns=['m_pts','ell_size','n_clusters','DBCV'])
+
 # Reduce the number of active processes
 rf = 4
 if rank%rf == 0:
@@ -169,8 +172,6 @@ if rank%rf == 0:
         x_var_array = x_var_array[x_var_array <= number_of_pfs]
     #
     x_len = len(x_var_array)
-    # Create dataframe to add outputs to
-    output_df = pd.DataFrame([], columns=['m_pts','ell_size','n_clusters','DBCV'])
     lines = []
     for x in x_var_array:
         # Set initial values for some variables
