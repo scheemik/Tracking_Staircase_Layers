@@ -135,7 +135,7 @@ if rank%rf == 0:
         print('- Creating clustering parameter sweep for BGR ITP data')
         test_mpts = 360
         # Make the Plot Parameters
-        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':1000, 'cl_ps_tuple':[10,801,5], 'mpi_run':True}) #[10,721,10]
+        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':'auto', 'cl_ps_tuple':[10,801,5], 'mpi_run':True}) #[10,721,10]
         # Make the subplot groups
         group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=this_plot_title)
         # Run the parameter sweep
@@ -169,6 +169,8 @@ if rank%rf == 0:
         x_var_array = x_var_array[x_var_array <= number_of_pfs]
     #
     x_len = len(x_var_array)
+    # Create dataframe to add outputs to
+    output_df = pd.DataFrame([], columns=['m_pts','ell_size','n_clusters','DBCV'])
     lines = []
     for x in x_var_array:
         # Set initial values for some variables
@@ -205,12 +207,14 @@ if rank%rf == 0:
             break
         # Record outputs to output object
         lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+        output_df.loc[len(ouptput_df)] = [m_pts, ell, new_df['cluster'].max()+1, rel_val]
 else:
     lines = ''
 ################################################################################
 
 # Gather the data from all the processes
 lines = comm.gather(lines, root=0)
+output_df = comm.gather(output_df, root=0)
 if rank == 0:
     output_lines = []
     for entry in lines:
@@ -219,5 +223,8 @@ if rank == 0:
     f = open(sweep_txt_file,'a')
     f.write(''.join(output_lines))
     f.close()
+    # Sort the output dataframe by m_pts
+    output_df.sort_values(by=['m_pts'], inplace=True)
+    output_df.to_csv('outputs/'+this_plot_title+'_ps2.csv', index=False)
 
 
