@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'new_BGR1112'
+this_plot_title = 'new_BGR1213'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -114,8 +114,8 @@ if rank%rf == 0:
     # ds_this_BGR = ahf.Data_Set(BGR0809, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0910, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
-    ds_this_BGR = ahf.Data_Set(BGR1112, dfs_all)
-    # ds_this_BGR = ahf.Data_Set(BGR1213, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1112, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR1213, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR1314, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR1415, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR1516, dfs_all)
