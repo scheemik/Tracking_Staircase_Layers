@@ -38,7 +38,7 @@ from datetime import datetime
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
 # Title
-this_plot_title = 'new_BGR1011'
+this_plot_title = 'new_BGR1112'
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -75,6 +75,19 @@ if rank%rf == 0:
     BGR0809 = {'minimal_BGR0809':'all'}
     BGR0910 = {'minimal_BGR0910':'all'}
     BGR1011 = {'minimal_BGR1011':'all'}
+    BGR1112 = {'minimal_BGR1112':'all'}
+    BGR1213 = {'minimal_BGR1213':'all'}
+    BGR1314 = {'minimal_BGR1314':'all'}
+    BGR1415 = {'minimal_BGR1415':'all'}
+    BGR1516 = {'minimal_BGR1516':'all'}
+    BGR1617 = {'minimal_BGR1617':'all'}
+    BGR1718 = {'minimal_BGR1718':'all'}
+    BGR1819 = {'minimal_BGR1819':'all'}
+    BGR1920 = {'minimal_BGR1920':'all'}
+    BGR2021 = {'minimal_BGR2021':'all'}
+    BGR2122 = {'minimal_BGR2122':'all'}
+    BGR2223 = {'minimal_BGR2223':'all'}
+
     BGR0508 = {'BGR0508':'all'}
     ITP2 = {'ITP_002':'all'}
 
@@ -100,7 +113,19 @@ if rank%rf == 0:
     # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0809, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0910, dfs_all)
-    ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1011, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR1112, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1213, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1314, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1415, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1516, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1617, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1718, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1819, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR1920, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR2021, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR2122, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR2223, dfs_all)
 
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
