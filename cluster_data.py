@@ -610,7 +610,7 @@ BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
 
 xr.set_options(display_max_rows=44)
 
-for clstr_dict in [BGR04_minimal]:
+for clstr_dict in [BGR04_minimal, BGR0506_minimal, BGR0607_minimal, BGR0708_minimal, BGR0809_minimal, BGR0910_minimal, BGR1011_minimal]:
 # for clstr_dict in [BGR0607_clstr_dict, BGR0708_clstr_dict]:
 # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
     gattrs_to_print =  ['Last modified',
