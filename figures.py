@@ -1032,6 +1032,8 @@ print('- Creating data sets')
 
 ## ITP
 
+ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
+
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs_all)
 # ds_all_BGOS = ahf.Data_Set(all_BGOS, dfs0)
 # ds_BGOS = ahf.Data_Set(all_BGOS, dfs1)
@@ -1094,7 +1096,7 @@ print('- Creating data sets')
 # ds_BGR2122 = ahf.Data_Set(BGRITPs2122, dfs1_BGR2122)
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
-ds_this_BGR = ahf.Data_Set(BGRITPs0511, dfs1_BGR0511)
+# ds_this_BGR = ahf.Data_Set(BGRITPs0511, dfs1_BGR0511)
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, dfs1)
 
@@ -1393,7 +1395,7 @@ if False:
 #   use all the points (including noise) to track isopycnals
 
 # Plotting density on a pressure vs. time plot
-if True:
+if False:
     print('')
     print('- Creating test plots of sigma')
     lat_lon_groups_to_plot = []
@@ -1756,12 +1758,12 @@ if False:
 ## Clustering parameter sweeps
 ################################################################################
 # Parameter sweep for BGR ITP data
-if False:
+if True:
     print('')
     print('- Creating clustering parameter sweep for BGR ITP data')
     test_mpts = 360
     # Make the Plot Parameters
-    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':1000, 'cl_ps_tuple':[10,110,10]}) #[10,721,10]
+    pp_mpts_param_sweep = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':'auto', 'cl_ps_tuple':[10,801,10]}) #[10,721,10]
     # pp_ell_param_sweep  = ahf.Plot_Parameters(x_vars=['ell_size'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'cl_ps_tuple':[10,271,10]}) 
     # Make the subplot groups
     group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_mpts_param_sweep)#, plot_title='BGR04')
@@ -1793,7 +1795,7 @@ if False:
     # ds_this_BGR = ds_BGR05060708_no_noise
     # Make the Plot Parameters
     # pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':'auto', 'b_a_w_plt':True, 'relab_these':{1:2, 2:3, 5:6}, 'extra_vars_to_keep':['CT', 'ma_CT']})
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':'auto', 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':15, 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_live_clstr)
     # Make the figure

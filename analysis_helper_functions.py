@@ -5077,7 +5077,7 @@ def get_cluster_args(pp):
 
 ################################################################################
 
-def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_vars=[None], param_sweep=False):
+def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_vars=[None], param_sweep=False):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
@@ -5184,6 +5184,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls=None, extra_cl_var
         df['cluster']   = hdbscan_1.labels_
         df['clst_prob'] = hdbscan_1.probabilities_
         rel_val = hdbscan_1.relative_validity_
+        print('\t\tDBCV:',rel_val)
         # Determine whether there are any new variables to calculate
         new_cl_vars = list(set(extra_cl_vars) & set(clstr_vars))
         # Don't need to calculate `cluster` so remove it if its there
@@ -6111,14 +6112,15 @@ def filter_to_these_clstrs(df, cluster_numbers, clstrs_to_plot=[]):
 
 def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     """
-    Plots the number of clusters found by HDBSCAN vs. the number of profiles
-    included in the data set
+    Plots the DBCV and number of clusters found by HDBSCAN vs. either n_pfs, 
+    m_pts, m_cls, or ell_size
 
     ax              The axis on which to plot
     tw_ax_x         The twin x axis on which to plot
     a_group         An Analysis_Group object containing the info to create this subplot
     plt_title       A string to use as the title of this subplot
     """
+    # print('in plot_clstr_param_sweep()')
     ## Get relevant parameters for the plot
     pp = a_group.plt_params
     # Concatonate all the pandas data frames together
@@ -6155,7 +6157,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
     f = open(sweep_txt_file,'w')
     f.write('Parameter Sweep for '+plt_title+'\n')
     f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y")+'\n')
-    f.write('m_pts,ell_size,n_clusters,DBCV\n')
+    f.write('m_pts,ell_size,n_clusters,DBCV,m_cls\n')
     f.close()
     # If limiting the number of pfs, find total number of pfs in the given df
     #   In the multi-index of df, level 0 is 'Time'
@@ -6172,16 +6174,8 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
         z_list = z_list[z_list <= number_of_pfs]
     #
     print('\tPlotting these x values of',x_key,':',x_var_array)
-    # f = open(sweep_txt_file,'a')
-    # f.write('\nPlotting these x values of '+x_key+':\n')
-    # f.write(str(x_var_array))
-    # f.close()
     if z_key:
         print('\tPlotting these z values of',z_key,':',z_list)
-        # f = open(sweep_txt_file,'a')
-        # f.write('\nPlotting these z values of '+z_key+':\n')
-        # f.write(str(z_list))
-        # f.close()
     z_len = len(z_list)
     x_len = len(x_var_array)
     for i in range(z_len):
@@ -6240,7 +6234,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 zlabel = r'$m_{cls}=$'+str(m_cls)
             # Run the HDBSCAN algorithm on the provided dataframe
             try:
-                new_df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
+                new_df, rel_val, m_pts_out, m_cls_out, ell = HDBSCAN_(a_group.data_set.arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
             except:
                 break
             # Record outputs to plot
@@ -6265,10 +6259,9 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                     tw_ylabel = 'Number of clusters'
                 #
             #
-            # f = open(sweep_txt_file,'a')
-            lines.append(str(m_pts)+','+str(ell)+','+str(int(np.nanmax(new_df['cluster']+1)))+','+str(rel_val)+'\n')
-            # f.close()
-        if False:
+            lines.append(str(m_pts_out)+','+str(ell)+','+str(int(np.nanmax(new_df['cluster']+1)))+','+str(rel_val)+','+str(m_cls_out)+'\n')
+        # Plot the data
+        if True:
             ax.plot(x_var_array, y_var_array, color=std_clr, linestyle=l_styles[i], label=zlabel)
             # Add gridlines
             ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
@@ -6285,7 +6278,6 @@ def plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title=None):
                 # Add gridlines
                 # tw_ax_x.grid(color=alt_std_clr, linestyle='--', alpha=grid_alpha+0.3, axis='y')
         # Gather the data from all the processes
-        # lines = comm.gather(lines, root=0)
         f = open(sweep_txt_file,'a')
         f.write(''.join(lines))
         f.close()

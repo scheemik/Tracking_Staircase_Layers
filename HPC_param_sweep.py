@@ -52,7 +52,7 @@ if rank == 0:
     f = open(sweep_txt_file,'w')
     f.write('Parameter Sweep for '+this_plot_title+'\n')
     f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y")+'\n')
-    f.write('m_pts,ell_size,n_clusters,DBCV\n')
+    f.write('m_pts,ell_size,n_clusters,DBCV,m_cls\n')
     f.close()
 
 # Reduce the number of active processes
@@ -199,12 +199,12 @@ if rank%rf == 0:
             xlabel = r'$m_{cls}$'
         # Run the HDBSCAN algorithm on the provided dataframe
         try:
-            new_df, rel_val, m_pts, m_cls, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
+            new_df, rel_val, m_pts_out, m_cls_out, ell = ahf.HDBSCAN_(arr_of_ds, this_df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, param_sweep=True)
         except:
             print('rank',rank,'failed to run HDBSCAN for',x_key,'=',x)
             break
         # Record outputs to output object
-        lines.append(str(m_pts)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+'\n')
+        lines.append(str(m_pts_out)+','+str(ell)+','+str(new_df['cluster'].max()+1)+','+str(rel_val)+','+str(m_cls_out)+'\n')
 else:
     lines = ''
 ################################################################################
