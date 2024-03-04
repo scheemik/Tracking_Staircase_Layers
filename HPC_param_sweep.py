@@ -34,6 +34,10 @@ import numpy as np
 import pandas as pd
 # For custom analysis functions
 import analysis_helper_functions as ahf
+# For common BGR parameters
+import BGR_params as bps
+# For common BGR objects
+import BGR_objects as bob
 # For running in parallel
 from mpi4py import MPI
 # For formatting date objects
@@ -67,10 +71,6 @@ if rank == 0:
 # Reduce the number of active processes
 rf = 4
 if rank%rf == 0:
-
-    ITP2_S_range = [34.05,34.75]
-    LHW_S_range = [34.366, 35.5]
-    test_S_range = [34.4, 34.6]
 
 ################################################################################
 # Make dictionaries for what data to load in and analyze
@@ -116,7 +116,7 @@ if rank%rf == 0:
 # print('- Creating data sets')
 ################################################################################
 
-    ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
@@ -138,26 +138,14 @@ if rank%rf == 0:
 
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
+    ds_this_BGR = ahf.Data_Set(bps.BGRITPs04, bob.dfs1)
 
 ################################################################################
 # Create profile filtering objects
 # print('- Creating profile filtering objects')
 ################################################################################
 
-    pfs_0 = ahf.Profile_Filters()
-    pfs_1 = ahf.Profile_Filters(every_nth_row=4)
-
-    test_p_range = [400,200]
-    pfs_ell  = ahf.Profile_Filters(p_range=test_p_range)
-    pfs_ell  = ahf.Profile_Filters(SA_range=test_S_range)
-
-################################################################################
-
-    ## Preclustered
-    pfs_this_BGR = pfs_0
-    # pfs_this_BGR = pfs_1
-
-    # pfs_this_BGR = pfs_ell
+    pfs_this_BGR = ahf.Profile_Filters()
 
 ################################################################################
 ### Figures

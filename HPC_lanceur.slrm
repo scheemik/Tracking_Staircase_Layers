@@ -58,6 +58,6 @@ source ~/.virtualenvs/clusterer/bin/activate
 # Start the experiment script
 
 echo "Running script"
-mpiexec -n 80 python3 HPC_param_sweep.py JOBNAME
+mpiexec -n 80 python3 HPC_param_sweep.py $JOBNAME
 echo ""
 echo 'Done running script'
