@@ -113,7 +113,6 @@ if rank%rf == 0:
 
 ################################################################################
 # Create data sets by combining filters and the data to load in
-# print('- Creating data sets')
 ################################################################################
 
     # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
@@ -138,14 +137,13 @@ if rank%rf == 0:
 
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
-    ds_this_BGR = ahf.Data_Set(bps.BGRITPs04, bob.dfs1)
+    ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[sweep_name], bob.dfs1_BGR_dict[sweep_name])
 
 ################################################################################
 # Create profile filtering objects
-# print('- Creating profile filtering objects')
 ################################################################################
 
-    pfs_this_BGR = ahf.Profile_Filters()
+    pfs_this_BGR = bob.pfs_BGR_test
 
 ################################################################################
 ### Figures

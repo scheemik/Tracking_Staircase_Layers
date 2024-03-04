@@ -283,6 +283,27 @@ BGRITPs2223 = { 'ITP_122':'all',
                 # 'ITP_128':'all',
                 }
 
+BGRITPs_dict = {'BGR04':BGRITPs04,
+                'BGR0506':BGRITPs0506,
+                'BGR0607':BGRITPs0607,
+                'BGR0708':BGRITPs0708,
+                'BGR0809':BGRITPs0809,
+                'BGR0910':BGRITPs0910,
+                'BGR1011':BGRITPs1011,
+                'BGR1112':BGRITPs1112,
+                'BGR1213':BGRITPs1213,
+                'BGR1314':BGRITPs1314,
+                'BGR1415':BGRITPs1415,
+                'BGR1516':BGRITPs1516,
+                'BGR1617':BGRITPs1617,
+                'BGR1718':BGRITPs1718,
+                'BGR1819':BGRITPs1819,
+                'BGR1920':BGRITPs1920,
+                'BGR2021':BGRITPs2021,
+                'BGR2122':BGRITPs2122,
+                'BGR2223':BGRITPs2223,
+                }
+
 ## All ITPs in the BGR
 BGRITPsAll  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011, **BGRITPs1112, **BGRITPs1213, **BGRITPs1314, **BGRITPs1415, **BGRITPs1516, **BGRITPs1617, **BGRITPs1718, **BGRITPs1819, **BGRITPs1920, **BGRITPs2021, **BGRITPs2122, **BGRITPs2223}
 
