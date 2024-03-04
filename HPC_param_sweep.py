@@ -2,6 +2,12 @@
 Author: Mikhail Schee
 Created: 2023-10-03
 
+Usage:
+    HPC_param_sweep.py SWEEP_NAME
+
+Options:
+    SWEEP_NAME        # string of the BGR time period to sweep over (ex: 'BGR0506')
+
 This script is set up to run parameter sweeps on the Niagara HPC cluster
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,8 +43,11 @@ from datetime import datetime
 # import os
 # os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
 
-# Title
-this_plot_title = 'new_BGR2223'
+# Parse input parameters
+from docopt import docopt
+args = docopt(__doc__)
+sweep_name    = str(args['SWEEP_NAME'])       # relative filepath
+print('Sweep name:', sweep_name)
 
 # Get MPI variables set up
 comm = MPI.COMM_WORLD
@@ -48,9 +57,9 @@ size = comm.Get_size()
 # Only handle file I/O on the root process
 if rank == 0:
     # Open a text file to record values from the parameter sweep
-    sweep_txt_file = 'outputs/'+this_plot_title+'_ps.csv'
+    sweep_txt_file = 'outputs/'+sweep_name+'_ps.csv'
     f = open(sweep_txt_file,'w')
-    f.write('Parameter Sweep for '+this_plot_title+'\n')
+    f.write('Parameter Sweep for '+sweep_name+'\n')
     f.write(datetime.now().strftime("%I:%M%p on %B %d, %Y")+'\n')
     f.write('m_pts,ell_size,n_clusters,DBCV,m_cls\n')
     f.close()
@@ -107,7 +116,7 @@ if rank%rf == 0:
 # print('- Creating data sets')
 ################################################################################
 
-    # ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
+    ds_this_BGR = ahf.Data_Set(BGR04, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0506, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0607, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR0708, dfs_all)
@@ -125,7 +134,7 @@ if rank%rf == 0:
     # ds_this_BGR = ahf.Data_Set(BGR1920, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR2021, dfs_all)
     # ds_this_BGR = ahf.Data_Set(BGR2122, dfs_all)
-    ds_this_BGR = ahf.Data_Set(BGR2223, dfs_all)
+    # ds_this_BGR = ahf.Data_Set(BGR2223, dfs_all)
 
     # ds_this_BGR = ahf.Data_Set(BGR0508, dfs_all)
     # ds_this_BGR = ahf.Data_Set(ITP2, dfs0)
@@ -162,7 +171,7 @@ if rank%rf == 0:
         # Make the Plot Parameters
         pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':'auto', 'cl_ps_tuple':[10,801,5], 'mpi_run':True}) #[10,721,10]
         # Make the subplot groups
-        group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=this_plot_title)
+        group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=sweep_name)
         # Run the parameter sweep
         df = ahf.make_subplot(None, group_mpts_param_sweep, None, None)
         if rank == 0:
