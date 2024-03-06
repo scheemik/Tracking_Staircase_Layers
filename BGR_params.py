@@ -283,6 +283,9 @@ BGRITPs2223 = { 'ITP_122':'all',
                 # 'ITP_128':'all',
                 }
 
+## All ITPs in the BGR
+BGRITPsAll  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011, **BGRITPs1112, **BGRITPs1213, **BGRITPs1314, **BGRITPs1415, **BGRITPs1516, **BGRITPs1617, **BGRITPs1718, **BGRITPs1819, **BGRITPs1920, **BGRITPs2021, **BGRITPs2122, **BGRITPs2223}
+
 BGRITPs_dict = {'BGR04':BGRITPs04,
                 'BGR0506':BGRITPs0506,
                 'BGR0607':BGRITPs0607,
@@ -302,10 +305,10 @@ BGRITPs_dict = {'BGR04':BGRITPs04,
                 'BGR2021':BGRITPs2021,
                 'BGR2122':BGRITPs2122,
                 'BGR2223':BGRITPs2223,
+                'BGR_all':BGRITPsAll,
                 }
 
-## All ITPs in the BGR
-BGRITPsAll  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011, **BGRITPs1112, **BGRITPs1213, **BGRITPs1314, **BGRITPs1415, **BGRITPs1516, **BGRITPs1617, **BGRITPs1718, **BGRITPs1819, **BGRITPs1920, **BGRITPs2021, **BGRITPs2122, **BGRITPs2223}
+
 
 ## Subsets of ITPs in the BGR
 BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
@@ -359,6 +362,27 @@ BGR_all = {
         }
 
 # With m_pts fixed automatically
+BGR_auto_mpts_dict = {  'BGR04':{'auto_mpts_BGR04_clstrd':'all'},
+                        'BGR0506':{'auto_mpts_BGR0506_clstrd':'all'},
+                        'BGR0607':{'auto_mpts_BGR0607_clstrd':'all'},
+                        'BGR0708':{'auto_mpts_BGR0708_clstrd':'all'},
+                        'BGR0809':{'auto_mpts_BGR0809_clstrd':'all'},
+                        'BGR0910':{'auto_mpts_BGR0910_clstrd':'all'},
+                        'BGR1011':{'auto_mpts_BGR1011_clstrd':'all'},
+                        'BGR1112':{'auto_mpts_BGR1112_clstrd':'all'},
+                        'BGR1213':{'auto_mpts_BGR1213_clstrd':'all'},
+                        'BGR1314':{'auto_mpts_BGR1314_clstrd':'all'},
+                        'BGR1415':{'auto_mpts_BGR1415_clstrd':'all'},
+                        'BGR1516':{'auto_mpts_BGR1516_clstrd':'all'},
+                        'BGR1617':{'auto_mpts_BGR1617_clstrd':'all'},
+                        'BGR1718':{'auto_mpts_BGR1718_clstrd':'all'},
+                        'BGR1819':{'auto_mpts_BGR1819_clstrd':'all'},
+                        'BGR1920':{'auto_mpts_BGR1920_clstrd':'all'},
+                        'BGR2021':{'auto_mpts_BGR2021_clstrd':'all'},
+                        'BGR2122':{'auto_mpts_BGR2122_clstrd':'all'},
+                        'BGR2223':{'auto_mpts_BGR2223_clstrd':'all'},
+                        'BGR_all':{'auto_mpts_BGR0506_clstrd':'all','auto_mpts_BGR0607_clstrd':'all','auto_mpts_BGR0708_clstrd':'all','auto_mpts_BGR0809_clstrd':'all','auto_mpts_BGR0910_clstrd':'all','auto_mpts_BGR1011_clstrd':'all','auto_mpts_BGR1112_clstrd':'all','auto_mpts_BGR1213_clstrd':'all','auto_mpts_BGR1314_clstrd':'all','auto_mpts_BGR1415_clstrd':'all','auto_mpts_BGR1516_clstrd':'all','auto_mpts_BGR1617_clstrd':'all','auto_mpts_BGR1718_clstrd':'all','auto_mpts_BGR1819_clstrd':'all','auto_mpts_BGR1920_clstrd':'all','auto_mpts_BGR2021_clstrd':'all','auto_mpts_BGR2122_clstrd':'all','auto_mpts_BGR2223_clstrd':'all'},
+                    }
 # BGR0506 = {'mpts_auto_BGR0506_clstrd':'all'}
 # BGR0607 = {'mpts_auto_BGR0607_clstrd':'all'}
 # BGR0708 = {'mpts_auto_BGR0708_clstrd':'all'}

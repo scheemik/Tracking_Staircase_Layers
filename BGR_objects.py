@@ -61,7 +61,8 @@ dfs1_BGR_dict = {'BGR04':dfs1,
                  'BGR1920':ahf.Data_Filters(min_press=this_min_press, date_range=['2019/08/15 00:00:00','2020/08/15 00:00:00']),
                  'BGR2021':ahf.Data_Filters(min_press=this_min_press, date_range=['2020/08/15 00:00:00','2021/08/15 00:00:00']),
                  'BGR2122':ahf.Data_Filters(min_press=this_min_press, date_range=['2021/08/15 00:00:00','2022/08/15 00:00:00']),
-                 'BGR2223':ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08:15 00:00:00'])
+                 'BGR2223':ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08/15 00:00:00']),
+                 'BGR_all':ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2023/08/15 00:00:00'])
                  }
 
 dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])

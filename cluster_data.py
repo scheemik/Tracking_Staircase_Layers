@@ -35,413 +35,469 @@ import gsw
 
 # For custom analysis functions
 import analysis_helper_functions as ahf
+# For common BGR parameters
+import BGR_params as bps
+# For common BGR objects
+import BGR_objects as bob
 
 ################################################################################
 # Main execution
 ################################################################################
 
-dfs0 = ahf.Data_Filters()
-dfs1 = ahf.Data_Filters(min_press=400)
-
-LHW_S_range = [34.366, 35.5]
-pfs_fltrd = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True)
-pfs_fltrd_ss = ahf.Profile_Filters(lon_range=[-152.9,-133.7], lat_range=[72.6,77.4], SA_range=LHW_S_range, lt_pCT_max=True, subsample=True)
-
-# Data filters
-dfs0 = ahf.Data_Filters()
-this_min_press = 400
-dfs1 = ahf.Data_Filters(min_press=this_min_press)
-dfs1_BGR_0d = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/11 00:00:00','2008/09/18 00:00:00'])
-dfs1_BGR_0e = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/09/18 00:00:00','2009/09/01 00:00:00'])
-dfs1_BGR_0f = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/31 00:00:08','2010/06/11 00:00:00'])
-dfs1_BGR_0g = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/06/11 00:00:00','2011/06/09 00:00:00'])
-dfs1_BGR_0h = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/06/09 00:00:00','2012/08/07 00:00:00'])
-dfs1_BGR_0i = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/07 00:00:00','2013/08/25 00:00:00'])
-dfs1_BGR_0j = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2014/10/10 00:00:00'])
-dfs1_BGR_0k = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/25 00:00:00','2015/09/05 00:00:00'])
-dfs1_BGR_0l = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/09/05 00:00:00','2016/07/10 00:00:00'])
-dfs1_BGR_0m = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/07/10 00:00:00','2017/08/29 00:00:00'])
-dfs1_BGR_0n = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/29 00:00:00','2018/08/17 00:00:00'])
-dfs1_BGR_0o = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/17 00:00:00','2019/04/23 00:00:00'])
-dfs1_BGR_0p = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/04/23 00:00:00','2019/09/10 00:00:00'])
-dfs1_BGR_0q = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/09/10 00:00:00','2020/04/22 00:00:00'])
-dfs1_BGR_0r = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/04/22 00:00:00','2021/09/03 00:00:00'])
-dfs1_BGR_0s = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/07/01 00:00:00','2022/01/01 00:00:00'])
-# By year
-dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
-dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/15 00:00:00','2007/08/15 00:00:00'])
-dfs1_BGR0507 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2007/08/15 00:00:00'])
-dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
-dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
-dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
-dfs1_BGR1011 = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/08/15 00:00:00','2011/08/15 00:00:00'])
-dfs1_BGR1112 = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/08/15 00:00:00','2012/08/15 00:00:00'])
-dfs1_BGR1213 = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/15 00:00:00','2013/08/15 00:00:00'])
-dfs1_BGR1314 = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/15 00:00:00','2014/08/15 00:00:00'])
-dfs1_BGR1415 = ahf.Data_Filters(min_press=this_min_press, date_range=['2014/08/15 00:00:00','2015/08/15 00:00:00'])
-dfs1_BGR1516 = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/08/15 00:00:00','2016/08/15 00:00:00'])
-dfs1_BGR1617 = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/08/15 00:00:00','2017/08/15 00:00:00'])
-dfs1_BGR1718 = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/15 00:00:00','2018/08/15 00:00:00'])
-dfs1_BGR1819 = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/15 00:00:00','2019/08/15 00:00:00'])
-dfs1_BGR1920 = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/08/15 00:00:00','2020/08/15 00:00:00'])
-dfs1_BGR2021 = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/08/15 00:00:00','2021/08/15 00:00:00'])
-dfs1_BGR2122 = ahf.Data_Filters(min_press=this_min_press, date_range=['2021/08/15 00:00:00','2022/08/15 00:00:00'])
-dfs1_BGR2223 = ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08/15 00:00:00'])
-## combo
-dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
-
-# Beaufort Gyre Region (BGR), see Shibley2022
-lon_BGR = [-160,-130]
-lat_BGR = [73,81.5]
-LHW_S_range = [34.366, 35.5]
-test_S_range = [34.4, 34.6]
-pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=LHW_S_range, lt_pCT_max=True)
-pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
-pfs_0 = ahf.Profile_Filters()
+pfs_BGR_test = bob.pfs_BGR_test
 pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
-
-################################################################################
-## BGR ITPs 0a
-BGRa_clstr_dict = {'netcdf_file':'netcdfs/BGRa_mpts_110.nc',
-                   'sources_dict':{'ITP_002':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':110
-                   }
-
-## BGR ITPs 0b
-BGRb_clstr_dict = {'netcdf_file':'netcdfs/BGRb_mpts_380.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':380
-                   }
-## BGR ITPs 0f
-BGRf_clstr_dict = {'netcdf_file':'netcdfs/BGRf_mpts_310.nc',
-                   'sources_dict':{'ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
-                   'data_filters':dfs1_BGR_0f,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':310
-                   }
-## BGR ITPs 0m
-BGRm_clstr_dict = {'netcdf_file':'netcdfs/BGRm_mpts_410.nc',
-                   'sources_dict':{'ITP_097':'all','ITP_099':'all'},
-                   'data_filters':dfs1_BGR_0m,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':410
-                   }
-## BGR ITPs 0n
-BGRn_clstr_dict = {'netcdf_file':'netcdfs/BGRn_mpts_240.nc',
-                   'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
-                   'data_filters':dfs1_BGR_0n,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':240
-                   }
-## BGR ITPs 0o
-BGRo_clstr_dict = {'netcdf_file':'netcdfs/BGRo_mpts_390.nc',
-                   'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
-                   'data_filters':dfs1_BGR_0o,
-                   'pfs_object':pfs_BGR1,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':390
-                   }
 
 ################################################################################
 ### By year
 ################################################################################
-## Clustered
-test_cls = 1000
+## Clustered by year
 # BGR ITPs 04
-BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
-                   'sources_dict':{'ITP_002':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'auto',
-                #    'm_pts':'None',
-                #    'm_pts':190,
-                #    'm_pts':250,
-                   }
-# BGR ITPs 0506
-BGR0506_clstr_dict = {'netcdf_file':'netcdfs/BGR0506_clstrd.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'data_filters':dfs1_BGR0506,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':680,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
-# BGR ITPs 0607
-BGR0607_clstr_dict = {'netcdf_file':'netcdfs/BGR0607_clstrd.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
-                   'data_filters':dfs1_BGR0607,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':220,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
-# BGR ITPs 0708
-BGR0708_clstr_dict = {'netcdf_file':'netcdfs/BGR0708_clstrd.nc',
-                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0708,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':550,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
-# BGR ITPs 0809
-BGR0809_clstr_dict = {'netcdf_file':'netcdfs/BGR0809_clstrd.nc',
-                   'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0809,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':760,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
-# BGR ITPs 0910
-BGR0910_clstr_dict = {'netcdf_file':'netcdfs/BGR0910_clstrd.nc',
-                   'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
-                   'data_filters':dfs1_BGR0910,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':140,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
-# BGR ITPs 1011
-BGR1011_clstr_dict = {'netcdf_file':'netcdfs/BGR1011_clstrd.nc',
-                   'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
-                   'data_filters':dfs1_BGR1011,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':100,
-                #    'm_pts':'auto',
-                   'm_cls':'auto',
-                #    'm_pts':200,
-                #    'm_cls':1000,
-                   }
+# BGR04_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR04_clstrd.nc',
+#                    'sources_dict':{'ITP_002':'all'},
+#                    'data_filters':bob.dfs1_BGR_dict['BGR04'],
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':190,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0506
+# BGR0506_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR0506_clstrd.nc',
+#                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+#                    'data_filters':bob.dfs1_BGR0506,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':205,
+#                    'm_cls':'auto',
+#                    'relab_these':{}#{2:1},
+#                    }
+# # BGR ITPs 0607
+# BGR0607_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR0607_clstrd.nc',
+#                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
+#                    'data_filters':bob.dfs1_BGR0607,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':220,
+#                    'm_cls':'auto',
+#                    'relab_these':{}#{2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+#                    }
+# # BGR ITPs 0708
+# BGR0708_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR0708_clstrd.nc',
+#                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+#                    'data_filters':bob.dfs1_BGR0708,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':115,
+#                    'm_cls':'auto',
+#                    'relab_these':{},
+#                    }
+# # BGR ITPs 0809
+# BGR0809_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR0809_clstrd.nc',
+#                    'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
+#                    'data_filters':bob.dfs1_BGR0809,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':185, # highest was actually 760
+#                    'm_cls':'auto',
+#                    'relab_these':{}#{3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+#                    }
+# # BGR ITPs 0910
+# BGR0910_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR0910_clstrd.nc',
+#                    'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
+#                    'data_filters':bob.dfs1_BGR0910,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':140,
+#                    'm_cls':'auto',
+#                    'relab_these':{}#{3:4,4:5,5:6,6:7,7:8,8:9,9:15,12:11,13:12,14:13,15:14},
+#                    }
+# # BGR ITPs 1011
+# BGR1011_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1011_clstrd.nc',
+#                    'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
+#                    'data_filters':bob.dfs1_BGR1011,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':100,
+#                    'm_cls':'auto',
+#                    'relab_these':{}#{3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
+# # BGR ITPs 1112
+# BGR1112_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1112_clstrd.nc',
+#                    'sources_dict':{'ITP_041':'all','ITP_052':'all','ITP_053':'all','ITP_054':'all','ITP_055':'all'},
+#                    'data_filters':bob.dfs1_BGR1112,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':320,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1213
+# BGR1213_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1213_clstrd.nc',
+#                    'sources_dict':{'ITP_041':'all','ITP_062':'all','ITP_064':'all','ITP_065':'all'},
+#                    'data_filters':bob.dfs1_BGR1213,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':170,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1314
+# BGR1314_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1314_clstrd.nc',
+#                    'sources_dict':{'ITP_064':'all','ITP_068':'all','ITP_069':'all','ITP_070':'all','ITP_077':'all','ITP_078':'all','ITP_079':'all','ITP_080':'all'},
+#                    'data_filters':bob.dfs1_BGR1314,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':165,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1415
+# BGR1415_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1415_clstrd.nc',
+#                    'sources_dict':{'ITP_077':'all','ITP_079':'all','ITP_080':'all','ITP_081':'all','ITP_082':'all','ITP_084':'all','ITP_085':'all','ITP_086':'all','ITP_087':'all'},
+#                    'data_filters':bob.dfs1_BGR1415,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':230,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1516
+# BGR1516_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1516_clstrd.nc',
+#                    'sources_dict':{'ITP_082':'all','ITP_085':'all','ITP_086':'all','ITP_088':'all','ITP_089':'all'},
+#                    'data_filters':bob.dfs1_BGR1516,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':75,
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1617
+# BGR1617_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1617_clstrd.nc',
+#                    'sources_dict':{'ITP_097':'all','ITP_099':'all'},
+#                    'data_filters':bob.dfs1_BGR1617,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':95, # Actual highest DBCV was 40
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1718
+# BGR1718_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1718_clstrd.nc',
+#                    'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
+#                    'data_filters':bob.dfs1_BGR1718,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                 #    'm_pts':'auto',
+#                    'm_pts':120, 
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1819
+# BGR1819_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1819_clstrd.nc',
+#                    'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
+#                    'data_filters':bob.dfs1_BGR1819,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'auto',
+#                    'm_cls':'auto',
+#                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
+# # BGR ITPs 1920
+# BGR1920_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR1920_clstrd.nc',
+#                    'sources_dict':{'ITP_105':'all','ITP_113':'all','ITP_114':'all','ITP_117':'all','ITP_118':'all'},
+#                    'data_filters':bob.dfs1_BGR1920,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'auto',
+#                    'm_cls':'auto',
+#                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
+# # BGR ITPs 2021
+# BGR2021_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR2021_clstrd.nc',
+#                    'sources_dict':{'ITP_113':'all','ITP_114':'all','ITP_120':'all','ITP_121':'all'},
+#                    'data_filters':bob.dfs1_BGR2021,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'auto',
+#                    'm_cls':'auto',
+#                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
+# # BGR ITPs 2122
+# BGR2122_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR2122_clstrd.nc',
+#                    'sources_dict':{'ITP_120':'all','ITP_121':'all','ITP_122':'all','ITP_123':'all'},
+#                    'data_filters':bob.dfs1_BGR2122,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'auto',
+#                    'm_cls':'auto',
+#                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
+# # BGR ITPs 2223
+# BGR2223_clstr_dict = {'netcdf_file':'netcdfs/maxDBCV_BGR2223_clstrd.nc',
+#                    'sources_dict':{'ITP_122':'all'},
+#                    'data_filters':bob.dfs1_BGR2223,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'auto',
+#                    'm_cls':'auto',
+#                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+#                    }
 
 ################################################################################
-## Clustered, auto mpts selection
+## Using a rule of thumb to set m_pts
 # BGR ITPs 04
-BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_clstrd.nc',
+BGR04_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR04_clstrd.nc',
+                   'name':'BGR04',
                    'sources_dict':{'ITP_002':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR04'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
-                #    'm_pts':'None',
                 #    'm_pts':190,
-                #    'm_pts':250,
+                   'm_cls':'auto',
+                   'relab_these':{}
                    }
 # BGR ITPs 0506
-BGR0506_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0506_clstrd.nc',
+BGR0506_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR0506_clstrd.nc',
+                   'name':'BGR0506',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'data_filters':dfs1_BGR0506,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR0506'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':205,
                    'm_cls':'auto',
-                   'relab_these':{2:1},
+                   'relab_these':{}#{2:1},
                    }
 # BGR ITPs 0607
-BGR0607_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0607_clstrd.nc',
+BGR0607_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR0607_clstrd.nc',
+                   'name':'BG0607',
                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
-                   'data_filters':dfs1_BGR0607,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR0607'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':220,
                    'm_cls':'auto',
-                   'relab_these':{2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+                   'relab_these':{}#{2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
                    }
 # BGR ITPs 0708
-BGR0708_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0708_clstrd.nc',
+BGR0708_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR0708_clstrd.nc',
+                   'name':'BG0708',
                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0708,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR0708'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':115,
                    'm_cls':'auto',
                    'relab_these':{},
                    }
 # BGR ITPs 0809
-BGR0809_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0809_clstrd.nc',
+BGR0809_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR0809_clstrd.nc',
+                   'name':'BG0809',
                    'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0809,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR0809'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':185, # highest was actually 760
                    'm_cls':'auto',
-                   'relab_these':{3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
+                   'relab_these':{}#{3:4,4:5,5:6,6:7,7:8,8:9,9:10,10:11,11:12,12:13,13:14},
                    }
 # BGR ITPs 0910
-BGR0910_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR0910_clstrd.nc',
+BGR0910_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR0910_clstrd.nc',
+                   'name':'BG0910',
                    'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
-                   'data_filters':dfs1_BGR0910,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR0910'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':140,
                    'm_cls':'auto',
-                   'relab_these':{3:4,4:5,5:6,6:7,7:8,8:9,9:15,12:11,13:12,14:13,15:14},
+                   'relab_these':{}#{3:4,4:5,5:6,6:7,7:8,8:9,9:15,12:11,13:12,14:13,15:14},
                    }
 # BGR ITPs 1011
-BGR1011_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1011_clstrd.nc',
+BGR1011_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1011_clstrd.nc',
+                   'name':'BG1011',
                    'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
-                   'data_filters':dfs1_BGR1011,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1011'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':100,
                    'm_cls':'auto',
-                   'relab_these':{3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}#{3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
 # BGR ITPs 1112
-BGR1112_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1112_clstrd.nc',
+BGR1112_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1112_clstrd.nc',
+                   'name':'BG1112',
                    'sources_dict':{'ITP_041':'all','ITP_052':'all','ITP_053':'all','ITP_054':'all','ITP_055':'all'},
-                   'data_filters':dfs1_BGR1112,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1112'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':320,
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1213
-BGR1213_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1213_clstrd.nc',
+BGR1213_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1213_clstrd.nc',
+                   'name':'BG1213',
                    'sources_dict':{'ITP_041':'all','ITP_062':'all','ITP_064':'all','ITP_065':'all'},
-                   'data_filters':dfs1_BGR1213,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1213'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':170,
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1314
-BGR1314_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1314_clstrd.nc',
+BGR1314_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1314_clstrd.nc',
+                   'name':'BG1314',
                    'sources_dict':{'ITP_064':'all','ITP_068':'all','ITP_069':'all','ITP_070':'all','ITP_077':'all','ITP_078':'all','ITP_079':'all','ITP_080':'all'},
-                   'data_filters':dfs1_BGR1314,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1314'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':165,
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1415
-BGR1415_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1415_clstrd.nc',
+BGR1415_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1415_clstrd.nc',
+                   'name':'BG1415',
                    'sources_dict':{'ITP_077':'all','ITP_079':'all','ITP_080':'all','ITP_081':'all','ITP_082':'all','ITP_084':'all','ITP_085':'all','ITP_086':'all','ITP_087':'all'},
-                   'data_filters':dfs1_BGR1415,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1415'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':230,
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1516
-BGR1516_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1516_clstrd.nc',
+BGR1516_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1516_clstrd.nc',
+                   'name':'BG1516',
                    'sources_dict':{'ITP_082':'all','ITP_085':'all','ITP_086':'all','ITP_088':'all','ITP_089':'all'},
-                   'data_filters':dfs1_BGR1516,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1516'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':75,
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1617
-BGR1617_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1617_clstrd.nc',
+BGR1617_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1617_clstrd.nc',
+                   'name':'BG1617',
                    'sources_dict':{'ITP_097':'all','ITP_099':'all'},
-                   'data_filters':dfs1_BGR1617,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1617'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':95, # Actual highest DBCV was 40
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1718
-BGR1718_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1718_clstrd.nc',
+BGR1718_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1718_clstrd.nc',
+                   'name':'BG1718',
                    'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
-                   'data_filters':dfs1_BGR1718,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1718'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
                    'm_pts':'auto',
+                #    'm_pts':120, 
                    'm_cls':'auto',
-                   'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
+                   'relab_these':{}
                    }
 # BGR ITPs 1819
-BGR1819_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1819_clstrd.nc',
+BGR1819_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1819_clstrd.nc',
+                   'name':'BG1819',
                    'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
-                   'data_filters':dfs1_BGR1819,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1819'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
@@ -450,10 +506,11 @@ BGR1819_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1819_clstrd.nc',
                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
 # BGR ITPs 1920
-BGR1920_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1920_clstrd.nc',
+BGR1920_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR1920_clstrd.nc',
+                   'name':'BG1920',
                    'sources_dict':{'ITP_105':'all','ITP_113':'all','ITP_114':'all','ITP_117':'all','ITP_118':'all'},
-                   'data_filters':dfs1_BGR1920,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR1920'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
@@ -462,10 +519,11 @@ BGR1920_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR1920_clstrd.nc',
                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
 # BGR ITPs 2021
-BGR2021_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2021_clstrd.nc',
+BGR2021_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR2021_clstrd.nc',
+                   'name':'BG2021',
                    'sources_dict':{'ITP_113':'all','ITP_114':'all','ITP_120':'all','ITP_121':'all'},
-                   'data_filters':dfs1_BGR2021,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR2021'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
@@ -474,10 +532,11 @@ BGR2021_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2021_clstrd.nc',
                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
 # BGR ITPs 2122
-BGR2122_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2122_clstrd.nc',
+BGR2122_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR2122_clstrd.nc',
+                   'name':'BG2122',
                    'sources_dict':{'ITP_120':'all','ITP_121':'all','ITP_122':'all','ITP_123':'all'},
-                   'data_filters':dfs1_BGR2122,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR2122'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
@@ -486,10 +545,11 @@ BGR2122_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2122_clstrd.nc',
                    'relab_these':{}#3:4,10:15,11:10,12:11,13:11,14:12,15:13,16:14},
                    }
 # BGR ITPs 2223
-BGR2223_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2223_clstrd.nc',
+BGR2223_clstr_dict = {'netcdf_file':'netcdfs/auto_mpts_BGR2223_clstrd.nc',
+                   'name':'BG2223',
                    'sources_dict':{'ITP_122':'all'},
-                   'data_filters':dfs1_BGR2223,
-                   'pfs_object':pfs_test,
+                   'data_filters':bob.dfs1_BGR_dict['BGR2223'],
+                   'pfs_object':pfs_BGR_test,
                    'cl_x_var':'SA',
                    'cl_y_var':'la_CT',
                    'cl_z_var':'None',
@@ -500,263 +560,262 @@ BGR2223_clstr_dict = {'netcdf_file':'netcdfs/mpts_auto_BGR2223_clstrd.nc',
 
 ################################################################################
 ## Paired down, minimal variables, just to run parameter sweeps on HPC
-# BGR ITPs 04
-BGR04_minimal   = {'netcdf_file':'netcdfs/minimal_BGR04.nc',
-                   'sources_dict':{'ITP_002':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 0506
-BGR0506_minimal = {'netcdf_file':'netcdfs/minimal_BGR0506.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all'},
-                   'data_filters':dfs1_BGR0506,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 0607
-BGR0607_minimal = {'netcdf_file':'netcdfs/minimal_BGR0607.nc',
-                   'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
-                   'data_filters':dfs1_BGR0607,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 0708
-BGR0708_minimal = {'netcdf_file':'netcdfs/minimal_BGR0708.nc',
-                   'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0708,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 0809
-BGR0809_minimal = {'netcdf_file':'netcdfs/minimal_BGR0809.nc',
-                   'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
-                   'data_filters':dfs1_BGR0809,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 0910
-BGR0910_minimal = {'netcdf_file':'netcdfs/minimal_BGR0910.nc',
-                   'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
-                   'data_filters':dfs1_BGR0910,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1011
-BGR1011_minimal = {'netcdf_file':'netcdfs/minimal_BGR1011.nc',
-                   'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
-                   'data_filters':dfs1_BGR1011,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1112
-BGR1112_minimal = {'netcdf_file':'netcdfs/minimal_BGR1112.nc',
-                   'sources_dict':{'ITP_041':'all','ITP_052':'all','ITP_053':'all','ITP_054':'all','ITP_055':'all'},
-                   'data_filters':dfs1_BGR1112,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1213
-BGR1213_minimal = {'netcdf_file':'netcdfs/minimal_BGR1213.nc',
-                   'sources_dict':{'ITP_041':'all','ITP_062':'all','ITP_064':'all','ITP_065':'all'},
-                   'data_filters':dfs1_BGR1213,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1314
-BGR1314_minimal = {'netcdf_file':'netcdfs/minimal_BGR1314.nc',
-                   'sources_dict':{'ITP_064':'all','ITP_068':'all','ITP_069':'all','ITP_070':'all','ITP_077':'all','ITP_078':'all','ITP_079':'all','ITP_080':'all'},
-                   'data_filters':dfs1_BGR1314,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1415
-BGR1415_minimal = {'netcdf_file':'netcdfs/minimal_BGR1415.nc',
-                   'sources_dict':{'ITP_077':'all','ITP_079':'all','ITP_080':'all','ITP_081':'all','ITP_082':'all','ITP_084':'all','ITP_085':'all','ITP_086':'all','ITP_087':'all'},
-                   'data_filters':dfs1_BGR1415,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1516
-BGR1516_minimal = {'netcdf_file':'netcdfs/minimal_BGR1516.nc',
-                   'sources_dict':{'ITP_082':'all','ITP_085':'all','ITP_086':'all','ITP_088':'all','ITP_089':'all'},
-                   'data_filters':dfs1_BGR1516,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1617
-BGR1617_minimal = {'netcdf_file':'netcdfs/minimal_BGR1617.nc',
-                   'sources_dict':{'ITP_097':'all','ITP_099':'all'},
-                   'data_filters':dfs1_BGR1617,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1718
-BGR1718_minimal = {'netcdf_file':'netcdfs/minimal_BGR1718.nc',
-                   'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
-                   'data_filters':dfs1_BGR1718,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1819
-BGR1819_minimal = {'netcdf_file':'netcdfs/minimal_BGR1819.nc',
-                   'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
-                   'data_filters':dfs1_BGR1819,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 1920
-BGR1920_minimal = {'netcdf_file':'netcdfs/minimal_BGR1920.nc',
-                   'sources_dict':{'ITP_105':'all','ITP_113':'all','ITP_114':'all','ITP_117':'all','ITP_118':'all'},
-                   'data_filters':dfs1_BGR1920,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 2021
-BGR2021_minimal = {'netcdf_file':'netcdfs/minimal_BGR2021.nc',
-                   'sources_dict':{'ITP_113':'all','ITP_114':'all','ITP_120':'all','ITP_121':'all'},
-                   'data_filters':dfs1_BGR2021,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 2122
-BGR2122_minimal = {'netcdf_file':'netcdfs/minimal_BGR2122.nc',
-                   'sources_dict':{'ITP_120':'all','ITP_121':'all','ITP_122':'all','ITP_123':'all'},
-                   'data_filters':dfs1_BGR2122,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-# BGR ITPs 2223
-BGR2223_minimal = {'netcdf_file':'netcdfs/minimal_BGR2223.nc',
-                   'sources_dict':{'ITP_122':'all'},
-                   'data_filters':dfs1_BGR2223,
-                   'pfs_object':pfs_test,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'None',
-                   'm_cls':'auto',
-                   'relab_these':{}
-                   }
-################################################################################
+# # BGR ITPs 04
+# BGR04_minimal   = {'netcdf_file':'netcdfs/minimal_BGR04.nc',
+#                    'sources_dict':{'ITP_002':'all'},
+#                    'data_filters':dfs1,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0506
+# BGR0506_minimal = {'netcdf_file':'netcdfs/minimal_BGR0506.nc',
+#                    'sources_dict':{'ITP_001':'all','ITP_003':'all'},
+#                    'data_filters':dfs1_BGR0506,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0607
+# BGR0607_minimal = {'netcdf_file':'netcdfs/minimal_BGR0607.nc',
+#                    'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all'},
+#                    'data_filters':dfs1_BGR0607,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0708
+# BGR0708_minimal = {'netcdf_file':'netcdfs/minimal_BGR0708.nc',
+#                    'sources_dict':{'ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
+#                    'data_filters':dfs1_BGR0708,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0809
+# BGR0809_minimal = {'netcdf_file':'netcdfs/minimal_BGR0809.nc',
+#                    'sources_dict':{'ITP_008':'all','ITP_011':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_025':'all','ITP_030':'all'},
+#                    'data_filters':dfs1_BGR0809,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 0910
+# BGR0910_minimal = {'netcdf_file':'netcdfs/minimal_BGR0910.nc',
+#                    'sources_dict':{'ITP_021':'all','ITP_032':'all','ITP_033':'all','ITP_034':'all','ITP_035':'all'},
+#                    'data_filters':dfs1_BGR0910,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1011
+# BGR1011_minimal = {'netcdf_file':'netcdfs/minimal_BGR1011.nc',
+#                    'sources_dict':{'ITP_033':'all','ITP_041':'all','ITP_042':'all','ITP_043':'all'},
+#                    'data_filters':dfs1_BGR1011,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1112
+# BGR1112_minimal = {'netcdf_file':'netcdfs/minimal_BGR1112.nc',
+#                    'sources_dict':{'ITP_041':'all','ITP_052':'all','ITP_053':'all','ITP_054':'all','ITP_055':'all'},
+#                    'data_filters':dfs1_BGR1112,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1213
+# BGR1213_minimal = {'netcdf_file':'netcdfs/minimal_BGR1213.nc',
+#                    'sources_dict':{'ITP_041':'all','ITP_062':'all','ITP_064':'all','ITP_065':'all'},
+#                    'data_filters':dfs1_BGR1213,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1314
+# BGR1314_minimal = {'netcdf_file':'netcdfs/minimal_BGR1314.nc',
+#                    'sources_dict':{'ITP_064':'all','ITP_068':'all','ITP_069':'all','ITP_070':'all','ITP_077':'all','ITP_078':'all','ITP_079':'all','ITP_080':'all'},
+#                    'data_filters':dfs1_BGR1314,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1415
+# BGR1415_minimal = {'netcdf_file':'netcdfs/minimal_BGR1415.nc',
+#                    'sources_dict':{'ITP_077':'all','ITP_079':'all','ITP_080':'all','ITP_081':'all','ITP_082':'all','ITP_084':'all','ITP_085':'all','ITP_086':'all','ITP_087':'all'},
+#                    'data_filters':dfs1_BGR1415,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1516
+# BGR1516_minimal = {'netcdf_file':'netcdfs/minimal_BGR1516.nc',
+#                    'sources_dict':{'ITP_082':'all','ITP_085':'all','ITP_086':'all','ITP_088':'all','ITP_089':'all'},
+#                    'data_filters':dfs1_BGR1516,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1617
+# BGR1617_minimal = {'netcdf_file':'netcdfs/minimal_BGR1617.nc',
+#                    'sources_dict':{'ITP_097':'all','ITP_099':'all'},
+#                    'data_filters':dfs1_BGR1617,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1718
+# BGR1718_minimal = {'netcdf_file':'netcdfs/minimal_BGR1718.nc',
+#                    'sources_dict':{'ITP_097':'all','ITP_100':'all','ITP_101':'all','ITP_108':'all'},
+#                    'data_filters':dfs1_BGR1718,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1819
+# BGR1819_minimal = {'netcdf_file':'netcdfs/minimal_BGR1819.nc',
+#                    'sources_dict':{'ITP_103':'all','ITP_104':'all','ITP_105':'all','ITP_107':'all','ITP_109':'all','ITP_110':'all'},
+#                    'data_filters':dfs1_BGR1819,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 1920
+# BGR1920_minimal = {'netcdf_file':'netcdfs/minimal_BGR1920.nc',
+#                    'sources_dict':{'ITP_105':'all','ITP_113':'all','ITP_114':'all','ITP_117':'all','ITP_118':'all'},
+#                    'data_filters':dfs1_BGR1920,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 2021
+# BGR2021_minimal = {'netcdf_file':'netcdfs/minimal_BGR2021.nc',
+#                    'sources_dict':{'ITP_113':'all','ITP_114':'all','ITP_120':'all','ITP_121':'all'},
+#                    'data_filters':dfs1_BGR2021,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 2122
+# BGR2122_minimal = {'netcdf_file':'netcdfs/minimal_BGR2122.nc',
+#                    'sources_dict':{'ITP_120':'all','ITP_121':'all','ITP_122':'all','ITP_123':'all'},
+#                    'data_filters':dfs1_BGR2122,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# # BGR ITPs 2223
+# # BGR2223_minimal = {'netcdf_file':'netcdfs/minimal_BGR2223.nc',
+#                    'sources_dict':{'ITP_122':'all'},
+#                    'data_filters':dfs1_BGR2223,
+#                    'pfs_object':pfs_BGR_test,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'None',
+#                    'm_cls':'auto',
+#                    'relab_these':{}
+#                    }
+# ################################################################################
 
 ### Just certain clusters
 ## BGR ITPs 04 cluster 5
-BGR04_clstr_456 = {'netcdf_file':'netcdfs/BGR04_clstrs_456.nc',
-                   'sources_dict':{'BGR04_clstrd':'all'},
-                   'data_filters':dfs0,
-                   'pfs_object':pfs_these_clstrs,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'second',
-                   }
-## BGR ITPs 0508
-BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
-                   'sources_dict':{'BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'},
-                   'data_filters':dfs1,
-                   'pfs_object':pfs_these_clstrs,
-                   'cl_x_var':'SA',
-                   'cl_y_var':'la_CT',
-                   'cl_z_var':'None',
-                   'm_pts':'second',
-                   }
+# BGR04_clstr_456 = {'netcdf_file':'netcdfs/BGR04_clstrs_456.nc',
+#                    'sources_dict':{'BGR04_clstrd':'all'},
+#                    'data_filters':dfs0,
+#                    'pfs_object':pfs_these_clstrs,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'second',
+#                    }
+# ## BGR ITPs 0508
+# # BGR05060708_clstrs_456 = {'netcdf_file':'netcdfs/BGR05060708_clstrs_456.nc',
+#                    'sources_dict':{'BGR0506_clstrd':'all','BGR0607_clstrd':'all','BGR0708_clstrd':'all'},
+#                    'data_filters':dfs1,
+#                    'pfs_object':pfs_these_clstrs,
+#                    'cl_x_var':'SA',
+#                    'cl_y_var':'la_CT',
+#                    'cl_z_var':'None',
+#                    'm_pts':'second',
+#                    }
 
 xr.set_options(display_max_rows=44)
 
-for clstr_dict in [BGR1617_minimal]:
-# for clstr_dict in [BGR0607_clstr_dict, BGR0708_clstr_dict]:
-# for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict]:
+for clstr_dict in [BGR2223_clstr_dict]:
+# for clstr_dict in [BGR04_clstr_dict, BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict, BGR1112_clstr_dict, BGR1213_clstr_dict, BGR1314_clstr_dict, BGR1415_clstr_dict, BGR1516_clstr_dict, BGR1617_clstr_dict, BGR1718_clstr_dict, BGR1819_clstr_dict, BGR1920_clstr_dict, BGR2021_clstr_dict, BGR2122_clstr_dict, BGR2223_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',
@@ -847,7 +906,7 @@ for clstr_dict in [BGR1617_minimal]:
         group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
         # Make a figure to run clustering algorithm and check results
         print('making figure')
-        ahf.make_figure([group_test_clstr])#, filename='test.txt')
+        ahf.make_figure([group_test_clstr], filename=clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts']+'.png'))
 
         # Does this netcdf already exist?
         try:
