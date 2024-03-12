@@ -182,7 +182,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_CT_max']
+y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_CT_max', 'press_CT_min']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -262,11 +262,13 @@ class Data_Filters:
     min_press           The minimum value of pressure to keep a profile
     min_press_CT_max    The minimum value for the pressure at the conservative
                         temperature maximum, above which profiles will be kept
+    min_press_CT_min    The maximum value for the pressure at the conservative
+                        temperature minimum, below which profiles will be kept
     clstr_labels        None to keep all cluster labels or a list of X lists, 
                         where X is the number of datasets, and each list contains
                         the cluster labels to keep from that dataset
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None, clstr_labels=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None, min_press_CT_min=None, clstr_labels=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
@@ -275,6 +277,7 @@ class Data_Filters:
         self.date_range = date_range
         self.min_press = min_press
         self.min_press_CT_max = min_press_CT_max
+        self.min_press_CT_min = min_press_CT_min
         self.clstr_labels = clstr_labels
 
 ################################################################################
@@ -417,6 +420,9 @@ class Plot_Parameters:
                         z_var can be any variable that var0 can be
                     If running a parameter sweep in parallel, add the following:
                         {'mpi_run':True}. This will suppress any graphical output
+                    To mark the top and bottom of the thermocline in profiles, add
+                        {'mark_thermocline':True}. Can also have the value be 'max' or
+                        'min' to mark just the top or bottom
                     To plot isopycnal contour lines add {'isopycnals':X} where X is the 
                         value in dbar to which the isopycnals are referenced or True 
                         which will set the reference to the median pressure
@@ -561,6 +567,13 @@ def apply_data_filters(xarrays, data_filters):
                 elim_list = [x for x in pf_list if x not in pf_list2]
                 print('p_max filter, # of profiles before:',len(pf_list),'after:',len(pf_list2),'difference:',len(pf_list)-len(pf_list2))#,'-',elim_list)
         #
+        #   Filter based on the value of pressure at CT_min
+        if not isinstance(data_filters.min_press_CT_min, type(None)):
+            print('Removing profiles with press_CT_min less than',data_filters.min_press_CT_min)
+            print('Before:',len(ds.prof_no.values))
+            ds = ds.where(ds.press_CT_min>=data_filters.min_press_CT_min, drop=True)#.squeeze()
+            print('After:',len(ds.prof_no.values))
+        #
         #   Filter based on the minimum value of pressure at CT_max
         if not isinstance(data_filters.min_press_CT_max, type(None)):
             ds = ds.where(ds.press_CT_max>=data_filters.min_press_CT_max, drop=True)#.squeeze()
@@ -604,10 +617,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         # Check the plot scale
         #   This will include all the measurements within each profile
         if plt_params.plot_scale == 'by_vert':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'CT_min', 'press_CT_min', 'SA_CT_min', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
         #   This will only include variables with 1 value per profile
         elif plt_params.plot_scale == 'by_pf':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'CT_min', 'press_CT_min', 'SA_CT_min', 'R_rho']
         # print('vars_to_keep:')
         # print(vars_to_keep)
         return vars_to_keep
@@ -618,10 +631,6 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         if pp.plot_type == 'map':
             vars_to_keep.append('lon')
             vars_to_keep.append('lat')
-        if pp.plot_type in ['profiles', 'waterfall']:
-            vars_to_keep.append('CT_max')
-            vars_to_keep.append('press_CT_max')
-            vars_to_keep.append('SA_CT_max')
         if pp.plot_type == 'waterfall':
             vars_to_keep.append('dt_start')
         # Add all the plotting variables
@@ -639,6 +648,23 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                     if pp.extra_args[key] == 'ell_size':
                         # Make sure the parameter sweeps run correctly 
                         vars_to_keep.append('press')
+                # If marking the bounds of the thermocline
+                if key == 'mark_thermocline':
+                    if pp.extra_args[key] == True:
+                        vars_to_keep.append('CT_max')
+                        vars_to_keep.append('press_CT_max')
+                        vars_to_keep.append('SA_CT_max')
+                        vars_to_keep.append('CT_min')
+                        vars_to_keep.append('press_CT_min')
+                        vars_to_keep.append('SA_CT_min')
+                    elif pp.extra_args[key] == 'max':
+                        vars_to_keep.append('CT_max')
+                        vars_to_keep.append('press_CT_max')
+                        vars_to_keep.append('SA_CT_max')
+                    elif pp.extra_args[key] == 'min':
+                        vars_to_keep.append('CT_min')
+                        vars_to_keep.append('press_CT_min')
+                        vars_to_keep.append('SA_CT_min')
                 # If adding isopycnals, make sure to keep press, SA, and iT to use with the 
                 #   function gsw.pot_rho_t_exact(SA,t,p,p_ref)
                 if key == 'isopycnals':
@@ -2210,7 +2236,7 @@ def get_var_color(var):
             'BSt':'darkturquoise',
             'BSA':'darkturquoise'
             }
-    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_CT_max']:
+    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_CT_max', 'press_CT_min']:
         return std_clr
     elif var in ['iT', 'CT', 'PT', 'alpha']:
         return 'lightcoral'
@@ -2218,9 +2244,9 @@ def get_var_color(var):
         return 'cornflowerblue'
     elif var in ['sigma']:
         return 'mediumpurple'
-    elif var in ['CT_max', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
+    elif var in ['CT_max', 'CT_min', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
         return 'tab:red'
-    elif var in ['SA_CT_max', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
+    elif var in ['SA_CT_max', 'SA_CT_min', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
         return 'tab:blue'
     elif var in ['ma_sigma', 'la_sigma']:
         return 'tab:purple'
@@ -2454,7 +2480,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         extra_args = pp.extra_args
         if 'plot_slopes' in extra_args.keys():
             plot_slopes = extra_args['plot_slopes']
-            print('\t- Plot slopes:',plot_slopes)
+            # print('\t- Plot slopes:',plot_slopes)
         else:
             plot_slopes = False
         if 'mrk_outliers' in extra_args.keys():
@@ -2546,6 +2572,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+        print('\t- Plot slopes:',plot_slopes)
         # Check whether to normalize by subtracting a polyfit2d
         if fit_vars:
             df = calc_fit_vars(df, (x_key, y_key, z_key, clr_map), fit_vars)
@@ -2611,31 +2638,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     x_data = np.array(df[x_key].values, dtype=np.float64)
                     y_data = np.array(df[y_key].values, dtype=np.float64)
                 if plot_3d == False:
-                    if plot_slopes == 'OLS':
-                        # Find the slope of the ordinary least-squares of the points for this cluster
-                        # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                        # sd_m, sd_c = 0, 0
-                        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
-                        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                        print('\t\t- R^2 value is',rvalue)
-                    else:
-                        # Find the slope of the total least-squares of the points for this cluster
-                        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                    # Find mean and standard deviation of x and y data
-                    x_mean = df.loc[:,x_key].mean()
-                    y_mean = df.loc[:,y_key].mean()
-                    x_stdv = df.loc[:,x_key].std()
-                    y_stdv = df.loc[:,y_key].std()
-                    # Plot the least-squares fit line for this cluster through the centroid
-                    ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
-                    # Add annotation to say what the slope is
-                    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-                        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
-                    else:
-                        annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
-                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    add_linear_slope(ax, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
                 else:
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
@@ -3049,7 +3052,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     plot_polyfit2d(ax, pp, df[x_key], df[y_key], df[clr_map], in_3D=False)
                     # Plot the scatter
                     heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
+                elif plot_slopes:
+                    # Plot the scatter
+                    heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
+                    # Plot a linear slope
+                    add_linear_slope(ax, df, df[x_key], df[y_key], x_key, y_key, alt_std_clr, plot_slopes)
                 else:
+                    # Plot the scatter
                     heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
             # Invert y-axis if specified
             if y_key in y_invert_vars:
@@ -3138,7 +3147,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             map_extent = map_dict['map_extent']
         except:
             map_extent = None
-        print('map_extent:',map_extent)
+        print('\t- Map extent:',map_extent)
         #   Set latitude and longitude extents
         #   I found these values by guess-and-check, there really isn't a good way
         #       to know beforehand what you'll actually get
@@ -3277,6 +3286,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map])
+        print('\t- Plot slopes:',plot_slopes)
         # Drop dimensions, if needed
         if 'Vertical' in df.index.names:
             # Drop duplicates along the `Time` dimension
@@ -3453,6 +3463,55 @@ def make_subplot(ax, a_group, fig, ax_pos):
 
 ################################################################################
 # Auxiliary plotting functions #################################################
+################################################################################
+
+def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes):
+    """
+    Adds a line of best fit to the data
+
+    ax          The axis on which to add the line
+    df          Pandas dataframe of the data
+    x_data      The x data to use for the line of best fit
+    y_data      The y data to use for the line of best fit
+    x_key       The string of the name for the x data
+    y_key       The string of the name for the y data
+    linear_clr  The color to make the line
+    plot_slopes The type of line to plot, either 'OLS' or 'TLS'
+    """
+    if x_key in ['dt_start', 'dt_end']:
+        per_unit = 'per year'
+        units = '/yr'
+        adjustment_factor = 365.25
+    else:
+        per_unit = ''
+        units = ''
+        adjustment_factor = 1
+    if plot_slopes == 'OLS':
+        # Find the slope of the ordinary least-squares of the points for this cluster
+        # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+        # sd_m, sd_c = 0, 0
+        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+        print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+        print('\t\t- R^2 value is',rvalue)
+    else:
+        # Find the slope of the total least-squares of the points for this cluster
+        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+        print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+    # Find mean and standard deviation of x and y data
+    x_mean = df.loc[:,x_key].mean()
+    y_mean = df.loc[:,y_key].mean()
+    x_stdv = df.loc[:,x_key].std()
+    y_stdv = df.loc[:,y_key].std()
+    # Plot the least-squares fit line for this cluster through the centroid
+    ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
+    # Add annotation to say what the slope is
+    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+    else:
+        annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
+    ax.annotate(annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', zorder=12)
+
 ################################################################################
 
 def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None):
@@ -4067,19 +4126,6 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Check whether to run the clustering algorithm
     #   Need to run the clustering algorithm BEFORE filtering to specified range
     cluster_this = False
-    # Set the keys for CT max markers
-    if x_key == 'CT':
-        CT_max_key = 'CT_max'
-    elif x_key == 'SA':
-        CT_max_key = 'SA_CT_max'
-    else:
-        CT_max_key = False
-    if tw_x_key == 'CT':
-        tw_CT_max_key = 'CT_max'
-    elif tw_x_key == 'SA':
-        tw_CT_max_key = 'SA_CT_max'
-    else:
-        tw_CT_max_key = False
     #   Find all the plotting variables
     plot_vars = [x_key,y_key,tw_x_key,tw_y_key,clr_map]
     for var in plot_vars:
@@ -4089,6 +4135,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
         df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        print('\t- Plot slopes:',plot_slopes)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         try:
@@ -4152,12 +4199,17 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             clstrs_to_plot = extra_args['clstrs_to_plot']
         except:
             clstrs_to_plot = []
+        try:
+            mark_thermocline = extra_args['mark_thermocline']
+        except:
+            mark_thermocline = False
     else:
         plt_noise = True
         shift_pfs = True
         sort_clstrs = True
         plot_pts = True
         clstrs_to_plot = []
+        mark_thermocline = False
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
@@ -4198,6 +4250,31 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         pf_df = df[df['prof_no']==pf_no]
         profile_dfs.append(pf_df)
         # print(pf_df)
+    # Set the keys for CT max markers
+    if mark_thermocline:
+        if x_key == 'CT':
+            CT_max_key = 'CT_max'
+            CT_min_key = 'CT_min'
+        elif x_key == 'SA':
+            CT_max_key = 'SA_CT_max'
+            CT_min_key = 'SA_CT_min'
+        else:
+            CT_max_key = False
+            CT_min_key = False
+        if tw_x_key == 'CT':
+            tw_CT_max_key = 'CT_max'
+            tw_CT_min_key = 'CT_min'
+        elif tw_x_key == 'SA':
+            tw_CT_max_key = 'SA_CT_max'
+            tw_CT_min_key = 'SA_CT_min'
+        else:
+            tw_CT_max_key = False
+            tw_CT_min_key = False
+    else:
+        CT_max_key = False
+        CT_min_key = False
+        tw_CT_max_key = False
+        tw_CT_min_key = False
     #
     # Check to see whether any profiles were actually loaded
     n_pfs = len(profile_dfs)
@@ -4234,6 +4311,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Find CT max if applicable
             if CT_max_key:
                 CT_max = np.unique(np.array(pf_df[CT_max_key].values))
+            # Find CT min if applicable
+            if CT_min_key:
+                CT_min = np.unique(np.array(pf_df[CT_min_key].values))
             # Find upper and lower bounds of first profile, for reference points
             xvar_low  = min(xvar)
             xvar_high = max(xvar)
@@ -4248,6 +4328,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 tvar = pf_df[tw_x_key]
                 if tw_CT_max_key:
                     tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values))
+                if tw_CT_min_key:
+                    tw_CT_min = np.unique(np.array(pf_df[tw_CT_min_key].values))
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
                 tw_span   = abs(twin_high - twin_low)
@@ -4279,21 +4361,28 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Find array of data for this profile
             xvar = pf_df[x_key] - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
             if CT_max_key:
-                CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key]) + old_xvar_low
+                CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
+            if CT_min_key:
+                CT_min = np.unique(np.array(pf_df[CT_min_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
             # Find new upper and lower bounds of profile
             xvar_high = max(xvar)
             xvar_low  = min(xvar)
             # Find span of this profile
             xv_span = abs(xvar_high - xvar_low)
             if tw_x_key:
-                xvar = xvar + old_xv_span*0.8
+                tw_shift = 1#0.8
+                xvar = xvar + old_xv_span*tw_shift
                 if CT_max_key:
-                    CT_max = CT_max + old_xv_span*0.8
+                    CT_max = CT_max + old_xv_span*tw_shift
+                if CT_min_key:
+                    CT_min = CT_min + old_xv_span*tw_shift
                 xvar_high = max(xvar)
                 xvar_low = min(xvar)
-                tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*0.8
+                tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
                 if tw_CT_max_key:
-                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*0.8
+                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
+                if tw_CT_min_key:
+                    tw_CT_min = np.unique(np.array(pf_df[tw_CT_min_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
                 # 
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
@@ -4316,6 +4405,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 xvar = xvar + old_xv_span*0.45*shift_pfs
                 if CT_max_key:
                     CT_max = CT_max + old_xv_span*0.45*shift_pfs
+                if CT_min_key:
+                    CT_min = CT_min + old_xv_span*0.45*shift_pfs
                 xvar_low = min(xvar)
                 xvar_high = max(xvar)
                 right_bound = max(xvar_high, right_bound)
@@ -4363,18 +4454,25 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 # Plot every point the same color, size, and marker
                 ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
-            if False:#CT_max_key:
+            if CT_max_key:
                 press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
                 print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
-                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+            if CT_min_key:
+                press_CT_min = np.unique(np.array(pf_df['press_CT_min'].values))
+                print('\t- Plotting CT_min:',CT_min,'press_CT_min:',press_CT_min)
+                ax.scatter(CT_min, press_CT_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
                 if plot_pts:
                     tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
-                if False:#CT_max_key:
+                if CT_max_key:
                     print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
-                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                if CT_min_key:
+                    print('\t- Plotting tw_CT_min:',tw_CT_min,'press_CT_min:',press_CT_min)
+                    tw_ax_y.scatter(tw_CT_min, press_CT_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
@@ -4564,6 +4662,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
         df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        print('\t- Plot slopes:',plot_slopes)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
         print('Warning: Specifying ax_lims does not work as expected in waterfall plots')
@@ -5148,9 +5247,10 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         # print('in HDBSCAN_(), m_pts:',m_pts)
         print('len(df):',len(df))
         if m_pts == 'auto':
-            # m_pts = int(len(df) / 500 + 200)
+            # Selecting a rule of thumb for number m_pts based on number of points
+            m_pts = int(0.00129*len(df) + 181)
             # m_pts = int(7*(len(df)**(1/3)))
-            m_pts = int(len(df) / 250 - 150)
+            # m_pts = int(len(df) / 250 - 150)
         if m_cls == 'auto':
             m_cls = m_pts
         print('\t\tClustering x-axis:',x_key)

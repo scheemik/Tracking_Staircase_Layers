@@ -64,9 +64,9 @@ T2008_fig6a_ax_lims = {'x_lims':[0.027002,0.027042], 'y_lims':[-13e-6,3e-6]}
 T2008_fig6a_ax_lims = {'x_lims':[0.026838,0.026878], 'y_lims':[-13e-6,3e-6]}
 
 # A list of many profiles to plot from ITP2
-start_pf = 1
+start_pf = 191
 import numpy as np
-n_pfs_to_plot = 50
+n_pfs_to_plot = 7
 ITP2_some_pfs = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
 
 # For showing multiple layers grouped into one cluster
@@ -207,7 +207,7 @@ print('- Creating data sets')
 
 # by different time periods
 # this_BGR = 'BGR04'
-# this_BGR = 'BGR0506'
+this_BGR = 'BGR0506'
 # this_BGR = 'BGR0607'
 # this_BGR = 'BGR0708'
 # this_BGR = 'BGR0809'
@@ -225,8 +225,8 @@ print('- Creating data sets')
 # this_BGR = 'BGR2021'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
-this_BGR = 'BGR_all'
-# ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+# this_BGR = 'BGR_all'
+ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # ds_this_BGR = ahf.Data_Set(BGRITPs0511, dfs1_BGR0511)
@@ -268,7 +268,7 @@ this_BGR = 'BGR_all'
 # ds_BGR0910 = ahf.Data_Set(BGR0910, dfs_to_use)
 # ds_BGR1011 = ahf.Data_Set(BGR1011, dfs_to_use)
 
-ds_this_BGR = ahf.Data_Set(bps.BGR_auto_mpts_dict[this_BGR], bob.dfs0)
+# ds_this_BGR = ahf.Data_Set(bps.BGR_auto_mpts_dict[this_BGR], bob.dfs0)
 
 # ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0508 = ahf.Data_Set(BGR0508, dfs_to_use)
@@ -488,6 +488,56 @@ if False:
     # ahf.make_figure(lat_lon_groups_to_plot + hist_groups_to_plot)
     ahf.make_figure(press_vs_time_uncorr + press_vs_time_corrtd)
 
+# Tracking press_max, press_CT_max, and CT_max over time
+if False:
+    print('')
+    print('- Creating a plot of CT_max over time')
+    # Make the Plot Parameters
+    across_x_var = 'dt_start'
+    pp_press_max    = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_max'], legend=True)
+    pp_CT_max       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_max'], legend=True, extra_args={'plot_slopes':True})
+    pp_press_CT_max = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_max', 'SA_CT_max'], legend=True, extra_args={'plot_slopes':True})
+    # Make the subplot groups
+    group_press_max    = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_max, plot_title=this_BGR)
+    group_CT_max       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_max, plot_title='')
+    group_press_CT_max = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_CT_max, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_press_max, group_CT_max, group_press_CT_max], row_col_list=[3,1, 0.45, 1.4])
+# Tracking press_min, press_CT_min, and CT_min over time
+if False:
+    print('')
+    print('- Creating a plot of CT_min over time')
+    # Make the Plot Parameters
+    across_x_var = 'dt_start'
+    pp_press_min    = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_min'], legend=True)
+    pp_CT_min       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_min'], legend=True, extra_args={'plot_slopes':True})
+    pp_press_CT_min = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_min', 'SA_CT_min'], legend=True, extra_args={'plot_slopes':True})
+    # Make the subplot groups
+    group_press_min    = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_min, plot_title=this_BGR)
+    group_CT_min       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_min, plot_title='')
+    group_press_CT_min = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_CT_min, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_press_min, group_CT_min, group_press_CT_min], row_col_list=[3,1, 0.45, 1.4])
+# Tracking top and bottom of the thermocline over time
+if True:
+    print('')
+    print('- Creating a plot of p(CT_max/CT_min) over time')
+    # Make dataset
+    # df_mod = bob.dfs1_BGR_dict[this_BGR]
+    # df_mod.min_press_CT_min = 100
+    df_mod = ahf.Data_Filters(min_press_CT_min=100, min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
+    ds_this_BGR_mod = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], df_mod)
+    # Make the Plot Parameters
+    across_x_var = 'dt_start'
+    y_span = 200-45
+    pp_CT_min_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_min'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[200,200-y_span]})
+    pp_CT_max_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_max'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[450,450-y_span]})
+    # Make the subplot groups
+    group_CT_min_v_time = ahf.Analysis_Group(ds_this_BGR_mod, pfs_0, pp_CT_min_v_time, plot_title=this_BGR)
+    group_CT_max_v_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_max_v_time, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_CT_min_v_time, group_CT_max_v_time], row_col_list=[2,1, 0.45, 1.4])
+
 ################################################################################
 ## Density ratio plots
 ################################################################################
@@ -670,10 +720,10 @@ if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
-    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs2, dfs_all)
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
     # Make the Plot Parameters
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False}, legend=False)
-    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True}, legend=False)
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
     group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
@@ -907,7 +957,7 @@ if False:
 ## Pre-clustered plots vs. time
 ################################################################################
 # Salinity vs. time
-if True:
+if False:
     print('')
     print('- Creating plots of salinity vs time')
     # Make the Plot Parameters

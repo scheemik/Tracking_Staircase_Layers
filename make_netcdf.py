@@ -4,6 +4,7 @@ Created: 2022-03-24
 
 This script will load data from various Arctic Ocean profile datasets and
 reformat them into netcdf files, one for each instrument.
+Note: AIDJEX and SHEBA functions are not yet implemented correctly.
 This script expects the following file structure of the raw data files:
 
 science_data_file_path/
@@ -60,9 +61,11 @@ me_string = 'Mikhail Schee, University of Toronto'
 doi = 'No DOI yet'
 
 # Choose pressure value
-#   The value of CT_max (and therefore press_CT_max and SA_CT_max) must occur
-#   at a pressure greater than this value
+# To avoid the surface layer, I only consider pressures below this value when
+#   calculating the max/min Conservative Temperature (CT_max/CT_min) and the
+#   pressure/salinity at which these values occur (press_CT_max/press_CT_min/SA_CT_max/SA_CT_min)
 press_CT_max_threshold = 5
+press_SL_threshold = 50
 
 # Choose type of float to store
 float_dtype = 'float32'
@@ -117,9 +120,13 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     list_of_regs            = []
     list_of_up_casts        = []
     list_of_press_maxs      = []
+    list_of_press_mins      = []
     list_of_CT_maxs         = []
+    list_of_CT_mins         = []
     list_of_press_CT_maxs   = []
+    list_of_press_CT_mins   = []
     list_of_SA_CT_maxs      = []
+    list_of_SA_CT_mins      = []
     list_of_press_arrs      = []
     list_of_depth_arrs      = []
     list_of_iT_arrs         = []
@@ -154,9 +161,13 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                     list_of_regs.append(out_dict['region'])
                     list_of_up_casts.append(out_dict['up_cast'])
                     list_of_press_maxs.append(out_dict['press_max'])
+                    list_of_press_mins.append(out_dict['press_min'])
                     list_of_CT_maxs.append(out_dict['CT_max'])
+                    list_of_CT_mins.append(out_dict['CT_min'])
                     list_of_press_CT_maxs.append(out_dict['press_CT_max'])
+                    list_of_press_CT_mins.append(out_dict['press_CT_min'])
                     list_of_SA_CT_maxs.append(out_dict['SA_CT_max'])
+                    list_of_SA_CT_mins.append(out_dict['SA_CT_min'])
                     list_of_press_arrs.append(out_dict['press'])
                     list_of_depth_arrs.append(out_dict['depth'])
                     list_of_iT_arrs.append(out_dict['iT'])
@@ -305,13 +316,33 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'dtype':float_dtype
                         }
                 ),
+                'press_min':(
+                        ['Time'],
+                        np.array(list_of_press_mins, dtype=np_float_type),
+                        {
+                            'units':'dbar',
+                            'label':'$p_{min}$ (dbar)',
+                            'long_name':'Minimum Pressure',
+                            'dtype':float_dtype
+                        }
+                ),
                 'CT_max':(
                         ['Time'],
                         np.array(list_of_CT_maxs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
                             'label':'$\Theta_{max}$ ($^\circ$C)',
-                            'long_name':'Maximum Conservative Temperature',
+                            'long_name':'Maximum Sub-Surface Layer Conservative Temperature',
+                            'dtype':float_dtype
+                        }
+                ),
+                'CT_min':(
+                        ['Time'],
+                        np.array(list_of_CT_mins, dtype=np_float_type),
+                        {
+                            'units':'degrees Celcius',
+                            'label':'$\Theta_{min}$ ($^\circ$C)',
+                            'long_name':'Minimum Sub-Surface Layer Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
@@ -321,7 +352,17 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                         {
                             'units':'dbar',
                             'label':'$p(\Theta_{max})$ (dbar)',
-                            'long_name':'Pressure at Maximum Conservative Temperature',
+                            'long_name':'Pressure at Maximum Sub-Surface Layer Conservative Temperature',
+                            'dtype':float_dtype
+                        }
+                ),
+                'press_CT_min':(
+                        ['Time'],
+                        np.array(list_of_press_CT_mins, dtype=np_float_type),
+                        {
+                            'units':'dbar',
+                            'label':'$p(\Theta_{min})$ (dbar)',
+                            'long_name':'Pressure at Minimum Sub-Surface Layer Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
@@ -331,7 +372,17 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                         {
                             'units':'g/kg',
                             'label':'$S_A(\Theta_{max})$ (g/kg)',
-                            'long_name':'Absolute Salinity at Maximum Conservative Temperature',
+                            'long_name':'Absolute Salinity at Maximum Sub-Surface Layer Conservative Temperature',
+                            'dtype':float_dtype
+                        }
+                ),
+                'SA_CT_min':(
+                        ['Time'],
+                        np.array(list_of_SA_CT_mins, dtype=np_float_type),
+                        {
+                            'units':'g/kg',
+                            'label':'$S_A(\Theta_{min})$ (g/kg)',
+                            'long_name':'Absolute Salinity at Minimum Sub-Surface Layer Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
@@ -807,8 +858,6 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         if len(press0) < 2 or np.isnan(press0).all():
             print('\t- no data for',instrmt,prof_no)
             return None
-        # Find maximum pressure value
-        press_max = max(press0)
         # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
         pf_vert_len = len(press0)
         SA1 = gsw.SA_from_SP(SP0, press0, [lon]*pf_vert_len, [lat]*pf_vert_len)
@@ -822,20 +871,47 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             up_cast = False
         else:
             up_cast = True
-        # Get the index of the maximum conservative temperature
+        # Get versions of press0, CT1, and SA1 without the rows that contain NaNs in
+        #   press0, iT0, or SP0, or have press0 less than press_SL_threshold
+        nan_mask = (press0 > press_SL_threshold) & (~np.isnan(press0)) & (~np.isnan(iT0)) & (~np.isnan(SP0))
+        non_nan_press0 = press0[nan_mask]
+        non_nan_CT1    = CT1[nan_mask]
+        non_nan_SA1    = SA1[nan_mask]
+        # Get pressure maximum and the index of the maximum conservative temperature
         try:
-            # Get just the part of the CT1 array where press0 is greater
-            #   than press_CT_max_threshold
-            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
-            i_CT_max = np.nanargmax(temp_CT)
+            # Find maximum pressure value
+            press_max = max(non_nan_press0)
+            # Get index of CT_max
+            i_CT_max = np.where(CT1 == max(non_nan_CT1))[0][0]
+            # Get values of CT_max, press_CT_max, and SA_CT_max
             CT_max = CT1[i_CT_max]
             press_CT_max = press0[i_CT_max]
             SA_CT_max = SA1[i_CT_max]
         except:
-            print('\t\t- Cannot compute CT_max for ITP',instrmt,'profile',prof_no)
+            print('\t\t- Cannot compute press_max, CT_max, etc. for ITP',instrmt,'profile',prof_no)
+            press_max = None
             CT_max = None
             press_CT_max = None
             SA_CT_max = None
+        # Get pressure minimum and the index of the minimum conservative temperature
+        try:
+            # Find minimum pressure value
+            press_min = min(non_nan_press0)
+            if press_min == press_max:
+                press_min = None
+            # Get index of CT_min, making sure it occurs at a lower pressure than p(CT_max)
+            non_nan_CT1_above_press_CT_max = non_nan_CT1[non_nan_press0 < press_CT_max]
+            i_CT_min = np.where(CT1 == min(non_nan_CT1_above_press_CT_max))[0][0]
+            # Get values of CT_max, press_CT_max, and SA_CT_max
+            CT_min = CT1[i_CT_min]
+            press_CT_min = press0[i_CT_min]
+            SA_CT_min = SA1[i_CT_min]
+        except:
+            print('\t\t- Cannot compute press_min, CT_min, etc. for ITP',instrmt,'profile',prof_no)
+            press_min = None
+            CT_min = None
+            press_CT_min = None
+            SA_CT_min = None
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -846,9 +922,13 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
                     'region': reg,
                     'up_cast': up_cast,
                     'press_max': press_max,
+                    'press_min': press_min,
                     'CT_max':CT_max,
+                    'CT_min':CT_min,
                     'press_CT_max':press_CT_max,
+                    'press_CT_min':press_CT_min,
                     'SA_CT_max':SA_CT_max,
+                    'SA_CT_min':SA_CT_min,
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -1349,7 +1429,7 @@ def find_geo_region(lon, lat):
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-if True:
+if False:
     read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
     read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc') # Not in time period
     read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
@@ -1458,6 +1538,11 @@ if True:
     read_instrmt('ITP', '123', science_data_file_path+'ITPs/itp123/itp123cormat', 'netcdfs/ITP_123.nc')
     # read_instrmt('ITP', '125', science_data_file_path+'ITPs/itp125/itp125cormat', 'netcdfs/ITP_125.nc')
     # read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
+
+## This will make just one netcdf for ITP
+read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
+read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
+read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
