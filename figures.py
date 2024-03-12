@@ -94,11 +94,11 @@ Lu2022_m_pts = 580
 ################################################################################
 
 # A list of many profiles to plot from ITP3
-start_pf = 1331
+start_pf = 169
 import numpy as np
-n_pfs_to_plot = 5
+n_pfs_to_plot = 6
 ITP3_some_pfs_1 = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
-ITP3_pfs1  = {'ITP_3':ITP3_some_pfs_1}
+ITP3_pfs1  = {'ITP_003':ITP3_some_pfs_1}
 ITP35_pfs0 = {'ITP_35':ITP35_some_pfs0}
 ITP35_pfs1 = {'ITP_35':ITP35_some_pfs1}
 ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
@@ -153,7 +153,7 @@ print('- Creating data filtering objects')
 
 this_min_press = bps.this_min_press
 dfs1 = ahf.Data_Filters(min_press=this_min_press)
-dfs2 = ahf.Data_Filters(min_press_CT_max=400)
+dfs2 = ahf.Data_Filters(min_press_TC_max=400)
 
 dfs_CB = ahf.Data_Filters(geo_extent='CB', keep_black_list=True, cast_direction='any')
 dfs1_CB_0a = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)
@@ -233,7 +233,7 @@ ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BG
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, dfs1)
 
-# Data Sets without filtering based on CT_max
+# Data Sets without filtering based on TC_max
 # ds_ITP22_all  = ahf.Data_Set(ITP22_all, dfs_all)
 # ds_ITP23_all  = ahf.Data_Set(ITP23_all, dfs_all)
 # ds_ITP32_all  = ahf.Data_Set(ITP32_all, dfs_all)
@@ -244,7 +244,7 @@ ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BG
 # ds_ITP42_all  = ahf.Data_Set(ITP42_all, dfs_all)
 # ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs_all)
 
-# Data Sets filtered based on CT_max
+# Data Sets filtered based on TC_max
 # ds_ITP2 = ahf.Data_Set(ITP2_all, dfs0)
 
 # ds_ITP33 = ahf.Data_Set(ITP33_all, dfs1)
@@ -298,8 +298,8 @@ pfs_CB1 = ahf.Profile_Filters(lon_range=lon_CB,lat_range=lat_CB, p_range=[1000,5
 lon_BGR = bps.lon_BGR
 lat_BGR = bps.lat_BGR
 pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
-pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
-pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, every_nth_row=12)
+pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True)
+pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, every_nth_row=12)
 
 pfs_BGR_test = bob.pfs_BGR_test
 
@@ -473,7 +473,7 @@ if False:
     for this_sig_range in sig_ranges:
         that_title = r'$\sigma_1=[$'+str(min(this_sig_range))+r', '+str(max(this_sig_range))+r'$]$'
         # Make profile filters
-        pfs_sigma_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, sig_range=this_sig_range)
+        pfs_sigma_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, sig_range=this_sig_range)
         # Make the Plot Parameters
         pp_lat_lon_sigma = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'plot_slopes':True, 'extra_vars_to_keep':['sigma']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
         pp_sigma_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':['sigma']})
@@ -488,55 +488,67 @@ if False:
     # ahf.make_figure(lat_lon_groups_to_plot + hist_groups_to_plot)
     ahf.make_figure(press_vs_time_uncorr + press_vs_time_corrtd)
 
-# Tracking press_max, press_CT_max, and CT_max over time
+# Tracking press_max, press_TC_max, and CT_TC_max over time
 if False:
     print('')
-    print('- Creating a plot of CT_max over time')
+    print('- Creating a plot of TC_max over time')
     # Make the Plot Parameters
     across_x_var = 'dt_start'
     pp_press_max    = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_max'], legend=True)
-    pp_CT_max       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_max'], legend=True, extra_args={'plot_slopes':True})
-    pp_press_CT_max = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_max', 'SA_CT_max'], legend=True, extra_args={'plot_slopes':True})
+    pp_TC_max       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=True, extra_args={'plot_slopes':True})
+    pp_press_TC_max = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_TC_max', 'SA_TC_max'], legend=True, extra_args={'plot_slopes':True})
     # Make the subplot groups
     group_press_max    = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_max, plot_title=this_BGR)
-    group_CT_max       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_max, plot_title='')
-    group_press_CT_max = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_CT_max, plot_title='')
+    group_TC_max       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_TC_max, plot_title='')
+    group_press_TC_max = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_TC_max, plot_title='')
     # Make the figure
-    ahf.make_figure([group_press_max, group_CT_max, group_press_CT_max], row_col_list=[3,1, 0.45, 1.4])
-# Tracking press_min, press_CT_min, and CT_min over time
+    ahf.make_figure([group_press_max, group_TC_max, group_press_TC_max], row_col_list=[3,1, 0.45, 1.4])
+# Tracking press_min, press_TC_min, and CT_TC_min over time
 if False:
     print('')
-    print('- Creating a plot of CT_min over time')
+    print('- Creating a plot of TC_min over time')
     # Make the Plot Parameters
     across_x_var = 'dt_start'
     pp_press_min    = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_min'], legend=True)
-    pp_CT_min       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_min'], legend=True, extra_args={'plot_slopes':True})
-    pp_press_CT_min = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_min', 'SA_CT_min'], legend=True, extra_args={'plot_slopes':True})
+    pp_TC_min       = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min'], legend=True, extra_args={'plot_slopes':True})
+    pp_press_TC_min = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['CT_TC_min', 'SA_TC_min'], legend=True, extra_args={'plot_slopes':True})
     # Make the subplot groups
     group_press_min    = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_min, plot_title=this_BGR)
-    group_CT_min       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_min, plot_title='')
-    group_press_CT_min = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_CT_min, plot_title='')
+    group_TC_min       = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_TC_min, plot_title='')
+    group_press_TC_min = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_TC_min, plot_title='')
     # Make the figure
-    ahf.make_figure([group_press_min, group_CT_min, group_press_CT_min], row_col_list=[3,1, 0.45, 1.4])
+    ahf.make_figure([group_press_min, group_TC_min, group_press_TC_min], row_col_list=[3,1, 0.45, 1.4])
 # Tracking top and bottom of the thermocline over time
-if True:
+if False:
     print('')
-    print('- Creating a plot of p(CT_max/CT_min) over time')
+    print('- Creating a plot of p(TC_max/TC_min) over time')
     # Make dataset
     # df_mod = bob.dfs1_BGR_dict[this_BGR]
-    # df_mod.min_press_CT_min = 100
-    df_mod = ahf.Data_Filters(min_press_CT_min=100, min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
+    # df_mod.min_press_TC_min = 100
+    df_mod = ahf.Data_Filters(min_press_TC_min=100, min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
     ds_this_BGR_mod = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], df_mod)
     # Make the Plot Parameters
     across_x_var = 'dt_start'
     y_span = 200-45
-    pp_CT_min_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_min'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[200,200-y_span]})
-    pp_CT_max_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_CT_max'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[450,450-y_span]})
+    pp_TC_min_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[200,200-y_span]})
+    pp_TC_max_v_time = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=True, extra_args={'plot_slopes':True}, ax_lims={'y_lims':[450,450-y_span]})
     # Make the subplot groups
-    group_CT_min_v_time = ahf.Analysis_Group(ds_this_BGR_mod, pfs_0, pp_CT_min_v_time, plot_title=this_BGR)
-    group_CT_max_v_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_max_v_time, plot_title='')
+    group_TC_min_v_time = ahf.Analysis_Group(ds_this_BGR_mod, pfs_0, pp_TC_min_v_time, plot_title=this_BGR)
+    group_TC_max_v_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_TC_max_v_time, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_min_v_time, group_CT_max_v_time], row_col_list=[2,1, 0.45, 1.4])
+    ahf.make_figure([group_TC_min_v_time, group_TC_max_v_time], row_col_list=[2,1, 0.45, 1.4])
+# Density histograms of the top and bottom of the thermocline
+if True:
+    print('')
+    print('- Creating histograms of sigma(TC_max/TC_min) over time')
+    # Make the Plot Parameters
+    pp_sig_TC_min_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['sig_TC_min'], legend=True, extra_args={'plot_slopes':False})
+    pp_sig_TC_max_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['sig_TC_max'], legend=True, extra_args={'plot_slopes':False})
+    # Make the subplot groups
+    group_sig_TC_min_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_min_hist, plot_title=this_BGR)
+    group_sig_TC_max_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_max_hist, plot_title=this_BGR)
+    # Make the figure
+    ahf.make_figure([group_sig_TC_min_hist, group_sig_TC_max_hist])
 
 ################################################################################
 ## Density ratio plots
@@ -614,35 +626,35 @@ if False:
     print('')
     print('- Creating histograms of pressure max in each profile')
     # Define the Profile Filters
-    pfs_BGR1_all = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5])#, SA_range=test_S_range, lt_pCT_max=False)
+    pfs_BGR1_all = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5])#, SA_range=test_S_range, lt_pTC_max=False)
     # Make the Plot Parameters
     pp_max_press_hist = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['max_press'], y_vars=['hist'], clr_map='clr_all_same')
     # Make the subplot groups
     group_all_pfs    = ahf.Analysis_Group(ds_ITP3, pfs_BGR1_all, pp_max_press_hist, plot_title=r'All profiles')
-    group_lt_pCT_max = ahf.Analysis_Group(ds_ITP3, pfs_BGR1, pp_max_press_hist, plot_title=r'Profiles with $p < p(\Theta_{max})$')
+    group_lt_pTC_max = ahf.Analysis_Group(ds_ITP3, pfs_BGR1, pp_max_press_hist, plot_title=r'Profiles with $p < p(\Theta_{max})$')
     # Make the figure
-    ahf.make_figure([group_all_pfs, group_lt_pCT_max])
-    # ahf.make_figure([group_lt_pCT_max])
-## Histograms of CT_max data
+    ahf.make_figure([group_all_pfs, group_lt_pTC_max])
+    # ahf.make_figure([group_lt_pTC_max])
+## Histograms of TC_max data
 if False:
     print('')
     print('- Creating histograms of pressure at temperature max in each profile')
     # Make the Plot Parameters
-    pp_press_CT_max_hist = ahf.Plot_Parameters(x_vars=['press_CT_max'], y_vars=['hist'], clr_map='clr_all_same')
+    pp_press_TC_max_hist = ahf.Plot_Parameters(x_vars=['press_TC_max'], y_vars=['hist'], clr_map='clr_all_same')
     # Make the subplot groups
-    group_press_CT_max_hist = ahf.Analysis_Group(ds_ITP3, pfs_0, pp_press_CT_max_hist)
+    group_press_TC_max_hist = ahf.Analysis_Group(ds_ITP3, pfs_0, pp_press_TC_max_hist)
     # # Make the figure
-    ahf.make_figure([group_press_CT_max_hist])
-## Plots of SA_CT_max vs press_CT_max
+    ahf.make_figure([group_press_TC_max_hist])
+## Plots of SA_TC_max vs press_TC_max
 if False:
     print('')
-    print('- Creating plots of the info about CT_max')
+    print('- Creating plots of the info about TC_max')
     # Make the Plot Parameters
-    pp_SA_CT_max = ahf.Plot_Parameters(x_vars=['SA_CT_max'], y_vars=['press_CT_max'], clr_map='CT_max')
+    pp_SA_TC_max = ahf.Plot_Parameters(x_vars=['SA_TC_max'], y_vars=['press_TC_max'], clr_map='CT_TC_max')
     # Make the subplot groups
-    group_SA_CT_max = ahf.Analysis_Group(ds_ITP3, pfs_0, pp_SA_CT_max)
+    group_SA_TC_max = ahf.Analysis_Group(ds_ITP3, pfs_0, pp_SA_TC_max)
     # # Make the figure
-    ahf.make_figure([group_SA_CT_max])
+    ahf.make_figure([group_SA_TC_max])
 
 ################################################################################
 ## Plots in la_CT vs. SA space with different values of ell
@@ -654,10 +666,10 @@ if False:
     # Select the dataset to use
     this_ds = ds_this_BGR
     # Make the profile filter objects for the different values of ell
-    pfs_ell_010 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, m_avg_win=10)
-    pfs_ell_050 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, m_avg_win=50)
-    pfs_ell_100 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, m_avg_win=100)
-    pfs_ell_150 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, m_avg_win=150)
+    pfs_ell_010 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, m_avg_win=10)
+    pfs_ell_050 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, m_avg_win=50)
+    pfs_ell_100 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, m_avg_win=100)
+    pfs_ell_150 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, m_avg_win=150)
     # Make the Plot Parameters
     pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
     # Make the subplot groups
@@ -715,12 +727,26 @@ if False:
 ################################################################################
 ## Example profile plots
 ################################################################################
+# Example profile plots, CT and SA
+if False:
+    print('')
+    print('- Creating figure of example profiles')
+    # Make the data set
+    # ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
+    # Make the Plot Parameters
+    pp_pfs = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':'min'}, legend=True, ax_lims={'y_lims':[200,0]})
+    # Make the Analysis Groups
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_example_profiles1], use_same_y_axis=False, row_col_list=[1,1, 0.3, 1.4])
 # Example profile plots, CT and SA, full and zoomed
 if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
-    ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
+    # ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
     # Make the Plot Parameters
     pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True}, legend=False)
     pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
@@ -809,7 +835,7 @@ if False:
     print('')
     print('- Creating a waterfall figure of example profiles')
     # Define the Profile Filters
-    pfs_2 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[410,210], lt_pCT_max=True)#, SA_range=test_S_range)
+    pfs_2 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[410,210], lt_pTC_max=True)#, SA_range=test_S_range)
     # Make the data set
     # ds_ex_pfs2 = ahf.Data_Set(ex_pfs2, dfs_all)
     # Make the Plot Parameters
@@ -854,7 +880,7 @@ if False:
     print('- Creating TS plots to compare full profiles vs. subsampled')
     # Define the Profile Filters
     every_n = 12
-    pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True, every_nth_row=every_n)
+    pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, every_nth_row=every_n)
     # Make the Plot Parameters
     m_pts1 = 'auto'#500
     m_pts2 = 'auto'#100

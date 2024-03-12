@@ -26,7 +26,7 @@ import BGR_params as bps
 ################################################################################
 
 # The profile filters I'm using for this study
-pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.test_S_range, lt_pCT_max=True)
+pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.test_S_range, lt_pTC_max=True)
 
 ################################################################################
 ## Data filter objects

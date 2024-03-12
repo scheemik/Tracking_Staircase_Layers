@@ -182,9 +182,9 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_CT_max', 'press_CT_min']
+y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_TC_max', 'press_TC_min']
 # A list of the per profile variables
-pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_max', 'press_CT_max', 'SA_CT_max', 'R_rho']
+pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_TC_max', 'press_TC_max', 'SA_TC_max', 'sig_TC_max', 'CT_TC_min', 'press_TC_min', 'SA_TC_min', 'sig_TC_min', 'R_rho']
 # A list of the variables on the `Vertical` dimension
 vertical_vars = ['press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aiT', 'aCT', 'aPT', 'BSP', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
 # Add variable modifiers for profile variables
@@ -260,15 +260,15 @@ class Data_Filters:
     date_range          ['start_date','end_date'] where the dates are strings in
                         the format 'YYYY/MM/DD' or None to keep all profiles
     min_press           The minimum value of pressure to keep a profile
-    min_press_CT_max    The minimum value for the pressure at the conservative
+    min_press_TC_max    The minimum value for the pressure at the conservative
                         temperature maximum, above which profiles will be kept
-    min_press_CT_min    The maximum value for the pressure at the conservative
+    min_press_TC_min    The maximum value for the pressure at the conservative
                         temperature minimum, below which profiles will be kept
     clstr_labels        None to keep all cluster labels or a list of X lists, 
                         where X is the number of datasets, and each list contains
                         the cluster labels to keep from that dataset
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_CT_max=None, min_press_CT_min=None, clstr_labels=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_TC_max=None, min_press_TC_min=None, clstr_labels=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
@@ -276,8 +276,8 @@ class Data_Filters:
         self.lat_range = lat_range
         self.date_range = date_range
         self.min_press = min_press
-        self.min_press_CT_max = min_press_CT_max
-        self.min_press_CT_min = min_press_CT_min
+        self.min_press_TC_max = min_press_TC_max
+        self.min_press_TC_min = min_press_TC_min
         self.clstr_labels = clstr_labels
 
 ################################################################################
@@ -317,7 +317,7 @@ class Profile_Filters:
     sig_range           [sig_min, sig_max] where the values are floats in kg/m^3
     lon_range           [lon_min,lon_max] where the values are floats in degrees
     lat_range           [lat_min,lat_max] where the values are floats in degrees
-    lt_pCT_max          True/False whether to only keep points with p < p(CT_max)
+    lt_pTC_max          True/False whether to only keep points with p < p(TC_max)
     subsample           True/False whether to apply the subsample mask to the profiles
     every_nth_row       Integer n to keep every nth row in the dataframe
     regrid_TS           [1st_var_str, Delta_1st_var, 2nd_var_str, Delta_2nd_var], a pair of 
@@ -326,7 +326,7 @@ class Profile_Filters:
     m_avg_win           The value in dbar of the moving average window to take for ma_ variables
     clstrs_to_plot      A list of the cluster id's to plot
     """
-    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, sig_range=None, lon_range=None, lat_range=None, lt_pCT_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None, clstrs_to_plot=[]):
+    def __init__(self, p_range=None, d_range=None, iT_range=None, CT_range=None, PT_range=None, SP_range=None, SA_range=None, sig_range=None, lon_range=None, lat_range=None, lt_pTC_max=False, subsample=False, every_nth_row=1, regrid_TS=None, m_avg_win=None, clstrs_to_plot=[]):
         self.p_range = p_range
         self.d_range = d_range
         self.iT_range = iT_range
@@ -337,7 +337,7 @@ class Profile_Filters:
         self.sig_range = sig_range
         self.lon_range = lon_range
         self.lat_range = lat_range
-        self.lt_pCT_max = lt_pCT_max
+        self.lt_pTC_max = lt_pTC_max
         self.subsample = subsample
         self.every_nth_row = every_nth_row
         self.regrid_TS = regrid_TS
@@ -567,16 +567,16 @@ def apply_data_filters(xarrays, data_filters):
                 elim_list = [x for x in pf_list if x not in pf_list2]
                 print('p_max filter, # of profiles before:',len(pf_list),'after:',len(pf_list2),'difference:',len(pf_list)-len(pf_list2))#,'-',elim_list)
         #
-        #   Filter based on the value of pressure at CT_min
-        if not isinstance(data_filters.min_press_CT_min, type(None)):
-            print('Removing profiles with press_CT_min less than',data_filters.min_press_CT_min)
-            print('Before:',len(ds.prof_no.values))
-            ds = ds.where(ds.press_CT_min>=data_filters.min_press_CT_min, drop=True)#.squeeze()
-            print('After:',len(ds.prof_no.values))
+        #   Filter based on the value of pressure at TC_min
+        if not isinstance(data_filters.min_press_TC_min, type(None)):
+            print('Removing profiles with press_TC_min less than',data_filters.min_press_TC_min)
+            # print('Before:',len(ds.prof_no.values))
+            ds = ds.where(ds.press_TC_min>=data_filters.min_press_TC_min, drop=True)#.squeeze()
+            # print('After:',len(ds.prof_no.values))
         #
-        #   Filter based on the minimum value of pressure at CT_max
-        if not isinstance(data_filters.min_press_CT_max, type(None)):
-            ds = ds.where(ds.press_CT_max>=data_filters.min_press_CT_max, drop=True)#.squeeze()
+        #   Filter based on the minimum value of pressure at TC_max
+        if not isinstance(data_filters.min_press_TC_max, type(None)):
+            ds = ds.where(ds.press_TC_max>=data_filters.min_press_TC_max, drop=True)#.squeeze()
         #
         #   Filter to just certain cluster labels
         if isinstance(data_filters.clstr_labels, type(None)):
@@ -617,10 +617,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         # Check the plot scale
         #   This will include all the measurements within each profile
         if plt_params.plot_scale == 'by_vert':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'CT_min', 'press_CT_min', 'SA_CT_min', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_TC_max', 'press_TC_max', 'SA_TC_max', 'sig_TC_max', 'CT_TC_min', 'press_TC_min', 'SA_TC_min', 'sig_TC_min', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma']
         #   This will only include variables with 1 value per profile
         elif plt_params.plot_scale == 'by_pf':
-            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_max', 'press_CT_max', 'SA_CT_max', 'CT_min', 'press_CT_min', 'SA_CT_min', 'R_rho']
+            vars_to_keep = ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'CT_TC_max', 'press_TC_max', 'SA_TC_max', 'sig_TC_max', 'CT_TC_min', 'press_TC_min', 'SA_TC_min', 'sig_TC_min', 'R_rho']
         # print('vars_to_keep:')
         # print(vars_to_keep)
         return vars_to_keep
@@ -651,20 +651,24 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 # If marking the bounds of the thermocline
                 if key == 'mark_thermocline':
                     if pp.extra_args[key] == True:
-                        vars_to_keep.append('CT_max')
-                        vars_to_keep.append('press_CT_max')
-                        vars_to_keep.append('SA_CT_max')
-                        vars_to_keep.append('CT_min')
-                        vars_to_keep.append('press_CT_min')
-                        vars_to_keep.append('SA_CT_min')
+                        vars_to_keep.append('CT_TC_max')
+                        vars_to_keep.append('press_TC_max')
+                        vars_to_keep.append('SA_TC_max')
+                        vars_to_keep.append('sig_TC_max')
+                        vars_to_keep.append('CT_TC_min')
+                        vars_to_keep.append('press_TC_min')
+                        vars_to_keep.append('SA_TC_min')
+                        vars_to_keep.append('sig_TC_min')
                     elif pp.extra_args[key] == 'max':
-                        vars_to_keep.append('CT_max')
-                        vars_to_keep.append('press_CT_max')
-                        vars_to_keep.append('SA_CT_max')
+                        vars_to_keep.append('CT_TC_max')
+                        vars_to_keep.append('press_TC_max')
+                        vars_to_keep.append('SA_TC_max')
+                        vars_to_keep.append('sig_TC_max')
                     elif pp.extra_args[key] == 'min':
-                        vars_to_keep.append('CT_min')
-                        vars_to_keep.append('press_CT_min')
-                        vars_to_keep.append('SA_CT_min')
+                        vars_to_keep.append('CT_TC_min')
+                        vars_to_keep.append('press_TC_min')
+                        vars_to_keep.append('SA_TC_min')
+                        vars_to_keep.append('sig_TC_min')
                 # If adding isopycnals, make sure to keep press, SA, and iT to use with the 
                 #   function gsw.pot_rho_t_exact(SA,t,p,p_ref)
                 if key == 'isopycnals':
@@ -802,9 +806,9 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 vars_to_keep.append('SP')
             if not isinstance(profile_filters.SA_range, type(None)):
                 vars_to_keep.append('SA')
-            if profile_filters.lt_pCT_max:
+            if profile_filters.lt_pTC_max:
                 vars_to_keep.append('press')
-                vars_to_keep.append('press_CT_max')
+                vars_to_keep.append('press_TC_max')
             if profile_filters.subsample:
                 vars_to_keep.append('ss_mask')
             #
@@ -888,9 +892,9 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', 'sigma', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
             # print('\t- actually done filtering profile ranges')
-            # Filter to just pressures above p(CT_max)
-            if profile_filters.lt_pCT_max:
-                # print('\t- Applying lt_pCT_max filter')
+            # Filter to just pressures above p(TC_max)
+            if profile_filters.lt_pTC_max:
+                # print('\t- Applying lt_pTC_max filter')
                 # Get list of profiles
                 pfs = list(set(df['prof_no'].values))
                 # print(ds.Source,ds.Instrument,pfs)
@@ -899,8 +903,8 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 for pf in pfs:
                     # Find the data for just that profile
                     data_pf = df[df['prof_no'] == pf]
-                    # Filter the data frame to p < p(CT_max)
-                    data_pf = data_pf[data_pf['press'] < data_pf['press_CT_max'].values[0]]
+                    # Filter the data frame to p < p(TC_max)
+                    data_pf = data_pf[data_pf['press'] < data_pf['press_TC_max'].values[0]]
                     new_dfs.append(data_pf)
                 # Re-form the dataframe
                 try:
@@ -1700,8 +1704,8 @@ def print_profile_filters(pfs):
         return_string += ('Longitude range: ['+str(pfs.lon_range[0])+', '+str(pfs.lon_range[1])+'] ')
     if not isinstance(pfs.lat_range, type(None)): 
         return_string += ('Latitude range: ['+str(pfs.lat_range[0])+', '+str(pfs.lat_range[1])+'] ')
-    if pfs.lt_pCT_max: 
-        return_string += ('Pressures less than p(CT_max) ')
+    if pfs.lt_pTC_max: 
+        return_string += ('Pressures less than p(TC_max) ')
     if pfs.subsample: 
         return_string += ('Subsampled ')
     if not isinstance(pfs.regrid_TS, type(None)): 
@@ -2236,7 +2240,7 @@ def get_var_color(var):
             'BSt':'darkturquoise',
             'BSA':'darkturquoise'
             }
-    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_CT_max', 'press_CT_min']:
+    if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_TC_max', 'press_TC_min']:
         return std_clr
     elif var in ['iT', 'CT', 'PT', 'alpha']:
         return 'lightcoral'
@@ -2244,11 +2248,11 @@ def get_var_color(var):
         return 'cornflowerblue'
     elif var in ['sigma']:
         return 'mediumpurple'
-    elif var in ['CT_max', 'CT_min', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
+    elif var in ['CT_TC_max', 'CT_TC_min', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT']:
         return 'tab:red'
-    elif var in ['SA_CT_max', 'SA_CT_min', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
+    elif var in ['SA_TC_max', 'SA_TC_min', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA']:
         return 'tab:blue'
-    elif var in ['ma_sigma', 'la_sigma']:
+    elif var in ['ma_sigma', 'la_sigma', 'sigma_TC_max', 'sigma_TC_min']:
         return 'tab:purple'
     if var in var_clrs.keys():
         return var_clrs[var]
@@ -2282,13 +2286,13 @@ def get_color_map(cmap_var):
     #          'R_rho':'ocean',
     #          'density_hist':'inferno'
     #          }
-    # # if cmap_var in ['press', 'depth', 'press_CT_max']:
+    # # if cmap_var in ['press', 'depth', 'press_TC_max']:
     # if 'press' in cmap_var or 'depth' in cmap_var:
     #     return 'cividis'
-    # # elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_CT_max']:
+    # # elif cmap_var in ['SP', 'SA', 'beta', 'BSP', 'BSt', 'BSA', 'ma_SP', 'ma_SA', 'la_SP', 'la_SA', 'SA_TC_max']:
     # elif 'SP' in cmap_var or 'SA' in cmap_var or 'BS' in cmap_var or cmap_var=='beta':
     #     return 'Blues'
-    # # elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_max']:
+    # # elif cmap_var in ['iT', 'CT', 'PT', 'alpha', 'aiT', 'aCT', 'aPT', 'ma_iT', 'ma_CT', 'ma_PT', 'la_iT', 'la_CT', 'la_PT', 'CT_TC_max']:
     # elif 'iT' in cmap_var or 'CT' in cmap_var or 'PT' in cmap_var or cmap_var=='alpha':
     #     return 'Reds'
     # # elif cmap_var in ['sigma', 'ma_sigma', 'la_sigma']:
@@ -4251,30 +4255,40 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         profile_dfs.append(pf_df)
         # print(pf_df)
     # Set the keys for CT max markers
+    TC_max_key = False
+    TC_min_key = False
+    tw_TC_max_key = False
+    tw_TC_min_key = False
     if mark_thermocline:
-        if x_key == 'CT':
-            CT_max_key = 'CT_max'
-            CT_min_key = 'CT_min'
-        elif x_key == 'SA':
-            CT_max_key = 'SA_CT_max'
-            CT_min_key = 'SA_CT_min'
-        else:
-            CT_max_key = False
-            CT_min_key = False
-        if tw_x_key == 'CT':
-            tw_CT_max_key = 'CT_max'
-            tw_CT_min_key = 'CT_min'
-        elif tw_x_key == 'SA':
-            tw_CT_max_key = 'SA_CT_max'
-            tw_CT_min_key = 'SA_CT_min'
-        else:
-            tw_CT_max_key = False
-            tw_CT_min_key = False
-    else:
-        CT_max_key = False
-        CT_min_key = False
-        tw_CT_max_key = False
-        tw_CT_min_key = False
+        print('\t- Marking thermocline')
+        if mark_thermocline in [True, 'max']:
+            if x_key == 'CT':
+                TC_max_key = 'CT_TC_max'
+            elif x_key == 'SA':
+                TC_max_key = 'SA_TC_max'
+            elif x_key == 'sigma':
+                TC_max_key = 'sigma_TC_max'
+            if tw_x_key == 'CT':
+                tw_TC_max_key = 'TC_max'
+            elif tw_x_key == 'SA':
+                tw_TC_max_key = 'SA_TC_max'
+            elif tw_x_key == 'sigma':
+                tw_TC_max_key = 'sigma_TC_max'
+        if mark_thermocline in [True, 'min']:
+            if x_key == 'CT':
+                TC_min_key = 'CT_TC_min'
+            elif x_key == 'SA':
+                TC_min_key = 'SA_TC_min'
+            elif x_key == 'sigma':
+                TC_min_key = 'sigma_TC_min'
+            if tw_x_key == 'CT':
+                tw_TC_min_key = 'TC_min'
+            elif tw_x_key == 'SA':
+                tw_TC_min_key = 'SA_TC_min'
+            elif tw_x_key == 'sigma':
+                tw_TC_min_key = 'sigma_TC_min'
+            #
+        #
     #
     # Check to see whether any profiles were actually loaded
     n_pfs = len(profile_dfs)
@@ -4309,11 +4323,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Pull data to plot
             xvar = pf_df[x_key]
             # Find CT max if applicable
-            if CT_max_key:
-                CT_max = np.unique(np.array(pf_df[CT_max_key].values))
+            if TC_max_key:
+                TC_max = np.unique(np.array(pf_df[TC_max_key].values))
             # Find CT min if applicable
-            if CT_min_key:
-                CT_min = np.unique(np.array(pf_df[CT_min_key].values))
+            if TC_min_key:
+                TC_min = np.unique(np.array(pf_df[TC_min_key].values))
             # Find upper and lower bounds of first profile, for reference points
             xvar_low  = min(xvar)
             xvar_high = max(xvar)
@@ -4326,10 +4340,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             # Find upper and lower bounds of first profile for twin axis
             if tw_x_key:
                 tvar = pf_df[tw_x_key]
-                if tw_CT_max_key:
-                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values))
-                if tw_CT_min_key:
-                    tw_CT_min = np.unique(np.array(pf_df[tw_CT_min_key].values))
+                if tw_TC_max_key:
+                    tw_TC_max = np.unique(np.array(pf_df[tw_TC_max_key].values))
+                if tw_TC_min_key:
+                    tw_TC_min = np.unique(np.array(pf_df[tw_TC_min_key].values))
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
                 tw_span   = abs(twin_high - twin_low)
@@ -4341,13 +4355,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 right_bound = xvar_high - norm_pf_diff*xv_span
                 tw_left_bound = twin_low + norm_pf_diff*tw_span
                 # Find index of largest x value
-                # CT_max_idx = np.argmax(xvar)
+                # TC_max_idx = np.argmax(xvar)
                 # Find value of twin profile at that index
                 # tw_xvar_max = tvar[xvar_max_idx]
                 tw_x_pad = tw_span/15
             else:
                 tvar = None
-                tw_CT_max = None
+                tw_TC_max = None
                 right_bound = xvar_high
             #
         # Adjust the starting points of each subsequent profile
@@ -4360,10 +4374,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             old_xv_span = xv_span
             # Find array of data for this profile
             xvar = pf_df[x_key] - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
-            if CT_max_key:
-                CT_max = np.unique(np.array(pf_df[CT_max_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
-            if CT_min_key:
-                CT_min = np.unique(np.array(pf_df[CT_min_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
+            if TC_max_key:
+                TC_max = np.unique(np.array(pf_df[TC_max_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
+            if TC_min_key:
+                TC_min = np.unique(np.array(pf_df[TC_min_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
             # Find new upper and lower bounds of profile
             xvar_high = max(xvar)
             xvar_low  = min(xvar)
@@ -4372,17 +4386,17 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             if tw_x_key:
                 tw_shift = 1#0.8
                 xvar = xvar + old_xv_span*tw_shift
-                if CT_max_key:
-                    CT_max = CT_max + old_xv_span*tw_shift
-                if CT_min_key:
-                    CT_min = CT_min + old_xv_span*tw_shift
+                if TC_max_key:
+                    TC_max = TC_max + old_xv_span*tw_shift
+                if TC_min_key:
+                    TC_min = TC_min + old_xv_span*tw_shift
                 xvar_high = max(xvar)
                 xvar_low = min(xvar)
                 tvar = pf_df[tw_x_key] - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
-                if tw_CT_max_key:
-                    tw_CT_max = np.unique(np.array(pf_df[tw_CT_max_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
-                if tw_CT_min_key:
-                    tw_CT_min = np.unique(np.array(pf_df[tw_CT_min_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
+                if tw_TC_max_key:
+                    tw_TC_max = np.unique(np.array(pf_df[tw_TC_max_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
+                if tw_TC_min_key:
+                    tw_TC_min = np.unique(np.array(pf_df[tw_TC_min_key].values)) - min(pf_df[tw_x_key])*shift_pfs + twin_low*shift_pfs + tw_span*tw_shift
                 # 
                 twin_low  = min(tvar)
                 twin_high = max(tvar)
@@ -4400,13 +4414,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 # tw_xvar_max = tvar[xvar_max_idx]
             else:
                 tvar = None
-                tw_CT_max = None
+                tw_TC_max = None
                 # Shift things over
                 xvar = xvar + old_xv_span*0.45*shift_pfs
-                if CT_max_key:
-                    CT_max = CT_max + old_xv_span*0.45*shift_pfs
-                if CT_min_key:
-                    CT_min = CT_min + old_xv_span*0.45*shift_pfs
+                if TC_max_key:
+                    TC_max = TC_max + old_xv_span*0.45*shift_pfs
+                if TC_min_key:
+                    TC_min = TC_min + old_xv_span*0.45*shift_pfs
                 xvar_low = min(xvar)
                 xvar_high = max(xvar)
                 right_bound = max(xvar_high, right_bound)
@@ -4454,25 +4468,25 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 # Plot every point the same color, size, and marker
                 ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
-            if CT_max_key:
-                press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
-                print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
-                ax.scatter(CT_max, press_CT_max, color=var_clr, s=pf_mrk_size*5, marker='^', zorder=5)
-            if CT_min_key:
-                press_CT_min = np.unique(np.array(pf_df['press_CT_min'].values))
-                print('\t- Plotting CT_min:',CT_min,'press_CT_min:',press_CT_min)
-                ax.scatter(CT_min, press_CT_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+            if TC_max_key:
+                press_TC_max = np.unique(np.array(pf_df['press_TC_max'].values))
+                print('\t- Plotting TC_max:',TC_max,'press_TC_max:',press_TC_max)
+                ax.scatter(TC_max, press_TC_max, color=var_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+            if TC_min_key:
+                press_TC_min = np.unique(np.array(pf_df['press_TC_min'].values))
+                print('\t- Plotting TC_min:',TC_min,'press_TC_min:',press_TC_min)
+                ax.scatter(TC_min, press_TC_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
                 if plot_pts:
                     tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
-                if CT_max_key:
-                    print('\t- Plotting tw_CT_max:',tw_CT_max,'press_CT_max:',press_CT_max)
-                    tw_ax_y.scatter(tw_CT_max, press_CT_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
-                if CT_min_key:
-                    print('\t- Plotting tw_CT_min:',tw_CT_min,'press_CT_min:',press_CT_min)
-                    tw_ax_y.scatter(tw_CT_min, press_CT_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+                if TC_max_key:
+                    print('\t- Plotting tw_TC_max:',tw_TC_max,'press_TC_max:',press_TC_max)
+                    tw_ax_y.scatter(tw_TC_max, press_TC_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                if TC_min_key:
+                    print('\t- Plotting tw_TC_min:',tw_TC_min,'press_TC_min:',press_TC_min)
+                    tw_ax_y.scatter(tw_TC_min, press_TC_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
@@ -4648,11 +4662,11 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     cluster_this = False
     # Set the keys for CT max markers
     if x_key == 'CT':
-        CT_max_key = 'CT_max'
+        TC_max_key = 'CT_TC_max'
     elif x_key == 'SA':
-        CT_max_key = 'SA_CT_max'
+        TC_max_key = 'SA_TC_max'
     else:
-        CT_max_key = False
+        TC_max_key = False
     #   Find all the plotting variables
     plot_vars = [x_key,y_key,clr_map]
     for var in plot_vars:
@@ -4836,10 +4850,10 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                 # Plot every point the same color, size, and marker
                 ax.scatter(pf_df[x_key], pf_df[z_key], zs=pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
             # Plot maximum
-            if False:#CT_max_key:
-                press_CT_max = np.unique(np.array(pf_df['press_CT_max'].values))
-                print('\t- Plotting CT_max:',CT_max,'press_CT_max:',press_CT_max)
-                ax.scatter(CT_max, press_CT_max, zs=pf_df[y_key][0], color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
+            if False:#TC_max_key:
+                press_TC_max = np.unique(np.array(pf_df['press_TC_max'].values))
+                print('\t- Plotting TC_max:',TC_max,'press_TC_max:',press_TC_max)
+                ax.scatter(TC_max, press_TC_max, zs=pf_df[y_key][0], color=var_clr, s=pf_mrk_size*5, marker='*', zorder=5)
             # Plot on twin axes, if specified
             #
         if clr_map == 'cluster':

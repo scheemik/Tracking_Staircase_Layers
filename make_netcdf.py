@@ -62,10 +62,10 @@ doi = 'No DOI yet'
 
 # Choose pressure value
 # To avoid the surface layer, I only consider pressures below this value when
-#   calculating the max/min Conservative Temperature (CT_max/CT_min) and the
-#   pressure/salinity at which these values occur (press_CT_max/press_CT_min/SA_CT_max/SA_CT_min)
-press_CT_max_threshold = 5
-press_SL_threshold = 50
+#   calculating the max/min of the thermocline in temperature/salinity/pressure
+#   i.e., CT_TC_max, CT_TC_min, SA_TC_max, SA_TC_min, press_TC_max, press_TC_min
+press_TC_max_threshold = 5
+press_SL_threshold = 100
 
 # Choose type of float to store
 float_dtype = 'float32'
@@ -121,12 +121,12 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
     list_of_up_casts        = []
     list_of_press_maxs      = []
     list_of_press_mins      = []
-    list_of_CT_maxs         = []
-    list_of_CT_mins         = []
-    list_of_press_CT_maxs   = []
-    list_of_press_CT_mins   = []
-    list_of_SA_CT_maxs      = []
-    list_of_SA_CT_mins      = []
+    list_of_CT_TC_maxs      = []
+    list_of_CT_TC_mins      = []
+    list_of_press_TC_maxs   = []
+    list_of_press_TC_mins   = []
+    list_of_SA_TC_maxs      = []
+    list_of_SA_TC_mins      = []
     list_of_press_arrs      = []
     list_of_depth_arrs      = []
     list_of_iT_arrs         = []
@@ -162,12 +162,12 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                     list_of_up_casts.append(out_dict['up_cast'])
                     list_of_press_maxs.append(out_dict['press_max'])
                     list_of_press_mins.append(out_dict['press_min'])
-                    list_of_CT_maxs.append(out_dict['CT_max'])
-                    list_of_CT_mins.append(out_dict['CT_min'])
-                    list_of_press_CT_maxs.append(out_dict['press_CT_max'])
-                    list_of_press_CT_mins.append(out_dict['press_CT_min'])
-                    list_of_SA_CT_maxs.append(out_dict['SA_CT_max'])
-                    list_of_SA_CT_mins.append(out_dict['SA_CT_min'])
+                    list_of_CT_TC_maxs.append(out_dict['CT_TC_max'])
+                    list_of_CT_TC_mins.append(out_dict['CT_TC_min'])
+                    list_of_press_TC_maxs.append(out_dict['press_TC_max'])
+                    list_of_press_TC_mins.append(out_dict['press_TC_min'])
+                    list_of_SA_TC_maxs.append(out_dict['SA_TC_max'])
+                    list_of_SA_TC_mins.append(out_dict['SA_TC_min'])
                     list_of_press_arrs.append(out_dict['press'])
                     list_of_depth_arrs.append(out_dict['depth'])
                     list_of_iT_arrs.append(out_dict['iT'])
@@ -326,63 +326,83 @@ def read_instrmt(source, instrmt_name, instrmt_dir, out_file):
                             'dtype':float_dtype
                         }
                 ),
-                'CT_max':(
+                'CT_TC_max':(
                         ['Time'],
-                        np.array(list_of_CT_maxs, dtype=np_float_type),
+                        np.array(list_of_CT_TC_maxs, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
-                            'label':'$\Theta_{max}$ ($^\circ$C)',
-                            'long_name':'Maximum Sub-Surface Layer Conservative Temperature',
+                            'label':'$\Theta_{TC,max}$ ($^\circ$C)',
+                            'long_name':'Maximum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
-                'CT_min':(
+                'CT_TC_min':(
                         ['Time'],
-                        np.array(list_of_CT_mins, dtype=np_float_type),
+                        np.array(list_of_CT_TC_mins, dtype=np_float_type),
                         {
                             'units':'degrees Celcius',
-                            'label':'$\Theta_{min}$ ($^\circ$C)',
-                            'long_name':'Minimum Sub-Surface Layer Conservative Temperature',
+                            'label':'$\Theta_{TC,min}$ ($^\circ$C)',
+                            'long_name':'Minimum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
-                'press_CT_max':(
+                'press_TC_max':(
                         ['Time'],
-                        np.array(list_of_press_CT_maxs, dtype=np_float_type),
+                        np.array(list_of_press_TC_maxs, dtype=np_float_type),
                         {
                             'units':'dbar',
-                            'label':'$p(\Theta_{max})$ (dbar)',
-                            'long_name':'Pressure at Maximum Sub-Surface Layer Conservative Temperature',
+                            'label':'$p(\Theta_{TC,max})$ (dbar)',
+                            'long_name':'Pressure at Maximum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
-                'press_CT_min':(
+                'press_TC_min':(
                         ['Time'],
-                        np.array(list_of_press_CT_mins, dtype=np_float_type),
+                        np.array(list_of_press_TC_mins, dtype=np_float_type),
                         {
                             'units':'dbar',
-                            'label':'$p(\Theta_{min})$ (dbar)',
-                            'long_name':'Pressure at Minimum Sub-Surface Layer Conservative Temperature',
+                            'label':'$p(\Theta_{TC,min})$ (dbar)',
+                            'long_name':'Pressure at Minimum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
-                'SA_CT_max':(
+                'SA_TC_max':(
                         ['Time'],
-                        np.array(list_of_SA_CT_maxs, dtype=np_float_type),
+                        np.array(list_of_SA_TC_maxs, dtype=np_float_type),
                         {
                             'units':'g/kg',
-                            'label':'$S_A(\Theta_{max})$ (g/kg)',
-                            'long_name':'Absolute Salinity at Maximum Sub-Surface Layer Conservative Temperature',
+                            'label':'$S_A(\Theta_{TC,max})$ (g/kg)',
+                            'long_name':'Absolute Salinity at Maximum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
-                'SA_CT_min':(
+                'SA_TC_min':(
                         ['Time'],
-                        np.array(list_of_SA_CT_mins, dtype=np_float_type),
+                        np.array(list_of_SA_TC_mins, dtype=np_float_type),
                         {
                             'units':'g/kg',
-                            'label':'$S_A(\Theta_{min})$ (g/kg)',
-                            'long_name':'Absolute Salinity at Minimum Sub-Surface Layer Conservative Temperature',
+                            'label':'$S_A(\Theta_{TC,min})$ (g/kg)',
+                            'long_name':'Absolute Salinity at Minimum Thermocline Conservative Temperature',
+                            'dtype':float_dtype
+                        }
+                ),
+                'sig_TC_max':(
+                        ['Time'],
+                        np.array(gsw.sigma1(list_of_SA_TC_maxs, list_of_CT_TC_maxs), dtype=np_float_type),
+                        {
+                            'units':'kg/m^3',
+                            'label':'$\sigma_1(\Theta_{TC,max})$ (kg/m$^3$)',
+                            'long_name':'Density anomaly at Maximum Thermocline Conservative Temperature',
+                            'dtype':float_dtype
+                        }
+                ),
+                'sig_TC_min':(  
+                        ['Time'],
+                        np.array(gsw.sigma1(list_of_SA_TC_mins, list_of_CT_TC_mins), dtype=np_float_type),
+                        {
+                            'units':'kg/m^3',
+                            'label':'$\sigma_1(\Theta_{TC,min})$ (kg/m$^3$)',
+                            'long_name':'Density anomaly at Minimum Thermocline Conservative Temperature',
                             'dtype':float_dtype
                         }
                 ),
@@ -881,37 +901,37 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         try:
             # Find maximum pressure value
             press_max = max(non_nan_press0)
-            # Get index of CT_max
-            i_CT_max = np.where(CT1 == max(non_nan_CT1))[0][0]
-            # Get values of CT_max, press_CT_max, and SA_CT_max
-            CT_max = CT1[i_CT_max]
-            press_CT_max = press0[i_CT_max]
-            SA_CT_max = SA1[i_CT_max]
+            # Get index of CT_TC_max
+            i_CT_TC_max = np.where(CT1 == max(non_nan_CT1))[0][0]
+            # Get values of CT_TC_max, press_TC_max, and SA_TC_max
+            CT_TC_max = CT1[i_CT_TC_max]
+            press_TC_max = press0[i_CT_TC_max]
+            SA_TC_max = SA1[i_CT_TC_max]
         except:
-            print('\t\t- Cannot compute press_max, CT_max, etc. for ITP',instrmt,'profile',prof_no)
+            print('\t\t- Cannot compute press_max, CT_TC_max, etc. for ITP',instrmt,'profile',prof_no)
             press_max = None
-            CT_max = None
-            press_CT_max = None
-            SA_CT_max = None
+            CT_TC_max = None
+            press_TC_max = None
+            SA_TC_max = None
         # Get pressure minimum and the index of the minimum conservative temperature
         try:
             # Find minimum pressure value
             press_min = min(non_nan_press0)
             if press_min == press_max:
                 press_min = None
-            # Get index of CT_min, making sure it occurs at a lower pressure than p(CT_max)
-            non_nan_CT1_above_press_CT_max = non_nan_CT1[non_nan_press0 < press_CT_max]
-            i_CT_min = np.where(CT1 == min(non_nan_CT1_above_press_CT_max))[0][0]
-            # Get values of CT_max, press_CT_max, and SA_CT_max
-            CT_min = CT1[i_CT_min]
-            press_CT_min = press0[i_CT_min]
-            SA_CT_min = SA1[i_CT_min]
+            # Get index of TC_min, making sure it occurs at a lower pressure than p(CT_TC_max)
+            non_nan_CT1_above_press_TC_max = non_nan_CT1[non_nan_press0 < press_TC_max]
+            i_CT_TC_min = np.where(CT1 == min(non_nan_CT1_above_press_TC_max))[0][0]
+            # Get values of TC_max, press_TC_max, and SA_TC_max
+            CT_TC_min = CT1[i_CT_TC_min]
+            press_TC_min = press0[i_CT_TC_min]
+            SA_TC_min = SA1[i_CT_TC_min]
         except:
-            print('\t\t- Cannot compute press_min, CT_min, etc. for ITP',instrmt,'profile',prof_no)
+            print('\t\t- Cannot compute press_min, CT_TC_min, etc. for ITP',instrmt,'profile',prof_no)
             press_min = None
-            CT_min = None
-            press_CT_min = None
-            SA_CT_min = None
+            CT_TC_min = None
+            press_TC_min = None
+            SA_TC_min = None
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -923,12 +943,12 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
                     'up_cast': up_cast,
                     'press_max': press_max,
                     'press_min': press_min,
-                    'CT_max':CT_max,
-                    'CT_min':CT_min,
-                    'press_CT_max':press_CT_max,
-                    'press_CT_min':press_CT_min,
-                    'SA_CT_max':SA_CT_max,
-                    'SA_CT_min':SA_CT_min,
+                    'CT_TC_max':CT_TC_max,
+                    'CT_TC_min':CT_TC_min,
+                    'press_TC_max':press_TC_max,
+                    'press_TC_min':press_TC_min,
+                    'SA_TC_max':SA_TC_max,
+                    'SA_TC_min':SA_TC_min,
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -1002,11 +1022,11 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         # Get the index of the maximum conservative temperature
         try:
             # Get just the part of the CT1 array where press0 is greater
-            #   than press_CT_max_threshold
-            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
-            i_CT_max = np.nanargmax(temp_CT)
+            #   than press_TC_max_threshold
+            temp_CT = np.ma.masked_where(press0 < press_TC_max_threshold, CT1)
+            i_TC_max = np.nanargmax(temp_CT)
         except:
-            i_CT_max = 0
+            i_TC_max = 0
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -1017,9 +1037,9 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
                     'region': reg,
                     'up_cast': up_cast,
                     'press_max': press_max,
-                    'CT_max':CT1[i_CT_max],
-                    'press_CT_max':press0[i_CT_max],
-                    'SA_CT_max':SA1[i_CT_max],
+                    'TC_max':CT1[i_TC_max],
+                    'press_TC_max':press0[i_TC_max],
+                    'SA_TC_max':SA1[i_TC_max],
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -1209,11 +1229,11 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
     # Get the index of the maximum conservative temperature
     try:
         # Get just the part of the CT1 array where press0 is greater
-        #   than press_CT_max_threshold
-        temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
-        i_CT_max = np.nanargmax(temp_CT)
+        #   than press_TC_max_threshold
+        temp_CT = np.ma.masked_where(press0 < press_TC_max_threshold, CT1)
+        i_TC_max = np.nanargmax(temp_CT)
     except:
-        i_CT_max = 0
+        i_TC_max = 0
     # If there is data to be put into a dictionary...
     if len(press0) > 1:
         # Many SHEBA profiles contain both up and down casts, so just mark
@@ -1229,9 +1249,9 @@ def read_SHEBA_data_file(file_path, file_name, instrmt):
                     'region': reg,
                     'up_cast': up_cast,
                     'press_max': press_max,
-                    'CT_max':CT1[i_CT_max],
-                    'press_CT_max':press0[i_CT_max],
-                    'SA_CT_max':SA1[i_CT_max],
+                    'TC_max':CT1[i_TC_max],
+                    'press_TC_max':press0[i_TC_max],
+                    'SA_TC_max':SA1[i_TC_max],
                     'press': press0,
                     'depth': depth,
                     'iT': iT0,
@@ -1346,11 +1366,11 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
         # Get the index of the maximum conservative temperature
         try:
             # Get just the part of the CT1 array where press0 is greater
-            #   than press_CT_max_threshold
-            temp_CT = np.ma.masked_where(press0 < press_CT_max_threshold, CT1)
-            i_CT_max = np.nanargmax(temp_CT)
+            #   than press_TC_max_threshold
+            temp_CT = np.ma.masked_where(press0 < press_TC_max_threshold, CT1)
+            i_TC_max = np.nanargmax(temp_CT)
         except:
-            i_CT_max = 0
+            i_TC_max = 0
         # Create output dictionary for this profile
         out_dict = {'prof_no': prof_no,
                     'black_list': on_black_list,
@@ -1361,9 +1381,9 @@ def read_AIDJEX_data_file(file_path, file_name, instrmt):
                     'region': reg,
                     'up_cast': up_cast,
                     'press_max': press_max,
-                    'CT_max':CT1[i_CT_max],
-                    'press_CT_max':press0[i_CT_max],
-                    'SA_CT_max':SA1[i_CT_max],
+                    'TC_max':CT1[i_TC_max],
+                    'press_TC_max':press0[i_TC_max],
+                    'SA_TC_max':SA1[i_TC_max],
                     'press': press0,
                     'depth': depth0,
                     'iT': iT0,
