@@ -456,37 +456,10 @@ if False:
     # ahf.find_max_distance([group_BGR_map_by_date])
 
 ################################################################################
-## Isopycnal tracking
+## Tracking the top and bottom of the thermocline
 ################################################################################
-# For these plots, I'm specifically not using a pre-clustered file so that I can
-#   use all the points (including noise) to track isopycnals
-
-# Plotting density on a pressure vs. time plot
-if False:
-    print('')
-    print('- Creating test plots of sigma')
-    lat_lon_groups_to_plot = []
-    hist_groups_to_plot = []
-    press_vs_time_uncorr = []
-    press_vs_time_corrtd = []
-    sig_ranges = [[32.3325, 32.33], [32.335, 32.33], [32.34, 32.33]]
-    for this_sig_range in sig_ranges:
-        that_title = r'$\sigma_1=[$'+str(min(this_sig_range))+r', '+str(max(this_sig_range))+r'$]$'
-        # Make profile filters
-        pfs_sigma_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, sig_range=this_sig_range)
-        # Make the Plot Parameters
-        pp_lat_lon_sigma = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'plot_slopes':True, 'extra_vars_to_keep':['sigma']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
-        pp_sigma_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':['sigma']})
-        pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma']})
-        pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma'], 'fit_vars':['lon','lat']})
-        # Make the subplot groups
-        # lat_lon_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_lat_lon_sigma, plot_title=that_title))
-        # hist_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_sigma_hist, plot_title=that_title))
-        press_vs_time_uncorr.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_p_v_lat, plot_title=r'Uncorrected '+that_title))
-        press_vs_time_corrtd.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_minus_fit, plot_title=r'Corrected '+that_title))
-    # Make the figure
-    # ahf.make_figure(lat_lon_groups_to_plot + hist_groups_to_plot)
-    ahf.make_figure(press_vs_time_uncorr + press_vs_time_corrtd)
+# For these plots, I'm specifically not using a pre-clustered file because the 
+#   thermocline lies outside the salinity range I used when clustering the data
 
 # Tracking press_max, press_TC_max, and CT_TC_max over time
 if False:
@@ -538,7 +511,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_TC_min_v_time, group_TC_max_v_time], row_col_list=[2,1, 0.45, 1.4])
 # Density histograms of the top and bottom of the thermocline
-if True:
+if False:
     print('')
     print('- Creating histograms of sigma(TC_max/TC_min) over time')
     # Make the Plot Parameters
@@ -549,6 +522,85 @@ if True:
     group_sig_TC_max_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_max_hist, plot_title=this_BGR)
     # Make the figure
     ahf.make_figure([group_sig_TC_min_hist, group_sig_TC_max_hist])
+
+################################################################################
+## Isopycnal tracking
+################################################################################
+# For these plots, I'm specifically not using a pre-clustered file so that I can
+#   use all the points (including noise) to track isopycnals
+
+def get_iso_sig_ranges(iso_sig_values, iso_sig_width):
+    """
+    Get the ranges of sigma values that correspond to the given isopycnals using 
+    the given width
+
+    iso_sig_values      list of floats, The isopycnal values to use
+    iso_sig_width       float, The width to make the isopycnals
+    """
+    sig_ranges = []
+    for this_sig in iso_sig_values:
+        sig_ranges.append([this_sig+iso_sig_width, this_sig-iso_sig_width])
+    return sig_ranges
+
+# Plotting density on a pressure vs. time plot, testing different widths of isopycnals
+if False:
+    print('')
+    print('- Creating test plots of sigma')
+    lat_lon_groups_to_plot = []
+    hist_groups_to_plot = []
+    press_vs_time_uncorr = []
+    press_vs_time_corrtd = []
+    sig_vals_widths = [[32.33, 0.00125], [32.33, 0.0025], [32.33, 0.005]]
+    # exit(0)
+    for this_sig_val_width in sig_vals_widths:
+        # Make the title
+        this_sig_val   = this_sig_val_width[0]
+        this_sig_width = this_sig_val_width[1]
+        that_title = r'$\sigma_1=$'+str(this_sig_val)+r', $\Delta\sigma_1=$'+str(this_sig_width)
+        # Make profile filters
+        pfs_sigma_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, sig_range=get_iso_sig_ranges([this_sig_val], this_sig_width)[0])
+        # Make the Plot Parameters
+        pp_lat_lon_sigma = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'plot_slopes':True, 'extra_vars_to_keep':['sigma']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR})
+        pp_sigma_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':['sigma']})
+        pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma']})
+        pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma'], 'fit_vars':['lon','lat']})
+        # Make the subplot groups
+        # lat_lon_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_lat_lon_sigma, plot_title=that_title))
+        # hist_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_sigma_hist, plot_title=that_title))
+        press_vs_time_uncorr.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_p_v_lat, plot_title=r'Uncorrected '+that_title))
+        press_vs_time_corrtd.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_minus_fit, plot_title=r'Corrected '+that_title))
+    # Make the figure
+    # ahf.make_figure(lat_lon_groups_to_plot + hist_groups_to_plot)
+    ahf.make_figure(press_vs_time_uncorr + press_vs_time_corrtd)
+
+# The isopycnals that correspond to the top and bottom of the thermocline
+iso_TC_min_val = 31.45
+iso_TC_min_width = 0.075
+iso_TC_max_val = 32.608
+iso_TC_max_width = 0.006
+# Tracking the isopycnals that correspond to the top and bottom of the thermocline
+if True:
+    print('')
+    print('- Tracking the isopycnals that correspond to the top and bottom of the thermocline')
+    TC_groups_to_plot = []
+    sig_vals_widths = [[iso_TC_min_val, iso_TC_min_width, 'Top of Thermocline'], [iso_TC_max_val, iso_TC_max_width, 'Bottom of Thermocline']]
+    for i in range(len(sig_vals_widths)):
+        # Make the title
+        this_sig_val   = sig_vals_widths[i][0]
+        this_sig_width = sig_vals_widths[i][1]
+        that_title = r'$\sigma_1=$'+str(this_sig_val)+r', $\Delta\sigma_1=$'+str(this_sig_width)
+        # Make profile filters
+        pfs_sigma_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], lt_pTC_max=True, sig_range=get_iso_sig_ranges([this_sig_val], this_sig_width)[0])
+        # Make the Plot Parameters
+        pp_iso_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=True, extra_args={'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma']})
+        pp_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'plot_slopes':True, 'extra_vars_to_keep':['sigma']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+        pp_iso_vs_time_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=True, extra_args={'plot_slopes':'OLS', 'extra_vars_to_keep':['sigma'], 'fit_vars':['lon','lat']})
+        # Make the subplot groups
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_iso_vs_time, plot_title=r'Uncorrected '+that_title))
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_fit, plot_title=sig_vals_widths[i][2]+' '+this_BGR))
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_sigma_test, pp_iso_vs_time_minus_fit, plot_title=r'Corrected '+that_title))
+    # Make the figure
+    ahf.make_figure(TC_groups_to_plot)
 
 ################################################################################
 ## Density ratio plots
@@ -586,7 +638,7 @@ if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
-    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='instrmt')
+    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_all_same')
     # Make the subplot groups
     group_SA_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_SA_vs_time)
     # Make the figure
