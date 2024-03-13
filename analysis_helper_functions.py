@@ -104,6 +104,7 @@ jackson_clr = np.array(["#000000",  #  0 black
 if dark_mode:
     plt.style.use('dark_background')
     std_clr = 'w'
+    bg_clr = 'k'
     alt_std_clr = 'yellow'
     noise_clr = 'w'
     cnt_clr = '#db6d00'
@@ -114,6 +115,7 @@ if dark_mode:
     bathy_clrs = ['#000040','k']
 else:
     std_clr = 'k'
+    bg_clr = 'w'
     alt_std_clr = 'olive'
     noise_clr = 'k'
     cnt_clr = "#ffff6d"
@@ -168,6 +170,7 @@ std_marker = '.'
 map_marker = '.' #'x'
 map_ln_wid = 0.5
 l_cap_size = 3.0
+anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.5)
 
 # The magnitude limits for axis ticks before they use scientific notation
 sci_lims = (-2,3)
@@ -767,7 +770,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
             # Check for variables for which to normalize by subtracting a polyfit2d
             #   ex: `press-fit`
             if '-' in var:
-                print('this - var:',var)
+                # print('this - var:',var)
                 # Split the prefix from the original variable (assumes a hyphen split)
                 split_var = var.split('-', 1)
                 var_str = split_var[0]
@@ -2452,7 +2455,7 @@ def add_h_scale_bar(ax, ax_lims, unit="", clr=std_clr, tw_clr=False):
     # Plot bar ends
     ax.scatter([sb_x_min,sb_x_max], [sb_y_val,sb_y_val], color=h_bar_clr, marker='|')
     # Annotate the bar length
-    ax.annotate(r'%.3f'%(bar_len)+unit, xy=(sb_x_min+(sb_x_max-sb_x_min)/2, sb_y_val+y_span/16), ha='center', xycoords='data', color=h_bar_clr, zorder=12)
+    ax.annotate(r'%.3f'%(bar_len)+unit, xy=(sb_x_min+(sb_x_max-sb_x_min)/2, sb_y_val+y_span/16), ha='center', xycoords='data', color=h_bar_clr, bbox=anno_bbox, zorder=12)
     # Turn off the x tick labels
     ax.set_xticklabels([])
 
@@ -3514,7 +3517,7 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
     else:
         annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
-    ax.annotate(annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', zorder=12)
+    ax.annotate(annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -5921,7 +5924,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                         annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
                     else:
                         annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
-                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
                 else:
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
@@ -5942,7 +5945,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             y_span = abs(y_bnds[1] - y_bnds[0])
             # Add line at R_L = -1
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
-            ax.annotate(r'$IR_{S_P}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, zorder=12)
+            ax.annotate(r'$IR_{S_P}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
         # Add some lines if plotting cRL
         if 'cRL' in [x_key, y_key]:
             # Get bounds of axes
@@ -5984,7 +5987,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
                     ann_x_loc = x_mean+0.5*x_stdv
                     ann_x_loc = min(x_bnds) + (1/30)*x_span
-                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
                     # Limit the y axis
                     ax.set_ylim((y_bnds[0],y_bnds[1]))
                 # Plot exponential fit line
@@ -6007,7 +6010,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     # Add annotation to say what the line is
                     # line_label = "$%.2f\\ln(-R_L)+%.2f $"%(m,c)
                     line_label = "$R_L = -\exp( %.2f - p/ %.2f )$"%(c/abs(m),abs(m))
-                    ax.annotate(line_label, xy=(x_mean+2*x_stdv,y_mean+y_stdv), xycoords='data', color=alt_std_clr, weight='bold', zorder=12)
+                    ax.annotate(line_label, xy=(x_mean+2*x_stdv,y_mean+y_stdv), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
                     # Limit the y axis
                     ax.set_ylim((y_bnds[1],y_bnds[0]))
                 #
