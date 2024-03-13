@@ -579,7 +579,7 @@ iso_TC_min_width = 0.075
 iso_TC_max_val = 32.608
 iso_TC_max_width = 0.006
 # Tracking the isopycnals that correspond to the top and bottom of the thermocline
-if True:
+if False:
     print('')
     print('- Tracking the isopycnals that correspond to the top and bottom of the thermocline')
     TC_groups_to_plot = []
@@ -911,6 +911,30 @@ if False:
     # group_example_profiles3 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_map, plot_title='')
     # # Make the figure
     # ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3], use_same_y_axis=False)
+
+################################################################################
+## Separating profiles from an example area by instrument
+################################################################################
+# Selecting the example area
+if False:
+    print('')
+    print('- Creating a map showing the example area')
+    # Make the Plot Parameters
+    pp_ex_area_map = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Western_Arctic'}, legend=True)
+    # Make the Analysis Groups pfs_BGR1 pfs_0
+    group_ex_area_map = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_ex_area_map)
+    # Make the figure
+    ahf.make_figure([group_ex_area_map])
+# Plotting the profiles from the example area, separated by instrument
+if True:
+    print('')
+    print('- Creating profile plots that separate by instrmt')
+    # Make the Plot Parameters
+    pp_pfs_by_instrmt = ahf.Plot_Parameters(plot_type='profiles', x_vars=['SA'], y_vars=['press'], clr_map='clr_all_same', extra_args={'plot_pts':False, 'separate_instrmts':True}, legend=True)
+    # Make the Analysis Groups pfs_BGR1 pfs_0
+    group_pfs_by_instrmt = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_pfs_by_instrmt)
+    # Make the figure
+    ahf.make_figure([group_pfs_by_instrmt])
 
 ################################################################################
 ## Subsampling

@@ -4082,7 +4082,6 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     x_key = pp.x_vars[0]
     y_key = pp.y_vars[0]
     var_clr = get_var_color(x_key)
-    # var_clr = std_clr
     # Check for histogram
     if x_key == 'hist' or y_key == 'hist':
         print('Cannot plot histograms with profiles plot type')
@@ -4128,6 +4127,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         extra_args = False
     # Make a blank list for dataframes of each profile
     profile_dfs = []
+    profile_dfs_dict = {}
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Check whether to run the clustering algorithm
@@ -4210,6 +4210,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             mark_thermocline = extra_args['mark_thermocline']
         except:
             mark_thermocline = False
+        try:
+            separate_instrmts = extra_args['separate_instrmts']
+        except:
+            separate_instrmts = False
     else:
         plt_noise = True
         shift_pfs = True
@@ -4217,6 +4221,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         plot_pts = True
         clstrs_to_plot = []
         mark_thermocline = False
+        separate_instrmts = False
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
@@ -4256,6 +4261,12 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # Get just the part of the dataframe for this profile
         pf_df = df[df['prof_no']==pf_no]
         profile_dfs.append(pf_df)
+        # Get instrument name for this profile
+        this_pf_instrmt = pf_df['instrmt'].values[0]
+        try:
+            profile_dfs_dict[this_pf_instrmt].append(pf_df)
+        except:
+            profile_dfs_dict[this_pf_instrmt] = [pf_df]
         # print(pf_df)
     # Set the keys for CT max markers
     TC_max_key = False
@@ -4302,6 +4313,93 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     # 
     # Plot each profile
+    if separate_instrmts:
+        print('\t- Plotting profiles separately by instrument')
+        # print('profile_dfs_dict:',profile_dfs_dict)
+        i = 0
+        for this_instrmt in profile_dfs_dict.keys():
+            add_profiles(ax, a_group, len(profile_dfs_dict[this_instrmt]), profile_dfs_dict[this_instrmt], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key)
+            i += 1
+    else:
+        add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key)
+    # Plot on twin axes, if specified
+    if not isinstance(tw_x_key, type(None)):
+        # Adjust bounds on axes
+        tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
+        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+        # Add label to twin axis
+        tw_ax_y.set_xlabel(pp.xlabels[1])
+        # Change color of the axis label on the twin axis
+        tw_ax_y.xaxis.label.set_color(tw_clr)
+        # Change color of the ticks on the twin axis
+        tw_ax_y.tick_params(axis='x', colors=tw_clr)
+        # Add a grid
+        tw_ax_y.grid(color=tw_clr, linestyle='--', alpha=grid_alpha+0.2, axis='x')
+        if invert_tw_y_axis:
+            tw_ax_y.invert_yaxis()
+            print('\t- Inverting twin y axis')
+    if True:
+        # Change color of the axis label
+        ax.xaxis.label.set_color(var_clr)
+        # Change color of the ticks
+        ax.tick_params(axis='x', colors=var_clr)
+    else:
+        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+    # Check whether to add a scale bar
+    if add_scale_bar and shift_pfs == 1:
+        if tw_x_key:
+            add_h_scale_bar(ax, ax_lims, unit=' g/kg', clr=var_clr)
+            add_h_scale_bar(tw_ax_y, ax_lims, unit=r' $^\circ$C', tw_clr=tw_clr)
+        else:
+            add_h_scale_bar(ax, ax_lims, unit=' g/kg')
+    # Add legend
+    if legend:
+        lgnd = ax.legend()
+        # Only add the notes_string if it contains something
+        if len(notes_string) > 1:
+            handles, labels = ax.get_legend_handles_labels()
+            handles.append(mpl.patches.Patch(color='none'))
+            labels.append(notes_string)
+            lgnd = ax.legend(handles=handles, labels=labels)
+        # Need to change the marker size for each label in the legend individually
+        for hndl in lgnd.legendHandles:
+            hndl._sizes = [lgnd_mrk_size]
+        #
+    # Add a standard title
+    plt_title = add_std_title(a_group)
+    return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, invert_y_axis
+
+################################################################################
+
+# Plot each profile
+def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key):
+    """
+    Adds the profiles to the plot
+
+    ax              The axis on which to make the plot
+    a_group         An Analysis_Group object containing the info to create this subplot
+    n_pfs           The number of profiles to plot
+    profile_dfs     A list of pandas dataframes, each containing the data for a profile
+    x_key           A string of the column header to plot on the x-axis
+    y_key           A string of the column header to plot on the y-axis
+    clr_map         A string to determine what color map to use in the plot
+    var_clr         A string of the color to use for the variable
+    distinct_clrs   A list of distinct colors to use in the plot
+    mpl_mrks        A list of distinct markers to use in the plot
+    l_styles        A list of distinct line styles to use in the plot
+    plot_pts        A boolean to determine whether to plot the individual points
+    shift_pfs       A boolean to determine whether to shift profiles over so they don't overlap
+    TC_max_key      A string of the column header to plot the CT max on the x-axis
+    TC_min_key      A string of the column header to plot the CT min on the x-axis
+    tw_x_key        A string of the column header to plot on the twin x-axis
+    tw_TC_max_key   A string of the column header to plot the CT max on the twin x-axis
+    tw_TC_min_key   A string of the column header to plot the CT min on the twin x-axis
+    """
+    # Keep track of the largest span in x
+    xv_span_max = 0
+    xv_span = 0
+    tw_span_max = 0
+    tw_span = 0
     for i in range(n_pfs):
         # Pull the dataframe for this profile
         pf_df = profile_dfs[i]
@@ -4526,54 +4624,16 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 if not isinstance(tw_x_key, type(None)):
                     t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
                     tw_ax_y.scatter(t_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                #
+            #
         #
+        if xv_span > xv_span_max:
+            xv_span_max = xv_span
+        if tw_span > tw_span_max:
+            tw_span_max = tw_span
     #
-    # Plot on twin axes, if specified
-    if not isinstance(tw_x_key, type(None)):
-        # Adjust bounds on axes
-        tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
-        # Add label to twin axis
-        tw_ax_y.set_xlabel(pp.xlabels[1])
-        # Change color of the axis label on the twin axis
-        tw_ax_y.xaxis.label.set_color(tw_clr)
-        # Change color of the ticks on the twin axis
-        tw_ax_y.tick_params(axis='x', colors=tw_clr)
-        # Add a grid
-        tw_ax_y.grid(color=tw_clr, linestyle='--', alpha=grid_alpha+0.2, axis='x')
-        if invert_tw_y_axis:
-            tw_ax_y.invert_yaxis()
-            print('\t- Inverting twin y axis')
-    if True:
-        # Change color of the axis label
-        ax.xaxis.label.set_color(var_clr)
-        # Change color of the ticks
-        ax.tick_params(axis='x', colors=var_clr)
-    else:
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
-    # Check whether to add a scale bar
-    if add_scale_bar and shift_pfs == 1:
-        if tw_x_key:
-            add_h_scale_bar(ax, ax_lims, unit=' g/kg', clr=var_clr)
-            add_h_scale_bar(tw_ax_y, ax_lims, unit=r' $^\circ$C', tw_clr=tw_clr)
-        else:
-            add_h_scale_bar(ax, ax_lims, unit=' g/kg')
-    # Add legend
-    if legend:
-        lgnd = ax.legend()
-        # Only add the notes_string if it contains something
-        if len(notes_string) > 1:
-            handles, labels = ax.get_legend_handles_labels()
-            handles.append(mpl.patches.Patch(color='none'))
-            labels.append(notes_string)
-            lgnd = ax.legend(handles=handles, labels=labels)
-        # Need to change the marker size for each label in the legend individually
-        for hndl in lgnd.legendHandles:
-            hndl._sizes = [lgnd_mrk_size]
-        #
-    # Add a standard title
-    plt_title = add_std_title(a_group)
-    return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, invert_y_axis
+    print('\t- xv_span_max:',xv_span_max,'tw_span_max:',tw_span_max)
+    # return xv_span_max, tw_span_max
 
 ################################################################################
 
