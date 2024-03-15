@@ -522,6 +522,40 @@ if False:
     group_sig_TC_max_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_max_hist, plot_title=this_BGR)
     # Make the figure
     ahf.make_figure([group_sig_TC_min_hist, group_sig_TC_max_hist])
+# Plotting press_TC_max and press_TC_min over lat and lon
+if False:
+    print('')
+    print('- Tracking press_TC_max and press_TC_min over lat and lon')
+    # Make the Plot Parameters
+    # pp_press_TC_max_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+
+    pp_press_TC_max_vs_latlon = ahf.Plot_Parameters(x_vars=['prof_no'], y_vars=['press_TC_max'], clr_map='instrmt', legend=True)#, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+    # pp_press_TC_min_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+    # Make the subplot groups
+    group_press_TC_max_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_max_vs_latlon, plot_title='Bottom of Thermocline'+this_BGR)
+    # group_press_TC_min_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_min_vs_latlon, plot_title='Top of Thermocline'+this_BGR)
+    # Make the figure
+    ahf.make_figure([group_press_TC_max_vs_latlon])#, group_press_TC_min_vs_latlon])
+# Tracking press_TC_max and press_TC_min over space
+if False:
+    print('')
+    print('- Tracking press_TC_max and press_TC_min over space')
+    TC_groups_to_plot = []
+    TC_bounds = [['press_TC_min', 'Top of Thermocline'], ['press_TC_max', 'Bottom of Thermocline']]
+    for i in range(len(TC_bounds)):
+        # Make the title
+        this_press_TC = TC_bounds[i][0]
+        this_TC_title  = TC_bounds[i][1]
+        # Make the Plot Parameters
+        pp_press_TC_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=[this_press_TC], legend=True, extra_args={'plot_slopes':'OLS', 'extra_vars_to_keep':[]})
+        pp_press_TC_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=this_press_TC, legend=True, extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+        pp_press_TC_vs_time_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=[this_press_TC+'-fit'], legend=True, extra_args={'plot_slopes':'OLS', 'extra_vars_to_keep':[this_press_TC], 'fit_vars':['lon','lat']})
+        # Make the subplot groups
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_vs_time, plot_title=r'Uncorrected '+this_TC_title))
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_fit, plot_title=this_TC_title+' '+this_BGR))
+        TC_groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_vs_time_minus_fit, plot_title=r'Corrected '+this_TC_title))
+    # Make the figure
+    ahf.make_figure(TC_groups_to_plot)
 
 ################################################################################
 ## Isopycnal tracking
@@ -780,14 +814,14 @@ if False:
 ## Example profile plots
 ################################################################################
 # Example profile plots, CT and SA
-if False:
+if True:
     print('')
     print('- Creating figure of example profiles')
     # Make the data set
     # ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
     ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
     # Make the Plot Parameters
-    pp_pfs = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':'min'}, legend=True, ax_lims={'y_lims':[200,0]})
+    pp_pfs = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True}, legend=True)#, ax_lims={'y_lims':[200,0]})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs, plot_title='')
     # Make the figure
@@ -926,7 +960,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_ex_area_map])
 # Plotting the profiles from the example area, separated by instrument
-if True:
+if False:
     print('')
     print('- Creating profile plots that separate by instrmt')
     # Make the Plot Parameters

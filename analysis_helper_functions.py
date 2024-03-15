@@ -4087,6 +4087,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         print('Cannot plot histograms with profiles plot type')
         exit(0)
     # Check for twin x and y data keys
+    tw_clr = std_clr
     try:
         tw_x_key = pp.x_vars[1]
         tw_ax_y  = ax.twiny()
@@ -4318,15 +4319,17 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # print('profile_dfs_dict:',profile_dfs_dict)
         i = 0
         for this_instrmt in profile_dfs_dict.keys():
-            add_profiles(ax, a_group, len(profile_dfs_dict[this_instrmt]), profile_dfs_dict[this_instrmt], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key)
+            ret_dict = add_profiles(ax, a_group, len(profile_dfs_dict[this_instrmt]), profile_dfs_dict[this_instrmt], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key)
             i += 1
     else:
-        add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key)
+        ret_dict = add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key)
     # Plot on twin axes, if specified
     if not isinstance(tw_x_key, type(None)):
         # Adjust bounds on axes
-        tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+        # tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
+        tw_ax_y.set_xlim([ret_dict['tw_left_bound']-ret_dict['tw_x_pad'], ret_dict['twin_high']+ret_dict['tw_x_pad']])
+        # ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+        ax.set_xlim([ret_dict['left_bound']-ret_dict['x_pad'], ret_dict['right_bound']+ret_dict['x_pad']])
         # Add label to twin axis
         tw_ax_y.set_xlabel(pp.xlabels[1])
         # Change color of the axis label on the twin axis
@@ -4372,7 +4375,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
 ################################################################################
 
 # Plot each profile
-def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_x_key, tw_TC_max_key, tw_TC_min_key):
+def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key):
     """
     Adds the profiles to the plot
 
@@ -4391,6 +4394,8 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
     shift_pfs       A boolean to determine whether to shift profiles over so they don't overlap
     TC_max_key      A string of the column header to plot the CT max on the x-axis
     TC_min_key      A string of the column header to plot the CT min on the x-axis
+    tw_ax_y         The twin axis to plot on
+    tw_clr          A string of the color to use for the twin axis
     tw_x_key        A string of the column header to plot on the twin x-axis
     tw_TC_max_key   A string of the column header to plot the CT max on the twin x-axis
     tw_TC_min_key   A string of the column header to plot the CT min on the twin x-axis
@@ -4400,6 +4405,8 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
     xv_span = 0
     tw_span_max = 0
     tw_span = 0
+    # Make a dictionary of variables to return
+    ret_dict = {}
     for i in range(n_pfs):
         # Pull the dataframe for this profile
         pf_df = profile_dfs[i]
@@ -4633,7 +4640,16 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             tw_span_max = tw_span
     #
     print('\t- xv_span_max:',xv_span_max,'tw_span_max:',tw_span_max)
-    # return xv_span_max, tw_span_max
+    # Build the return dictionary
+    ret_dict['xv_span_max'] = xv_span_max
+    ret_dict['tw_span_max'] = tw_span_max
+    ret_dict['left_bound'] = left_bound
+    ret_dict['right_bound'] = right_bound
+    ret_dict['tw_left_bound'] = tw_left_bound
+    ret_dict['x_pad'] = x_pad
+    ret_dict['tw_x_pad'] = tw_x_pad
+    ret_dict['twin_high'] = twin_high
+    return ret_dict
 
 ################################################################################
 
