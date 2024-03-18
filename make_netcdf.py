@@ -875,8 +875,9 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         iT0  = dat['te_adj'].flatten()
         SP0  = dat['sa_adj'].flatten()
         # Check to make sure at least some data is there
-        if len(press0) < 2 or np.isnan(press0).all():
-            print('\t- no data for',instrmt,prof_no)
+        # print('\t- Checking for data for',instrmt,prof_no,':',np.count_nonzero(~np.isnan(press0)),'p, ',np.count_nonzero(~np.isnan(iT0)),'iT, ',np.count_nonzero(~np.isnan(SP0)),'SP')
+        if np.count_nonzero(~np.isnan(press0)) < 2 or np.count_nonzero(~np.isnan(iT0)) < 2 or np.count_nonzero(~np.isnan(SP0)) < 2:
+            print('\t- ITP',instrmt,'profile',prof_no,'has no data')
             return None
         # Convert to absolute salinity (SA), conservative (CT) and potential temperature (PT) 
         pf_vert_len = len(press0)
@@ -908,7 +909,7 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             press_TC_max = press0[i_CT_TC_max]
             SA_TC_max = SA1[i_CT_TC_max]
         except:
-            print('\t\t- Cannot compute press_max, CT_TC_max, etc. for ITP',instrmt,'profile',prof_no)
+            print('\t- ITP',instrmt,'profile',prof_no,': Cannot compute TC_max vars')
             press_max = None
             CT_TC_max = None
             press_TC_max = None
@@ -927,7 +928,7 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             press_TC_min = press0[i_CT_TC_min]
             SA_TC_min = SA1[i_CT_TC_min]
         except:
-            print('\t\t- Cannot compute press_min, CT_TC_min, etc. for ITP',instrmt,'profile',prof_no)
+            print('\t- ITP',instrmt,'profile',prof_no,': Cannot compute TC_min vars')
             press_min = None
             CT_TC_min = None
             press_TC_min = None
@@ -961,7 +962,7 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
         # Return all the relevant values
         return out_dict
     else:
-        print('No data found for',instrmt,prof_no)
+        print('\t- No data found for',instrmt,prof_no)
         return None
 
 def read_ITP_final(file_path, file_name, instrmt, prof_no):
@@ -1052,7 +1053,7 @@ def read_ITP_final(file_path, file_name, instrmt, prof_no):
         # Return all the relevant values
         return out_dict
     else:
-        print('No data found for',instrmt,prof_no)
+        print('\t- No data found for',instrmt,prof_no)
         return None
 
 ################################################################################
@@ -1449,7 +1450,7 @@ def find_geo_region(lon, lat):
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-if False:
+if True:
     read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
     read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc') # Not in time period
     read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
@@ -1560,9 +1561,9 @@ if False:
     # read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
 
 ## This will make just one netcdf for ITP
-read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
-read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
-read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
+# read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
+# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
+# read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
 
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)

@@ -37,6 +37,7 @@ take_moving_average.py
 cluster_data.py
 """
 
+import numpy as np
 # For custom analysis functions
 import analysis_helper_functions as ahf
 # For common BGR parameters
@@ -65,7 +66,6 @@ T2008_fig6a_ax_lims = {'x_lims':[0.026838,0.026878], 'y_lims':[-13e-6,3e-6]}
 
 # A list of many profiles to plot from ITP2
 start_pf = 191
-import numpy as np
 n_pfs_to_plot = 7
 ITP2_some_pfs = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
 
@@ -93,15 +93,26 @@ Lu2022_m_pts = 580
 # Make dictionaries for what data to load in and analyze
 ################################################################################
 
+ITP035_all = {'ITP_035':'all'}
+
+# A list of many profiles to plot from ITP1
+start_pf = 271
+n_pfs_to_plot = 5
+ITP1_some_pfs_1 = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
+
 # A list of many profiles to plot from ITP3
 start_pf = 169
-import numpy as np
 n_pfs_to_plot = 6
 ITP3_some_pfs_1 = list(np.arange(start_pf, start_pf+(n_pfs_to_plot*2), 2))
+
+# Making dictionaries of example profiles
+ITP1_pfs1  = {'ITP_001':ITP1_some_pfs_1}
+ITP1_pfs1  = {'ITP_001':[251, 252, 253, 254, 255, 256]}
 ITP3_pfs1  = {'ITP_003':ITP3_some_pfs_1}
-ITP35_pfs0 = {'ITP_35':ITP35_some_pfs0}
-ITP35_pfs1 = {'ITP_35':ITP35_some_pfs1}
-ITP35_pfs2 = {'ITP_35':ITP35_some_pfs2}
+ITP35_pfs0 = {'ITP_035':ITP35_some_pfs0}
+# ITP35_pfs1 = {'ITP_035':ITP35_some_pfs1}
+ITP35_pfs1 = {'ITP_035':[2, 4, 5, 6, 7, 11]}
+ITP35_pfs2 = {'ITP_035':ITP35_some_pfs2}
 
 # Example profiles
 # Coincident_pfs0 = {'AIDJEX_Snowbird':[138,140,142], 'SHEBA_Seacat':['SH36200'], 'ITP_33':[779, 781, 783]}
@@ -153,7 +164,6 @@ print('- Creating data filtering objects')
 
 this_min_press = bps.this_min_press
 dfs1 = ahf.Data_Filters(min_press=this_min_press)
-dfs2 = ahf.Data_Filters(min_press_TC_max=400)
 
 dfs_CB = ahf.Data_Filters(geo_extent='CB', keep_black_list=True, cast_direction='any')
 dfs1_CB_0a = ahf.Data_Filters(geo_extent='CB', min_press=this_min_press)
@@ -226,7 +236,7 @@ this_BGR = 'BGR0506'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
 # this_BGR = 'BGR_all'
-ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+# ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # ds_this_BGR = ahf.Data_Set(BGRITPs0511, dfs1_BGR0511)
@@ -239,10 +249,11 @@ ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BG
 # ds_ITP32_all  = ahf.Data_Set(ITP32_all, dfs_all)
 # ds_ITP33_all  = ahf.Data_Set(ITP33_all, dfs_all)
 # ds_ITP34_all  = ahf.Data_Set(ITP34_all, dfs_all)
-# ds_ITP35_all  = ahf.Data_Set(ITP35_all, dfs_all)
+# ds_ITP35_all  = ahf.Data_Set(ITP035_all, bob.dfs_all)
 # ds_ITP41_all  = ahf.Data_Set(ITP41_all, dfs_all)
 # ds_ITP42_all  = ahf.Data_Set(ITP42_all, dfs_all)
 # ds_ITP43_all  = ahf.Data_Set(ITP43_all, dfs_all)
+ds_this_ITP_all = ahf.Data_Set({'ITP_121':'all'}, bob.dfs_all)
 
 # Data Sets filtered based on TC_max
 # ds_ITP2 = ahf.Data_Set(ITP2_all, dfs0)
@@ -461,6 +472,18 @@ if False:
 # For these plots, I'm specifically not using a pre-clustered file because the 
 #   thermocline lies outside the salinity range I used when clustering the data
 
+## Tracking the maximum pressure for each profile
+if True:
+    print('')
+    print('- Creating plots of the maximum pressure for each profile')
+    # Make the Plot Parameters
+    pp_map_press_max = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_max', extra_args={})
+    pp_hist_press_max = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_max'], extra_args={'plot_slopes':False})
+    # Make the subplot groups
+    group_map_press_max = ahf.Analysis_Group(ds_this_ITP_all, pfs_0, pp_map_press_max)
+    group_hist_press_max = ahf.Analysis_Group(ds_this_ITP_all, pfs_0, pp_hist_press_max)
+    # Make the figure
+    ahf.make_figure([group_map_press_max, group_hist_press_max], use_same_x_axis=False, use_same_y_axis=False)
 # Tracking press_max, press_TC_max, and CT_TC_max over time
 if False:
     print('')
@@ -527,15 +550,13 @@ if False:
     print('')
     print('- Tracking press_TC_max and press_TC_min over lat and lon')
     # Make the Plot Parameters
-    # pp_press_TC_max_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
-
-    pp_press_TC_max_vs_latlon = ahf.Plot_Parameters(x_vars=['prof_no'], y_vars=['press_TC_max'], clr_map='instrmt', legend=True)#, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
-    # pp_press_TC_min_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+    pp_press_TC_max_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
+    pp_press_TC_min_vs_latlon = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', legend=True, extra_args={'plot_slopes':False, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':None})
     # Make the subplot groups
-    group_press_TC_max_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_max_vs_latlon, plot_title='Bottom of Thermocline'+this_BGR)
-    # group_press_TC_min_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_min_vs_latlon, plot_title='Top of Thermocline'+this_BGR)
+    group_press_TC_max_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_max_vs_latlon, plot_title='Bottom of Thermocline '+this_BGR)
+    group_press_TC_min_vs_latlon = ahf.Analysis_Group(ds_this_BGR, pfs_BGR, pp_press_TC_min_vs_latlon, plot_title='Top of Thermocline '+this_BGR)
     # Make the figure
-    ahf.make_figure([group_press_TC_max_vs_latlon])#, group_press_TC_min_vs_latlon])
+    ahf.make_figure([group_press_TC_max_vs_latlon, group_press_TC_min_vs_latlon])
 # Tracking press_TC_max and press_TC_min over space
 if False:
     print('')
@@ -814,12 +835,13 @@ if False:
 ## Example profile plots
 ################################################################################
 # Example profile plots, CT and SA
-if True:
+if False:
     print('')
     print('- Creating figure of example profiles')
     # Make the data set
     # ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
-    ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
+    # ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
+    ds_ITP_ex_pfs = ahf.Data_Set(ITP35_pfs1, ahf.Data_Filters(cast_direction='any', press_TC_max_range=None))
     # Make the Plot Parameters
     pp_pfs = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True}, legend=True)#, ax_lims={'y_lims':[200,0]})
     # Make the Analysis Groups

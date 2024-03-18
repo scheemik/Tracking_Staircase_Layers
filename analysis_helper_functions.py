@@ -263,15 +263,13 @@ class Data_Filters:
     date_range          ['start_date','end_date'] where the dates are strings in
                         the format 'YYYY/MM/DD' or None to keep all profiles
     min_press           The minimum value of pressure to keep a profile
-    min_press_TC_max    The minimum value for the pressure at the conservative
-                        temperature maximum, above which profiles will be kept
-    min_press_TC_min    The maximum value for the pressure at the conservative
-                        temperature minimum, below which profiles will be kept
+    press_TC_max_range  [p_min, p_max] where the values are floats in dbar
+    press_TC_min_range  [p_min, p_max] where the values are floats in dbar
     clstr_labels        None to keep all cluster labels or a list of X lists, 
                         where X is the number of datasets, and each list contains
                         the cluster labels to keep from that dataset
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, min_press_TC_max=None, min_press_TC_min=None, clstr_labels=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, press_TC_max_range=[100,500], press_TC_min_range=None, clstr_labels=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
@@ -279,8 +277,8 @@ class Data_Filters:
         self.lat_range = lat_range
         self.date_range = date_range
         self.min_press = min_press
-        self.min_press_TC_max = min_press_TC_max
-        self.min_press_TC_min = min_press_TC_min
+        self.press_TC_max_range = press_TC_max_range
+        self.press_TC_min_range = press_TC_min_range
         self.clstr_labels = clstr_labels
 
 ################################################################################
@@ -559,7 +557,7 @@ def apply_data_filters(xarrays, data_filters):
                 print('ERROR: cannot take time slice for')
                 print('\t',ds.attrs['Source'],ds.attrs['Instrument'])
                 # exit(0)
-        #   Filter based on the maximum value of pressure in a profile
+        #   Only keep profiles where press_max is deeper than min_press
         if not isinstance(data_filters.min_press, type(None)):
             if False:
                 pf_list = list(set(ds.prof_no.values))
@@ -570,16 +568,14 @@ def apply_data_filters(xarrays, data_filters):
                 elim_list = [x for x in pf_list if x not in pf_list2]
                 print('p_max filter, # of profiles before:',len(pf_list),'after:',len(pf_list2),'difference:',len(pf_list)-len(pf_list2))#,'-',elim_list)
         #
-        #   Filter based on the value of pressure at TC_min
-        if not isinstance(data_filters.min_press_TC_min, type(None)):
-            print('Removing profiles with press_TC_min less than',data_filters.min_press_TC_min)
-            # print('Before:',len(ds.prof_no.values))
-            ds = ds.where(ds.press_TC_min>=data_filters.min_press_TC_min, drop=True)#.squeeze()
-            # print('After:',len(ds.prof_no.values))
-        #
-        #   Filter based on the minimum value of pressure at TC_max
-        if not isinstance(data_filters.min_press_TC_max, type(None)):
-            ds = ds.where(ds.press_TC_max>=data_filters.min_press_TC_max, drop=True)#.squeeze()
+        #   Only keep profiles with press_TC_min within the specified range
+        if not isinstance(data_filters.press_TC_min_range, type(None)):
+            ds = ds.where(ds.press_TC_min>=min(data_filters.press_TC_min_range), drop=True)
+            ds = ds.where(ds.press_TC_min<=max(data_filters.press_TC_min_range), drop=True)
+        #   Only keep profiles with press_TC_max within the specified range
+        if not isinstance(data_filters.press_TC_max_range, type(None)):
+            ds = ds.where(ds.press_TC_max>=min(data_filters.press_TC_max_range), drop=True)
+            ds = ds.where(ds.press_TC_max<=max(data_filters.press_TC_max_range), drop=True)
         #
         #   Filter to just certain cluster labels
         if isinstance(data_filters.clstr_labels, type(None)):
