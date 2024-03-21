@@ -185,7 +185,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_TC_max', 'press_TC_min']
+y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_TC_max', 'press_TC_min', 'press_TC_max-fit', 'press_TC_min-fit', 'CT_TC_max', 'CT_TC_min', 'CT_TC_max-fit', 'CT_TC_min-fit', 'SA_TC_max', 'SA_TC_min', 'SA_TC_max-fit', 'SA_TC_min-fit', 'sig_TC_max', 'sig_TC_min', 'sig_TC_max-fit', 'sig_TC_min-fit']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_TC_max', 'press_TC_max', 'SA_TC_max', 'sig_TC_max', 'CT_TC_min', 'press_TC_min', 'SA_TC_min', 'sig_TC_min', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -269,7 +269,7 @@ class Data_Filters:
                         where X is the number of datasets, and each list contains
                         the cluster labels to keep from that dataset
     """
-    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, press_TC_max_range=[100,500], press_TC_min_range=None, clstr_labels=None):
+    def __init__(self, keep_black_list=False, cast_direction='up', geo_extent=None, lon_range=None, lat_range=None, date_range=None, min_press=None, press_TC_max_range=[100,700], press_TC_min_range=None, clstr_labels=None):
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
@@ -2374,18 +2374,30 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
     ndp     The number of decimal places
     pm_val  The uncertainty value to put after a $\pm$ symbol
     """
+    # Check to make sure x is not None or nan
+    if isinstance(x, type(None)) or np.isnan(x):
+        print('Warning: could not format',x,'into scientific notation')
+        return r'N/A'
     if isinstance(pm_val, type(None)):
-        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
-        m, e = s.split('e')
+        try:
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places')
+            return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
             return r'{m:s}$\times$10$^{{{e:d}}}$'.format(m=m, e=int(e))
         else:
             return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
     else:
-        # Find magnitude and base 10 exponent for x
-        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
-        m, e = s.split('e')
+        try:
+            # Find magnitude and base 10 exponent for x
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places and pm_val:',pm_val)
+            return r'{x:0.{ndp:d}f}$\pm${pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
         # Find magnitude and base 10 exponent for pm_val
         pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
         pm_m, pm_e = pm_s.split('e')
@@ -5148,12 +5160,15 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     if isinstance(plt_var, type(None)):
         print('Did not find `fit` in z_key, aborting script')
         exit(0)
+    # Remove rows in dataframe where the fit variable is NaN
+    df = df[df[var_str].notnull()]
     # Get the x, y, and z data based on the keys
     x_data = df[fit_vars[0]]
     y_data = df[fit_vars[1]]
     z_data = df[var_str]
     # print('x_data.shape:',x_data.shape)
     # print('y_data.shape:',y_data.shape)
+    # print('z_data number of nans',z_data.isna().sum())
     # print('z_data.shape:',z_data.shape)
     # Find the solution to the polyfit
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)

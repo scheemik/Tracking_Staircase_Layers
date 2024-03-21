@@ -21,6 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 ################################################################################
 
 # The absolute salinity range I've selected for this study
+S_range_full_TC = [32.75, 35.03]
+S_range_LHW_AW = [34.1, 35.03]
 test_S_range = [34.4, 34.6]
 
 # Beaufort Gyre Region (BGR), see Shibley2022

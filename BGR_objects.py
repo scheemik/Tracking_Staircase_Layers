@@ -26,10 +26,10 @@ import BGR_params as bps
 ################################################################################
 
 # The profile filters I'm using for this study
-pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.test_S_range, lt_pTC_max=True)
+pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 
 # The profile filters to narrow down to an example area
-pfs_ex_area = ahf.Profile_Filters(lon_range=bps.lon_ex_area, lat_range=bps.lat_ex_area, p_range=[1000,5], SA_range=bps.test_S_range, lt_pTC_max=True)
+pfs_ex_area = ahf.Profile_Filters(lon_range=bps.lon_ex_area, lat_range=bps.lat_ex_area, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 
 ################################################################################
 ## Data filter objects
@@ -68,24 +68,6 @@ dfs1_BGR_dict = {'BGR04':dfs1,
                  'BGR_all':ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2023/08/15 00:00:00'])
                  }
 
-dfs1_BGR0506 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2006/08/15 00:00:00'])
-dfs1_BGR0607 = ahf.Data_Filters(min_press=this_min_press, date_range=['2006/08/15 00:00:00','2007/08/15 00:00:00'])
-dfs1_BGR0708 = ahf.Data_Filters(min_press=this_min_press, date_range=['2007/08/15 00:00:00','2008/08/15 00:00:00'])
-dfs1_BGR0809 = ahf.Data_Filters(min_press=this_min_press, date_range=['2008/08/15 00:00:00','2009/08/15 00:00:00'])
-dfs1_BGR0910 = ahf.Data_Filters(min_press=this_min_press, date_range=['2009/08/15 00:00:00','2010/08/15 00:00:00'])
-dfs1_BGR1011 = ahf.Data_Filters(min_press=this_min_press, date_range=['2010/08/15 00:00:00','2011/08/15 00:00:00'])
-dfs1_BGR1112 = ahf.Data_Filters(min_press=this_min_press, date_range=['2011/08/15 00:00:00','2012/08/15 00:00:00'])
-dfs1_BGR1213 = ahf.Data_Filters(min_press=this_min_press, date_range=['2012/08/15 00:00:00','2013/08/15 00:00:00'])
-dfs1_BGR1314 = ahf.Data_Filters(min_press=this_min_press, date_range=['2013/08/15 00:00:00','2014/08/15 00:00:00'])
-dfs1_BGR1415 = ahf.Data_Filters(min_press=this_min_press, date_range=['2014/08/15 00:00:00','2015/08/15 00:00:00'])
-dfs1_BGR1516 = ahf.Data_Filters(min_press=this_min_press, date_range=['2015/08/15 00:00:00','2016/08/15 00:00:00'])
-dfs1_BGR1617 = ahf.Data_Filters(min_press=this_min_press, date_range=['2016/08/15 00:00:00','2017/08/15 00:00:00'])
-dfs1_BGR1718 = ahf.Data_Filters(min_press=this_min_press, date_range=['2017/08/15 00:00:00','2018/08/15 00:00:00'])
-dfs1_BGR1819 = ahf.Data_Filters(min_press=this_min_press, date_range=['2018/08/15 00:00:00','2019/08/15 00:00:00'])
-dfs1_BGR1920 = ahf.Data_Filters(min_press=this_min_press, date_range=['2019/08/15 00:00:00','2020/08/15 00:00:00'])
-dfs1_BGR2021 = ahf.Data_Filters(min_press=this_min_press, date_range=['2020/08/15 00:00:00','2021/08/15 00:00:00'])
-dfs1_BGR2122 = ahf.Data_Filters(min_press=this_min_press, date_range=['2021/08/15 00:00:00','2022/08/15 00:00:00'])
-dfs1_BGR2223 = ahf.Data_Filters(min_press=this_min_press, date_range=['2022/08/15 00:00:00','2023/08/15 00:00:00'])
 
 ## combo
 dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
