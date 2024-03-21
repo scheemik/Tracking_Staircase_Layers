@@ -62,16 +62,15 @@ if rank == 0:
     # Define prefix for netcdf file name
     file_prefix = 'HPC_'
     # Choose BGR period
-    this_BGR = 'BGR04'
+    this_BGR = 'BGR0506'
     # Define the clustering dictionary
     this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR)
-    this_BGR_clstr_dict0 = bob.build_clustering_dict(file_prefix, 'BGR0506')
 
 ################################################################################
 # Run the clustering process
 ################################################################################
 
-    for clstr_dict in [this_BGR_clstr_dict, this_BGR_clstr_dict0]:
+    for clstr_dict in [this_BGR_clstr_dict]:
     # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
         gattrs_to_print =  ['Last modified',
                             'Last modification',
