@@ -5352,9 +5352,9 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         print('len(df):',len(df))
         if m_pts == 'auto':
             # Selecting a rule of thumb for number m_pts based on number of points
-            m_pts = int(0.00129*len(df) + 181)
+            # m_pts = int(0.00129*len(df) + 181)
             # m_pts = int(7*(len(df)**(1/3)))
-            # m_pts = int(len(df) / 250 - 150)
+            m_pts = int(len(df) / 250 - 150)
         if m_cls == 'auto':
             m_cls = m_pts
         print('\t\tClustering x-axis:',x_key)

@@ -72,3 +72,24 @@ dfs1_BGR_dict = {'BGR04':dfs1,
 ## combo
 dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
 dfs1_BGR0511 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2011/08/15 00:00:00'])
+
+# Build a clustering dictionary
+def build_clustering_dict(file_prefix, BGR_name, pfs_object=pfs_BGR_test, cl_x_var='SA', cl_y_var='la_CT', cl_z_var='None', m_pts='auto', m_cls='auto', relab_these={}):
+    """
+    Build a dictionary for the BGR_name to cluster that data
+
+    BGR_name    : str, name of the BGR to cluster, ex: 'BGR0506'
+    """
+    clstr_dict = {'netcdf_file':'netcdfs/'+file_prefix+BGR_name+'_clstrd.nc',
+                   'name':BGR_name,
+                   'sources_dict':bps.BGRITPs_dict[BGR_name],
+                   'data_filters':dfs1_BGR_dict[BGR_name],
+                   'pfs_object':pfs_object,
+                   'cl_x_var':cl_x_var,
+                   'cl_y_var':cl_y_var,
+                   'cl_z_var':cl_z_var,
+                   'm_pts':m_pts,
+                   'm_cls':m_cls, 
+                   'relab_these':relab_these
+                   }
+    return clstr_dict
