@@ -56,60 +56,22 @@ if rank == 0:
     import BGR_objects as bob
 
 ################################################################################
-# Main execution
+# Defining parameters
 ################################################################################
+
     # Define prefix for netcdf file name
-    file_prefix = 'HPC_clstrd_'
+    file_prefix = 'HPC_'
     # Choose BGR period
     this_BGR = 'BGR04'
     # Define the clustering dictionary
     this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR)
-#     ## Data Filters
-#     this_min_press = 400
-#     # Generic
-#     dfs1 = ahf.Data_Filters(min_press=this_min_press)
-#     # Specific
-#     dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2008/08/15 00:00:00'])
-# 
-#     # Profile Filters
-#     lon_BGR = [-160,-130]
-#     lat_BGR = [73,81.5]
-#     test_S_range = [34.4, 34.6]
-#     pfs_test = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pCT_max=True)
-# 
-#     # Cluster dictionaries
-#     ## BGR ITPs 04
-#     BGR04_clstr_dict = {'netcdf_file':'netcdfs/BGR04_HPC_clstrd.nc',
-#                     'sources_dict':{'ITP_002':'all'},
-#                     'data_filters':dfs1,
-#                     'pfs_object':pfs_test,
-#                     'cl_x_var':'SA',
-#                     'cl_y_var':'la_CT',
-#                     'cl_z_var':'None',
-#                     'm_pts':'auto',
-#                     #    'm_pts':'None',
-#                     #    'm_pts':190,
-#                     #    'm_pts':250,
-#                     }
-# 
-#     ## BGR ITPs 0508
-#     BGR0508_clstr_dict = {'netcdf_file':'netcdfs/BGR0508.nc',
-#                     'sources_dict':{'ITP_001':'all','ITP_003':'all','ITP_004':'all','ITP_005':'all','ITP_006':'all','ITP_008':'all','ITP_013':'all','ITP_018':'all','ITP_021':'all','ITP_030':'all'},
-#                     'data_filters':dfs1_BGR0508,
-#                     'pfs_object':pfs_test,
-#                     'cl_x_var':'SA',
-#                     'cl_y_var':'la_CT',
-#                     'cl_z_var':'None',
-#                     'm_pts':'auto',
-#                     #    'm_pts':'None',
-#                     #    'm_pts':350,
-#                     }
+    this_BGR_clstr_dict0 = bob.build_clustering_dict(file_prefix, 'BGR0506')
 
 ################################################################################
 # Run the clustering process
 ################################################################################
 
-    for clstr_dict in [this_BGR_clstr_dict]:
+    for clstr_dict in [this_BGR_clstr_dict, this_BGR_clstr_dict0]:
     # for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict]:
         gattrs_to_print =  ['Last modified',
                             'Last modification',
@@ -181,7 +143,7 @@ if rank == 0:
             group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
             # Make a figure to run clustering algorithm and check results
             print('making figure')
-            ahf.make_figure([group_test_clstr], filename=clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts']+'.png'))
+            ahf.make_figure([group_test_clstr], filename=file_prefix+clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts']+'.png'))
 
             # Does this netcdf already exist?
             try:
