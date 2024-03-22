@@ -321,6 +321,30 @@ BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
 BGRITPs0511  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011}
 
 ## Pre-clustered files
+# From HPC
+BGR_HPC_clstrd_dict = { 'BGR04':{'HPC_BGR04_clstrd':'all'},
+                        'BGR0506':{'HPC_BGR0506_clstrd':'all'},
+                        'BGR0607':{'HPC_BGR0607_clstrd':'all'},
+                        'BGR0708':{'HPC_BGR0708_clstrd':'all'},
+                        'BGR0809':{'HPC_BGR0809_clstrd':'all'},
+                        'BGR0910':{'HPC_BGR0910_clstrd':'all'},
+                        'BGR1011':{'HPC_BGR1011_clstrd':'all'},
+                        'BGR1112':{'HPC_BGR1112_clstrd':'all'},
+                        'BGR1213':{'HPC_BGR1213_clstrd':'all'},
+                        'BGR1314':{'HPC_BGR1314_clstrd':'all'},
+                        'BGR1415':{'HPC_BGR1415_clstrd':'all'},
+                        'BGR1516':{'HPC_BGR1516_clstrd':'all'},
+                        'BGR1617':{'HPC_BGR1617_clstrd':'all'},
+                        'BGR1718':{'HPC_BGR1718_clstrd':'all'},
+                        'BGR1819':{'HPC_BGR1819_clstrd':'all'},
+                        'BGR1920':{'HPC_BGR1920_clstrd':'all'},
+                        'BGR2021':{'HPC_BGR2021_clstrd':'all'},
+                        'BGR2122':{'HPC_BGR2122_clstrd':'all'},
+                        'BGR2223':{'HPC_BGR2223_clstrd':'all'},
+}
+
+
+
 # by year
 # BGR04   = {'BGR04':'all'}
 # BGR0506 = {'BGR0506':'all'}

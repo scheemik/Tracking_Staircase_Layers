@@ -5366,7 +5366,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
         get_DBCV = False
-        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='leaf')
+        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='eom')#'leaf')
         # The datetime variables need to be scaled to match
         dt_scale_factor = 10000
         for var in [x_key, y_key, z_key]:
