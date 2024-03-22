@@ -5365,7 +5365,8 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
-        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='leaf')
+        get_DBCV = False
+        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='leaf')
         # The datetime variables need to be scaled to match
         dt_scale_factor = 10000
         for var in [x_key, y_key, z_key]:
@@ -5387,8 +5388,11 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         # Add the cluster labels and probabilities to the dataframe
         df['cluster']   = hdbscan_1.labels_
         df['clst_prob'] = hdbscan_1.probabilities_
-        rel_val = hdbscan_1.relative_validity_
-        print('\t\tDBCV:',rel_val)
+        if get_DBCV:
+            rel_val = hdbscan_1.relative_validity_
+            print('\t\tDBCV:',rel_val)
+        else:
+            rel_val = -999
         # Determine whether there are any new variables to calculate
         new_cl_vars = list(set(extra_cl_vars) & set(clstr_vars))
         # Don't need to calculate `cluster` so remove it if its there
