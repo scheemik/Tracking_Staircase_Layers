@@ -5365,8 +5365,8 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         print('\t\tMoving average window:',ell_size)
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
-        get_DBCV = False
-        clst_sel_met = 'eom'
+        get_DBCV = True
+        clst_sel_met = 'leaf'
         hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method=clst_sel_met, leaf_size=m_pts)
         print('\t\thdbscan_1.gen_min_span_tree:',hdbscan_1.gen_min_span_tree)
         print('\t\thdbscan_1.cluster_selection_method:',hdbscan_1.cluster_selection_method)
