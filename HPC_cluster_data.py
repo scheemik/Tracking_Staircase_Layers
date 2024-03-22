@@ -64,7 +64,7 @@ if rank == 0:
     # Choose BGR period
     this_BGR = 'BGR0506'
     # Define the clustering dictionary
-    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=50)
+    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=500)
 
 ################################################################################
 # Run the clustering process
@@ -134,8 +134,8 @@ if rank == 0:
                 keep_these_vars = ['source', 'instrmt', 'entry', 'prof_no', 'SA', 'CT', 'ma_CT']
                 pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='clr_by_instrmt', extra_args={'extra_vars_to_keep':keep_these_vars}, legend=True)
             else:
-                # keep_these_vars = ['la_CT', 'entry', 'prof_no', 'CT', 'SA']
-                keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'press_min', 'CT_TC_max', 'CT_TC_min', 'press_TC_max', 'press_TC_min', 'SA_TC_max', 'SA_TC_min', 'sig_TC_max', 'sig_TC_min', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
+                keep_these_vars = ['source', 'instrmt', 'entry', 'prof_no', 'SA', 'CT', 'ma_CT']
+                # keep_these_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'press_max', 'press_min', 'CT_TC_max', 'CT_TC_min', 'press_TC_max', 'press_TC_min', 'SA_TC_max', 'SA_TC_min', 'sig_TC_max', 'sig_TC_min', 'R_rho', 'press', 'depth', 'iT', 'CT', 'PT', 'SP', 'SA', 'sigma', 'alpha', 'beta', 'aCT', 'BSA', 'ss_mask', 'ma_iT', 'ma_CT', 'ma_PT', 'ma_SP', 'ma_SA', 'ma_sigma', 'la_iT', 'la_CT', 'la_PT', 'la_SP', 'la_SA', 'la_sigma']
                 pp_clstr = ahf.Plot_Parameters(x_vars=[clstr_dict['cl_x_var']], y_vars=[clstr_dict['cl_y_var']], clr_map='cluster', extra_args={'b_a_w_plt':True, 'cl_x_var':clstr_dict['cl_x_var'], 'cl_y_var':clstr_dict['cl_y_var'], 'm_pts':clstr_dict['m_pts'], 'm_cls':clstr_dict['m_cls'], 'extra_vars_to_keep':keep_these_vars, 'relab_these':clstr_dict['relab_these']}, legend=True)
             # Create analysis group
             print('Creating analysis group')
