@@ -142,7 +142,7 @@ if rank == 0:
             group_test_clstr = ahf.Analysis_Group(ds_object, pfs_object, pp_clstr)
             # Make a figure to run clustering algorithm and check results
             print('making figure')
-            ahf.make_figure([group_test_clstr], filename=file_prefix+clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts']+'.png'))
+            ahf.make_figure([group_test_clstr], filename=file_prefix+clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts'])+'.png')
 
             # Does this netcdf already exist?
             try:
