@@ -64,7 +64,7 @@ if rank == 0:
     # Choose BGR period
     this_BGR = 'BGR0506'
     # Define the clustering dictionary
-    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=300)
+    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=400)
 
 ################################################################################
 # Run the clustering process
