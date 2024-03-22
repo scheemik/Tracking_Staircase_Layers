@@ -5366,7 +5366,14 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
         # Set the parameters of the HDBSCAN algorithm
         #   Note: must set gen_min_span_tree=True or you can't get `relative_validity_`
         get_DBCV = False
-        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method='eom')#'leaf')
+        clst_sel_met = 'leaf'
+        hdbscan_1 = hdbscan.HDBSCAN(gen_min_span_tree=get_DBCV, min_cluster_size=m_cls, min_samples=m_pts, cluster_selection_method=clst_sel_met, leaf_size=m_pts)
+        print('\t\thdbscan_1.gen_min_span_tree:',hdbscan_1.gen_min_span_tree)
+        print('\t\thdbscan_1.cluster_selection_method:',hdbscan_1.cluster_selection_method)
+        try:
+            print('\t\thdbscan_1.leaf_size:',hdbscan_1.leaf_size)
+        except:
+            foo = 2
         # The datetime variables need to be scaled to match
         dt_scale_factor = 10000
         for var in [x_key, y_key, z_key]:
@@ -5374,12 +5381,17 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
                 print('\t\tRescaling '+var+' variable for clustering')
                 df[var] = df[var] / dt_scale_factor
         # Run the HDBSCAN algorithm
+        ## Start timing the clustering
+        import time
+        tic = time.perf_counter()
         if isinstance(z_key, type(None)):
             # Run in 2D
             hdbscan_1.fit_predict(df[[x_key,y_key]])
         else:
             # Run in 3D
             hdbscan_1.fit_predict(df[[x_key,y_key,z_key]])
+        toc = time.perf_counter()
+        print(f'\t\tClustering took {toc - tic:0.4f} seconds')
         # Undo the scaling
         for var in [x_key, y_key, z_key]:
             if var in ['dt_start','dt_end']:
