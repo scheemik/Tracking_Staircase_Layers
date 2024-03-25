@@ -53,7 +53,8 @@ export OMPI_MCA_mpi_warn_on_fork=0
 export MPLCONFIGDIR=$SCRATCH/.config/matplotlib
 
 # Activate the clusterer virtual environment
-source ~/.virtualenvs/clusterer/bin/activate
+source ~/.virtualenvs/clusterer2/bin/activate
+echo "python3 --version: $(python3 --version)"
 
 ###############################################################################
 # Start the experiment script
