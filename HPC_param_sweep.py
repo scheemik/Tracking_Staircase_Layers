@@ -69,7 +69,7 @@ if rank == 0:
     f.close()
 
 # Reduce the number of active processes
-rf = 4
+rf = 8
 if rank%rf == 0:
 
 ################################################################################
