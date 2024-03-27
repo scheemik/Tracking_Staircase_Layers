@@ -30,19 +30,18 @@ else
 fi
 if [ "$CLS" = c ]
 then
-	CLS=true
-	echo "-c, Clustering data instead of parameter sweep"
+	echo "-c, Clustering data instead of parameter sweep with m_pts=$CLS"
 else
 	CLS=false
 fi
 
 ###############################################################################
 # Name of the lanceur file
-if [ "$CLS" = true ]
+if [ "$CLS" = false ]
 then
-	LANCEUR="HPC_launcher.slrm"
-else
 	LANCEUR="HPC_lanceur.slrm"
+else
+	LANCEUR="HPC_launcher.slrm"
 fi
 
 # Pull the most recent changes from git
@@ -54,4 +53,4 @@ git pull
 
 ###############################################################################
 # Submit job to queue
-sbatch --job-name=$JOBNAME $LANCEUR -j $JOBNAME
+sbatch --job-name=$JOBNAME $LANCEUR -j $JOBNAME -c $CLS

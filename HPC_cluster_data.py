@@ -2,6 +2,13 @@
 Author: Mikhail Schee
 Created: 2023-11-15
 
+Usage:
+    HPC_cluster_data.py THIS_BGR THIS_MPTS
+
+Options:
+    THIS_BGR        # string of the BGR time period to cluster (ex: 'BGR0506')
+    THIS_MPTS       # integer of the number of points to cluster (ex: 500)
+
 This script is set up to cluster data into new netcdfs on the Niagara HPC cluster
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,6 +40,12 @@ size = comm.Get_size()
 # Only use the root process for clustering
 if rank == 0:
 
+    # Parse input parameters
+    from docopt import docopt
+    args = docopt(__doc__)
+    this_BGR   = str(args['THIS_BGR'])
+    this_m_pts = str(args['THIS_MPTS'])
+    print('BGR:', this_BGR,', m_pts:', this_m_pts)
     # import libraries
     import numpy as np
     # For formatting data into dataframes
@@ -62,9 +75,9 @@ if rank == 0:
     # Define prefix for netcdf file name
     file_prefix = 'HPC_'
     # Choose BGR period
-    this_BGR = 'BGR0506'
+    # this_BGR = 'BGR0506'
     # Define the clustering dictionary
-    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=500)
+    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=this_m_pts)
 
 ################################################################################
 # Run the clustering process
