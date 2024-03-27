@@ -12,14 +12,16 @@
 # Submit this script to a HPC with `sbatch`
 # Takes in optional arguments:
 #	$ sh HPC_launcher.slrm -j <job name> 				 Default: current datetime
+#						   -b <BGR to use>			 	 string of BGR to use, ex: BGR0506
 #						   -c <cluster m_pts>			 value to use for m_pts
 
 # Having a ":" after a flag means an option is required to invoke that flag
-while getopts j:c: option
+while getopts j:b:c: option
 do
 	case "${option}"
 		in
 		j) JOBNAME=${OPTARG};;
+		b) BGR=${OPTARG};;
 		c) CLS=${OPTARG};;
 	esac
 done
@@ -31,6 +33,12 @@ then
 	echo "-j, No name specified, using JOBNAME=$JOBNAME"
 else
   echo "-j, Name specified, using JOBNAME=$JOBNAME"
+fi
+if [ -z "$BGR" ]
+then
+	BGR=false
+else
+	echo "-b, Clustering the period $BGR"
 fi
 if [ -z "$CLS" ]
 then
@@ -68,6 +76,6 @@ echo "python3 --version: $(python3 --version)"
 # Start the experiment script
 
 echo "Running script"
-mpiexec -n 40 python3 HPC_cluster_data.py $JOBNAME $CLS
+mpiexec -n 40 python3 HPC_cluster_data.py $BGR $CLS
 echo ""
 echo 'Done running script'

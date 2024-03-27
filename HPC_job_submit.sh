@@ -33,6 +33,8 @@ then
 	CLS=false
 else
 	echo "-c, Clustering data instead of parameter sweep with m_pts=$CLS"
+	FULLJOBNAME="${JOBNAME}_${CLS}"
+	echo "Using FULLJOBNAME=$FULLJOBNAME"
 fi
 
 ###############################################################################
@@ -53,4 +55,4 @@ git pull
 
 ###############################################################################
 # Submit job to queue
-sbatch --job-name=$JOBNAME $LANCEUR -j $JOBNAME -c $CLS
+sbatch --job-name=$JOBNAME $LANCEUR -j $FULLJOBNAME -b $JOBNAME -c $CLS
