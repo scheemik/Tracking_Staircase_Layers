@@ -11,12 +11,12 @@
 DATETIME=`date +"%Y-%m-%d_%Hh%M"`
 
 # Having a ":" after a flag means an option is required to invoke that flag
-while getopts j:c option
+while getopts j:c: option
 do
 	case "${option}"
 		in
 		j) JOBNAME=${OPTARG};;
-	c) CLS=c;;
+		c) CLS=${OPTARG};;
 	esac
 done
 
@@ -28,11 +28,11 @@ then
 else
 	echo "-j, Name specified, using JOBNAME=$JOBNAME"
 fi
-if [ "$CLS" = c ]
+if [ -z "$CLS" ]
 then
-	echo "-c, Clustering data instead of parameter sweep with m_pts=$CLS"
-else
 	CLS=false
+else
+	echo "-c, Clustering data instead of parameter sweep with m_pts=$CLS"
 fi
 
 ###############################################################################
