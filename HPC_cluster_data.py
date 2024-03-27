@@ -64,7 +64,7 @@ if rank == 0:
     # Choose BGR period
     this_BGR = 'BGR0506'
     # Define the clustering dictionary
-    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=3000)
+    this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=500)
 
 ################################################################################
 # Run the clustering process
@@ -143,6 +143,14 @@ if rank == 0:
             # Make a figure to run clustering algorithm and check results
             print('making figure')
             ahf.make_figure([group_test_clstr], filename=file_prefix+clstr_dict['name']+'_mpts_'+str(clstr_dict['m_pts'])+'.png')
+            # Pull the dataframes from the analysis group
+            dfs = group_test_clstr.data_frames
+            new_df = pd.concat(dfs)
+            # Print out results
+            these_attrs = group_test_clstr.data_set.arr_of_ds[0].attrs
+            output_str = str(these_attrs['Clustering m_pts'])+','+str(these_attrs['Moving average window'])+','+str(new_df['cluster'].max()+1)+','+str(these_attrs['Clustering DBCV'])+','+str(these_attrs['Clustering m_cls'])+'\n'
+            print(output_str)
+            exit(0)
 
             # Does this netcdf already exist?
             try:
