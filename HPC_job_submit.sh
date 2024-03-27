@@ -55,4 +55,4 @@ git pull
 
 ###############################################################################
 # Submit job to queue
-sbatch --job-name=$JOBNAME $LANCEUR -j $FULLJOBNAME -b $JOBNAME -c $CLS
+sbatch --job-name=$FULLJOBNAME $LANCEUR -j $FULLJOBNAME -b $JOBNAME -c $CLS
