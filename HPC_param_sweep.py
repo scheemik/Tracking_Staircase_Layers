@@ -114,7 +114,7 @@ if rank%rf == 0:
         print('- Creating clustering parameter sweep for BGR ITP data')
         test_mpts = 360
         # Make the Plot Parameters
-        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':'auto', 'cl_ps_tuple':[50,551,50], 'mpi_run':True}) #[10,801,5]
+        pp = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':test_mpts, 'm_cls':'auto', 'cl_ps_tuple':[30,2401,30], 'mpi_run':True}) #[10,801,5]
         # Make the subplot groups
         group_mpts_param_sweep = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp, plot_title=sweep_name)
         # Run the parameter sweep
