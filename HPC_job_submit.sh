@@ -47,11 +47,11 @@ else
 fi
 
 # Pull the most recent changes from git
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_GH_23
-git fetch --all
-git reset --hard origin
-git pull
+# eval "$(ssh-agent -s)"
+# ssh-add ~/.ssh/id_GH_23
+# git fetch --all
+# git reset --hard origin
+# git pull
 
 ###############################################################################
 # Submit job to queue
