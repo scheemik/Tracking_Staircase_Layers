@@ -150,6 +150,7 @@ mpl.rcParams['axes.labelsize'] = font_size_labels
 mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
+# plt.rcParams.update({'text.usetex':True})
 mrk_size      = 0.5
 mrk_size2     = 10
 mrk_alpha     = 0.5
@@ -213,7 +214,7 @@ cmm_vars   = [ f'{cmm_prefix}{var}'  for var in vertical_vars]
 nir_prefix = 'nir_' # normalized inter-cluster range
 nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
 # Make a complete list of cluster-related variables
-clstr_vars = ['cluster', 'cRL', 'cRl'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars
+clstr_vars = ['cluster', 'cRL', 'cRl', 'ca_dt_start'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars
 # Make a complete list of per profile variables
 pf_vars = pf_vars + max_vars + min_vars + ['cRL', 'cRl'] + pca_vars + pcs_vars
 # For parameter sweeps of clustering
@@ -528,6 +529,8 @@ def apply_data_filters(xarrays, data_filters):
         ## Filters on a per-profile basis
         ##      I turned off squeezing because it drops the `Time` dimension if
         ##      you only pass in one profile per dataset
+        #   Filter to just every 10th odd profile
+        # ds = ds.where((ds.prof_no+1)%100==0, drop=True)
         #   Filter based on the black list
         if data_filters.keep_black_list == False:
             ds = ds.where(ds.BL_yn==False, drop=True)#.squeeze()
@@ -692,6 +695,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
             #
         # print('plot_vars:',plot_vars)
         # print('vars_available:',vars_available)
+        # print('vars_to_keep:',vars_to_keep)
         for var in plot_vars:
             if var in vars_available:
                 vars_to_keep.append(var)
@@ -752,12 +756,13 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 split_var = var.split('_', 1)
                 prefix = split_var[0]
                 var_str = split_var[1]
+                # print('this var:',var,'prefix:',prefix,'var_str:',var_str)
                 # If plotting a cluster variable, add the original variable (without
                 #   the prefix) to the list of variables to keep
                 if var in clstr_vars:
                     vars_to_keep.append(var_str)
                 # Add very specific variables to the list, without prefixes
-                if prefix in ['max', 'min']:
+                if prefix in ['max', 'min', 'ca']:
                     vars_to_keep.append(var_str)
                 # Add very specific variables directly to the list, including prefixes
                 if prefix in ['la']:
@@ -2387,7 +2392,7 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
             return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'{m:s}$\times$10$^{{{e:d}}}$'.format(m=m, e=int(e))
+            return r'{m:s}\times10^{{{e:d}}}'.format(m=m, e=int(e))
         else:
             return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
     else:
@@ -2397,7 +2402,7 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
             m, e = s.split('e')
         except:
             print('Warning: could not format',x,'with',ndp,'decimal places and pm_val:',pm_val)
-            return r'{x:0.{ndp:d}f}$\pm${pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
+            return r'{x:0.{ndp:d}f}\pm{pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
         # Find magnitude and base 10 exponent for pm_val
         pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
         pm_m, pm_e = pm_s.split('e')
@@ -5298,6 +5303,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
     # print('-- in HDBSCAN')
     # print('-- m_pts:',m_pts)
     # print('-- m_cls:',m_cls)
+    # print('-- extra_cl_vars:',extra_cl_vars)
     # print('-- df columns:',df.columns.values.tolist())
     # Find the value of ell, the moving average window
     ell_sizes = []
@@ -5407,6 +5413,7 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
             rel_val = -999
         # Determine whether there are any new variables to calculate
         new_cl_vars = list(set(extra_cl_vars) & set(clstr_vars))
+        # print('\t\t- new_cl_vars:',new_cl_vars)
         # Don't need to calculate `cluster` so remove it if its there
         if 'cluster' in new_cl_vars:
             new_cl_vars.remove('cluster')
@@ -5451,6 +5458,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
     new_cl_vars         A list of clustering-related variables to calculate
     """
     print('\t- Calculating extra cluster variables')
+    print('\t\t- new_cl_vars:',new_cl_vars)
     # print(np.unique(np.array(df['cluster'].values)))
     # Find the number of clusters
     n_clusters = int(np.nanmax(df['cluster']+1))
@@ -5468,6 +5476,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
         except:
             var = None
         # print('prefix:',prefix,'- var:',var)
+        # print('df[var]:',df[var])
         # Make a new blank column in the data frame for this variable
         df[this_var] = None
         # Calculate the new values based on the prefix
@@ -5559,7 +5568,18 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i].copy()
                 # Find the mean of this var for this cluster
-                clstr_mean = np.mean(df_this_cluster[var].values)
+                if var in ['dt_start','dt_end']:
+                    these_values = np.array(df_this_cluster[var].values)
+                    these_values = these_values.astype('datetime64', copy=False)
+                    these_values.sort()
+                    # print('these_values:',these_values)
+                    # print('type(these_values[0]):',type(these_values[0]))
+                    clstr_mean = datetime.strftime(these_values[len(these_values)//2].astype(datetime), '%Y-%m-%d %H:%M:%S')
+                    print('clstr_mean:',clstr_mean)
+                    # print('type(clstr_mean):',type(clstr_mean))
+                    # exit(0)
+                else:
+                    clstr_mean = np.mean(df_this_cluster[var].values)
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_mean
                 # print(str(i)+','+str(clstr_mean))
@@ -5958,7 +5978,14 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         for i in cluster_numbers:
             # Decide on the color and symbol, don't go off the end of the arrays
             my_clr = distinct_clrs[i%len(distinct_clrs)]
-            my_mkr = mpl_mrks[i%len(mpl_mrks)]
+            if m_size == cent_mrk_size:
+                my_mkr = r"${}$".format(str(i))
+                mrk_alpha = 1
+            else:
+                my_mkr = mpl_mrks[i%len(mpl_mrks)]
+                # m_size = cent_mrk_size
+                # my_mkr = r"${}$".format(str(i))
+                # mrk_alpha = 0.5
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
             # If this cluster has no points, skip it
@@ -5974,7 +6001,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             y_stdv = np.std(y_data)
             if isinstance(z_key, type(None)):
                 df_z_key = 0
-            elif z_key in ['dt_start', 'dt_end']:
+            # elif z_key in ['dt_start', 'dt_end']:
+            elif 'dt_start' in z_key or 'dt_end' in z_key:
                 df_z_key = mpl.dates.date2num(df_this_cluster[z_key])
             else:
                 df_z_key = df_this_cluster[z_key]
@@ -5988,6 +6016,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 yerrs = df[df.cluster == i]['bar_len']
                 ax.errorbar(x_data, y_data, yerr=yerrs, color=my_clr, capsize=l_cap_size)
             elif 'nir' in x_key or 'cRL' in x_key or 'cRl' in x_key:
+                my_mkr = r"${}$".format(str(i))
                 ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=1, zorder=5)
             else:
                 if plot_3d == False:
@@ -6089,7 +6118,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     # Add annotation to say what the line is
                     line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
                     ann_x_loc = x_mean+0.5*x_stdv
-                    ann_x_loc = min(x_bnds) + (1/30)*x_span
+                    ann_x_loc = min(x_bnds) + (1/3)*x_span
                     ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
                     # Limit the y axis
                     ax.set_ylim((y_bnds[0],y_bnds[1]))

@@ -216,7 +216,7 @@ print('- Creating data sets')
 # ds_ITP_test = ahf.Data_Set({'ITP_098':'all'}, dfs_all)
 
 # by different time periods
-this_BGR = 'BGR04'
+# this_BGR = 'BGR04'
 # this_BGR = 'BGR0506'
 # this_BGR = 'BGR0607'
 # this_BGR = 'BGR0708'
@@ -235,8 +235,8 @@ this_BGR = 'BGR04'
 # this_BGR = 'BGR2021'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
-# this_BGR = 'BGR_all'
-ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+this_BGR = 'BGR_all'
+# ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # this_BGR = 'BGR0511'
@@ -281,6 +281,7 @@ ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BG
 # ds_BGR1011 = ahf.Data_Set(BGR1011, dfs_to_use)
 
 # ds_this_BGR = ahf.Data_Set(bps.BGR_auto_mpts_dict[this_BGR], bob.dfs0)
+ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
 
 # ds_BGR04_clstrs_456 = ahf.Data_Set(BGR04_clstrs_456, dfs_to_use)
 # ds_BGR0508 = ahf.Data_Set(BGR0508, dfs_to_use)
@@ -686,37 +687,38 @@ if False:
 ## Basic plots
 ################################################################################
 # TS 
+file_date = '2024-03-27_'
 if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press', ax_lims={'c_lims':[180,240]})
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='press', ax_lims={'x_lims':bps.S_range_LHW_AW, 'c_lims':[180,240]})
     # Make the subplot groups
     group_TS = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
     # Make the figure
-    ahf.make_figure([group_TS])
+    ahf.make_figure([group_TS], filename=file_date+this_BGR+'_TS.png')
 
-# SA vs time
+# SA vs la_CT
 if False:
     print('')
     print('- Creating TS plot')
     # Make the Plot Parameters
-    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_all_same')
+    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same', ax_lims={'x_lims':bps.S_range_LHW_AW})
+    # Make the subplot groups
+    group_TS = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
+    # Make the figure
+    ahf.make_figure([group_TS], row_col_list=[1,1, 0.27, 1.0], filename=file_date+this_BGR+'_TS.png')
+# SA vs time and map
+if False:
+    print('')
+    print('- Creating SA_vs_time plot and map')
+    # Make the Plot Parameters
+    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='instrmt')
     # Make the subplot groups
     group_SA_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_SA_vs_time)
-    # Make the figure
-    ahf.make_figure([group_SA_vs_time], row_col_list=[1,1, 0.27, 1.0])
-# TS and map
-if False:
-    print('')
-    print('- Creating TS plot')
-    # Make the Plot Parameters
-    pp_TS = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='clr_all_same')
-    # Make the subplot groups
-    group_TS = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
     group_map = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_map)
     # Make the figure
-    ahf.make_figure([group_TS, group_map], row_col_list=[1,2, 0.31, 1.1])
+    ahf.make_figure([group_SA_vs_time, group_map], row_col_list=[1,2, 0.31, 1.1], filename=file_date+this_BGR+'_SA_vs_time_and_map.png')
 
 ################################################################################
 ## Filter effects
@@ -1076,10 +1078,10 @@ if False:
     print('')
     print('- Creating clustering plot')
     # Make the profile filter object
-    pfs_BGR_ell = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True, m_avg_win=10)
+    pfs_BGR_ell = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True, m_avg_win=5)
     # Make the Plot Parameters
     # pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':190, 'm_cls':'auto', 'b_a_w_plt':True, 'relab_these':{1:2, 2:3, 5:6}, 'extra_vars_to_keep':['CT', 'ma_CT']})
-    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':196, 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
+    pp_live_clstr = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'cl_x_var':'SA', 'cl_y_var':'la_CT', 'm_pts':50, 'm_cls':'auto', 'b_a_w_plt':True, 'extra_vars_to_keep':['CT', 'ma_CT']})
     # Make the subplot groups # pfs_this_BGR
     group_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_BGR_ell, pp_live_clstr)
     # Make the figure
@@ -1103,7 +1105,7 @@ if False:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
     # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True, 'relab_these':relab_these_test}, ax_lims={'x_lims':test_S_range})
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':test_S_range})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':bps.S_range_LHW_AW})
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
     # Plot the figure
@@ -1129,11 +1131,11 @@ if False:
     print('')
     print('- Creating plots of salinity vs time')
     # Make the Plot Parameters
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'plt_noise':True})
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt)
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt])
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.69])#, row_col_list=[1,1, 0.27, 1.0])
 # Temperature vs. time and pressure vs. time
 if False:
     print('')
@@ -1146,6 +1148,28 @@ if False:
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt)
     # Make the figure
     ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.45, 1.4])
+
+################################################################################
+# Cluster average pressure vs cluster average salinity
+if False:
+    print('')
+    print('- Creating plots of cluster average pressure vs cluster average salinity')
+    # Make the Plot Parameters
+    pp_SA_vs_press = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False})
+    # Make the subplot groups
+    group_SA_vs_press = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_press)
+    # Make the figure
+    ahf.make_figure([group_SA_vs_press])
+# Cluster average time vs cluster average salinity
+if True:
+    print('')
+    print('- Creating plots of cluster average time vs cluster average salinity')
+    # Make the Plot Parameters
+    pp_SA_vs_time = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False})
+    # Make the subplot groups
+    group_SA_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_time)
+    # Make the figure
+    ahf.make_figure([group_SA_vs_time])
 
 ################################################################################
 # cRL and nir_SA for all clusters
@@ -1208,7 +1232,9 @@ if False:
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
 # Define the profile filters
-pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[6])
+this_cluster_id = 20
+this_cluster_title = 'Cluster '+str(this_cluster_id)
+pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
 # Just one cluster in SA vs. la_CT space
 if False:
     print('')
@@ -1340,8 +1366,8 @@ if False:
 if False:
     print('')
     print('- Creating lat-lon plots for one cluster`s salinity, polyfit2d, and residual') 
-    SA_lims = [34.4925,34.4700]
-    res_lims = [-0.01125,0.01125]
+    SA_lims  = None # [34.4925,34.4700]
+    res_lims = None # [-0.01125,0.01125]
     # Make the Plot Parameters
     pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':SA_lims})
     pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':SA_lims})
@@ -1352,8 +1378,8 @@ if False:
     pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
     pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
     # Make the subplot groups
-    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
-    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title=this_cluster_title)
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title=this_cluster_title)
     group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
     group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
     group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
@@ -1431,8 +1457,8 @@ if False:
 if False:
     print('')
     print('- Creating lat-lon plots for one cluster`s temperature, polyfit2d, and residual') 
-    CT_lims = [-0.83,-0.48]
-    res_lims = [.175,-.175]
+    CT_lims  = None # [-0.83,-0.48]
+    res_lims = None # [.175,-.175]
     # Make the Plot Parameters
     pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':CT_lims})
     pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':CT_lims})
@@ -1443,8 +1469,8 @@ if False:
     pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
     pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
     # Make the subplot groups
-    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
-    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title=this_cluster_title)
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title=this_cluster_title)
     group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
     group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
     group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
@@ -1522,8 +1548,8 @@ if False:
 if False:
     print('')
     print('- Creating lat-lon plots for one cluster`s pressure, polyfit2d, and residual') 
-    press_lims = [300,170]
-    res_lims = [65,-65]
+    press_lims = None # [300,170]
+    res_lims   = None # [65,-65]
     # Make the Plot Parameters
     pp_2d = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':press_lims})
     pp_2d_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':press_lims})
@@ -1534,8 +1560,8 @@ if False:
     pp_res = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':res_lims})
     pp_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'y_lims':res_lims})
     # Make the subplot groups
-    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title='Cluster 6')
-    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title='Cluster 6')
+    group_2d = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d, plot_title=this_cluster_title)
+    group_2d_hist = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_2d_hist, plot_title=this_cluster_title)
     group_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_fit, plot_title='Polynomial Fit')
     group_og_vs_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_og_vs_res, plot_title='Original vs. Fit')
     group_res = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_res, plot_title='Residuals')
