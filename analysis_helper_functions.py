@@ -5985,7 +5985,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
                 # m_size = cent_mrk_size
                 # my_mkr = r"${}$".format(str(i))
-                # mrk_alpha = 0.5
+                mrk_alpha = 0.5
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
             # If this cluster has no points, skip it
