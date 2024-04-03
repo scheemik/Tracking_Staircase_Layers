@@ -163,7 +163,7 @@ if rank == 0:
             these_attrs = group_test_clstr.data_set.arr_of_ds[0].attrs
             output_str = str(these_attrs['Clustering m_pts'])+','+str(these_attrs['Moving average window'])+','+str(new_df['cluster'].max()+1)+','+str(these_attrs['Clustering DBCV'])+','+str(these_attrs['Clustering m_cls'])+'\n'
             print(output_str)
-            # exit(0)
+            exit(0)
 
             # Does this netcdf already exist?
             try:
