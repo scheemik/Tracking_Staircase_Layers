@@ -5460,8 +5460,10 @@ def calc_extra_cl_vars(df, new_cl_vars):
     print('\t- Calculating extra cluster variables')
     print('\t\t- new_cl_vars:',new_cl_vars)
     # print(np.unique(np.array(df['cluster'].values)))
+    # Get list of clusters
+    clstr_ids = np.unique(np.array(df['cluster'].values))
     # Find the number of clusters
-    n_clusters = int(np.nanmax(df['cluster']+1))
+    n_clusters = len(clstr_ids)
     # Check for variables to calculate
     for this_var in new_cl_vars:
         # Skip any variables that are just 'None"
@@ -5641,15 +5643,16 @@ def calc_extra_cl_vars(df, new_cl_vars):
             # Find the normalized inter-cluster range for the variable
             #   Reduces the number of points to just one per cluster, minus one
             #   because it depends on the difference between adjacent clusters
-            # Create dataframe to store means and standard deviations of each cluster
-            clstr_df = pd.DataFrame(data=np.arange(n_clusters), columns=['cluster'])
-            clstr_df['clstr_mean'] = None
-            clstr_df['clstr_rnge'] = None
             # Get a list of clusters in this dataframe
             clstr_ids = np.unique(np.array(df['cluster'].values))
             clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
             # Remove the noise points
             clstr_ids = clstr_ids[clstr_ids != -1]
+            # print('\t\t- clstr_ids without noise:',clstr_ids)
+            # Create dataframe to store means and standard deviations of each cluster
+            clstr_df = pd.DataFrame(data=clstr_ids, columns=['cluster'])
+            clstr_df['clstr_mean'] = None
+            clstr_df['clstr_rnge'] = None
             # Loop over each cluster
             for i in clstr_ids:
                 # Find the data from this cluster
@@ -5666,6 +5669,9 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 clstr_df.loc[clstr_df['cluster']==i, 'clstr_rnge'] = clstr_rnge
             # Sort the cluster dataframe by the mean values
             sorted_clstr_df = clstr_df.sort_values(by='clstr_mean')
+            # Get a list of clusters in this dataframe
+            sorted_clstr_ids = np.unique(np.array(sorted_clstr_df['cluster'].values))
+            # print('\t\t- sorted_clstr_ids:',sorted_clstr_ids)
             # Find normalized inter-cluster range for the first cluster in sorted order
             clstr_id_here  = sorted_clstr_df['cluster'].values[0]
             clstr_id_below = sorted_clstr_df['cluster'].values[1]
@@ -5679,15 +5685,17 @@ def calc_extra_cl_vars(df, new_cl_vars):
             # Put that value back into the original dataframe
             df.loc[df['cluster']==clstr_id_here, this_var] = this_nir
             # Loop over each middle cluster, finding the normalized inter-cluster ranges
-            for i in range(1,n_clusters-1):
+            for i in range(1,len(sorted_clstr_ids)-1):
                 # Get cluster id's of this cluster, plus those above and below
                 clstr_id_above = sorted_clstr_df['cluster'].values[i-1]
                 clstr_id_here  = sorted_clstr_df['cluster'].values[i]
                 clstr_id_below = sorted_clstr_df['cluster'].values[i+1]
+                # print('clstr_id_above:',clstr_id_above,'clstr_id_here:',clstr_id_here,'clstr_id_below:',clstr_id_below)
                 # Get the mean value for each of the three clusters for this variable
                 clstr_mean_above = sorted_clstr_df.loc[sorted_clstr_df['cluster']==clstr_id_above, 'clstr_mean'].values[0]
                 clstr_mean_here = sorted_clstr_df.loc[sorted_clstr_df['cluster']==clstr_id_here, 'clstr_mean'].values[0]
                 clstr_mean_below = sorted_clstr_df.loc[sorted_clstr_df['cluster']==clstr_id_below, 'clstr_mean'].values[0]
+                # print('clstr_mean_above:',clstr_mean_above,'clstr_mean_here:',clstr_mean_here,'clstr_mean_below:',clstr_mean_below)
                 # Find the distances from this cluster to the clusters above and below
                 diff_above = abs(clstr_mean_above - clstr_mean_here)
                 diff_below = abs(clstr_mean_below - clstr_mean_here)
@@ -5695,11 +5703,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 this_diff = min(diff_above, diff_below)
                 # this_diff = np.mean([diff_above, diff_below])
                 # Calculate the normalized inter-cluster range for this cluster
-                this_rnge = sorted_clstr_df.loc[sorted_clstr_df['cluster']==i, 'clstr_rnge'].values[0]
+                this_rnge = sorted_clstr_df.loc[sorted_clstr_df['cluster']==clstr_id_here, 'clstr_rnge'].values[0]
+                # print('this_rnge:',this_rnge)
                 this_nir = this_rnge / this_diff
                 # print(clstr_id_here,',',this_rnge,',',this_diff,',',this_nir,',',diff_below)
                 # Put that value back into the original dataframe
                 df.loc[df['cluster']==clstr_id_here, this_var] = this_nir
+                # exit(0)
             # Find normalized inter-cluster range for the last cluster
             clstr_id_above  = sorted_clstr_df['cluster'].values[-2]
             clstr_id_here = sorted_clstr_df['cluster'].values[-1]
@@ -6077,7 +6087,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             y_span = abs(y_bnds[1] - y_bnds[0])
             # Add line at R_L = -1
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
-            ax.annotate(r'$IR_{S_P}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
+            ax.annotate(r'$IR_{S_A}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
         # Add some lines if plotting cRL
         if 'cRL' in [x_key, y_key]:
             # Get bounds of axes
