@@ -1591,7 +1591,7 @@ def get_axis_label(var_key, var_attr_dicts):
     elif 'nir_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return r'Normalized inter-cluster range $IR_{S_P}$'
+        return r'Normalized inter-cluster range $IR_{S_A}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
     # Check for the polyfit2d of a variable
     elif 'fit_' in var_key:
@@ -2273,12 +2273,19 @@ def get_color_map(cmap_var):
     """
     # print('in get_color_map()')
     # print('cmap_var:',cmap_var)
+    # For density histogram
+    if cmap_var == 'density_hist':
+        if dark_mode:
+            return cm.batlowK
+        else:
+            return cm.batlowW.reversed()
     # For diverging colormaps
-    return cm.roma.reversed()
-    if not isinstance(cmap_var,type(None)) and cmap_var[-4:]=='-fit':
-        return cm.roma
     else:
-        return cm.batlow.reversed()
+        return cm.roma.reversed()
+    # if not isinstance(cmap_var,type(None)) and cmap_var[-4:]=='-fit':
+    #     return cm.roma
+    # else:
+    #     return cm.batlow.reversed()
     # return cm.davos.reversed()
     # Build dictionary of axis labels
     # cmaps = {'entry':'plasma',
@@ -2335,17 +2342,17 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
                     '2009/08/15 00:00:00',
                     '2010/08/15 00:00:00', 
                     '2011/08/15 00:00:00', 
-                    # '2012/08/15 00:00:00', 
-                    # '2013/08/15 00:00:00', 
-                    # '2014/08/15 00:00:00',
-                    # '2015/08/15 00:00:00',
-                    # '2016/08/15 00:00:00', 
-                    # '2017/08/15 00:00:00', 
-                    # '2018/08/15 00:00:00', 
-                    # '2019/08/15 00:00:00', 
-                    # '2020/08/15 00:00:00',
-                    # '2021/08/15 00:00:00', 
-                    # '2022/08/15 00:00:00'
+                    '2012/08/15 00:00:00', 
+                    '2013/08/15 00:00:00', 
+                    '2014/08/15 00:00:00',
+                    '2015/08/15 00:00:00',
+                    '2016/08/15 00:00:00', 
+                    '2017/08/15 00:00:00', 
+                    '2018/08/15 00:00:00', 
+                    '2019/08/15 00:00:00', 
+                    '2020/08/15 00:00:00',
+                    '2021/08/15 00:00:00', 
+                    '2022/08/15 00:00:00'
                  ]
     all_08_15s = [datetime.strptime(date, r'%Y/%m/%d %H:%M:%S').date() for date in all_08_15s]
     # Make the date locator
@@ -2354,8 +2361,8 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_locator(loc)
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
-        # for aug_15 in all_08_15s:
-        #     ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
+        for aug_15 in all_08_15s:
+            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2903,6 +2910,22 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     ax.set_yscale('log')
                 if log_axes[2]:
                     ax.set_zscale('log')
+            # Color the axis tick labels if axis is 'instrmt'
+            if x_key == 'instrmt':
+                i = 0
+                for tick in ax.get_xticklabels():
+                    # Decide on the color, don't go off the end of the array
+                    my_clr = distinct_clrs[i%len(distinct_clrs)]
+                    # Color just the tick label for this instrmt
+                    tick.set_color(my_clr)
+            if y_key == 'instrmt':
+                i = 0
+                for tick in ax.get_yticklabels():
+                    # Decide on the color, don't go off the end of the array
+                    my_clr = distinct_clrs[i%len(distinct_clrs)]
+                    # Color just the tick label for this instrmt
+                    tick.set_color(my_clr)
+                    i += 1
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
@@ -5761,7 +5784,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
 
 ################################################################################
 
-def find_outliers(df, var_keys, threshold=2):
+def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
     """
     Finds any outliers in the dataframe with respect to the x and y keys
 
@@ -5770,16 +5793,39 @@ def find_outliers(df, var_keys, threshold=2):
                         find outliers
     threshold       The threshold zscore for which to consider an outlier
     """
+    outlier_type = 'MZS'        # Modified Z-Score
+    if outlier_type == 'MZS':
+        threshold = 3.5 # recommended by Iglewicz and Hoaglin 1993
     for v_key in var_keys:
         # Get the values of the variable for this key
+        # v_values = np.array(df[df['cluster']<=120][v_key].values, dtype=np.float64)
         v_values = np.array(df[v_key].values, dtype=np.float64)
         # print(v_key,v_values)
-        # Find the zscores 
-        v_zscores = stats.zscore(v_values)
-        # Put those values back into the dataframe
-        df['zs_'+ v_key] = v_zscores
-        # Make a column of True/False whether that row is an outlier
-        df['out_'+v_key] = (df['zs_'+v_key] > threshold) | (df['zs_'+v_key] < -threshold)
+        # Get the cluster ids for this variable
+        v_cids = np.array(df['cluster'].values, dtype=np.int64)
+        # Mask out cluster ids 120 or higher
+        v_cids = np.ma.masked_where(v_cids>=120, v_cids)
+        # Apply the mask to the values
+        v_values = np.ma.masked_where(v_cids.mask, v_values)
+        if outlier_type == 'zscore':
+            # Find the zscores 
+            v_zscores = stats.mstats.zscore(v_values)
+            # Put those values back into the dataframe
+            df['zs_'+ v_key] = v_zscores
+            # print('v_zscores:',v_zscores)
+            # Make a column of True/False whether that row is an outlier
+            df['out_'+v_key] = (df['zs_'+v_key] > threshold) | (df['zs_'+v_key] < -threshold)
+        elif outlier_type == 'MZS':
+            # Find the MADs (median absolute deviation) in a vector
+            v_MADs = np.ma.median(np.abs(v_values - np.ma.median(v_values)))
+            # Find the modified z-scores in a vector
+            v_MZSs = 0.6745 * (v_values - np.ma.median(v_values)) / v_MADs
+            # Put those values back into the dataframe
+            df['mzs_'+ v_key] = v_MZSs
+            # Make a column of True/False whether that row is an outlier
+            df['out_'+v_key] = (df['mzs_'+v_key] > threshold) | (df['mzs_'+v_key] < -threshold)
+        # Set the clusters with ids 120 or higher to True in outlier column
+        df['out_'+v_key].loc[df['cluster']>=120] = True
     # print(df)
     # exit(0)
     return df
