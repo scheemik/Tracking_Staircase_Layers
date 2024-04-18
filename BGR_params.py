@@ -385,6 +385,34 @@ BGR_HPC_relab_dict  = {
     'BGR_all':{},
 }
 
+BGR_all_clstr_plt_ranges = {
+    63:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.195,-0.51],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+}
+
+# Add fit ranges to BGR_all_clstr_plt_ranges
+var_lims = ['press_lims', 'CT_lims', 'SA_lims', 'sig_lims']
+var_fit_lims = ['press-fit_lims', 'CT-fit_lims', 'SA-fit_lims', 'sig-fit_lims']
+for key in BGR_all_clstr_plt_ranges.keys():
+    for i in range(len(var_lims)):
+        # Find range of var lims
+        var_lim_range = abs(BGR_all_clstr_plt_ranges[key][var_lims[i]][1] - BGR_all_clstr_plt_ranges[key][var_lims[i]][0])
+        BGR_all_clstr_plt_ranges[key][var_fit_lims[i]] = [-var_lim_range/2, var_lim_range/2]
+
+
+
+
+
+
+
+
 
 # by year
 # BGR04   = {'BGR04':'all'}
