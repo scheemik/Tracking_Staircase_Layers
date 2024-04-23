@@ -30,8 +30,8 @@ lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 
 # Example area, choosen to have a few profiles from all time periods
-lon_ex_area = [-135.5,-135]
-lat_ex_area = [77,77.4]
+lon_ex_area = [-143.8,-139.8]
+lat_ex_area = [76.6,77.6]
 
 # For this study, I'm only using profiles that extend down to at least 400 dbar
 this_min_press = 400

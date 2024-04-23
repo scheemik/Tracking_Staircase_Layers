@@ -79,7 +79,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = True
+dark_mode = False
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -2530,11 +2530,16 @@ def make_subplot(ax, a_group, fig, ax_pos):
             fit_vars = False
         if 'log_axes' in extra_args.keys():
             log_axes = extra_args['log_axes']
+        if 'mv_avg' in extra_args.keys():
+            mv_avg = extra_args['mv_avg']
+        else:
+            mv_avg = False
         if 'mpi_run' in extra_args.keys():
             mpi_run = extra_args['mpi_run']
     else:
         extra_args = False
         plot_slopes = False
+        mv_avg = False
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis
@@ -2649,6 +2654,22 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if plot_3d == False:
                 # Plot in 2D
                 ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                # Take moving average of the data
+                if x_key in ['dt_start', 'dt_end'] and mv_avg:
+                    print('\t- Taking moving average of the data')
+                    # Need to convert dt_start back to datetime to take rolling average
+                    df[x_key] = mpl.dates.num2date(df[x_key])
+                    # Make a different version of the dataframe with dt_start as the index
+                    time_df = df.set_index(x_key)
+                    # Sort by the dt_start index
+                    time_df.sort_index(inplace=True)
+                    # Take the moving average of the data
+                    time_df[y_key+'_mv_avg'] = time_df[y_key].rolling(mv_avg, min_periods=1).mean()
+                    # Convert the original dataframe's dt_start back to numbers for plotting
+                    df[x_key] = mpl.dates.date2num(df[x_key])
+                    time_df.reset_index(level=x_key, inplace=True)
+                    time_df[x_key] = mpl.dates.date2num(time_df[x_key])
+                    ax.plot(df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
             else:
                 # Plot in 3D
                 ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
@@ -6410,6 +6431,11 @@ def filter_to_these_clstrs(df, cluster_numbers, clstrs_to_plot=[]):
             if i in clstrs_to_plot:
                 # Add the rows with this cluster id to the list
                 tmp_df_list.append(df[df['cluster'] == i])
+        if len(tmp_df_list) == 0:
+            print('No points in clusters',clstrs_to_plot,'found')
+            tmp_df_list.append(pd.DataFrame(index=df.index, columns=df.columns))
+            # print(tmp_df_list[0])
+            # exit(0)
         df = pd.concat(tmp_df_list)
     return df
 
