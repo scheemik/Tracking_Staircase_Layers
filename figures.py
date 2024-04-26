@@ -237,8 +237,8 @@ this_BGR = 'BGR0506'
 # this_BGR = 'BGR2021'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
-# this_BGR = 'BGR_all'
-# ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+this_BGR = 'BGR_all'
+# ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # this_BGR = 'BGR0511'
@@ -274,7 +274,7 @@ this_BGR = 'BGR0506'
 
 ## Pre-clustered
 # By year
-# ds_BGR04   = ahf.Data_Set(BGR04, dfs_to_use)
+# ds_BGR04   = ahf.Data_Set(bps.BGR_HPC_clstrd_dict['BGR04'], bob.dfs_all)
 # ds_BGR0506 = ahf.Data_Set(BGR0506, dfs_to_use)
 # ds_BGR0607 = ahf.Data_Set(BGR0607, dfs_to_use)
 # ds_BGR0708 = ahf.Data_Set(BGR0708, dfs_to_use)
@@ -374,7 +374,7 @@ if False:
     # Make the Analysis Group
     group_TS_plot = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_TS)
     # Make the figure
-    ahf.make_figure([group_TS_plot])
+    ahf.make_figure([group_TS_plot], row_col_list=[1,1, 0.45, 1.4])
 
 ## TS plot by instrument
 if False:
@@ -421,17 +421,17 @@ if False:
 ## Maps and distances
 ################################################################################
 pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})
-pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'})#, legend=False, add_grid=False)
+pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
 pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
-## Map of all profiles for all sources
-if True:
+#*# Map of all profiles for all sources
+if False:
     print('')
     print('- Creating a map of the full Arctic and a map of all BGR profiles')
     # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_full_Arctic, plot_title='')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
     group_map_BGR = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+    ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
 ## Map of just in the Beaufort Gyre Region
 if False:
     print('')
@@ -476,6 +476,17 @@ if False:
 # For these plots, I'm specifically not using a pre-clustered file because the 
 #   thermocline lies outside the salinity range I used when clustering the data
 
+#*# Tracking press_TC_min over time
+if False:
+    print('')
+    print('- Creating a plot of TC_max over time')
+    # Make the Plot Parameters
+    across_x_var = 'dt_start'
+    pp_TC_min_max = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min', 'press_TC_max'], legend=True, extra_args={'plot_slopes':True})
+    # Make the subplot groups
+    group_TC_min_max = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_0, pp_TC_min_max, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_TC_min_max], row_col_list=[1,1, 0.45, 1.4])
 ## Tracking the maximum pressure for each profile
 if False:
     print('')
@@ -537,18 +548,22 @@ if False:
     group_TC_max_v_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_TC_max_v_time, plot_title='')
     # Make the figure
     ahf.make_figure([group_TC_min_v_time, group_TC_max_v_time], row_col_list=[2,1, 0.45, 1.4])
-# Density histograms of the top and bottom of the thermocline
+# Histograms of the bottom of the thermocline
 if False:
     print('')
-    print('- Creating histograms of sigma(TC_max/TC_min) over time')
+    print('- Creating histograms of vars(TC_max)')
     # Make the Plot Parameters
-    pp_sig_TC_min_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['sig_TC_min'], legend=True, extra_args={'plot_slopes':False})
+    pp_press_TC_max_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], legend=True, extra_args={'plot_slopes':False})
+    pp_SA_TC_max_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA_TC_max'], legend=True, extra_args={'plot_slopes':False})
+    pp_CT_TC_max_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT_TC_max'], legend=True, extra_args={'plot_slopes':False})
     pp_sig_TC_max_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['sig_TC_max'], legend=True, extra_args={'plot_slopes':False})
     # Make the subplot groups
-    group_sig_TC_min_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_min_hist, plot_title=this_BGR)
-    group_sig_TC_max_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_sig_TC_max_hist, plot_title=this_BGR)
+    group_press_TC_max_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_0, pp_press_TC_max_hist, plot_title='')
+    group_SA_TC_max_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_0, pp_SA_TC_max_hist, plot_title='')
+    group_CT_TC_max_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_0, pp_CT_TC_max_hist, plot_title='')
+    group_sig_TC_max_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_0, pp_sig_TC_max_hist, plot_title='')
     # Make the figure
-    ahf.make_figure([group_sig_TC_min_hist, group_sig_TC_max_hist])
+    ahf.make_figure([group_press_TC_max_hist, group_SA_TC_max_hist, group_CT_TC_max_hist, group_sig_TC_max_hist], use_same_x_axis=False, use_same_y_axis=False)
 # Plotting press_TC_max and press_TC_min over lat and lon
 if False:
     print('')
@@ -890,20 +905,20 @@ if False:
     group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
     # Make the figure
     ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
-# Example profile plot, iT and SP, full and zoomed
+# Example profile plot, CT and SA, full and zoomed
 if False:
     print('')
     print('- Creating figure of an example profile')
     # Make the data set
-    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, dfs_all)
+    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, bob.dfs_all)
     # Make the Plot Parameters
-    pp_pfs_full = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
-    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['iT','SP'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':ex_pfs1_zoom_range})
+    pp_pfs_full = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'shift_pfs':True})
+    pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
     group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_zoom, plot_title='')
     # Make the figure
-    ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False)
+    ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
 # Clustering a single example profile plot
 if False:
     print('')
@@ -1020,12 +1035,15 @@ if False:
     group_ex_area_time = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_ex_area_time)
     # Make the figure
     ahf.make_figure([group_ex_area_map, group_ex_area_time])
-# Plotting the profiles from the example area, separated by instrument
-if False:
+#*# Plotting the profiles from the example area, separated by period
+if True:
     print('')
-    print('- Creating profile plots that separate by instrmt')
+    print('- Creating profile plots that separate by period')
+    # Make the profile filters
+    pfs_ex_area_zoomed = bob.pfs_ex_area
+    pfs_ex_area_zoomed['p_range'] = ex_pfs1_zoom_range
     # Make the Plot Parameters
-    pp_pfs_by_instrmt = ahf.Plot_Parameters(plot_type='profiles', x_vars=['SA'], y_vars=['press'], clr_map='clr_all_same', extra_args={'plot_pts':False, 'separate_instrmts':True}, legend=True)
+    pp_pfs_by_instrmt = ahf.Plot_Parameters(plot_type='profiles', x_vars=['SA'], y_vars=['press'], clr_map='cluster', extra_args={'plot_pts':False, 'separate_periods':True}, legend=False)#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups pfs_BGR1 pfs_0
     group_pfs_by_instrmt = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_pfs_by_instrmt)
     # Make the figure
@@ -1133,12 +1151,12 @@ relab_these_test = {}
 if False:
     print('')
     print('- Creating plot of pre-clustered BGR ITP data')
-    # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True, 'relab_these':relab_these_test}, ax_lims={'x_lims':test_S_range})
-    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, ax_lims={'x_lims':bps.S_range_LHW_AW})
+    # pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, legend=False)#, ax_lims={'x_lims':bps.S_range_LHW_AW})
+    pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':True}, legend=False)#, ax_lims={'x_lims':bps.S_range_LHW_AW})
     # Make the subplot groups
     group_pre_clstrd = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pre_clstrd)
     # Plot the figure
-    ahf.make_figure([group_pre_clstrd], use_same_y_axis=False)
+    ahf.make_figure([group_pre_clstrd], use_same_y_axis=False, row_col_list=[1,1, 0.45, 1.4])
 # Multiple BGR ITP clustering
 if False:
     print('')

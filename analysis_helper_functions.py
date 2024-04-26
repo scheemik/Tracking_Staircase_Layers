@@ -56,6 +56,8 @@ try:
     from cmcrameri import cm
 except:
     foo = 2
+# For common BGR parameters
+import BGR_params as bps
 
 """
 To install Cartopy and its dependencies, follow:
@@ -123,10 +125,10 @@ else:
     clr_land  = 'grey'
     clr_lines = 'k'
     clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
-    bathy_clrs = ['w','#b6dbff']
+    bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
-n_bathy = 5
+n_bathy = 7
 cm0 = mpl.colors.LinearSegmentedColormap.from_list("Custom", bathy_clrs, N=n_bathy)
 cm1 = mpl.colors.LinearSegmentedColormap.from_list("Custom", bathy_clrs[::-1], N=n_bathy)
 # Initialize colormap to get ._lut attribute
@@ -151,9 +153,12 @@ mpl.rcParams['xtick.labelsize'] = font_size_ticks
 mpl.rcParams['ytick.labelsize'] = font_size_ticks
 mpl.rcParams['legend.fontsize'] = font_size_lgnd
 # plt.rcParams.update({'text.usetex':True})
-mrk_size      = 0.5
-mrk_size2     = 10
+mrk_size      = 10
+mrk_size2     = 5
+mrk_size3     = 0.5
 mrk_alpha     = 0.5
+mrk_alpha2    = 0.3
+mrk_alpha3    = 0.1
 noise_alpha   = 0.2
 grid_alpha    = 0.3
 plt.rcParams['grid.color'] = (0.5,0.5,0.5,grid_alpha)
@@ -345,6 +350,10 @@ class Profile_Filters:
         self.regrid_TS = regrid_TS
         self.m_avg_win = m_avg_win
         self.clstrs_to_plot = clstrs_to_plot
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
+    def __getitem__(self, key):
+        return getattr(self, key)
 
 ################################################################################
 
@@ -633,6 +642,8 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
         if pp.plot_type == 'map':
             vars_to_keep.append('lon')
             vars_to_keep.append('lat')
+        if pp.plot_type == 'profiles':
+            vars_to_keep.append('dt_start')
         if pp.plot_type == 'waterfall':
             vars_to_keep.append('dt_start')
         # Add all the plotting variables
@@ -2206,7 +2217,7 @@ def add_std_title(a_group):
 
 ################################################################################
 
-def add_std_legend(ax, data, x_key):
+def add_std_legend(ax, data, x_key, lgd_str=' points'):
     """
     Adds in standard information to this subplot's legend, as appropriate
 
@@ -2215,7 +2226,7 @@ def add_std_legend(ax, data, x_key):
     x_key       The string of the column name for the x data from the dataframe
     """
     # Add legend to report the total number of points and notes on the data
-    n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(data[x_key]))+' points')
+    n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(data[x_key]))+lgd_str)
     notes_string = ''.join(data.notes.unique())
     # Only add the notes_string if it contains something
     if len(notes_string) > 1:
@@ -2317,6 +2328,27 @@ def get_color_map(cmap_var):
     #     return cmaps[cmap_var]
     # else:
     #     return 'viridis'
+
+def get_marker_size_and_alpha(n_points):
+    """
+    Determines the size and alpha of the markers based on the number of points
+
+    n_points    The number of points in the dataset
+    """
+    # Set the marker size and alpha based on the number of points
+    if n_points < 1000:
+        m_size = map_mrk_size
+        m_alpha = mrk_alpha
+    elif n_points < 10000:
+        m_size = mrk_size
+        m_alpha = mrk_alpha
+    elif n_points < 10000000:
+        m_size = mrk_size2
+        m_alpha = mrk_alpha2
+    else:
+        m_size = mrk_size3
+        m_alpha = mrk_alpha3
+    return m_size, m_alpha
 
 ################################################################################
 
@@ -2644,16 +2676,17 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.w_yaxis.pane.fill = False
                 ax.w_zaxis.pane.fill = False
             # If there aren't that many points, make the markers bigger
-            if len(df[x_key]) < 1000:
-                m_size = map_mrk_size
-            elif len(df[x_key]) < 100000:
-                m_size = mrk_size2
-            else: 
-                m_size = mrk_size
+            m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+            # if len(df[x_key]) < 1000:
+            #     m_size = map_mrk_size
+            # elif len(df[x_key]) < 100000:
+            #     m_size = mrk_size2
+            # else: 
+            #     m_size = mrk_size
             # Plot every point the same color, size, and marker
             if plot_3d == False:
                 # Plot in 2D
-                ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
                 # Take moving average of the data
                 if x_key in ['dt_start', 'dt_end'] and mv_avg:
                     print('\t- Taking moving average of the data')
@@ -2672,7 +2705,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     ax.plot(df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
             else:
                 # Plot in 3D
-                ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
             if plot_slopes:
                 # Mark outliers
                 if mrk_outliers:
@@ -2698,7 +2731,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_clr = get_var_color(tw_x_key)
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
-                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=mrk_alpha)
+                tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=m_alpha)
                 tw_ax_y.set_xlabel(pp.xlabels[1])
                 # Change color of the ticks on the twin axis
                 tw_ax_y.tick_params(axis='x', colors=tw_clr)
@@ -2706,7 +2739,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_clr = get_var_color(tw_y_key)
                 if tw_clr == std_clr:
                     tw_clr = alt_std_clr
-                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=mrk_alpha)
+                tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=m_alpha)
                 # Invert y-axis if specified
                 if tw_y_key in y_invert_vars:
                     tw_ax_x.invert_yaxis()
@@ -2738,12 +2771,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Get unique sources
             these_sources = np.unique(df['source'])
             # If there aren't that many points, make the markers bigger
-            if len(df[x_key]) < 1000:
-                m_size = map_mrk_size
-            elif len(df[x_key]) < 100000:
-                m_size = mrk_size2
-            else: 
-                m_size = mrk_size
+            m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+            # if len(df[x_key]) < 1000:
+            #     m_size = map_mrk_size
+            # elif len(df[x_key]) < 100000:
+            #     m_size = mrk_size2
+            # else: 
+            #     m_size = mrk_size
             i = 0
             lgnd_hndls = []
             for source in these_sources:
@@ -2752,7 +2786,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Get the data for just this source
                 this_df = df[df['source'] == source] 
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = source+': '+str(len(this_df[x_key]))+' points'
@@ -2826,10 +2860,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Drop duplicates to have just one row per cluster
                     this_df.drop_duplicates(subset=new_cl_vars, keep='first', inplace=True)
                 # If there aren't that many points, make the markers bigger
-                if len(this_df[x_key]) < 1000:
-                    m_size = map_mrk_size
-                else: 
-                    m_size = mrk_size
+                m_size, m_alpha = get_marker_size_and_alpha(len(this_df[x_key]))
+                # if len(this_df[x_key]) < 1000:
+                #     m_size = map_mrk_size
+                # else: 
+                #     m_size = mrk_size
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Format the dates if necessary
@@ -2838,7 +2873,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if y_key in ['dt_start', 'dt_end']:
                     this_df[y_key] = mpl.dates.date2num(this_df[y_key])
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
                 # Add error bars if applicable
                 if errorbars:
                     if not isinstance(x_err_key, type(None)):
@@ -2887,12 +2922,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 print('No instruments included, aborting script')
                 exit(0)
             # If there aren't that many points, make the markers bigger
-            if len(df[x_key]) < 1000:
-                m_size = map_mrk_size
-            elif len(df[x_key]) < 100000:
-                m_size = mrk_size2
-            else: 
-                m_size = mrk_size
+            m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+            # if len(df[x_key]) < 1000:
+            #     m_size = map_mrk_size
+            # elif len(df[x_key]) < 100000:
+            #     m_size = mrk_size2
+            # else: 
+            #     m_size = mrk_size
             i = 0
             lgnd_hndls = []
             # Loop through each instrument
@@ -2902,7 +2938,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Decide on the color, don't go off the end of the array
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
-                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=mrk_alpha, zorder=5)
+                ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = instrmt+': '+str(len(this_df[x_key]))+' points'
@@ -3090,12 +3126,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
             # If there aren't that many points, make the markers bigger
-            if len(df[x_key]) < 1000:
-                m_size = map_mrk_size
-            elif len(df[x_key]) < 100000:
-                m_size = mrk_size2
-            else: 
-                m_size = mrk_size
+            m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+            # if len(df[x_key]) < 1000:
+            #     m_size = map_mrk_size
+            # elif len(df[x_key]) < 100000:
+            #     m_size = mrk_size2
+            # else: 
+            #     m_size = mrk_size
             if plot_3d:
                 # Remove the current axis
                 ax.remove()
@@ -3222,12 +3259,17 @@ def make_subplot(ax, a_group, fig, ax_pos):
             ex_E = -145 #-156
             ex_W = -125 #-124
         elif map_extent == 'Western_Arctic':
-            print('\tWestern Arctic')
-            cent_lon = -140
-            ex_N = 84
-            ex_S = 69
-            ex_E = -162
-            ex_W = -124
+            # print('\tWestern Arctic')
+            # cent_lon = -140
+            # ex_N = 84
+            # ex_S = 69
+            # ex_E = -162
+            # ex_W = -124
+            cent_lon = np.average(bps.lon_BGR)
+            ex_N = 82
+            ex_S = 71
+            ex_E = -161
+            ex_W = -129
         elif map_extent == 'AIDJEX_focus':
             cent_lon = -137
             ex_N = 78
@@ -3249,20 +3291,29 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # ax.add_feature(cartopy.feature.OCEAN, color=bathy_clrs[0])
         ax.add_feature(cartopy.feature.LAND, color=clr_land, alpha=0.5)
         # Make bathymetry features
-        if False:
+        def add_bathy_features(ax, add_colors=False, add_lines=False):
             bathy_0200 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_K_200',scale='10m')
             bathy_1000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_J_1000',scale='10m')
             bathy_2000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_I_2000',scale='10m')
             bathy_3000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_H_3000',scale='10m')
             bathy_4000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_G_4000',scale='10m')
             bathy_5000 = cartopy.feature.NaturalEarthFeature(category='physical',name='bathymetry_F_5000',scale='10m')
+            # Add bathymetry colors
+            if add_colors:
+                ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
+                ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
+                ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
+                ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
+                ax.add_feature(bathy_4000, facecolor=bathy_clrs[5], zorder=5)
+                ax.add_feature(bathy_5000, facecolor=bathy_clrs[6], zorder=6)
             # Add bathymetry lines
-            ax.add_feature(bathy_0200, facecolor=bathy_clrs[1], zorder=1)
-            ax.add_feature(bathy_1000, facecolor=bathy_clrs[2], zorder=2)
-            ax.add_feature(bathy_2000, facecolor=bathy_clrs[3], zorder=3)
-            ax.add_feature(bathy_3000, facecolor=bathy_clrs[4], zorder=4)
-            ax.add_feature(bathy_4000, facecolor=bathy_clrs[5], zorder=5)
-            ax.add_feature(bathy_5000, facecolor=bathy_clrs[6], zorder=6)
+            if add_lines:
+                ax.add_feature(bathy_0200, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=1)
+                ax.add_feature(bathy_1000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=2)
+                ax.add_feature(bathy_2000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=3)
+                ax.add_feature(bathy_3000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=4)
+                ax.add_feature(bathy_4000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=5)
+                ax.add_feature(bathy_5000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=6)
         #   Add gridlines to show longitude and latitude
         gl = ax.gridlines(draw_labels=True, color=clr_lines, alpha=grid_alpha, linestyle='--', zorder=7)
         #       x is actually all labels around the edge
@@ -3277,17 +3328,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # bbox = 'AOA' # for AIDJEX Operation Area
         #   Don't plot outside the extent chosen
         if map_extent == 'Canada_Basin':
+            # Add bathymetry features
+            add_bathy_features(ax, add_colors=True, add_lines=True)
             if bbox == 'CB':
                 # Only the Eastern boundary appears in this extent
                 ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-            # Add bathymetry lines
-            ax.add_feature(bathy_0200, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=1)
-            ax.add_feature(bathy_1000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=2)
-            ax.add_feature(bathy_2000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=3)
-            ax.add_feature(bathy_3000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=4)
-            # ax.add_feature(bathy_4000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=5)
-            # ax.add_feature(bathy_5000, facecolor='none', edgecolor=std_clr, linestyle='-.', alpha=0.3, zorder=6)
         elif map_extent == 'Western_Arctic':
+            # Add bathymetry features
+            add_bathy_features(ax, add_colors=False, add_lines=True)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
@@ -3307,6 +3355,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         elif map_extent == 'AIDJEX_focus':
+            # Add bathymetry features
+            add_bathy_features(ax, add_colors=True, add_lines=False)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
@@ -3326,6 +3376,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
                 ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
         else:
+            # Add bathymetry features
+            add_bathy_features(ax, add_colors=True, add_lines=False)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
@@ -3369,7 +3421,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Plot every point the same color, size, and marker
             ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=mrk_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Add a standard legend
-            add_std_legend(ax, df, 'lon')
+            if pp.legend:
+                add_std_legend(ax, df, 'lon', lgd_str=' profiles')
+            # Create the colorbar for the bathymetry
+            if map_extent == 'Full_Arctic':
+                cbar = plt.colorbar(bathy_smap, ax=ax, extend='min', shrink=0.7, pad=0.15)# fraction=0.05)
+                # Fixing ticks
+                # ticks_loc = cbar.ax.get_yticks().tolist()
+                # Not sure why the above doesn't work, but this does, setting it kinda manually
+                ticks_loc = np.linspace(0, 1, n_bathy+1)
+                cbar.ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(ticks_loc))
+                # cbar.ax.set_yticklabels(['','3000','2000','1000','200','0'])
+                cbar.ax.set_yticklabels(['','5000','4000','3000','2000','1000','200','0'])
+                cbar.ax.tick_params(labelsize=font_size_ticks)
+                cbar.set_label('Bathymetry (m)', size=font_size_labels)
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -3393,7 +3458,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.scatter(this_df['lon'], this_df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=mrk_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
                 i += 1
                 # Add legend to report the total number of points for this instrmt
-                lgnd_label = source+': '+str(len(this_df['lon']))+' points'
+                lgnd_label = source+': '+str(len(this_df['lon']))+' profiles'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
                 notes_string = ''.join(this_df.notes.unique())
             # Only add the notes_string if it contains something
@@ -3401,7 +3466,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 lgnd_hndls.append(notes_patch)
             # Add legend with custom handles
-            lgnd = ax.legend(handles=lgnd_hndls)
+            if pp.legend:
+                lgnd = ax.legend(handles=lgnd_hndls)
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -3459,9 +3525,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if map_extent == 'Full_Arctic':
                 cbar = plt.colorbar(bathy_smap, ax=ax, extend='min', shrink=0.7, pad=0.15)# fraction=0.05)
                 # Fixing ticks
-                ticks_loc = cbar.ax.get_yticks().tolist()
+                # ticks_loc = cbar.ax.get_yticks().tolist()
+                # Not sure why the above doesn't work, but this does, setting it kinda manually
+                ticks_loc = np.linspace(0, 1, n_bathy+1)
                 cbar.ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(ticks_loc))
-                cbar.ax.set_yticklabels(['','3000','2000','1000','200','0'])
+                # cbar.ax.set_yticklabels(['','3000','2000','1000','200','0'])
+                cbar.ax.set_yticklabels(['','5000','4000','3000','2000','1000','200','0'])
                 cbar.ax.tick_params(labelsize=font_size_ticks)
                 cbar.set_label('Bathymetry (m)', size=font_size_labels)
             # Add a standard title
@@ -3507,7 +3576,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
             cbar.set_label(pp.clabel)
             # Add a standard legend
-            add_std_legend(ax, df, 'lon')
+            if pp.legend:
+                add_std_legend(ax, df, 'lon', lgd_str=' profiles')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -4180,12 +4250,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     # Get extra args dictionary, if it exists
     try:
         extra_args = pp.extra_args
-        print('extra_args:',extra_args)
+        # print('extra_args:',extra_args)
     except:
         extra_args = False
     # Make a blank list for dataframes of each profile
     profile_dfs = []
-    profile_dfs_dict = {}
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Check whether to run the clustering algorithm
@@ -4269,9 +4338,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         except:
             mark_thermocline = False
         try:
-            separate_instrmts = extra_args['separate_instrmts']
+            separate_periods = extra_args['separate_periods']
         except:
-            separate_instrmts = False
+            separate_periods = False
     else:
         plt_noise = True
         shift_pfs = True
@@ -4279,7 +4348,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         plot_pts = True
         clstrs_to_plot = []
         mark_thermocline = False
-        separate_instrmts = False
+        separate_periods = False
     # Re-order the cluster labels, if specified
     if sort_clstrs:
         try:
@@ -4300,32 +4369,57 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     else:
         shift_pfs = 0
     # Find the unique profiles for this instrmt
-    #   Make sure to match the variable type
+    #   Need to search by datetime because different instruments can have 
+    #   profiles with the same profile number
     pfs_in_this_df = []
-    for pf_no in df['prof_no'].values:
-        if pf_no not in pfs_in_this_df:
-            pfs_in_this_df.append(pf_no)
+    # If I'm separating by period, it makes sense to do that here, while the whole dataframe is still together
+    if separate_periods:
+        # Sort the dataframe by the time
+        df.sort_index(level='Time', inplace=True)
+        # Make a dictionary to hold the dataframes for each period
+        sep_periods_dfs_dict = {}
+        # Loop through the different time periods
+        for this_period in bps.date_range_dict.keys():
+            # Find the date range for this period
+            date_0 = bps.date_range_dict[this_period][0]
+            date_1 = bps.date_range_dict[this_period][1]
+            # Get just the slice of the dataframe for this period
+            df_this_period = df.xs(slice(date_0,date_1), level='Time', drop_level=False)
+            # Check to make sure there was data left over
+            if len(df_this_period) < 1:
+                continue
+            # Add an entry to the dictionary
+            sep_periods_dfs_dict[this_period] = []
+            # Get the unique profiles for this period
+            for pf_dt in df_this_period['dt_start'].values:
+                if pf_dt not in pfs_in_this_df:
+                    pfs_in_this_df.append(pf_dt)
+                    # Get just the part of the dataframe for this profile
+                    pf_df = df_this_period[df_this_period['dt_start']==pf_dt]
+                    profile_dfs.append(pf_df)
+                    sep_periods_dfs_dict[this_period].append(pf_df)
+                #
+            #
+        #
+    else:
+        for pf_dt in df['dt_start'].values:
+            if pf_dt not in pfs_in_this_df:
+                pfs_in_this_df.append(pf_dt)
+                # Get just the part of the dataframe for this profile
+                pf_df = df[df['dt_start']==pf_dt]
+                profile_dfs.append(pf_df)
+            #
         #
     # Make sure you're not trying to plot too many profiles
-    if len(pfs_in_this_df) > 15:
+    if len(pfs_in_this_df) > 15 and separate_periods==False:
         print('You are trying to plot',len(pfs_in_this_df),'profiles')
         print('That is too many. Try to plot less than 15')
         exit(0)
     else:
         print('\t- Plotting',len(pfs_in_this_df),'profiles')
-        print('\t- Profiles to plot:',pfs_in_this_df)
-    # Loop through each profile to create a list of dataframes
-    for pf_no in pfs_in_this_df:
-        # Get just the part of the dataframe for this profile
-        pf_df = df[df['prof_no']==pf_no]
-        profile_dfs.append(pf_df)
-        # Get instrument name for this profile
-        this_pf_instrmt = pf_df['instrmt'].values[0]
-        try:
-            profile_dfs_dict[this_pf_instrmt].append(pf_df)
-        except:
-            profile_dfs_dict[this_pf_instrmt] = [pf_df]
-        # print(pf_df)
+        if separate_periods==False:
+            print('\t- Profiles to plot:',pfs_in_this_df)
+        # 
     # Set the keys for CT max markers
     TC_max_key = False
     TC_min_key = False
@@ -4371,16 +4465,23 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     # 
     # Plot each profile
-    if separate_instrmts:
-        print('\t- Plotting profiles separately by instrument')
-        # print('profile_dfs_dict:',profile_dfs_dict)
+    if separate_periods:
+        print('\t- Plotting profiles separately by period')
         i = 0
-        for this_instrmt in profile_dfs_dict.keys():
-            ret_dict = add_profiles(ax, a_group, len(profile_dfs_dict[this_instrmt]), profile_dfs_dict[this_instrmt], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key)
+        # Keep track of the average x span for the profiles to shift each period over
+        x_span_avg = 0.0
+        # Keep track of the x means for each period to add ticks later
+        period_x_ticks = {}
+        # Loop through the periods in the dictionary
+        for this_period in sep_periods_dfs_dict.keys():
+            period_x_ticks[this_period] = x_span_avg
+            ret_dict = add_profiles(ax, a_group, len(sep_periods_dfs_dict[this_period]), sep_periods_dfs_dict[this_period], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, 0, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods, x_span_avg)
+            x_span_avg = ret_dict['xv_span_avg']
             i += 1
+        print('\t- Done plotting profiles separately by period, i =',i)
     else:
-        ret_dict = add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key)
-    # Plot on twin axes, if specified
+        ret_dict = add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
+    # Adjust twin axes, if specified
     if not isinstance(tw_x_key, type(None)):
         # Adjust bounds on axes
         # tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
@@ -4398,20 +4499,24 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         if invert_tw_y_axis:
             tw_ax_y.invert_yaxis()
             print('\t- Inverting twin y axis')
-    if True:
-        # Change color of the axis label
-        ax.xaxis.label.set_color(var_clr)
-        # Change color of the ticks
-        ax.tick_params(axis='x', colors=var_clr)
-    else:
-        ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+    # if True:
+    #     # Change color of the axis label
+    #     ax.xaxis.label.set_color(var_clr)
+    #     # Change color of the ticks
+    #     ax.tick_params(axis='x', colors=var_clr)
+    # else:
+    #     ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
     # Check whether to add a scale bar
-    if add_scale_bar and shift_pfs == 1:
+    # if add_scale_bar and (shift_pfs == 1 or separate_periods == True):
+    if (shift_pfs == 1 or separate_periods == True):
         if tw_x_key:
             add_h_scale_bar(ax, ax_lims, unit=' g/kg', clr=var_clr)
             add_h_scale_bar(tw_ax_y, ax_lims, unit=r' $^\circ$C', tw_clr=tw_clr)
         else:
             add_h_scale_bar(ax, ax_lims, unit=' g/kg')
+            if separate_periods:
+                ax.set_xticks(list(period_x_ticks.values()))
+                ax.set_xticklabels(list(period_x_ticks.keys()))#, rotation=45)
     # Add legend
     if legend:
         lgnd = ax.legend()
@@ -4432,7 +4537,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
 ################################################################################
 
 # Plot each profile
-def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key):
+def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False, x_span_avg=0.0):
     """
     Adds the profiles to the plot
 
@@ -4462,6 +4567,17 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
     xv_span = 0
     tw_span_max = 0
     tw_span = 0
+    tw_left_bound = 0
+    tw_x_pad = 0
+    twin_high = 0
+    x_span_arr = []
+    if separate_periods == False:
+        period_shift = 0
+        x_span_avg = 0
+        pf_line_alpha = pf_alpha
+    else:
+        period_shift = 1
+        pf_line_alpha = 0.3
     # Make a dictionary of variables to return
     ret_dict = {}
     for i in range(n_pfs):
@@ -4481,12 +4597,12 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
         # Decide on marker and line styles, don't go off the end of the array
         mkr     = mpl_mrks[i%len(mpl_mrks)]
         l_style = l_styles[i%len(l_styles)]
-        if shift_pfs == 0:
-            var_clr = distinct_clrs[i%len(distinct_clrs)]
+        # if shift_pfs == 0:
+        #     var_clr = distinct_clrs[i%len(distinct_clrs)]
         # Get array to plot and find bounds
         if i == 0:
             # Pull data to plot
-            xvar = pf_df[x_key]
+            xvar = pf_df[x_key] - np.mean(pf_df[x_key])*period_shift + x_span_avg
             # Find CT max if applicable
             if TC_max_key:
                 TC_max = np.unique(np.array(pf_df[TC_max_key].values))
@@ -4537,8 +4653,9 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             old_xvar_low = xvar_low
             old_xvar_high = xvar_high
             old_xv_span = xv_span
+            x_span_arr.append(xv_span)
             # Find array of data for this profile
-            xvar = pf_df[x_key] - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
+            xvar = pf_df[x_key] - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs - np.mean(pf_df[x_key])*period_shift + x_span_avg
             if TC_max_key:
                 TC_max = np.unique(np.array(pf_df[TC_max_key].values)) - min(pf_df[x_key])*shift_pfs + old_xvar_low*shift_pfs
             if TC_min_key:
@@ -4628,7 +4745,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
             if plot_pts:
                 # Plot every point the same color, size, and marker
                 ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
@@ -4643,7 +4760,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 ax.scatter(TC_min, press_TC_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
                 if plot_pts:
                     tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
                 if TC_max_key:
@@ -4655,7 +4772,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, alpha=0.5, label=pf_label, zorder=1)
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
             # Make a dataframe with adjusted xvar and tvar
             df_clstrs = pd.DataFrame({x_key:xvar, tw_x_key:tvar, y_key:pf_df[y_key], 'cluster':pf_df['cluster'], 'clst_prob':pf_df['clst_prob']})
             # Get a list of unique cluster numbers, but delete the noise point label "-1"
@@ -4668,7 +4785,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 #ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, zorder=1)
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
                 if plt_noise:
                     tw_ax_y.scatter(df_clstrs[df_clstrs.cluster==-1][tw_x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
             # Loop through each cluster
@@ -4699,6 +4816,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
     print('\t- xv_span_max:',xv_span_max,'tw_span_max:',tw_span_max)
     # Build the return dictionary
     ret_dict['xv_span_max'] = xv_span_max
+    ret_dict['xv_span_avg'] = np.mean(x_span_arr)
     ret_dict['tw_span_max'] = tw_span_max
     ret_dict['left_bound'] = left_bound
     ret_dict['right_bound'] = right_bound
