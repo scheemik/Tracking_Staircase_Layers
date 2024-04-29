@@ -25,6 +25,9 @@ import BGR_params as bps
 ## Profile filter objects
 ################################################################################
 
+# The profile filters for tracking LHW and AW
+pfs_LHW_and_AW = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR)
+
 # The profile filters I'm using for this study
 pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 

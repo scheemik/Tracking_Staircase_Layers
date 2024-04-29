@@ -921,12 +921,25 @@ def read_ITP_cormat(file_path, file_name, instrmt, prof_no):
             if press_min == press_max:
                 press_min = None
             # Get index of TC_min, making sure it occurs at a lower pressure than p(CT_TC_max)
-            non_nan_CT1_above_press_TC_max = non_nan_CT1[non_nan_press0 < press_TC_max]
-            i_CT_TC_min = np.where(CT1 == min(non_nan_CT1_above_press_TC_max))[0][0]
+            # non_nan_CT1_above_press_TC_max = non_nan_CT1[non_nan_press0 < press_TC_max]
+            # i_CT_TC_min = np.where(CT1 == min(non_nan_CT1_above_press_TC_max))[0][0]
             # Get values of TC_max, press_TC_max, and SA_TC_max
-            CT_TC_min = CT1[i_CT_TC_min]
-            press_TC_min = press0[i_CT_TC_min]
-            SA_TC_min = SA1[i_CT_TC_min]
+            # CT_TC_min = CT1[i_CT_TC_min]
+            # press_TC_min = press0[i_CT_TC_min]
+            # SA_TC_min = SA1[i_CT_TC_min]
+
+            ## Defining TC_min as pressure where SA is closest to 34.1
+            # Only consider the water column above press_TC_max
+            above_press_TC_max_mask = (non_nan_press0 < press_TC_max)
+            non_nan_SA1_above_press_TC_max = non_nan_SA1[above_press_TC_max_mask]
+            non_nan_CT1_above_press_TC_max = non_nan_CT1[above_press_TC_max_mask]
+            non_nan_press0_above_press_TC_max = non_nan_press0[above_press_TC_max_mask]
+            # Find the index of the value closest to 34.1
+            i_SA_TC_min = np.argmin(np.abs(non_nan_SA1_above_press_TC_max - 34.1))
+            # Get values of CT_TC_min, press_TC_min, and SA_TC_min
+            CT_TC_min    = non_nan_CT1_above_press_TC_max[i_SA_TC_min]
+            press_TC_min = non_nan_press0_above_press_TC_max[i_SA_TC_min]
+            SA_TC_min    = non_nan_SA1_above_press_TC_max[i_SA_TC_min]
         except:
             print('\t- ITP',instrmt,'profile',prof_no,': Cannot compute TC_min vars')
             press_min = None

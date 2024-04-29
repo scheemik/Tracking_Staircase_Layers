@@ -1129,7 +1129,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df['instrmt'] = ds.Instrument
             # Calculate extra variables, as needed
             for var in plot_vars:
-                if 'max' in var:
+                if 'max' in var and not 'TC_max' in var:
                     # Split the prefix from the original variable (assumes an underscore split)
                     split_var = var.split('_', 1)
                     prefix = split_var[0]
