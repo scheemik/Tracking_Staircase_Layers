@@ -218,10 +218,12 @@ cmm_prefix = 'cmm_' # cluster min/max
 cmm_vars   = [ f'{cmm_prefix}{var}'  for var in vertical_vars]
 nir_prefix = 'nir_' # normalized inter-cluster range
 nir_vars   = [ f'{nir_prefix}{var}'  for var in vertical_vars]
+trd_prefix = 'trd_' # trend in a variable over dt_start
+trd_vars   = [ f'{trd_prefix}{var}'  for var in vertical_vars]
 # Make a complete list of cluster-related variables
-clstr_vars = ['cluster', 'cRL', 'cRl', 'ca_dt_start'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars
+clstr_vars = ['cluster', 'cRL', 'cRl', 'ca_dt_start'] + pca_vars + pcs_vars + cmc_vars + ca_vars + cs_vars + csd_vars + cmm_vars + nir_vars + trd_vars
 # Make a complete list of per profile variables
-pf_vars = pf_vars + max_vars + min_vars + ['cRL', 'cRl'] + pca_vars + pcs_vars
+pf_vars = pf_vars + max_vars + min_vars + ['cRL', 'cRl'] + pca_vars + pcs_vars + trd_vars
 # For parameter sweeps of clustering
 #   Independent variables
 clstr_ps_ind_vars = ['m_pts', 'n_pfs', 'ell_size']
@@ -779,6 +781,9 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 if prefix in ['la']:
                     vars_to_keep.append(var)
                     vars_to_keep.append(var_str)
+                # Add dt_start if prefix indicates a trend in a variable
+                if prefix in ['trd']:
+                    vars_to_keep.append('dt_start')
             # Check for variables for which to normalize by subtracting a polyfit2d
             #   ex: `press-fit`
             if '-' in var:
@@ -1604,6 +1609,11 @@ def get_axis_label(var_key, var_attr_dicts):
         var_str = var_key[4:]
         return r'Normalized inter-cluster range $IR_{S_A}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
+    # Check for trend variables
+    elif 'trd_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + '/year'
     # Check for the polyfit2d of a variable
     elif 'fit_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -5882,6 +5892,41 @@ def calc_extra_cl_vars(df, new_cl_vars):
             # print(clstr_id_here,',',this_rnge,',',this_diff,',',this_nir)
             # Put that value back into the original dataframe
             df.loc[df['cluster']==clstr_id_here, this_var] = this_nir
+            #
+        elif prefix == 'trd':
+            # Find the trend vs. dt_start of each cluster for the variable
+            #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
+            print('\t- Finding trend in var:',var)
+            adjustment_factor = 365.25
+            per_unit = '/day'
+            # Decide what kind of regression to use
+            plot_slopes = 'OLS'
+            # Loop over each cluster
+            for i in clstr_ids:
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i].copy()
+                x_data = np.array(df_this_cluster['dt_start'].values)
+                x_data = mpl.dates.date2num(x_data)
+                y_data = np.array(df_this_cluster[var].values)
+                # Find the trend vs. dt_start of this var for this cluster
+                if plot_slopes == 'OLS':
+                    # Find the slope of the ordinary least-squares of the points for this cluster
+                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                    print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+                    print('\t\t- R^2 value is',rvalue)
+                else:
+                    # Find the slope of the total least-squares of the points for this cluster
+                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                    print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+                # Put those values back into the original dataframe
+                df.loc[df['cluster']==i, this_var] = m*adjustment_factor
+                # print('cluster '+str(i)+', '+str(m))
             #
         if this_var == 'cRL':
             # Find the lateral density ratio R_L for each cluster
