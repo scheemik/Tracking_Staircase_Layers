@@ -1279,11 +1279,15 @@ if True:
     print('')
     print('- Creating plot of the trend in pressure over time vs. cluster average pressure for all clusters')
     # Make the Plot Parameters
-    pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False}, legend=False)
+    pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'extra_vars_to_keep':['cRL','nir_SA']}, ax_lims={'y_lims':[360,190]}, legend=False)
+    pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'extra_vars_to_keep':['cRL','nir_SA']}, legend=False)
+    pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'extra_vars_to_keep':['cRL','nir_SA']}, legend=False)
     # Make the subplot groups
     group_press_trends = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_trends)
+    group_SA_trends = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_trends)
+    group_CT_trends = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_trends)
     # Make the figure
-    ahf.make_figure([group_press_trends])
+    ahf.make_figure([group_press_trends, group_SA_trends, group_CT_trends])
 
 ################################################################################
 ## Pre-clustered spans and averages in variables

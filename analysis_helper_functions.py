@@ -702,7 +702,10 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                 # If adding extra variables to keep
                 if key == 'extra_vars_to_keep':
                     for var in pp.extra_args[key]:
-                        vars_to_keep.append(var)
+                        if var in ['cRL', 'nir_SA']:
+                            plot_vars.append(var)
+                        else:
+                            vars_to_keep.append(var)
                     #
                 #
             #
@@ -5903,7 +5906,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
             clstr_ids = clstr_ids[clstr_ids != -1]
             print('\t- Finding trend in var:',var)
             adjustment_factor = 365.25
-            per_unit = '/day'
+            per_unit = '/yr'
             # Decide what kind of regression to use
             plot_slopes = 'OLS'
             # Loop over each cluster
@@ -5918,16 +5921,21 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     # Find the slope of the ordinary least-squares of the points for this cluster
                     m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
                     # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-                    print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+                    print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                     print('\t\t- R^2 value is',rvalue)
                 else:
                     # Find the slope of the total least-squares of the points for this cluster
                     m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                    print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+                    print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = m*adjustment_factor
                 # print('cluster '+str(i)+', '+str(m))
             #
+            # Make sure that I've calculated cRL and nir_SA as well
+            if 'cRL' not in new_cl_vars:
+                new_cl_vars.append('cRL')
+            if 'nir_SA' not in new_cl_vars:
+                new_cl_vars.append('nir_SA')
         if this_var == 'cRL':
             # Find the lateral density ratio R_L for each cluster
             #   Reduces the number of points to just one per cluster
@@ -6016,7 +6024,7 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
 
 ################################################################################
 
-def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r', mk_size=mrk_size):
+def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r', mk_size=mrk_size, mrk_for_other_vars=[]):
     """
     Finds and marks outliers in the dataframe with respect to the x and y keys
     on the provided axis
@@ -6029,13 +6037,23 @@ def mark_outliers(ax, df, x_key, y_key, find_all=False, threshold=2, mrk_clr='r'
     threshold       The threshold zscore for which to consider an outlier
     mrk_clr         The color in which to mark the outliers
     mk_size         The size of the marker to use to mark the outliers
+    mrk_for_other_vars
     """
     print('\t- Marking outliers')
     # Find outliers
-    df = find_outliers(df, [x_key, y_key], threshold)
+    if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
+        df = find_outliers(df, ['cRL', 'nir_SA'], threshold)
+        # Set the values of all rows for 'out_'+x_key to False
+        ## If I don't do this, then the values not set to True below are NaN
+        df['out_'+x_key] = False
+        # Set rows of 'out_'+x_key to True if either 'out_cRL' or 'out_nir_SA' is True
+        df.loc[df['out_cRL']==True, 'out_'+x_key] = True
+        df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
+    else:
+        df = find_outliers(df, [x_key], threshold)
     # If finding outliers in nir or R_L, find outliers in the other as well
     if x_key == 'cRL' and find_all == True:
-        df = find_outliers(df, ['nir_SA', y_key], threshold)
+        df = find_outliers(df, ['nir_SA', x_key], threshold)
         df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
     #
     # for i in range(len(df)):
@@ -6201,7 +6219,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         plot_centroid = False
         plot_slopes = False
     # Look for outliers
-    if 'nir' in x_key or 'cRL' in x_key:# or 'ca' in x_key:
+    if 'nir' in x_key or 'cRL' in x_key or 'trd' in x_key:
         mrk_outliers = True
     else:
         mrk_outliers = False
@@ -6274,7 +6292,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             # print('plot slopes is',plot_slopes)
-            if plot_slopes and 'cRL' not in [x_key, y_key]:
+            if plot_slopes and 'cRL' not in [x_key, y_key] and 'trd' not in x_key:
                 # print('ploooooting slopes')
                 if plot_3d == False:
                     if plot_slopes == 'OLS':
@@ -6307,8 +6325,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             clstr_means.append(y_mean)
             clstr_stdvs.append(y_stdv)
         # Mark outliers, if specified
+        if 'trd_' in x_key:
+            other_out_vars = ['cRL', 'nir_SA']
+        else:
+            other_out_vars = []
         if mrk_outliers:
-            mark_outliers(ax, df, x_key, y_key, mk_size=m_size, mrk_clr='red')
+            mark_outliers(ax, df, x_key, y_key, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         if 'nir_' in x_key:
             # Get bounds of axes
             x_bnds = ax.get_xbound()
@@ -6318,74 +6340,75 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Add line at R_L = -1
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
             ax.annotate(r'$IR_{S_A}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
-        # Add some lines if plotting cRL
-        if 'cRL' in [x_key, y_key]:
+        # Add some lines if plotting cRL or trd
+        if plot_slopes:
             # Get bounds of axes
             x_bnds = ax.get_xbound()
             y_bnds = ax.get_ybound()
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
+            # Plot polynomial fit line
             if x_key == 'cRL':
-                # Plot polynomial fit line
                 print('\t- Adding 2nd degrees polynomial fit line:',plot_slopes)
-                if plot_slopes:
-                    # Get the data without the outliers
-                    x_data = df[df['out_'+x_key] == False][x_key].astype('float')
-                    y_data = df[df['out_'+x_key] == False][y_key].astype('float')
-                    # Use polyfit 
-                    deg = 2
-                    z = np.polyfit(y_data, x_data, deg)
-                    x_fit = np.poly1d(z)
-                    # Get the means and standard deviations
-                    x_mean = np.mean(x_data)
-                    x_stdv = np.std(x_data)
-                    y_mean = np.mean(y_data)
-                    y_stdv = np.std(y_data)
-                    # Find R^2 (coefficient of determination) value which is 1 
-                    #   minus the ratio of the sum of squares of residuals over 
-                    #   the total sum of squares
-                    x_fit_data = x_fit(y_data)
-                    ss_res = ((x_data-x_fit_data)**2).sum()
-                    ss_tot = ((x_data-x_mean)**2).sum()
-                    R2 = 1 - ss_res/ss_tot
-                    print('\t- Sum of square residuals:',ss_res)
-                    print('\t- Total sum of squares:',ss_tot)
-                    print('\t- R^2:',R2)
-                    # Make an array of values to plot log fit line 
-                    y_arr = np.linspace(y_bnds[0], y_bnds[1], 50)
-                    # Plot the fit
-                    ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
-                    # Add annotation to say what the line is
-                    line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
-                    ann_x_loc = x_mean+0.5*x_stdv
-                    ann_x_loc = min(x_bnds) + (1/3)*x_span
-                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
-                    # Limit the y axis
-                    ax.set_ylim((y_bnds[0],y_bnds[1]))
-                # Plot exponential fit line
-                if False:
-                    # Get the data without the outliers
-                    x_data = df[df['out_'+x_key] == False][x_key].astype('float')
-                    y_data = df[df['out_'+x_key] == False][y_key].astype('float')
-                    # Get the means and standard deviations
-                    x_mean = np.mean(x_data)
-                    x_stdv = np.std(x_data)
-                    y_mean = np.mean(y_data)
-                    y_stdv = np.std(y_data)
-                    # Make an array of values to plot log fit line (needs to be all negative values)
-                    x_arr = np.linspace(x_bnds[0], 0, 25)
-                    # Find the slope of the total least-squares of the points in semilogx
-                    m, c, sd_m, sd_c = orthoregress(np.log(-1*x_data), y_data)
-                    print('sd_m:',sd_m,'sd_c:',sd_c)
-                    # Plot the semilogx least-squares fit on the non-semilogx axes
-                    ax.plot(x_arr, m*np.log(-1*x_arr)+c, color=alt_std_clr)
-                    # Add annotation to say what the line is
-                    # line_label = "$%.2f\\ln(-R_L)+%.2f $"%(m,c)
-                    line_label = "$R_L = -\exp( %.2f - p/ %.2f )$"%(c/abs(m),abs(m))
-                    ax.annotate(line_label, xy=(x_mean+2*x_stdv,y_mean+y_stdv), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
-                    # Limit the y axis
-                    ax.set_ylim((y_bnds[1],y_bnds[0]))
-                #
+                # Get the data without the outliers
+                x_data = df[df['out_'+x_key] == False][x_key].astype('float')
+                y_data = df[df['out_'+x_key] == False][y_key].astype('float')
+                # Use polyfit 
+                deg = 2
+                z = np.polyfit(y_data, x_data, deg)
+                x_fit = np.poly1d(z)
+                # Get the means and standard deviations
+                x_mean = np.mean(x_data)
+                x_stdv = np.std(x_data)
+                y_mean = np.mean(y_data)
+                y_stdv = np.std(y_data)
+                # Find R^2 (coefficient of determination) value which is 1 
+                #   minus the ratio of the sum of squares of residuals over 
+                #   the total sum of squares
+                x_fit_data = x_fit(y_data)
+                ss_res = ((x_data-x_fit_data)**2).sum()
+                ss_tot = ((x_data-x_mean)**2).sum()
+                R2 = 1 - ss_res/ss_tot
+                print('\t- Sum of square residuals:',ss_res)
+                print('\t- Total sum of squares:',ss_tot)
+                print('\t- R^2:',R2)
+                # Make an array of values to plot log fit line 
+                y_arr = np.linspace(y_bnds[0], y_bnds[1], 50)
+                # Plot the fit
+                ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
+                # Add annotation to say what the line is
+                line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
+                ann_x_loc = x_mean+0.5*x_stdv
+                ann_x_loc = min(x_bnds) + (1/3)*x_span
+                ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
+                # Limit the y axis
+                ax.set_ylim((y_bnds[0],y_bnds[1]))
+            # Plot linear fit line
+            if 'trd' in x_key:
+                # Get the data without the outliers
+                x_data = df[df['out_'+x_key] == False][x_key].astype('float')
+                y_data = df[df['out_'+x_key] == False][y_key].astype('float')
+                # Get the means and standard deviations
+                x_mean = np.mean(x_data)
+                x_stdv = np.std(x_data)
+                y_mean = np.mean(y_data)
+                y_stdv = np.std(y_data)
+                if plot_slopes == 'OLS':
+                    # Find the slope of the ordinary least-squares of the points for this cluster
+                    # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
+                    # sd_m, sd_c = 0, 0
+                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                    print('\t\t- R^2 value is',rvalue)
+                else:
+                    # Find the slope of the total least-squares of the points for this cluster
+                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                    print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
+                # Plot the least-squares fit line for this cluster through the centroid
+                ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
+                # Add annotation to say what the line is
+                annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
+                ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
             #
         # Add legend to report the total number of points and notes on the data
         n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
