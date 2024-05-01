@@ -237,7 +237,7 @@ this_BGR = 'BGR0506'
 # this_BGR = 'BGR2021'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
-this_BGR = 'BGR_all'
+# this_BGR = 'BGR_all'
 # ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
@@ -1225,7 +1225,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.68])
 # Temperature vs. time
-if True:
+if False:
     print('')
     print('- Creating plot of temperature vs time')
     # Make the Plot Parameters
@@ -1235,7 +1235,7 @@ if True:
     # Make the figure
     ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.5, 1.68])
 # Pressure vs. time
-if True:
+if False:
     print('')
     print('- Creating plot of pressure vs time')
     # Make the Plot Parameters
@@ -1244,6 +1244,7 @@ if True:
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.5, 1.68])
+
 # Temperature vs. time and pressure vs. time
 if False:
     print('')
@@ -1259,11 +1260,11 @@ if False:
 
 ################################################################################
 # Cluster average pressure vs cluster average salinity
-if False:
+if True:
     print('')
     print('- Creating plots of cluster average pressure vs cluster average salinity')
     # Make the Plot Parameters
-    pp_SA_vs_press = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False})
+    pp_SA_vs_press = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=['ca_press'], clr_map='clr_all_same', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 're_run_clstr':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster','cRL','nir_SA']})
     # Make the subplot groups
     group_SA_vs_press = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_press)
     # Make the figure

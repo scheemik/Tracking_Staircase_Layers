@@ -2581,6 +2581,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
             mv_avg = False
         if 'mpi_run' in extra_args.keys():
             mpi_run = extra_args['mpi_run']
+        if 're_run_clstr' in extra_args.keys():
+            re_run_clstr = extra_args['re_run_clstr']
+        else:
+            re_run_clstr = True
     else:
         extra_args = False
         plot_slopes = False
@@ -2648,7 +2652,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check for cluster-based variables
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map])
+            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map], re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
         # Check whether to normalize by subtracting a polyfit2d
         if fit_vars:
@@ -3414,7 +3418,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check for cluster-based variables
         if clr_map in clstr_vars:
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map])
+            df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map], re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
         # Drop dimensions, if needed
         if 'Vertical' in df.index.names:
@@ -4264,6 +4268,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     try:
         extra_args = pp.extra_args
         # print('extra_args:',extra_args)
+        if 're_run_clstr' in extra_args:
+            re_run_clstr = extra_args['re_run_clstr']
+        else:
+            re_run_clstr = True
     except:
         extra_args = False
     # Make a blank list for dataframes of each profile
@@ -4281,7 +4289,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         #
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars, re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
@@ -4885,6 +4893,10 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             fit_vars = extra_args['fit_vars']
         else:
             fit_vars = False
+        if 're_run_clstr' in extra_args.keys():
+            re_run_clstr = extra_args['re_run_clstr']
+        else:
+            re_run_clstr = True
     except:
         extra_args = False
         fit_vars = False
@@ -4942,7 +4954,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         #
     if cluster_this:
         m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
-        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars)
+        df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=plot_vars, re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
     # Filter to specified range if applicable
     if not isinstance(a_group.plt_params.ax_lims, type(None)):
@@ -5460,7 +5472,7 @@ def get_cluster_args(pp):
 
 ################################################################################
 
-def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_vars=[None], param_sweep=False):
+def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_vars=[None], param_sweep=False, re_run_clstr=True):
     """
     Runs the HDBSCAN algorithm on the set of data specified. Returns a pandas
     dataframe with columns for x_key, y_key, 'cluster', and 'clst_prob', a
@@ -5492,12 +5504,15 @@ def HDBSCAN_(arr_of_ds, df, x_key, y_key, z_key, m_pts, m_cls='auto', extra_cl_v
     if len(ell_sizes) > 1:
         print('\t- ell_sizes:',np.unique(ell_sizes))
     ell_size = ell_sizes[0]
+    # If I've manually set re_run_cluster to False, then don't re-run the clustering
+    if re_run_clstr == False:
+        re_run = False
     # Whether to run a parameter sweep
     if param_sweep:
         re_run = True
         print('-- Parameter sweep, re_run:',re_run)
     # Check to make sure there is actually a 'cluster' column in the dataframe
-    elif not 'cluster' in df.columns.values.tolist():
+    elif re_run_clstr != False and not 'cluster' in df.columns.values.tolist():
         re_run = True
         print('-- `cluster` not in df columns, re_run:',re_run)
     # Check to make sure the global clustering attributes make sense
@@ -6121,6 +6136,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             clstrs_to_plot = pp.extra_args['clstrs_to_plot']
         except:
             clstrs_to_plot = []
+        try:
+            mrk_outliers = pp.extra_args['mark_outliers']
+        except:
+            mrk_outliers = False
     else:
         plt_noise = True
         sort_clstrs = True
@@ -6219,10 +6238,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         plot_centroid = False
         plot_slopes = False
     # Look for outliers
-    if 'nir' in x_key or 'cRL' in x_key or 'trd' in x_key:
-        mrk_outliers = True
-    else:
-        mrk_outliers = False
+    # if 'nir' in x_key or 'cRL' in x_key or 'trd' in x_key:
+    #     mrk_outliers = True
+    # else:
+    #     mrk_outliers = False
     print('\t- Mark outliers:',mrk_outliers)
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
