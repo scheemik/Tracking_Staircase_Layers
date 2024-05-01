@@ -1217,13 +1217,33 @@ if False:
 #*# Salinity vs. time
 if False:
     print('')
-    print('- Creating plots of salinity vs time')
+    print('- Creating plot of salinity vs time')
     # Make the Plot Parameters
     pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True}, legend=False)
     # Make the subplot groups 
-    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt)
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.69])#, row_col_list=[1,1, 0.27, 1.0])
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.68])
+# Temperature vs. time
+if True:
+    print('')
+    print('- Creating plot of temperature vs time')
+    # Make the Plot Parameters
+    pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True}, legend=False)
+    # Make the subplot groups
+    group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.5, 1.68])
+# Pressure vs. time
+if True:
+    print('')
+    print('- Creating plot of pressure vs time')
+    # Make the Plot Parameters
+    pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True}, legend=False)
+    # Make the subplot groups
+    group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.5, 1.68])
 # Temperature vs. time and pressure vs. time
 if False:
     print('')
@@ -1275,7 +1295,7 @@ if False:
 
 ################################################################################
 #*# trends in pressure over time for all clusters
-if True:
+if False:
     print('')
     print('- Creating plot of the trend in pressure over time vs. cluster average pressure for all clusters')
     # Make the Plot Parameters

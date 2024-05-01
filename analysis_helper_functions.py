@@ -159,7 +159,7 @@ mrk_size3     = 0.5
 mrk_alpha     = 0.5
 mrk_alpha2    = 0.3
 mrk_alpha3    = 0.1
-noise_alpha   = 0.2
+noise_alpha   = 0.05
 grid_alpha    = 0.3
 plt.rcParams['grid.color'] = (0.5,0.5,0.5,grid_alpha)
 hist_alpha    = 0.8
@@ -2407,7 +2407,7 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
         for aug_15 in all_08_15s:
-            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.3)
+            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.4, zorder=10)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -6097,7 +6097,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     """
     # Needed to make changes to a copy of the global variable
     global mrk_size
-    m_size = mrk_size
+    m_size = mrk_size3
     # Find extra arguments, if given
     legend = pp.legend
     if not isinstance(pp.extra_args, type(None)):
@@ -6238,12 +6238,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             if m_size == cent_mrk_size:
                 my_mkr = r"${}$".format(str(i))
-                mrk_alpha = 1
+                m_alpha = 1
             else:
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
                 # m_size = cent_mrk_size
                 # my_mkr = r"${}$".format(str(i))
-                mrk_alpha = 0.5
+                m_alpha = mrk_alpha3
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
             # If this cluster has no points, skip it
@@ -6279,10 +6279,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             else:
                 if plot_3d == False:
                     # Plot in 2D
-                    ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
+                    ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
                 else:
                     # Plot in 3D
-                    ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=mrk_alpha, zorder=5)
+                    ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
             # Plot the centroid of this cluster
             if plot_centroid:
                 # This plots a circle upon which to put the centroid symbol
@@ -6331,13 +6331,64 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             other_out_vars = []
         if mrk_outliers:
             mark_outliers(ax, df, x_key, y_key, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
+        # Add cluster markers on left and right-hand sides if plotting vs time
+        if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
+            # Select date on which to place the cluster numbers on the left-hand side
+            x_place = mpl.dates.date2num(datetime.fromisoformat('2005-07-01'))
+            these_clst_ids = []
+            # Define the date bounds for BGR0506
+            BGR0506_start = mpl.dates.date2num(datetime.fromisoformat('2005-08-15'))
+            BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
+            # for i in cluster_numbers:
+            # Just the clusters that appear in BGR0506
+            for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i]
+                # Get data just between 2005-08-15 and 2006-08-15
+                df_this_cluster = df_this_cluster[(df_this_cluster['dt_start'] > BGR0506_start) & (df_this_cluster['dt_start'] < BGR0506_end)]
+                # Get relevant data
+                y_data = df_this_cluster[y_key] 
+                y_mean = np.mean(y_data)
+                # Decide on the color and symbol, don't go off the end of the arrays
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # This plots a circle upon which to put the cluster number
+                # ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                # This will plot the cluster number on the left-hand side
+                ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+                these_clst_ids.append(i)
+            # print('Cluster numbers:',these_clst_ids)
+            # Select date on which to place the cluster numbers on the right-hand side
+            x_place = mpl.dates.date2num(datetime.fromisoformat('2022-10-01'))
+            these_clst_ids = []
+            # Define the date bounds for BGR2122
+            BGR2122_start = mpl.dates.date2num(datetime.fromisoformat('2021-08-15'))
+            BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
+            # for i in cluster_numbers:
+            # Just the clusters that appear in BGR2122
+            for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i]
+                # Get data just between 2005-08-15 and 2006-08-15
+                df_this_cluster = df_this_cluster[(df_this_cluster['dt_start'] > BGR2122_start) & (df_this_cluster['dt_start'] < BGR2122_end)]
+                # Get relevant data
+                y_data = df_this_cluster[y_key] 
+                y_mean = np.mean(y_data)
+                # Decide on the color and symbol, don't go off the end of the arrays
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # This plots a circle upon which to put the cluster number
+                # ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                # This will plot the cluster number on the right-hand side
+                ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
+                these_clst_ids.append(i)
+            # print('Cluster numbers:',these_clst_ids)
+        # Add a line at nir_var = 1, if plotting nir
         if 'nir_' in x_key:
             # Get bounds of axes
             x_bnds = ax.get_xbound()
             y_bnds = ax.get_ybound()
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
-            # Add line at R_L = -1
+            # Add line at nir_var = -1
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
             ax.annotate(r'$IR_{S_A}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
         # Add some lines if plotting cRL or trd
