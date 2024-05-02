@@ -3637,30 +3637,52 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         per_unit = ''
         units = ''
         adjustment_factor = 1
+    # Check whether to switch x and y for finding the slope
+    if x_key in ['BSP', 'BSA'] or 'trd_' in x_key:# or 'ca_' in x_key:
+        switch_xy = True
+        # Switch x and y data
+        x_data_ = y_data
+        y_data_ = x_data
+    else:
+        switch_xy = False
+        x_data_ = x_data
+        y_data_ = y_data
     if plot_slopes == 'OLS':
         # Find the slope of the ordinary least-squares of the points for this cluster
         # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
         # sd_m, sd_c = 0, 0
-        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
         print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
         print('\t\t- R^2 value is',rvalue)
     else:
         # Find the slope of the total least-squares of the points for this cluster
-        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+        m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
         print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
     # Find mean and standard deviation of x and y data
     x_mean = df.loc[:,x_key].mean()
     y_mean = df.loc[:,y_key].mean()
     x_stdv = df.loc[:,x_key].std()
     y_stdv = df.loc[:,y_key].std()
-    # Plot the least-squares fit line for this cluster through the centroid
-    ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
     # Add annotation to say what the slope is
-    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+    annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
+    if switch_xy:
+        # Annotate the inverse of the slope
+        annotation_string = r'$($'+annotation_string+r'$)^{-1}$'
+        # Plot the least-squares fit line for this cluster through the centroid
+        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, zorder=3)
     else:
-        annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
+        # Plot the least-squares fit line for this cluster through the centroid
+        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
+    # if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
+    #     # Annotate the inverse of the slope (can't use inverse of standard deviation)
+    #     annotation_string = format_sci_notation(1/anno_m, pm_val=1/anno_sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+    # if 'trd_' in x_key or 'ca_' in x_key:
+    #     # Annotate the inverse of the slope (can't use inverse of standard deviation)
+    #     annotation_string = format_sci_notation(1/anno_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
+    #     annotation_string = r'$('+annotation_string+r')^{-1}$'
+    # else:
+    #     annotation_string = format_sci_notation(anno_m, pm_val=anno_sd_m, sci_lims_f=(0,3))
     ax.annotate(annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
