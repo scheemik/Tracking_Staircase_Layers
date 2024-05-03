@@ -191,7 +191,7 @@ mpl_mrks = [mplms('o',fillstyle='left'), mplms('o',fillstyle='right'), 'x', unit
 l_styles = ['-', '--', '-.', ':']
 
 # A list of variables for which the y-axis should be inverted so the surface is up
-y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_TC_max', 'press_TC_min', 'press_TC_max-fit', 'press_TC_min-fit', 'CT_TC_max', 'CT_TC_min', 'CT_TC_max-fit', 'CT_TC_min-fit', 'SA_TC_max', 'SA_TC_min', 'SA_TC_max-fit', 'SA_TC_min-fit', 'sig_TC_max', 'sig_TC_min', 'sig_TC_max-fit', 'sig_TC_min-fit']
+y_invert_vars = ['press', 'press_max', 'press_min', 'pca_press', 'ca_press', 'press-fit', 'cmm_mid', 'depth', 'pca_depth', 'ca_depth', 'sigma', 'ma_sigma', 'pca_sigma', 'ca_sigma', 'pca_iT', 'ca_iT', 'pca_CT', 'ca_CT', 'pca_PT', 'ca_PT', 'pca_SP', 'ca_SP', 'SA', 'pca_SA', 'ca_SA', 'SA-fit', 'CT', 'CT-fit', 'press_TC_max', 'press_TC_min', 'press_TC_max-fit', 'press_TC_min-fit', 'CT_TC_max', 'CT_TC_min', 'CT_TC_max-fit', 'CT_TC_min-fit', 'SA_TC_max', 'SA_TC_min', 'SA_TC_max-fit', 'SA_TC_min-fit', 'sig_TC_max', 'sig_TC_min', 'sig_TC_max-fit', 'sig_TC_min-fit']
 # A list of the per profile variables
 pf_vars = ['entry', 'prof_no', 'BL_yn', 'dt_start', 'dt_end', 'lon', 'lat', 'region', 'up_cast', 'CT_TC_max', 'press_TC_max', 'SA_TC_max', 'sig_TC_max', 'CT_TC_min', 'press_TC_min', 'SA_TC_min', 'sig_TC_min', 'R_rho']
 # A list of the variables on the `Vertical` dimension
@@ -1618,7 +1618,16 @@ def get_axis_label(var_key, var_attr_dicts):
     elif 'nir_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return r'Normalized inter-cluster range $IR_{S_A}$'
+        if 'press' in var_str:
+            return r'Normalized inter-cluster range $IR_{press}$'
+        elif 'SA' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_A}$'
+        elif 'SP' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_P}$'
+        elif 'iT' in var_str:
+            return r'Normalized inter-cluster range $IR_{T}$'
+        elif 'CT' in var_str:
+            return r'Normalized inter-cluster range $IR_{\Theta}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
     # Check for trend variables
     elif 'trd_' in var_key:
@@ -6098,7 +6107,7 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
 
 ################################################################################
 
-def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mrk_clr='r', mk_size=mrk_size, mrk_for_other_vars=[]):
+def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mrk_clr='purple', mrk_shape=std_marker, mk_size=mrk_size, mrk_for_other_vars=[]):
     """
     Finds and marks outliers in the dataframe with respect to the x and y keys
     on the provided axis
@@ -6113,9 +6122,9 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
     mk_size         The size of the marker to use to mark the outliers
     mrk_for_other_vars
     """
-    print('\t- Marking outliers')
     # Find outliers
     if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
+        print('\t- Marking outliers in cRL and nir_SA')
         df = find_outliers(df, ['cRL', 'nir_SA'], threshold)
         # Set the values of all rows for 'out_'+x_key to False
         ## If I don't do this, then the values not set to True below are NaN
@@ -6123,25 +6132,45 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
         # Set rows of 'out_'+x_key to True if either 'out_cRL' or 'out_nir_SA' is True
         df.loc[df['out_cRL']==True, 'out_'+x_key] = True
         df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
+        # Plot the outliers in 'cRL' and 'nir_SA' in a different color
+        cRL_x_data = np.array(df[df['out_cRL']==True][x_key].values, dtype=np.float64)
+        cRL_y_data = np.array(df[df['out_cRL']==True][y_key].values, dtype=np.float64)
+        nir_x_data = np.array(df[df['out_nir_SA']==True][x_key].values, dtype=np.float64)
+        nir_y_data = np.array(df[df['out_nir_SA']==True][y_key].values, dtype=np.float64)
+        if clr_map == 'clr_all_same':
+            # Plot over the outliers in a different color
+            ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', zorder=6)
+            ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', zorder=6)
+        else:
+            ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
+            ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
+        # Get data with outliers
+        x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
+        y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
     else:
+        print('\t- Marking outliers in',x_key)
         df = find_outliers(df, [x_key], threshold)
-    # If finding outliers in nir or R_L, find outliers in the other as well
-    if x_key == 'cRL' and find_all == True:
-        df = find_outliers(df, ['nir_SA', x_key], threshold)
-        df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
-    #
-    # Get data with outliers
-    x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
-    y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
-    print('found outliers:')
-    print(x_data)
-    print(y_data)
-    # Mark outliers
-    if clr_map == 'clr_all_same':
-        # Plot over the outliers in a different color
-        ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=std_marker, zorder=6)
+        if x_key == 'cRL':
+            mrk_clr = 'r'
+        elif x_key == 'nir_SA':
+            mrk_clr = 'b'
+        # Get data with outliers
+        x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
+        y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
+        # Mark the outliers
+        if clr_map == 'clr_all_same':
+            # Plot over the outliers in a different color
+            ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=6)
+        else:
+            ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+    # Print the outliers
+    if len(x_data) == 0:
+        print('No outliers found')
+        return
     else:
-        ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+        print('Found outliers:')
+        print(x_data)
+        print(y_data)
     # Run it again
     # if mrk_clr == 'r':
     if False:
@@ -6372,8 +6401,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # This will plot the cluster number at the centroid
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             # print('plot slopes is',plot_slopes)
-            if plot_slopes and 'cRL' not in [x_key, y_key] and 'trd' not in x_key:
-                # print('ploooooting slopes')
+            if plot_slopes and x_key != 'cRL' and 'ca_' not in x_key and 'nir' not in x_key and 'trd' not in x_key:
+                print('ploooooting slopes')
                 if plot_3d == False:
                     if plot_slopes == 'OLS':
                         # Find the slope of the ordinary least-squares of the points for this cluster
@@ -6405,7 +6434,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             clstr_means.append(y_mean)
             clstr_stdvs.append(y_stdv)
         # Mark outliers, if specified
-        if 'trd_' in x_key:
+        if x_key != 'cRL' and x_key != 'nir_SA':
             other_out_vars = ['cRL', 'nir_SA']
         else:
             other_out_vars = []
@@ -6519,13 +6548,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 add_linear_slope(ax, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
             #
         # Add legend to report the total number of points and notes on the data
-        n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
-        m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
-        n_clusters = int(len(cluster_numbers))
-        n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
-        n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
-        rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
         if legend:
+            n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
+            m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
+            n_clusters = int(len(cluster_numbers))
+            n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
+            n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
+            rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
             ax.legend(handles=[n_pts_patch, m_pts_patch, n_clstr_patch, n_noise_patch, rel_val_patch])
         # Add inset axis for box-and-whisker plot
         if box_and_whisker:

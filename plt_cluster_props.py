@@ -178,7 +178,16 @@ def make_var_label(var_key, ax_labels):
     elif 'nir_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        return r'Normalized inter-cluster range $IR_{S_A}$'
+        if 'press' in var_str:
+            return r'Normalized inter-cluster range $IR_{press}$'
+        elif 'SA' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_A}$'
+        elif 'SP' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_P}$'
+        elif 'iT' in var_str:
+            return r'Normalized inter-cluster range $IR_{T}$'
+        elif 'CT' in var_str:
+            return r'Normalized inter-cluster range $IR_{\Theta}$'
         # return r'Normalized inter-cluster range $IR$ of '+ ax_labels[var_str]
     # Check for trend variables
     elif 'trd_' in var_key:
@@ -240,7 +249,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
     # Define number of rows and columns based on number of subplots
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
     n_row_col_dict = {'1':[1,1, 0.8, 1.25], '2':[1,2, 0.5, 1.25], '2.5':[2,1, 0.8, 1.25],
-                      '3':[3,1, 0.3, 1.70], '4':[2,2, 0.7, 2.00],
+                      '3':[1,3, 0.2, 1.50], '4':[2,2, 0.7, 2.00],
                       '5':[2,3, 0.5, 2.00], '6':[2,3, 0.5, 2.00],
                       '7':[2,4, 0.4, 2.00], '8':[2,4, 0.4, 2.00],
                       '9':[3,3, 0.8, 2.00]}
@@ -553,11 +562,16 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         # Check whether to mark outliers
         print('\t- Marking outliers:',mrk_outliers)
         if mrk_outliers:
-            if 'trd_' in x_key:
-                other_out_vars = ['cRL', 'nir_SA']
+            # if 'trd_' in x_key:
+            #     other_out_vars = ['cRL', 'nir_SA']
+            # else:
+            #     other_out_vars = []
+            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
+            if x_key != 'cRL' and x_key != 'nir_SA':
+                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=['cRL', 'nir_SA'])
             else:
-                other_out_vars = []
-            ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
+                ahf.mark_outliers(ax, df, x_key, y_key, clr_map)
+            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
             # Get data without outliers
             if plot_slopes:
                 x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
@@ -705,7 +719,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(x_key, y_key, ax)
         # Add legend with custom handles
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
@@ -722,7 +736,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.set_zscale('log')
         # Add a standard title
         # plt_title = ahf.add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_dataset':
         if plot_hist:
             return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
@@ -798,7 +812,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(x_key, y_key, ax)
         # Add legend with custom handles
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
@@ -815,7 +829,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.set_zscale('log')
         # Add a standard title
         # plt_title = ahf.add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'instrmt':
         if plot_hist:
             return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
@@ -860,7 +874,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -890,7 +904,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 i += 1
         # Add a standard title
         # plt_title = ahf.add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'density_hist':
         if plot_hist:
             print('Cannot use density_hist colormap with the `hist` variable')
@@ -942,7 +956,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             else:
                 ax.legend(handles=[n_pts_patch, pixel_patch])
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -954,7 +968,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.set_yscale('log')
         # Add a standard title
         # plt_title = ahf.add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'cluster':
         # Add a standard title
         # plt_title = ahf.add_std_title(a_group)
@@ -993,9 +1007,9 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             ax.w_yaxis.pane.fill = False
             ax.w_zaxis.pane.fill = False
         # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
-        invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering m_cls'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
+        invert_y_axis, a_group.data_frames, foo0, foo1, foo2 = ahf.plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, None, None, None, clr_map, None, None, None, None, box_and_whisker=False, plot_slopes=plot_slopes)
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1007,7 +1021,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.set_yscale('log')
             if log_axes[2]:
                 ax.set_zscale('log')
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
         #
     elif clr_map in np.array(df.columns):
         if pp.plot_scale == 'by_pf':
@@ -1122,7 +1136,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         if pp.legend:
             add_std_legend(ax, df, x_key)
         # Format the axes for datetimes, if necessary
-        format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+        ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1136,7 +1150,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.set_zscale('log')
         # Add a standard title
         # plt_title = add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     else:
         # Did not provide a valid clr_map
         print('Colormap',clr_map,'not valid')
@@ -1147,11 +1161,37 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
 
 ################################################################################
 
+this_clr_map = 'clr_all_same'
+# this_clr_map = 'cluster'
+
+# # Make the plot parameters
+# pp_test = ahf.Plot_Parameters(x_vars=['nir_press'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test2 = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# # Make the subplot groups
+# group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
+# group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
+# # Make the figure
+# make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
+# 
+# exit(0)
+
 # Make the plot parameters
-pp_test = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test2 = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+pp_test = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+pp_test2 = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
 # Make the subplot groups
 group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
 group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
 # Make the figure
-make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
+# make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
+
+for this_ca_var in ['ca_CT']:# ['ca_press', 'ca_SA', 'ca_CT']:
+    # Make the Plot Parameters
+    pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
+    pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
+    pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
+    # Make the subplot groups
+    group_press_trends = Analysis_Group2([df], pp_press_trends)
+    group_SA_trends = Analysis_Group2([df], pp_SA_trends)
+    group_CT_trends = Analysis_Group2([df], pp_CT_trends)
+    # Make the figure
+    make_figure([group_press_trends, group_SA_trends, group_CT_trends])#, filename='trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pickle')
