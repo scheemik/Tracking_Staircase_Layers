@@ -3645,7 +3645,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
 # Auxiliary plotting functions #################################################
 ################################################################################
 
-def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes):
+def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes, anno_prefix=''):
     """
     Adds a line of best fit to the data
 
@@ -3682,12 +3682,12 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         # sd_m, sd_c = 0, 0
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-        print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days
         print('\t\t- R^2 value is',rvalue)
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
-        print('\t\t- Slope is',m,'+/-',sd_m,per_unit) # Note, units for dt_start are in days
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days
     # Find mean and standard deviation of x and y data
     # x_mean = df.loc[:,x_key].mean()
     # y_mean = df.loc[:,y_key].mean()
@@ -3708,7 +3708,7 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
     # Put annotation on the plot
-    ax.annotate(annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
+    ax.annotate(anno_prefix+annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -5355,7 +5355,7 @@ def reco_polyfit2d(X, Y, coeffs, kx, ky, order):
             c += 1
     print('\t- Fitted equation:')
     print('\t'+eq_string)
-    return recro
+    return recro, eq_string
 
 ################################################################################
 
@@ -5379,12 +5379,13 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     print('plt_vars:',plt_vars)
     print('fit_vars:',fit_vars)
     # Find which of the plot variables has `-fit` in it
+    fit_these_vars = []
+    these_split_vars = []
     plt_var = None
     for var in plt_vars:
         if not isinstance(var, type(None)):
             if '-fit' in var:
                 plt_var = var
-                print('\t- Calculating fit of',plt_var,'on',fit_vars)
                 # Split the suffix from the original variable (assumes a hyphen split)
                 split_var = var.split('-', 1)
                 var_str = split_var[0]
@@ -5393,39 +5394,74 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
                     # Split the prefix from the original variable (assumes an underscore split)
                     split_var2 = var_str.split('_', 1)
                     var_str = split_var2[1]
+                # Add var_str to list of vars to calculate fit
+                fit_these_vars.append(var_str)
+                these_split_vars.append(split_var)
             elif 'fit_' in var:
                 plt_var = var
-                print('\t- Calculating fit of',plt_var,'on',fit_vars)
                 # Split the suffix from the original variable (assumes an underscore split)
                 split_var = var.split('_', 1)
                 var_str = split_var[1]
                 affix = split_var[0]
+                # Add var_str to list of vars to calculate fit
+                fit_these_vars.append(var_str)
+                these_split_vars.append(split_var)
     if isinstance(plt_var, type(None)):
         print('Did not find `fit` in z_key, aborting script')
         exit(0)
-    # Remove rows in dataframe where the fit variable is NaN
-    df = df[df[var_str].notnull()]
-    # Get the x, y, and z data based on the keys
+    # Remove rows in dataframe where any fit_these_vars variable is NaN
+    # df = df[df[fit_these_vars].notnull().all(axis=1)]
+    df = df.dropna(subset=fit_these_vars)
+    # Get the x and y data based on the keys
     x_data = df[fit_vars[0]]
     y_data = df[fit_vars[1]]
-    z_data = df[var_str]
-    # print('x_data.shape:',x_data.shape)
-    # print('y_data.shape:',y_data.shape)
-    # print('z_data number of nans',z_data.isna().sum())
-    # print('z_data.shape:',z_data.shape)
-    # Find the solution to the polyfit
-    soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
-    # Use the solution to calculate the fitted z values
-    fitted_z = reco_polyfit2d(x_data, y_data, soln, kx, ky, order)
-    # See whether to return the fit, or the residual
-    if split_var[0] == 'fit':
-        # Add new column for fitted z
-        df[plt_var] = fitted_z
-    elif split_var[1] == 'fit':
-        # Add new column for difference between z and fitted z
-        df[plt_var] = z_data - fitted_z
-    # print(df)
+    # Calculate the fit for each variable
+    for i in range(len(fit_these_vars)):
+        var_str = fit_these_vars[i]
+        split_var = these_split_vars[i]
+        print('\t- Calculating fit of',var_str,'on',fit_vars)
+        # Get the z data based on the key
+        z_data = df[var_str]
+        # Find the solution to the polyfit
+        soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
+        # Use the solution to calculate the fitted z values
+        fitted_z, eq_string = reco_polyfit2d(x_data, y_data, soln, kx, ky, order)
+        # See whether to return the fit, or the residual
+        if split_var[0] == 'fit':
+            # Add new column for fitted z
+            df[plt_var] = fitted_z
+        elif split_var[1] == 'fit':
+            # Add new column for difference between z and fitted z
+            df[plt_var] = z_data - fitted_z
+        # Add new column for the equation string
+        df[var_str+'_fit_eq'] = eq_string
     return df
+
+    # # Remove rows in dataframe where the variable is NaN
+    # df = df[df[var_str].notnull()]
+    # # Get the x, y, and z data based on the keys
+    # x_data = df[fit_vars[0]]
+    # y_data = df[fit_vars[1]]
+    # z_data = df[var_str]
+    # # print('x_data.shape:',x_data.shape)
+    # # print('y_data.shape:',y_data.shape)
+    # # print('z_data number of nans',z_data.isna().sum())
+    # # print('z_data.shape:',z_data.shape)
+    # # Find the solution to the polyfit
+    # soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
+    # # Use the solution to calculate the fitted z values
+    # fitted_z, eq_string = reco_polyfit2d(x_data, y_data, soln, kx, ky, order)
+    # # See whether to return the fit, or the residual
+    # if split_var[0] == 'fit':
+    #     # Add new column for fitted z
+    #     df[plt_var] = fitted_z
+    # elif split_var[1] == 'fit':
+    #     # Add new column for difference between z and fitted z
+    #     df[plt_var] = z_data - fitted_z
+    # # Add new column for the equation string
+    # df[var_str+'_fit_eq'] = eq_string
+    # # print(df)
+    # return df
 
 ################################################################################
 
@@ -5459,7 +5495,7 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
     x_grid, y_grid = np.meshgrid(x_range, y_range)
     # Either of these work, very slight differences
     # fitted_surf = np.polynomial.polynomial.polygrid2d(x_grid, y_grid, soln.reshape((kx+1,ky+1)))
-    fitted_surf = reco_polyfit2d(x_grid, y_grid, soln, kx, ky, order)
+    fitted_surf, eq_string = reco_polyfit2d(x_grid, y_grid, soln, kx, ky, order)
     if in_3D:
         # Plot fit as a surface
         surf = ax.plot_trisurf(x_grid.flatten(), y_grid.flatten(), fitted_surf.flatten(), cmap=get_color_map(pp.z_vars[0]), linewidth=0, alpha=0.5)
@@ -6402,28 +6438,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
             # print('plot slopes is',plot_slopes)
             if plot_slopes and x_key != 'cRL' and 'ca_' not in x_key and 'nir' not in x_key and 'trd' not in x_key:
-                print('ploooooting slopes')
+                print('\t- Finding slope for cluster',i)
                 if plot_3d == False:
-                    if plot_slopes == 'OLS':
-                        # Find the slope of the ordinary least-squares of the points for this cluster
-                        # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
-                        # sd_m, sd_c = 0, 0
-                        m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
-                        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                        print('\t\t- R^2 value is',rvalue)
-                    else:
-                        # Find the slope of the total least-squares of the points for this cluster
-                        m, c, sd_m, sd_c = orthoregress(x_data, y_data)
-                        print('\t\t- Slope is',m,'+/-',sd_m) # Note, units for dt_start are in days
-                    # Plot the least-squares fit line for this cluster through the centroid
-                    ax.axline((x_mean, y_mean), slope=m, color=alt_std_clr, zorder=3)
-                    # Add annotation to say what the slope is
-                    if x_key in ['aCT', 'BSA'] and y_key in ['aCT', 'BSA']:
-                        annotation_string = format_sci_notation(1/m, pm_val=1/sd_m, sci_lims_f=(-1,3)) # r'%.2f'%(1/m)
-                    else:
-                        annotation_string = format_sci_notation(m, pm_val=sd_m, sci_lims_f=(0,3))
-                    ax.annotate(annotation_string, xy=(x_mean+x_stdv/4,y_mean+y_stdv/10), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
+                    add_linear_slope(ax, df_this_cluster, x_data, y_data, x_key, y_key, my_clr, plot_slopes, anno_prefix=str(i)+': ')
                 else:
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
@@ -6501,16 +6518,21 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
             ax.annotate(r'$IR_{S_A}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
         # Add some lines if plotting cRL or trd
-        if plot_slopes:
+        if plot_slopes and (x_key == 'cRL' or 'ca_' in x_key or 'nir' in x_key or 'trd' in x_key):
+        # if plot_slopes:
             # Get bounds of axes
             x_bnds = ax.get_xbound()
             y_bnds = ax.get_ybound()
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
-            # Plot polynomial fit line
             # Get the data without the outliers
-            x_data = df[df['out_'+x_key] == False][x_key].astype('float')
-            y_data = df[df['out_'+x_key] == False][y_key].astype('float')
+            if mrk_outliers:
+                x_data = df[df['out_'+x_key] == False][x_key].astype('float')
+                y_data = df[df['out_'+x_key] == False][y_key].astype('float')
+            else:
+                x_data = df[x_key].astype('float')
+                y_data = df[y_key].astype('float')
+            # Plot polynomial fit line
             if x_key == 'cRL':
                 print('\t- Adding 2nd degrees polynomial fit line:',plot_slopes)
                 # Use polyfit 
