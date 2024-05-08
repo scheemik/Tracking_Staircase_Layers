@@ -2680,7 +2680,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map], re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
         # Check whether to normalize by subtracting a polyfit2d
-        if fit_vars:
+        if fit_vars:# and clr_map != 'cluster':
             df = calc_fit_vars(df, (x_key, y_key, z_key, clr_map), fit_vars)
         # If plotting per profile, collapse the vertical dimension
         if pp.plot_scale == 'by_pf':
@@ -5419,7 +5419,8 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     for i in range(len(fit_these_vars)):
         var_str = fit_these_vars[i]
         split_var = these_split_vars[i]
-        print('\t- Calculating fit of',var_str,'on',fit_vars)
+        this_plt_var = plt_vars[i]
+        print('\t- Calculating',this_plt_var,'on',fit_vars)
         # Get the z data based on the key
         z_data = df[var_str]
         # Find the solution to the polyfit
@@ -5429,10 +5430,10 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
         # See whether to return the fit, or the residual
         if split_var[0] == 'fit':
             # Add new column for fitted z
-            df[plt_var] = fitted_z
+            df[this_plt_var] = fitted_z
         elif split_var[1] == 'fit':
             # Add new column for difference between z and fitted z
-            df[plt_var] = z_data - fitted_z
+            df[this_plt_var] = z_data - fitted_z
         # Add new column for the equation string
         df[var_str+'_fit_eq'] = eq_string
     return df
@@ -6017,7 +6018,13 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 df_this_cluster = df[df['cluster']==i].copy()
                 x_data = np.array(df_this_cluster['dt_start'].values)
                 x_data = mpl.dates.date2num(x_data)
-                y_data = np.array(df_this_cluster[var].values)
+                y_data = np.array(df_this_cluster[var].values, dtype=float)
+                print('\t\t- Cluster:',i)
+                print('\t\t- Number of points x,y:',len(x_data),',',len(y_data))
+                print('\t\t- x_data type:',type(x_data))
+                print('\t\t- y_data type:',type(y_data))
+                # print('\t\t- x_data:',x_data)
+                # print('\t\t- y_data:',y_data)
                 # Find the trend vs. dt_start of this var for this cluster
                 if plot_slopes == 'OLS':
                     # Find the slope of the ordinary least-squares of the points for this cluster
@@ -6266,10 +6273,15 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             mrk_outliers = pp.extra_args['mark_outliers']
         except:
             mrk_outliers = False
+        try:
+            fit_vars = pp.extra_args['fit_vars']
+        except:
+            fit_vars = False
     else:
         plt_noise = True
         sort_clstrs = True
         clstrs_to_plot = []
+        fit_vars = False
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
@@ -6395,6 +6407,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             if len(df_this_cluster) < 1:
                 continue
             # print(df_this_cluster)
+            if fit_vars:
+                df_this_cluster = calc_fit_vars(df_this_cluster, (x_key, y_key, z_key, clr_map), fit_vars)
             # Get relevant data
             x_data = df_this_cluster[x_key] 
             x_mean = np.mean(x_data)

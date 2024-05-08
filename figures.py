@@ -1367,14 +1367,16 @@ if False:
 ## Pre-clustered comparing clusters across time periods
 ################################################################################
 # BGR ITP clustering, comparing specific clusters
-if False:
+if True:
     print('')
     print('- Creating SA-Time plot to look at a single cluster across different periods')
     # Define the profile filters
-    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
+    # pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[4,5,6])
+    pfs_these_clstrs = pfs_0
     # Make the Plot Parameters
-    # pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['lat'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-    pp_these_clstrs = ahf.Plot_Parameters(x_vars=['BSA'], y_vars=['aCT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    # pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    # pp_these_clstrs = ahf.Plot_Parameters(x_vars=['BSA'], y_vars=['aCT'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+    pp_these_clstrs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], clr_map='cluster', legend=False, extra_args={'sort_clstrs':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':False, 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR]})
     # Make the subplot groups
     group_these_clstrs = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_these_clstrs)
     # # Make the figure
@@ -1393,7 +1395,7 @@ if False:
     # Make the profile filters for this cluster
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
     # Just one cluster, maps and hists (og and fit) of press, SA, and CT
-    if True:
+    if False:
         print('')
         print('- Creating maps and histograms of pre-clustered BGR ITP data for just one cluster')
         groups_to_plot_maps = []
@@ -1429,7 +1431,7 @@ if False:
         # # Make the figure
         ahf.make_figure([group_SA_and_CT, group_lat_and_lon], row_col_list=[2,1, 0.45, 1.4])
     # Just one cluster plotting SA, CT, and sigma vs. time with trend lines
-    if False:
+    if True:
         print('')
         print('- Creating plots across time to look at a single cluster across different periods')
         # Make the Plot Parameters
@@ -1457,7 +1459,7 @@ if False:
         # Make the figure
         ahf.make_figure([group_pcs_press, group_pca_press, group_press], row_col_list=[3,1, 0.45, 1.4], filename=filename_prefix+'_pcs_pca_press_vs_time.png')
     # Just one cluster plotting CT, sigma, and press vs. time corrected with polyfit2d with trend lines
-    if False:
+    if True:
         print('')
         print('- Creating plots across time to look at a single cluster across different periods')
         # Make the Plot Parameters
@@ -1807,7 +1809,7 @@ if False:
         # ahf.make_figure([group_p_v_lat])
         ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
     # Comparing plots along time for pressure and pressure-polyfit2d with trendlines
-    if True:
+    if False:
         print('')
         print('- Comparing plots along time for one cluster press minus lat-lon-press polyfit2d') 
         # Make the Plot Parameters

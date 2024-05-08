@@ -66,21 +66,49 @@ ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
 # Make the profile filters
 pfs_0 = ahf.Profile_Filters()
 # Make the plot parameters
-pp_ = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['dt_start', 'cluster', 'press', 'SA', 'CT']}, legend=False)
+pp_ = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['dt_start', 'lon', 'lat', 'cluster', 'press', 'SA', 'CT']}, legend=False)
 # Make the subplot groups
 group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
 
 # Concatonate all the pandas data frames together
 df = pd.concat(group_.data_frames)
 
+# Calculate fit variables over lat-lon for each cluster
+add_new_cols = True
+for i in df['cluster'].unique():
+    # Find the data from this cluster
+    df_this_cluster = df[df['cluster']==i]
+    # Calculate the fit variables for this cluster
+    df_this_cluster = ahf.calc_fit_vars(df_this_cluster, ('press-fit', 'SA-fit', 'CT-fit'), ['lon','lat'])
+    # Add the new columns to the main data frame
+    if add_new_cols:
+        # Get list of columns in new data frame
+        new_cols = df_this_cluster.columns
+        # Ged list of columns in main data frame
+        main_cols = df.columns
+        # Find the columns that are in the new data frame but not in the main data frame
+        for col in new_cols:
+            if col not in main_cols:
+                df[col] = None
+        add_new_cols = False
+    # Update the data in the main data frame with the new data
+    df[df['cluster']==i] = df_this_cluster
+# df = ahf.calc_fit_vars(df, ('press-fit', 'SA-fit', 'CT-fit'), ['lon','lat'])
+print('')
+print(df['press-fit'])
+print(df.columns)
+# exit(0)
+
 # Make a list of variables to calculate
 calc_vars = ['n_points', 'cRL']
+for var in ['press-fit', 'SA-fit', 'CT-fit']:
+    calc_vars.append('trd_'+var)
 for var in ['press', 'SA', 'CT']:
     calc_vars.append('ca_'+var)
     calc_vars.append('nir_'+var)
     calc_vars.append('trd_'+var)
 # Calculate new cluster variables
-df = ahf.calc_extra_cl_vars(group_.data_frames[0], calc_vars)
+df = ahf.calc_extra_cl_vars(df, calc_vars)
 
 # Drop duplicates to get one row per cluster
 df = df.drop_duplicates(subset=['cluster'])
@@ -93,6 +121,7 @@ group_.data_frames = [df]
 
 print('df:')
 print(group_.data_frames[0])
+print(group_.data_frames[0].columns)
 
 # Pickle the data frame to a file
 pl.dump(df, open('outputs/'+this_BGR+'_cluster_properties.pickle', 'wb'))
