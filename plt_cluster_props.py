@@ -62,7 +62,9 @@ l_styles = ['-', '--', '-.', ':']
 ################################################################################
 
 # Unpickle the data frame from a file
-df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
+# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
+# df = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
 
 ################################################################################
 # Plotting functions ###########################################################
@@ -121,6 +123,28 @@ def make_var_label(var_key, ax_labels):
     """
     # Check for certain modifications to variables,
     #   check longer strings first to avoid mismatching
+    # Check for non-zero cluster average of profile cluster span variables
+    if 'nzca_pcs_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[9:]
+        # return 'Profile cluster span of '+ ax_labels[var_str]
+        return 'NZCA/CS/P of '+ ax_labels[var_str]
+    # Check for cluster average of profile cluster span variables
+    if 'ca_pcs_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[7:]
+        # return 'Profile cluster span of '+ ax_labels[var_str]
+        return 'CA/CS/P of '+ ax_labels[var_str]
+    # Check for non-zero trend in profile cluster span variables
+    if 'nztrd_pcs_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[10:]
+        return 'NZ Trend in CS/P '+ ax_labels[var_str] + '/year'
+    # Check for trend in profile cluster span variables
+    if 'trd_pcs_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[8:]
+        return 'Trend in CS/P '+ ax_labels[var_str] + '/year'
     # Check for profile cluster average variables
     if 'pca_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
@@ -977,11 +1001,11 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         if plot_hist:
             return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, clstr_dict={'m_pts':m_pts, 'rel_val':rel_val})
         # Format the dates if necessary (don't need this because it's done above)
-        # if x_key in ['dt_start', 'dt_end']:
-        #     print(df[x_key])
-        #     df[x_key] = mpl.dates.date2num(df[x_key])
-        # if y_key in ['dt_start', 'dt_end']:
-        #     df[y_key] = mpl.dates.date2num(df[y_key])
+        if x_key in ['dt_start', 'dt_end']:
+            print(df[x_key])
+            df[x_key] = mpl.dates.date2num(df[x_key])
+        if y_key in ['dt_start', 'dt_end']:
+            df[y_key] = mpl.dates.date2num(df[y_key])
         if isinstance(z_key, type(None)):
             df_z_key = 0
             # Drop duplicates
@@ -1162,27 +1186,29 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
 ################################################################################
 
 this_clr_map = 'clr_all_same'
-# this_clr_map = 'cluster'
+this_clr_map = 'cluster'
+
 
 # # Make the plot parameters
-# pp_test = ahf.Plot_Parameters(x_vars=['nir_press'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
 # pp_test2 = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
 # # Make the subplot groups
 # group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
 # group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
 # # Make the figure
-# make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
-# 
-# exit(0)
+# # make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
 
 # Make the plot parameters
-pp_test = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test2 = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pcs_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+pp_test = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
+pp_test2 = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
 # Make the subplot groups
 group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
 group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
 # Make the figure
-# make_figure([group_test, group_test2])#, row_col_list=[1,1, 0.8, 1.25])
+# make_figure([group_test])
+make_figure([group_test, group_test2], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
+exit(0)
 
 # Make plots of the trends in the cluster properties
 if False:

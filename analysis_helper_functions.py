@@ -3661,7 +3661,7 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
     if x_key in ['dt_start', 'dt_end']:
         per_unit = 'per year'
         units = '/yr'
-        adjustment_factor = 365.25
+        adjustment_factor = 365.25 # units for dt_start and dt_end are in days, adjust to years
     else:
         per_unit = ''
         units = ''
@@ -3682,12 +3682,12 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         # sd_m, sd_c = 0, 0
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
         print('\t\t- R^2 value is',rvalue)
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
-        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
     # Find mean and standard deviation of x and y data
     # x_mean = df.loc[:,x_key].mean()
     # y_mean = df.loc[:,y_key].mean()
@@ -5863,6 +5863,37 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_mean
                 # print(str(i)+','+str(clstr_mean))
+        elif prefix == 'nzca':
+            # Calculate the cluster average version of the variable, neglecting all zero values
+            #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
+            # Loop over each cluster
+            for i in clstr_ids:
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i].copy()
+                # Neglect all zero values
+                df_this_cluster = df_this_cluster[df_this_cluster[var] != 0]
+                # print('\t\t- Neglected zero values for cluster',i,'new len:',len(df_this_cluster))
+                # Find the mean of this var for this cluster
+                if var in ['dt_start','dt_end']:
+                    these_values = np.array(df_this_cluster[var].values)
+                    these_values = these_values.astype('datetime64', copy=False)
+                    these_values.sort()
+                    # print('these_values:',these_values)
+                    # print('type(these_values[0]):',type(these_values[0]))
+                    clstr_mean = datetime.strftime(these_values[len(these_values)//2].astype(datetime), '%Y-%m-%d %H:%M:%S')
+                    print('clstr_mean:',clstr_mean)
+                    # print('type(clstr_mean):',type(clstr_mean))
+                    # exit(0)
+                else:
+                    clstr_mean = np.mean(df_this_cluster[var].values)
+                # Put those values back into the original dataframe
+                df.loc[df['cluster']==i, this_var] = clstr_mean
+                # print(str(i)+','+str(clstr_mean))
         elif prefix == 'cs':
             # Calculate the cluster span version of the variable
             #   Reduces the number of points to just one per cluster
@@ -6020,9 +6051,51 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 x_data = mpl.dates.date2num(x_data)
                 y_data = np.array(df_this_cluster[var].values, dtype=float)
                 print('\t\t- Cluster:',i)
-                print('\t\t- Number of points x,y:',len(x_data),',',len(y_data))
-                print('\t\t- x_data type:',type(x_data))
-                print('\t\t- y_data type:',type(y_data))
+                # print('\t\t- x_data:',x_data)
+                # print('\t\t- y_data:',y_data)
+                # Find the trend vs. dt_start of this var for this cluster
+                if plot_slopes == 'OLS':
+                    # Find the slope of the ordinary least-squares of the points for this cluster
+                    m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                    print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
+                    print('\t\t- R^2 value is',rvalue)
+                else:
+                    # Find the slope of the total least-squares of the points for this cluster
+                    m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                    print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
+                # Put those values back into the original dataframe
+                df.loc[df['cluster']==i, this_var] = m*adjustment_factor
+                # print('cluster '+str(i)+', '+str(m))
+            #
+            # Make sure that I've calculated cRL and nir_SA as well
+            if 'cRL' not in new_cl_vars:
+                new_cl_vars.append('cRL')
+            if 'nir_SA' not in new_cl_vars:
+                new_cl_vars.append('nir_SA')
+        elif prefix == 'nztrd':
+            # Find the trend vs. dt_start of each cluster for the variable, neglecting all zero values
+            #   Reduces the number of points to just one per cluster
+            # Get a list of clusters in this dataframe
+            clstr_ids = np.unique(np.array(df['cluster'].values))
+            clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
+            # Remove the noise points
+            clstr_ids = clstr_ids[clstr_ids != -1]
+            print('\t- Finding trend in var:',var)
+            adjustment_factor = 365.25
+            per_unit = '/yr'
+            # Decide what kind of regression to use
+            plot_slopes = 'OLS'
+            # Loop over each cluster
+            for i in clstr_ids:
+                # Find the data from this cluster
+                df_this_cluster = df[df['cluster']==i].copy()
+                # Remove any zero values
+                df_this_cluster = df_this_cluster[df_this_cluster[var] != 0]
+                x_data = np.array(df_this_cluster['dt_start'].values)
+                x_data = mpl.dates.date2num(x_data)
+                y_data = np.array(df_this_cluster[var].values, dtype=float)
+                print('\t\t- Cluster:',i)
                 # print('\t\t- x_data:',x_data)
                 # print('\t\t- y_data:',y_data)
                 # Find the trend vs. dt_start of this var for this cluster
@@ -6387,8 +6460,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     if clr_map == 'cluster':
         # Make blank lists to record values
         pts_per_cluster = []
-        clstr_means = []
-        clstr_stdvs = []
+        # clstr_means = []
+        # clstr_stdvs = []
         # Loop through each cluster
         for i in cluster_numbers:
             # Decide on the color and symbol, don't go off the end of the arrays
@@ -6411,11 +6484,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 df_this_cluster = calc_fit_vars(df_this_cluster, (x_key, y_key, z_key, clr_map), fit_vars)
             # Get relevant data
             x_data = df_this_cluster[x_key] 
-            x_mean = np.mean(x_data)
-            x_stdv = np.std(x_data)
             y_data = df_this_cluster[y_key] 
-            y_mean = np.mean(y_data)
-            y_stdv = np.std(y_data)
             if isinstance(z_key, type(None)):
                 df_z_key = 0
             # elif z_key in ['dt_start', 'dt_end']:
@@ -6444,6 +6513,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                     ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
             # Plot the centroid of this cluster
             if plot_centroid:
+                x_mean = np.mean(x_data)
+                x_stdv = np.std(x_data)
+                y_mean = np.mean(y_data)
+                y_stdv = np.std(y_data)
                 # This plots a circle upon which to put the centroid symbol
                 ax.scatter(x_mean, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
                 # This will plot a marker at the centroid
@@ -6462,8 +6535,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Record the number of points in this cluster
             pts_per_cluster.append(len(x_data))
             # Record mean and standard deviation to calculate normalized inter-cluster range
-            clstr_means.append(y_mean)
-            clstr_stdvs.append(y_stdv)
+            # clstr_means.append(y_mean)
+            # clstr_stdvs.append(y_stdv)
         # Mark outliers, if specified
         if x_key != 'cRL' and x_key != 'nir_SA':
             other_out_vars = ['cRL', 'nir_SA']
@@ -6472,7 +6545,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if mrk_outliers:
             mark_outliers(ax, df, x_key, y_key, clr_map, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
-        if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
+        # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
+        if False:
             # Select date on which to place the cluster numbers on the left-hand side
             x_place = mpl.dates.date2num(datetime.fromisoformat('2005-07-01'))
             these_clst_ids = []
