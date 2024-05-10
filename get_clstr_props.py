@@ -31,7 +31,8 @@ import BGR_params as bps
 import BGR_objects as bob
 
 # Specify which BGR data set to use
-this_BGR = 'BGR1516'
+# this_BGR = 'BGR1516'
+this_BGR = 'BGR_all'
 
 ################################################################################
 # Declare variables for plotting
@@ -73,30 +74,29 @@ group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
 # Concatonate all the pandas data frames together
 df = pd.concat(group_.data_frames)
 
-# # Make a deep copy of the data frame to calculate cluster properties per profile
-# df_copy = df.copy(deep=True)
-# 
-# 
-# # Make a list of cluster properties per profile to calculate
-# calc_vars = []
-# for var in ['press', 'SA', 'CT', 'sigma']:
-#     # calc_vars.append('pca_'+var)
-#     calc_vars.append('pcs_'+var)
-# 
-# # Calculate new cluster variables
-# print('Calculating cluster spans per profile')
-# df_copy = ahf.calc_extra_cl_vars(df_copy, calc_vars)
-# # Drop duplicates to get one row per cluster per profile
-# df_per_pf = df_copy.drop_duplicates(subset=['cluster','instrmt-prof_no'])
-# print(df_per_pf.columns)
-# 
-# # Pickle the data frame to a file
-# print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
-# pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'wb'))
+# Make a deep copy of the data frame to calculate cluster properties per profile
+df_copy = df.copy(deep=True)
+
+# Make a list of cluster properties per profile to calculate
+calc_vars = []
+for var in ['press', 'SA', 'CT', 'sigma']:
+    # calc_vars.append('pca_'+var)
+    calc_vars.append('pcs_'+var)
+
+# Calculate new cluster variables
+print('Calculating cluster spans per profile')
+df_copy = ahf.calc_extra_cl_vars(df_copy, calc_vars)
+# Drop duplicates to get one row per cluster per profile
+df_per_pf = df_copy.drop_duplicates(subset=['cluster','instrmt-prof_no'])
+print(df_per_pf.columns)
+
+# Pickle the data frame to a file
+print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
+pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'wb'))
 
 # Load in temp file
-print('Loading from to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
-df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+# print('Loading from to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
+# df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
 
 # Make a list of variables to calculate
 calc_vars = []
