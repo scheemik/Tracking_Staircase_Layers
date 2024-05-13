@@ -31,7 +31,8 @@ import BGR_params as bps
 import BGR_objects as bob
 
 # Specify which BGR data set to use
-this_BGR = 'BGR1516'
+# this_BGR = 'BGR1516'
+this_BGR = 'BGR_all'
 
 ################################################################################
 # Declare variables for plotting
@@ -64,7 +65,8 @@ l_styles = ['-', '--', '-.', ':']
 # Unpickle the data frame from a file
 # df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
-df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
+# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
+df = pl.load(open('outputs/'+this_BGR+'_cluster_properties-pf.pickle', 'rb'))
 
 ################################################################################
 # Plotting functions ###########################################################
@@ -84,6 +86,9 @@ def get_axis_labels(pp):
                  'press':r'Pressure (dbar)',
                  'SA':r'$S_A$ (g/kg)',
                  'CT':r'$\Theta$ ($^\circ$C)',
+                 'sigma':r'$\sigma_1$ (kg/m$^3$)',
+                 'alpha':r'$\alpha$ (1/$^\circ$C)',
+                 'beta':r'$\beta$ (kg/g)',
                  'aiT':r'$\alpha T$',
                  'aCT':r'$\alpha \Theta$',
                  'aPT':r'$\alpha \theta$',
@@ -212,6 +217,8 @@ def make_var_label(var_key, ax_labels):
             return r'Normalized inter-cluster range $IR_{T}$'
         elif 'CT' in var_str:
             return r'Normalized inter-cluster range $IR_{\Theta}$'
+        if 'sigma' in var_str:
+            return r'Normalized inter-cluster range $IR_{\sigma}$'
         # return r'Normalized inter-cluster range $IR$ of '+ ax_labels[var_str]
     # Check for trend variables
     elif 'trd_' in var_key:
@@ -1186,7 +1193,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
 ################################################################################
 
 this_clr_map = 'clr_all_same'
-this_clr_map = 'cluster'
+# this_clr_map = 'cluster'
 
 
 # # Make the plot parameters
@@ -1200,19 +1207,19 @@ this_clr_map = 'cluster'
 
 # Make the plot parameters
 # pp_test = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pcs_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
-pp_test2 = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
-# Make the subplot groups
-group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
-group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
-# Make the figure
-# make_figure([group_test])
-make_figure([group_test, group_test2], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
-exit(0)
+# pp_test = ahf.Plot_Parameters(x_vars=['n_points'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
+# pp_test2 = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'pcs_press']}, legend=False)
+# # Make the subplot groups
+# group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
+# group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
+# # Make the figure
+# # make_figure([group_test])
+# make_figure([group_test, group_test2], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
+# exit(0)
 
 # Make plots of the trends in the cluster properties
-if False:
-# for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
+# if False:
+for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
     # Make the Plot Parameters
     pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
     pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)

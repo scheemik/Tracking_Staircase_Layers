@@ -81,7 +81,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = True
+dark_mode = False
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -5795,8 +5795,12 @@ def calc_extra_cl_vars(df, new_cl_vars):
             #   different instruments together, which would give the incorrect result
             df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
             instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
+            print('\t\t\t\tCalculating',this_var,'for',len(instrmt_pf_nos),'profiles')
+            j = 0
             # Loop over each profile
             for pf in instrmt_pf_nos:
+                j += 1
+                print('\t\t\t\tCalculating',this_var,'for profile',pf,'(',j,'/',len(instrmt_pf_nos),')')
                 # Find the data from just this profile
                 df_this_pf = df[df['instrmt-prof_no']==pf]
                 # Get a list of clusters in this profile
