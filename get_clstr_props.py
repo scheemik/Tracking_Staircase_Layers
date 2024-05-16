@@ -74,42 +74,41 @@ group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
 # Concatonate all the pandas data frames together
 df = pd.concat(group_.data_frames)
 
-# Make a deep copy of the data frame to calculate cluster properties per profile
-df_copy = df.copy(deep=True)
+calc_pcs_vars = False
+if calc_pcs_vars:
+    # Make a deep copy of the data frame to calculate cluster properties per profile
+    df_copy = df.copy(deep=True)
 
-# Make a list of cluster properties per profile to calculate
-calc_vars = []
-for var in ['press', 'SA', 'CT', 'sigma']:
-    # calc_vars.append('pca_'+var)
-    calc_vars.append('pcs_'+var)
+    # Make a list of cluster properties per profile to calculate
+    calc_vars = []
+    for var in ['press', 'SA', 'CT', 'sigma']:
+        # calc_vars.append('pca_'+var)
+        calc_vars.append('pcs_'+var)
 
-# Calculate new cluster variables
-print('Calculating cluster spans per profile')
-df_copy = ahf.calc_extra_cl_vars(df_copy, calc_vars)
-# Drop duplicates to get one row per cluster per profile
-df_per_pf = df_copy.drop_duplicates(subset=['cluster','instrmt-prof_no'])
-print(df_per_pf.columns)
+    # Calculate new cluster variables
+    print('Calculating cluster spans per profile')
+    # df_copy = ahf.calc_extra_cl_vars(df_copy, calc_vars)
+    df_copy = ahf.calc_extra_cl_vars(df_copy, ['pcs_press'])
+    # Drop duplicates to get one row per cluster per profile
+    df_per_pf = df_copy.drop_duplicates(subset=['cluster','instrmt-prof_no'])
+    print(df_per_pf.columns)
 
-# Pickle the data frame to a file
-print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
-pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'wb'))
-
-# Load in temp file
-# print('Loading from to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
-# df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+    # Pickle the data frame to a file
+    print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
+    pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'wb'))
+else:
+    # Load in temp file
+    print('Loading from to outputs/'+this_BGR+'_pf_cluster_properties.pickle')
+    df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
 
 # Make a list of variables to calculate
 calc_vars = []
-for var in ['press', 'SA', 'CT', 'sigma']:
+for var in ['press']:#, 'SA', 'CT', 'sigma']:
     calc_vars.append('trd_pcs_'+var)
     calc_vars.append('nztrd_pcs_'+var)
-df_per_pf = ahf.calc_extra_cl_vars(df_per_pf, calc_vars)
-# Make a list of variables to calculate
-calc_vars = []
-for var in ['press', 'SA', 'CT', 'sigma']:
     calc_vars.append('ca_pcs_'+var)
     calc_vars.append('nzca_pcs_'+var)
-# Calculate the cluster average in the cluster spans per profile for each variable
+# Calculate the above variables for the cluster spans per profile
 print('Calculating cluster averages in the cluster spans per profile')
 df_per_pf = ahf.calc_extra_cl_vars(df_per_pf, calc_vars)
 print(df_per_pf.columns)

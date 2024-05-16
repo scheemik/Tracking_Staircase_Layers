@@ -30,8 +30,10 @@ lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 
 # Example area, choosen to have a few profiles from all time periods
-lon_ex_area = [-141.19, -140.27] # [-143.8,-139.8]
-lat_ex_area = [76.66, 77.33] # [76.6,77.6]
+# lon_ex_area = [-141.19, -140.27] # [-143.8,-139.8]
+# lat_ex_area = [76.66, 77.33] # [76.6,77.6]
+lon_ex_area = [-143.35, -141.81]
+lat_ex_area = [76.23, 76.837] 
 
 # For this study, I'm only using profiles that extend down to at least 400 dbar
 this_min_press = 400
@@ -59,7 +61,8 @@ date_range_dict = {'BGR04':['2004/08/15 00:00:00','2005/08/15 00:00:00'],
                  'BGR1920':['2019/08/15 00:00:00','2020/08/15 00:00:00'],
                  'BGR2021':['2020/08/15 00:00:00','2021/08/15 00:00:00'],
                  'BGR2122':['2021/08/15 00:00:00','2022/08/15 00:00:00'],
-                 'BGR2223':['2022/08/15 00:00:00','2023/08/15 00:00:00']
+                 'BGR2223':['2022/08/15 00:00:00','2023/08/15 00:00:00'],
+                 'BGR_all':['2005/08/15 00:00:00','2022/08/15 00:00:00'],
                  }
 
 # Sets of ITPs within the BGR by year-long time periods
@@ -363,7 +366,8 @@ BGR_HPC_clstrd_dict = { 'BGR04':{'HPC_BGR04_clstrd':'all'},
                         'BGR2021':{'HPC_BGR2021_clstrd':'all'},
                         'BGR2122':{'HPC_BGR2122_clstrd':'all'},
                         'BGR2223':{'HPC_BGR2223_clstrd':'all'},
-                        'BGR_all':{ 'HPC_BGR0506_clstrd':'all',
+                        'BGR_all':{ 
+                                    'HPC_BGR0506_clstrd':'all',
                                     'HPC_BGR0607_clstrd':'all',
                                     'HPC_BGR0708_clstrd':'all',
                                     'HPC_BGR0809_clstrd':'all',
