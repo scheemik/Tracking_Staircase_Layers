@@ -2492,7 +2492,7 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
         pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'{m:s}$\pm${pm_m:s}$\times$10$^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
+            return r'({m:s}$\pm${pm_m:s})$\times$10$^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
         else:
             return r'{x:0.{ndp:d}f}$\pm${pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
@@ -2701,6 +2701,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if isinstance(z_key, type(None)):
                 df_z_key = 0
                 # Drop duplicates
+                # print('df columns:',df.columns)
                 df.drop_duplicates(subset=[x_key, y_key], keep='first', inplace=True)
                 plot_3d = False
             else:
@@ -3258,6 +3259,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             except:
                 foo = 2
+            # Invert colorbar if necessary
+            if clr_map in y_invert_vars:
+                cbar.ax.invert_yaxis()
             cbar.set_label(pp.clabel)
             # Add a standard legend
             if pp.legend:
@@ -3564,7 +3568,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
             lgnd_hndls.append(mpl.lines.Line2D([],[],color=std_clr, label='Start', marker='>', linewidth=0))
             lgnd_hndls.append(mpl.lines.Line2D([],[],color=std_clr, label='Stop', marker='s', linewidth=0))
             # Add legend with custom handles
-            # Add a standard legend
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
             # Create the colorbar for the bathymetry
@@ -3579,6 +3582,51 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cbar.ax.set_yticklabels(['','5000','4000','3000','2000','1000','200','0'])
                 cbar.ax.tick_params(labelsize=font_size_ticks)
                 cbar.set_label('Bathymetry (m)', size=font_size_labels)
+            # Add a standard title
+            plt_title = add_std_title(a_group)
+            return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
+        elif clr_map == 'clr_by_dataset':
+            i = 0
+            lgnd_hndls = []
+            df_labels = [*a_group.data_set.sources_dict.keys()]
+            # print('\tdf_labels:',df_labels)
+            # Loop through each dataframe 
+            #   which correspond to the datasets input to the Data_Set object's sources_dict
+            for this_df in a_group.data_frames:
+                # Make a new column for the instrmt-prof_no combination
+                this_df['instrmt-prof_no'] = this_df['instrmt']+' '+this_df['prof_no'].astype("string")
+                # Remove duplicates to get one row per profile
+                this_df.drop_duplicates(subset=['instrmt-prof_no'], inplace=True)
+                # print(this_df)
+                # If not plotting very many points, increase the marker size
+                if len(this_df) < 100:
+                    if map_extent == 'Canada_Basin':
+                        mrk_s = big_map_mrkr
+                    else:
+                        mrk_s = map_mrk_size
+                    mrk_s = big_map_mrkr
+                else:
+                    if map_extent == 'Canada_Basin':
+                        mrk_s = map_mrk_size
+                    else:
+                        mrk_s = sml_map_mrkr
+                # Decide on the color, don't go off the end of the array
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # Plot every point from this df the same color, size, and marker
+                ax.scatter(this_df['lon'], this_df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=1.0, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+                # Add legend to report the total number of points for this instrmt
+                lgnd_label = str(df_labels[i][4:-7])+': '+str(len(this_df['lon']))+' profiles'
+                lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
+                notes_string = ''.join(this_df.notes.unique())
+                # Increase i to get next color in the array
+                i += 1
+            # Only add the notes_string if it contains something
+            if len(notes_string) > 1:
+                notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
+                lgnd_hndls.append(notes_patch)
+            # Add legend with custom handles
+            if pp.legend:
+                lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -3619,6 +3667,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             except:
                 foo = 2
+            # Invert colorbar if necessary
+            if clr_map in y_invert_vars:
+                cbar.ax.invert_yaxis()
             # cbar.set_label(a_group.data_set.var_attr_dicts[0][clr_map]['label'])
             cbar.set_label(pp.clabel)
             # Add a standard legend
@@ -3659,12 +3710,10 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
     plot_slopes The type of line to plot, either 'OLS' or 'TLS'
     """
     if x_key in ['dt_start', 'dt_end']:
-        per_unit = 'per year'
-        units = '/yr'
+        per_unit = '/yr'
         adjustment_factor = 365.25 # units for dt_start and dt_end are in days, adjust to years
     else:
         per_unit = ''
-        units = ''
         adjustment_factor = 1
     # Check whether to switch x and y for finding the slope
     if x_key in ['BSP', 'BSA'] or 'trd_' in x_key or 'ca_' in x_key:
@@ -3701,14 +3750,14 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
     annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
     if switch_xy:
         # Annotate the inverse of the slope
-        annotation_string = r'$($'+annotation_string+r'$)^{-1}$'
+        annotation_string = r'$1/$ '+annotation_string
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, zorder=3)
     else:
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
     # Put annotation on the plot
-    ax.annotate(anno_prefix+annotation_string+units, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
+    ax.annotate(anno_prefix+annotation_string+per_unit, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -4448,6 +4497,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         sep_periods_dfs_dict = {}
         # Loop through the different time periods
         for this_period in bps.date_range_dict.keys():
+            # Skip BGR_all
+            if this_period == 'BGR_all':
+                continue
             # Find the date range for this period
             date_0 = bps.date_range_dict[this_period][0]
             date_1 = bps.date_range_dict[this_period][1]
@@ -4455,7 +4507,15 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             df_this_period = df.xs(slice(date_0,date_1), level='Time', drop_level=False)
             # Check to make sure there was data left over
             if len(df_this_period) < 1:
+                # If not, move on to the next period
                 continue
+            # Find the number of unique instrmt-prof_no combinations for this period
+            df_this_period['instrmt-prof_no'] = df_this_period['instrmt']+' '+df_this_period['prof_no'].astype("string")
+            # Find the datetimes for this period, converted to numbers
+            these_pfs = mpl.dates.date2num(df_this_period['dt_start'].unique())
+            n_pfs = len(these_pfs)
+            print('\t- Found',n_pfs,'profiles for',this_period)
+            print('\t\t- Profiles:',these_pfs)
             # Add an entry to the dictionary
             sep_periods_dfs_dict[this_period] = []
             # Get the unique profiles for this period
@@ -4543,8 +4603,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         # Loop through the periods in the dictionary
         for this_period in sep_periods_dfs_dict.keys():
             period_x_ticks[this_period] = x_span_avg
-            ret_dict = add_profiles(ax, a_group, len(sep_periods_dfs_dict[this_period]), sep_periods_dfs_dict[this_period], x_key, y_key, clr_map, distinct_clrs[i], distinct_clrs, mpl_mrks, l_styles, plot_pts, 0, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods, x_span_avg)
-            x_span_avg = ret_dict['xv_span_avg']
+            n_pfs = len(sep_periods_dfs_dict[this_period])
+            print('\t- Plotting',n_pfs,'profiles for',this_period,'with x_span_avg =',x_span_avg)
+            if n_pfs > 0:
+                ret_dict = add_profiles(ax, a_group, n_pfs, sep_periods_dfs_dict[this_period], x_key, y_key, clr_map, std_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, 0, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods, x_span_avg)
+                x_span_avg += ret_dict['xv_span_avg']
             i += 1
         print('\t- Done plotting profiles separately by period, i =',i)
     else:
@@ -4630,6 +4693,10 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
     tw_TC_max_key   A string of the column header to plot the CT max on the twin x-axis
     tw_TC_min_key   A string of the column header to plot the CT min on the twin x-axis
     """
+    # Check to make sure there are profiles to plot
+    if n_pfs < 1:
+        print('No profiles loaded, aborting script')
+        exit(0)
     # Keep track of the largest span in x
     xv_span_max = 0
     xv_span = 0
@@ -4682,6 +4749,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             xvar_high = max(xvar)
             # Find span of the profile
             xv_span = abs(xvar_high - xvar_low)
+            x_span_arr.append(xv_span)
             # Define far left bound for plot
             left_bound = xvar_low
             # Define pads for x bound (applied at the end)
@@ -4809,6 +4877,9 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                         print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 except:
                     foo = 2
+                # Invert colorbar if necessary
+                if clr_map in y_invert_vars:
+                    cbar.ax.invert_yaxis()
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
@@ -4846,7 +4917,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             # Get a list of unique cluster numbers, but delete the noise point label "-1"
             cluster_numbers = np.unique(np.array(df_clstrs['cluster'].values, dtype=int))
             cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
-            # print('\tcluster_numbers:',cluster_numbers)
+            print('\tcluster_numbers:',cluster_numbers)
             # Plot noise points first
             if plt_noise:
                 ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
@@ -4881,7 +4952,8 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
         if tw_span > tw_span_max:
             tw_span_max = tw_span
     #
-    print('\t- xv_span_max:',xv_span_max,'tw_span_max:',tw_span_max)
+    # print('\t- xv_span_max:',xv_span_max,'tw_span_max:',tw_span_max)
+    # print('\t- x_span_arr:',x_span_arr)
     # Build the return dictionary
     ret_dict['xv_span_max'] = xv_span_max
     ret_dict['xv_span_avg'] = np.mean(x_span_arr)
@@ -5037,11 +5109,14 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
         try:
             dts_to_plot = extra_args['dts_to_plot']
             # Make a temporary list of dataframes for the profiles to plot
+            print('\t- Getting specific profiles')
             tmp_df_list = []
             for dt in dts_to_plot:
                 tmp_df_list.append(df[df['dt_start'] == dt])
+            print('\t- Done getting specific profiles')
             df = pd.concat(tmp_df_list)
         except:
+            print('\t- No specific profiles to plot')
             foo = 2
             # extra_args = None
         try:
@@ -5164,6 +5239,9 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                         print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 except:
                     foo = 2
+                # Invert colorbar if necessary
+                if clr_map in y_invert_vars:
+                    cbar.ax.invert_yaxis()
                 cbar.set_label(pp.clabel)
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
@@ -5380,9 +5458,11 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     print('fit_vars:',fit_vars)
     # Find which of the plot variables has `-fit` in it
     fit_these_vars = []
-    these_split_vars = []
+    # these_split_vars = []
+    fit_vars_dict = {}
     plt_var = None
     for var in plt_vars:
+        print('var:',var)
         if not isinstance(var, type(None)):
             if '-fit' in var:
                 plt_var = var
@@ -5395,8 +5475,10 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
                     split_var2 = var_str.split('_', 1)
                     var_str = split_var2[1]
                 # Add var_str to list of vars to calculate fit
+                print('adding',var_str,'to list of vars to calculate fit')
+                fit_vars_dict[var] = [var_str, split_var]
                 fit_these_vars.append(var_str)
-                these_split_vars.append(split_var)
+                # these_split_vars.append(split_var)
             elif 'fit_' in var:
                 plt_var = var
                 # Split the suffix from the original variable (assumes an underscore split)
@@ -5404,11 +5486,14 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
                 var_str = split_var[1]
                 affix = split_var[0]
                 # Add var_str to list of vars to calculate fit
+                print('adding',var_str,'to list of vars to calculate fit')
+                fit_vars_dict[var] = [var_str, split_var]
                 fit_these_vars.append(var_str)
-                these_split_vars.append(split_var)
+                # these_split_vars.append(split_var)
     if isinstance(plt_var, type(None)):
         print('Did not find `fit` in z_key, aborting script')
         exit(0)
+    print('fit_these_vars:',fit_vars_dict)
     # Remove rows in dataframe where any fit_these_vars variable is NaN
     # df = df[df[fit_these_vars].notnull().all(axis=1)]
     df = df.dropna(subset=fit_these_vars)
@@ -5416,11 +5501,14 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
     x_data = df[fit_vars[0]]
     y_data = df[fit_vars[1]]
     # Calculate the fit for each variable
-    for i in range(len(fit_these_vars)):
-        var_str = fit_these_vars[i]
-        split_var = these_split_vars[i]
-        this_plt_var = plt_vars[i]
-        print('\t- Calculating',this_plt_var,'on',fit_vars)
+    for var in fit_vars_dict.keys():
+    # for i in range(len(fit_these_vars)):
+        # var_str = fit_these_vars[i]
+        # split_var = these_split_vars[i]
+        # this_plt_var = plt_vars[i]
+        var_str = fit_vars_dict[var][0]
+        split_var = fit_vars_dict[var][1]
+        print('\t- Calculating',var,'on',fit_vars)
         # Get the z data based on the key
         z_data = df[var_str]
         # Find the solution to the polyfit
@@ -5430,10 +5518,10 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
         # See whether to return the fit, or the residual
         if split_var[0] == 'fit':
             # Add new column for fitted z
-            df[this_plt_var] = fitted_z
+            df[var] = fitted_z
         elif split_var[1] == 'fit':
             # Add new column for difference between z and fitted z
-            df[this_plt_var] = z_data - fitted_z
+            df[var] = z_data - fitted_z
         # Add new column for the equation string
         df[var_str+'_fit_eq'] = eq_string
     return df
