@@ -1630,12 +1630,23 @@ def get_axis_label(var_key, var_attr_dicts):
             return r'Normalized inter-cluster range $IR_{\Theta}$'
         # return r'Normalized inter-cluster range $IR$ of '+ var_attr_dicts[0][var_str]['label']
     # Check for trend variables
+    elif 'atrd_' in var_key:
+        # Take out the first 5 characters of the string to leave the original variable name
+        var_str = var_key[5:]
+        # Check whether also normalizing by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the last 4 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
+        else:  
+            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + '/year'
+    # Check for trend variables
     elif 'trd_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
+        # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
         # Check whether also normalizing by subtracting a polyfit2d
         if '-fit' in var_str:
-            # Take out the first 3 characters of the string to leave the original variable name
+            # Take out the last 4 characters of the string to leave the original variable name
             var_str = var_str[:-4]
             return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
         else:  
@@ -2733,19 +2744,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Take moving average of the data
                 if x_key in ['dt_start', 'dt_end'] and mv_avg:
                     print('\t- Taking moving average of the data')
+                    # Make a copy of the dataframe
+                    time_df = df.copy()
                     # Need to convert dt_start back to datetime to take rolling average
-                    df[x_key] = mpl.dates.num2date(df[x_key])
-                    # Make a different version of the dataframe with dt_start as the index
-                    time_df = df.set_index(x_key)
+                    time_df[x_key] = mpl.dates.num2date(time_df[x_key])
+                    # Set dt_start as the index
+                    time_df = time_df.set_index(x_key)
                     # Sort by the dt_start index
                     time_df.sort_index(inplace=True)
                     # Take the moving average of the data
                     time_df[y_key+'_mv_avg'] = time_df[y_key].rolling(mv_avg, min_periods=1).mean()
                     # Convert the original dataframe's dt_start back to numbers for plotting
-                    df[x_key] = mpl.dates.date2num(df[x_key])
                     time_df.reset_index(level=x_key, inplace=True)
                     time_df[x_key] = mpl.dates.date2num(time_df[x_key])
-                    ax.plot(df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
+                    ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
             else:
                 # Plot in 3D
                 ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
@@ -3374,7 +3386,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # ax.coastlines()
         # Add bounding box
         bbox = 'BGR' # for Beaufort Gyre Region
-        bbox = 'CB' # for Canada Basin
+        # bbox = 'CB' # for Canada Basin
         # bbox = 'AOA' # for AIDJEX Operation Area
         # bbox = 'None'
         bb_zorder = 11
@@ -5843,9 +5855,9 @@ def calc_extra_cl_vars(df, new_cl_vars):
     print('\t\t- new_cl_vars:',new_cl_vars)
     # print(np.unique(np.array(df['cluster'].values)))
     # Get list of clusters
-    clstr_ids = np.unique(np.array(df['cluster'].values))
-    # Find the number of clusters
-    n_clusters = len(clstr_ids)
+    # clstr_ids = np.unique(np.array(df['cluster'].values))
+    # # Find the number of clusters
+    # n_clusters = len(clstr_ids)
     # Check for variables to calculate
     for this_var in new_cl_vars:
         # Skip any variables that are just 'None"
@@ -5971,6 +5983,23 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_mean
                 # print(str(i)+','+str(clstr_mean))
+        elif prefix == 'av':
+            # Calculate the average of the variable
+            # Find the mean of this var for this cluster
+            if var in ['dt_start','dt_end']:
+                these_values = np.array(df[var].values)
+                these_values = these_values.astype('datetime64', copy=False)
+                these_values.sort()
+                # print('these_values:',these_values)
+                # print('type(these_values[0]):',type(these_values[0]))
+                this_mean = datetime.strftime(these_values[len(these_values)//2].astype(datetime), '%Y-%m-%d %H:%M:%S')
+                # print('this_mean:',this_mean)
+                # print('type(this_mean):',type(this_mean))
+                # exit(0)
+            else:
+                this_mean = np.mean(df[var].values)
+            # Put this value back in the original dataframe
+            df[this_var] = this_mean
         elif prefix == 'nzca':
             # Calculate the cluster average version of the variable, neglecting all zero values
             #   Reduces the number of points to just one per cluster
@@ -6181,6 +6210,32 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 new_cl_vars.append('cRL')
             if 'nir_SA' not in new_cl_vars:
                 new_cl_vars.append('nir_SA')
+        elif prefix == 'atrd':
+            # Find the trend vs. dt_start for the variable
+            print('\t- Finding a trend in var:',var)
+            adjustment_factor = 365.25
+            per_unit = '/yr'
+            # Decide what kind of regression to use
+            plot_slopes = 'OLS'
+            # Find the data
+            x_data = np.array(df['dt_start'].values)
+            x_data = mpl.dates.date2num(x_data)
+            y_data = np.array(df[var].values, dtype=float)
+            # print('\t\t- x_data:',x_data)
+            # print('\t\t- y_data:',y_data)
+            # Find the trend vs. dt_start of this var
+            if plot_slopes == 'OLS':
+                # Find the slope of the ordinary least-squares of the points
+                m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+                print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
+                print('\t\t- R^2 value is',rvalue)
+            else:
+                # Find the slope of the total least-squares of the points
+                m, c, sd_m, sd_c = orthoregress(x_data, y_data)
+                print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
+            # Put this value to the original dataframe
+            df[this_var] = m*adjustment_factor
         elif prefix == 'nztrd':
             # Find the trend vs. dt_start of each cluster for the variable, neglecting all zero values
             #   Reduces the number of points to just one per cluster

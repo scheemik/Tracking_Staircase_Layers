@@ -230,7 +230,7 @@ this_BGR = 'BGR0506'
 # this_BGR = 'BGR1213'
 # this_BGR = 'BGR1314'
 # this_BGR = 'BGR1415'
-this_BGR = 'BGR1516'
+# this_BGR = 'BGR1516'
 # this_BGR = 'BGR1617'
 # this_BGR = 'BGR1718'
 # this_BGR = 'BGR1819'
@@ -239,7 +239,7 @@ this_BGR = 'BGR1516'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
 this_BGR = 'BGR_all'
-# ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # this_BGR = 'BGR0511'
@@ -411,7 +411,7 @@ pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'ma
 pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
 pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
 # Map of all ITP profiles
-if True:
+if False:
     print('')
     print('- Creating a map of all ITP profiles')
     # Make the data set
@@ -486,14 +486,15 @@ SA_lims_LHW = [34.105, 34.095]
 SA_lims_AW = [35.03, 34.97]
 CT_lims_LHW = [-0.8, -1.4]
 CT_lims_AW = [0.97, 0.57]
+LHW_AW_legend = False
 
 #*# Maps of LHW and AW cores in pressure
 if False:
     print('')
     print('- Creating maps of LHW and AW cores')
     # Make the Plot Parameters
-    pp_LHW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_LHW}, legend=False)
-    pp_AW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_AW}, legend=False)
+    pp_LHW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_AW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
     group_LHW_map = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_LHW_map, plot_title=r'LHW core, $p(S_A\approx34.1)$')
     group_AW_map = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_AW_map, plot_title=r'AW core, $p(\Theta_{max})$')
@@ -537,15 +538,15 @@ if False:
     print('- Creating a histogram and map of LHW and AW cores')
     # Make the Plot Parameters
     # Top of the thermocline, LHW core
-    pp_LHW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_LHW}, legend=False)
-    pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=False)
-    pp_LHW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_LHW}, legend=False)
-    pp_LHW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_LHW}, legend=False)
+    pp_LHW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
     ## Bottom of the thermocline, AW core
-    pp_AW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_AW}, legend=False)
-    pp_AW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_AW}, legend=False)
-    pp_AW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_AW}, legend=False)
-    pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=False)
+    pp_AW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
     group_LHW_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_LHW_hist, plot_title=r'LHW core, $p(S_A\approx34.1)$')
     group_LHW_fit_map = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_LHW_fit_map, plot_title=r'$p(S_A\approx34.1)$ and polyfit2d')
@@ -556,19 +557,18 @@ if False:
     group_AW_res_map = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_AW_res_map, plot_title=r'Residuals')
     group_AW_res_hist = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_AW_res_hist, plot_title=r'Residuals')
     # Make the figure
-    ahf.make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False)
+    ahf.make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.4, 1.6])
     # ahf.make_figure([group_LHW_hist, group_AW_hist], use_same_x_axis=False, use_same_y_axis=False)
 #*# Tracking LHW and AW cores over time
-if False:
+if True:
     print('')
     print('- Creating a plot of LHW and AW cores over time')
     # Make the Plot Parameters
-    # Note: trying to get the extra_args 'mv_avg':'14D' to work, but needs to sort correctly
     across_x_var = 'dt_start'
-    pp_LHW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min'], legend=False, extra_args={'plot_slopes':'OLS', 'mv_avg':'14D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_LHW})
-    pp_LHW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min-fit'], legend=False, extra_args={'plot_slopes':'OLS', 'mv_avg':'14D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_LHW})
-    pp_AW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=False, extra_args={'plot_slopes':'OLS', 'mv_avg':'14D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_AW})
-    pp_AW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max-fit'], legend=False, extra_args={'plot_slopes':'OLS', 'mv_avg':'14D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_AW})
+    pp_LHW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_LHW})
+    pp_LHW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min-fit'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_LHW})
+    pp_AW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_AW})
+    pp_AW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max-fit'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_AW},)
     # Make the subplot groups
     group_LHW = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_LHW, plot_title=r'LHW core, $p(S_A\approx34.1)$')
     group_LHW_fit = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_LHW_fit, plot_title=r'$p(S_A\approx34.1)$ - polyfit2d')
@@ -1505,9 +1505,9 @@ if False:
         print('')
         print('- Creating plots across time to look at a single cluster across different periods')
         # Make the Plot Parameters
-        pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-        pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})
-        pp_sigma = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['sigma'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})
+        pp_SA = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+        pp_CT = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})
+        pp_sigma = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['sigma'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})
         # Make the subplot groups
         group_SA = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA, plot_title='')
         group_CT = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT, plot_title='')
@@ -1519,9 +1519,9 @@ if False:
         print('')
         print('- Creating plots across time to look at a single cluster across different periods')
         # Make the Plot Parameters
-        pp_pcs_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pcs_press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
-        pp_pca_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})
-        pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']})
+        pp_pcs_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pcs_press'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})#, 'clstrs_to_plot':[4,5,6]}) 
+        pp_pca_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['pca_press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})
+        pp_press = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']})
         # Make the subplot groups
         group_pcs_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_pcs_press, plot_title='')
         group_pca_press = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_pca_press, plot_title='')
@@ -1533,9 +1533,9 @@ if False:
         print('')
         print('- Creating plots across time to look at a single cluster across different periods')
         # Make the Plot Parameters
-        pp_CT_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
-        pp_sigma_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['sigma-fit'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
-        pp_press_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+        pp_CT_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT-fit'], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+        pp_sigma_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['sigma-fit'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
+        pp_press_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']})
         # Make the subplot groups
         group_CT_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_fit, plot_title='polyfit2d')
         group_sigma_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_sigma_fit, plot_title='')
@@ -1883,8 +1883,8 @@ if False:
         print('')
         print('- Comparing plots along time for one cluster press minus lat-lon-press polyfit2d') 
         # Make the Plot Parameters
-        pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':[350,200]}, legend=False)
-        pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'14D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':[75,-75]}, legend=False)
+        pp_p_v_lat = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':[350,200]}, legend=False)
+        pp_minus_fit = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press-fit'], extra_args={'sort_clstrs':False, 'plot_slopes':'OLS', 'mv_avg':'30D', 'extra_vars_to_keep':['SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':[75,-75]}, legend=False)
         # Make the subplot groups
         group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title=this_cluster_title)#+'Uncorrected')
         group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='')#'Corrected by lat-lon-press polyfit2d')
