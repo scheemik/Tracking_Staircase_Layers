@@ -2757,7 +2757,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                         other_out_vars = ['cRL', 'nir_SA']
                     else:
                         other_out_vars = []
-                    mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
+                    mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
                     # Get data without outliers
                     x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
                     y_data = np.array(df[df['out_'+x_key]==False][y_key].values, dtype=np.float64)
@@ -3374,78 +3374,80 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # ax.coastlines()
         # Add bounding box
         bbox = 'BGR' # for Beaufort Gyre Region
-        # bbox = 'CB' # for Canada Basin
+        bbox = 'CB' # for Canada Basin
         # bbox = 'AOA' # for AIDJEX Operation Area
+        # bbox = 'None'
+        bb_zorder = 11
         #   Don't plot outside the extent chosen
         if map_extent == 'Canada_Basin':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=True)
             if bbox == 'CB':
                 # Only the Eastern boundary appears in this extent
-                ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
+                ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
         elif map_extent == 'Western_Arctic':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=False, add_lines=True)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
-                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA':
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         elif map_extent == 'AIDJEX_focus':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
                 # Northern boundary does not appear
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA':
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         else:
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
-                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Northern boundary
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA':
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=8) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         # Concatonate all the pandas data frames together
         df = pd.concat(a_group.data_frames)
         # Check for cluster-based variables
@@ -3464,12 +3466,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # If not plotting very many points, increase the marker size
+            print('len(df):',len(df))
             if len(df) < 10:
                 mrk_s = big_map_mrkr
+                mrk_a = mrk_alpha
+            elif len(df) > 10000:
+                mrk_s = map_mrk_size*(2/3)
+                mrk_a = 0.05
             else:
                 mrk_s = map_mrk_size
+                mrk_a = mrk_alpha3
+            print('mrk_s:',mrk_s)
+            print('mrk_a:',mrk_a)
             # Plot every point the same color, size, and marker
-            ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=mrk_alpha, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+            ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=mrk_a, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Add a standard legend
             if pp.legend:
                 add_std_legend(ax, df, 'lon', lgd_str=' profiles')
@@ -3643,8 +3653,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # If not plotting very many points, increase the marker size
             if len(df) < 10:
                 mrk_s = big_map_mrkr
+                mrk_a = mrk_alpha
+            elif len(df) > 10000:
+                mrk_s = map_mrk_size
+                mrk_a = 0.05
             else:
                 mrk_s = map_mrk_size
+                mrk_a = mrk_alpha3
+            mrk_s, mrk_a = get_marker_size_and_alpha(len(df['lon']))
             # Format the dates if necessary
             if clr_map == 'dt_start' or clr_map == 'dt_end':
                 cmap_data = mpl.dates.date2num(df[clr_map])
@@ -3716,7 +3732,7 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         per_unit = ''
         adjustment_factor = 1
     # Check whether to switch x and y for finding the slope
-    if x_key in ['BSP', 'BSA'] or 'trd_' in x_key or 'ca_' in x_key:
+    if x_key in ['BSP', 'BSA'] or 'trd_' in x_key or 'ca_' in x_key or 'pcs_' in x_key:
         switch_xy = True
         # Switch x and y data
         x_data_ = y_data
@@ -3752,10 +3768,10 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         # Annotate the inverse of the slope
         annotation_string = r'$1/$ '+annotation_string
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, zorder=3)
+        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, zorder=6)
     else:
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=3)
+        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=6)
     # Put annotation on the plot
     ax.annotate(anno_prefix+annotation_string+per_unit, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
@@ -5454,15 +5470,15 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
                     If None, all coefficients up to maxiumum kx, ky, ie. up to and including x^kx*y^ky, are considered.
     """
     print('in calc_fit_vars')
-    print('plt_vars:',plt_vars)
-    print('fit_vars:',fit_vars)
+    # print('plt_vars:',plt_vars)
+    # print('fit_vars:',fit_vars)
     # Find which of the plot variables has `-fit` in it
     fit_these_vars = []
     # these_split_vars = []
     fit_vars_dict = {}
     plt_var = None
     for var in plt_vars:
-        print('var:',var)
+        # print('var:',var)
         if not isinstance(var, type(None)):
             if '-fit' in var:
                 plt_var = var
@@ -6315,7 +6331,7 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
 
 ################################################################################
 
-def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mrk_clr='purple', mrk_shape=std_marker, mk_size=mrk_size, mrk_for_other_vars=[]):
+def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, threshold=2, mrk_clr='purple', mrk_shape=std_marker, mk_size=mrk_size, mrk_for_other_vars=[]):
     """
     Finds and marks outliers in the dataframe with respect to the x and y keys
     on the provided axis
@@ -6324,6 +6340,8 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
     df              A pandas data frame
     x_key           A string of the variable from df to use on the x axis
     y_key           A string of the variable from df to use on the y axis
+    clr_map         A string of the color map to use
+    mrk_outliers    True/False as whether to mark the outliers (or 'pre-calc')
     find_all        True/False as whether to find outliers in both cRL and nir_SP
     threshold       The threshold zscore for which to consider an outlier
     mrk_clr         The color in which to mark the outliers
@@ -6333,7 +6351,8 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
     # Find outliers
     if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
         print('\t- Marking outliers in cRL and nir_SA')
-        df = find_outliers(df, ['cRL', 'nir_SA'], threshold)
+        if mrk_outliers != 'pre-calced':
+            df = find_outliers(df, ['cRL', 'nir_SA'], threshold)
         # Set the values of all rows for 'out_'+x_key to False
         ## If I don't do this, then the values not set to True below are NaN
         df['out_'+x_key] = False
@@ -6357,7 +6376,8 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
     else:
         print('\t- Marking outliers in',x_key)
-        df = find_outliers(df, [x_key], threshold)
+        if mrk_outliers != 'pre-calced':
+            df = find_outliers(df, [x_key], threshold)
         if x_key == 'cRL':
             mrk_clr = 'r'
         elif x_key == 'nir_SA':
@@ -6382,7 +6402,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, find_all=False, threshold=2, mr
     # Run it again
     # if mrk_clr == 'r':
     if False:
-        mark_outliers(ax, df.loc[df['out_'+x_key]==False], x_key, y_key, clr_map, find_all, threshold, mrk_clr='b', mk_size=mk_size)
+        mark_outliers(ax, df.loc[df['out_'+x_key]==False], x_key, y_key, clr_map, mrk_outliers, find_all, threshold, mrk_clr='b', mk_size=mk_size)
 
 ################################################################################
 
@@ -6635,7 +6655,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         else:
             other_out_vars = []
         if mrk_outliers:
-            mark_outliers(ax, df, x_key, y_key, clr_map, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
+            mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
         # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
         if False:
