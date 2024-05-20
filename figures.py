@@ -239,7 +239,7 @@ this_BGR = 'BGR1516'
 # this_BGR = 'BGR2122'
 # this_BGR = 'BGR2223'
 this_BGR = 'BGR_all'
-ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
+# ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
 # this_BGR = 'BGR0511'
@@ -410,7 +410,21 @@ if False:
 pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})
 pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
 pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
-#*# Map of all profiles for all sources
+# Map of all ITP profiles
+if True:
+    print('')
+    print('- Creating a map of all ITP profiles')
+    # Make the data set
+    ds_ITPsAll = ahf.Data_Set(bps.ITPsAll, bob.dfs_all)
+    # Make the plot parameters
+    pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Full_Arctic'}, legend=True)
+    # Make the subplot groups
+    group_map_all_same = ahf.Analysis_Group(ds_ITPsAll, pfs_0, pp_map_full_Arctic, plot_title='')
+    group_map_by_date  = ahf.Analysis_Group(ds_ITPsAll, pfs_0, pp_map_by_date, plot_title='')
+    # Make the figure
+    # ahf.make_figure([group_map_all_same])
+    ahf.make_figure([group_map_all_same, group_map_by_date], use_same_x_axis=False, use_same_y_axis=False)#, filename='Figure_1.pickle')
+#*# Map of all profiles for all BGR profiles
 if False:
     print('')
     print('- Creating a map of the full Arctic and a map of all BGR profiles')

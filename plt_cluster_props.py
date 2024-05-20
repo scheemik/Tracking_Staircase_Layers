@@ -130,24 +130,24 @@ def make_var_label(var_key, ax_labels):
     #   check longer strings first to avoid mismatching
     # Check for non-zero cluster average of profile cluster span variables
     if 'nzca_pcs_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
+        # Take out the first 9 characters of the string to leave the original variable name
         var_str = var_key[9:]
         # return 'Profile cluster span of '+ ax_labels[var_str]
         return 'NZCA/CS/P of '+ ax_labels[var_str]
     # Check for cluster average of profile cluster span variables
     if 'ca_pcs_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
+        # Take out the first 7 characters of the string to leave the original variable name
         var_str = var_key[7:]
         # return 'Profile cluster span of '+ ax_labels[var_str]
         return 'CA/CS/P of '+ ax_labels[var_str]
     # Check for non-zero trend in profile cluster span variables
     if 'nztrd_pcs_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
+        # Take out the first 10 characters of the string to leave the original variable name
         var_str = var_key[10:]
         return 'NZ Trend in CS/P '+ ax_labels[var_str] + '/year'
     # Check for trend in profile cluster span variables
     if 'trd_pcs_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
+        # Take out the first 8 characters of the string to leave the original variable name
         var_str = var_key[8:]
         return 'Trend in CS/P '+ ax_labels[var_str] + '/year'
     # Check for profile cluster average variables
@@ -156,12 +156,30 @@ def make_var_label(var_key, ax_labels):
         var_str = var_key[4:]
         return 'CA/P of '+ ax_labels[var_str]
         # return 'Profile cluster average of '+ ax_labels[var_str]
+    # Check for non-zero profile cluster span variables
+    if 'nzpcs_' in var_key:
+        # Take out the first 6 characters of the string to leave the original variable name
+        var_str = var_key[6:]
+        # Check for variables normalized by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the first 3 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return 'NZCS/P of '+ ax_labels[var_str] + ' - polyfit2d'
+        else:
+            return 'NZCS/P of '+ ax_labels[var_str]
+        # return 'Non-zero profile cluster span of '+ ax_labels[var_str]
     # Check for profile cluster span variables
     if 'pcs_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
         var_str = var_key[4:]
-        # return 'Profile cluster span of '+ ax_labels[var_str]
-        return 'CS/P of '+ ax_labels[var_str]
+        # Check for variables normalized by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the first 3 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return 'CS/P of '+ ax_labels[var_str] + ' - polyfit2d'
+        else:
+            # return 'Profile cluster span of '+ ax_labels[var_str]
+            return 'CS/P of '+ ax_labels[var_str]
     # Check for cluster mean-centered variables
     elif 'cmc_' in var_key:
         # Take out the first 4 characters of the string to leave the original variable name
@@ -599,12 +617,12 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             #     other_out_vars = ['cRL', 'nir_SA']
             # else:
             #     other_out_vars = []
-            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
+            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
             if x_key != 'cRL' and x_key != 'nir_SA':
-                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=['cRL', 'nir_SA'])
+                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=['cRL', 'nir_SA'])
             else:
-                ahf.mark_outliers(ax, df, x_key, y_key, clr_map)
-            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_for_other_vars=other_out_vars)
+                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers)
+            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
             # Get data without outliers
             if plot_slopes:
                 x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
@@ -702,7 +720,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             tw_ax_x.tick_params(axis='y', colors=tw_clr)
         # Add a standard legend
         if pp.legend:
-            add_std_legend(ax, df, x_key)
+            ahf.add_std_legend(ax, df, x_key)
         # Format the axes for datetimes, if necessary
         ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
         # Check whether to plot isopycnals
@@ -1167,7 +1185,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         cbar.set_label(pp.clabel)
         # Add a standard legend
         if pp.legend:
-            add_std_legend(ax, df, x_key)
+            ahf.add_std_legend(ax, df, x_key)
         # Format the axes for datetimes, if necessary
         ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
         # Check whether to plot isopycnals
@@ -1198,20 +1216,77 @@ this_clr_map = 'clr_all_same'
 # this_clr_map = 'cluster'
 
 # Make the plot parameters
-pp_test = ahf.Plot_Parameters(x_vars=['ca_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test2 = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test3 = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-pp_test4 = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
-# Make the subplot groups
-group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
-group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
-group_test3 = Analysis_Group2([df], pp_test3, plot_title=this_BGR)
-group_test4 = Analysis_Group2([df], pp_test4, plot_title=this_BGR)
-# Make the figure
-# make_figure([group_test])
-make_figure([group_test, group_test2, group_test3, group_test4], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
+# this_y_var = 'ca_press'
+# pp_test = ahf.Plot_Parameters(x_vars=['ca_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test2 = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test3 = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# pp_test4 = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
+# # Make the subplot groups
+# group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
+# group_test2 = Analysis_Group2([df], pp_test2, plot_title=this_BGR)
+# group_test3 = Analysis_Group2([df], pp_test3, plot_title=this_BGR)
+# group_test4 = Analysis_Group2([df], pp_test4, plot_title=this_BGR)
+# # Make the figure
+# # make_figure([group_test])
+# make_figure([group_test, group_test2, group_test3, group_test4], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
+# 
+# exit(0)
 
-exit(0)
+# Plot of pcs_press for all profiles agains press
+if False:
+    # Load the per-profile data
+    df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+    # To compare to Shibley et al. 2019 Figure 6b: 
+    #   Use only ITP13 between August 2007 - August 2008 (ITP13 has data in this time period only)
+    if True:
+        import datetime as dt
+        df_per_pf = df_per_pf[(df_per_pf['instrmt'] == '13')]
+        # print('df_per_pf[instrmt]:',df_per_pf['instrmt'])
+        # print('type of df_per_pf[instrmt]:',type(df_per_pf['instrmt'].values[0]))
+        # exit(0)
+    # Find outliers in df
+    df = ahf.find_outliers(df, ['cRL', 'nir_SA'])
+    # Based on df, get values of 'cRL' and 'nir_SA' for df_per_pf
+    df_per_pf['out_cRL'] = None
+    df_per_pf['out_nir_SA'] = None
+    # Check columns of df
+    # print('df columns:',df.columns)
+    # print('df_per_pf columns:',df_per_pf.columns)
+    for i in np.unique(df_per_pf['cluster']):
+        if i in df['cluster'].values:
+            # Mark the cluster as an outlier if it is an outlier in the original dataframe
+            df_per_pf.loc[df_per_pf['cluster'] == i, 'out_cRL'] = df.loc[df['cluster'] == i, 'out_cRL'].values[0]
+            df_per_pf.loc[df_per_pf['cluster'] == i, 'out_nir_SA'] = df.loc[df['cluster'] == i, 'out_nir_SA'].values[0]
+    # Remove all rows with 'cRL' or 'nir_SA' outliers
+    df_per_pf = df_per_pf[(df_per_pf['out_cRL'] == False) & (df_per_pf['out_nir_SA'] == False)]
+    # Make a copy of the dataframe
+    nzdf_per_pf = df_per_pf.copy()
+    # Make a column in the dataframe of pcs_press without zeros
+    nzdf_per_pf = nzdf_per_pf[nzdf_per_pf['pcs_press'] != 0]
+    nzdf_per_pf['nzpcs_press'] = nzdf_per_pf['pcs_press']
+    # Change the new columns to be numpy float32
+    nzdf_per_pf['pcs_press'] = nzdf_per_pf['pcs_press'].astype(np.float32)
+    nzdf_per_pf['nzpcs_press'] = nzdf_per_pf['nzpcs_press'].astype(np.float32)
+
+
+    # Make the plot parameters
+    # pp_pcs = ahf.Plot_Parameters(x_vars=['pcs_press'], y_vars=['press'], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=True)
+    pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=['press'], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=True, ax_lims={'x_lims':[0.5,4.5], 'y_lims':[300,170]})
+    # Make the subplot groups
+    # group_pcs = Analysis_Group2([df_per_pf], pp_pcs, plot_title=this_BGR)
+    group_nzpcs = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title='ITP 13')
+    # Make the figure
+    # make_figure([group_pcs, group_nzpcs])#, row_col_list=[1,1, 0.8, 1.25])
+    make_figure([group_nzpcs], row_col_list=[1,1, 0.7, 1.0])
+
+    # # Make the plot parameters
+    # pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=['press'], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=True)
+    # pp_nzpcs_fit = ahf.Plot_Parameters(x_vars=['nzpcs_press-fit'], y_vars=['press'], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press'], 'fit_vars':['lon','lat']}, legend=True)#, ax_lims={'x_lims':[0.5,4.5], 'y_lims':[300,170]})
+    # # Make the subplot groups
+    # group_napcs     = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=this_BGR)
+    # group_nzpcs_fit = Analysis_Group2([nzdf_per_pf], pp_nzpcs_fit, plot_title=this_BGR)
+    # # Make the figure
+    # ahf.make_figure([group_napcs, group_nzpcs_fit])#, row_col_list=[1,1, 0.8, 1.25])
 
 #*# Plot of nir_SA and cRL for all clusters
 if False:
@@ -1226,8 +1301,8 @@ if False:
 
 # Make plots of the polyfit2d trends in the cluster properties
 plot_slopes = 'OLS'
-# if False:
-for this_clr_map in ['clr_all_same']:#, 'cluster']:
+if False:
+# for this_clr_map in ['clr_all_same']:#, 'cluster']:
     this_ca_var = 'ca_press'
     # Make the Plot Parameters
     pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, ax_lims={'y_lims':[355,190]}, legend=False)
