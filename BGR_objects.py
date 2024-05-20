@@ -43,7 +43,7 @@ this_min_press = bps.this_min_press
 # Data filter object using all default settings
 dfs0 = ahf.Data_Filters()
 # Data filter object that keeps all profiles
-dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any')
+dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any', press_TC_max_range=None)
 # Data filter object that limits the minimum pressure
 dfs1 = ahf.Data_Filters(min_press=this_min_press)
 
