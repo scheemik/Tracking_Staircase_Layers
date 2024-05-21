@@ -67,6 +67,7 @@ df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_cluster_properties-pf.pickle', 'rb'))
+bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
 
 ################################################################################
 # Plotting functions ###########################################################
@@ -82,8 +83,12 @@ def get_axis_labels(pp):
     # Build dictionary of axis labels
     ax_labels = {
                  'instrmt':r'Instrument',
+                 'lat':r'Latitude ($^\circ$N)',
+                 'lon':r'Longitude ($^\circ$E+)',
                  'hist':r'Occurrences',
                  'press':r'Pressure (dbar)',
+                 'press_TC_max':r'$p(\Theta_{max})$ (dbar)',
+                 'press_TC_min':r'$p(S_A\approx34.1)$ (dbar)',
                  'SA':r'$S_A$ (g/kg)',
                  'CT':r'$\Theta$ ($^\circ$C)',
                  'sigma':r'$\sigma_1$ (kg/m$^3$)',
@@ -263,6 +268,25 @@ def make_var_label(var_key, ax_labels):
         return ax_labels[var_key]
     else:
         return 'None'
+
+def mark_the_LHW_and_AW(ax, x_key, y_key):
+    """
+    Marks the LHW and AW clusters on the plot
+
+    ax          A matplotlib axis object
+    x_key       A string of the x key
+    y_key       A string of the y key
+    """
+    # Parse the bounds keys
+    x_LHW_key, y_LHW_key, x_AW_key, y_AW_key = ahf.parse_LHW_AW_keys(x_key, y_key)
+    # Find the x and y values for the LHW and AW
+    x_LHW = bnds_df[x_LHW_key].values[0]
+    y_LHW = bnds_df[y_LHW_key].values[0]
+    x_AW  = bnds_df[x_AW_key].values[0]
+    y_AW  = bnds_df[y_AW_key].values[0]
+    # Plot the LHW and AW
+    ax.scatter(x_LHW, y_LHW, color=ahf.jackson_clr[6], s=50, marker='v', zorder=10)
+    ax.scatter(x_AW, y_AW, color=ahf.jackson_clr[3], s=50, marker='^', zorder=10)
 
 class Analysis_Group2:
     """
@@ -518,10 +542,13 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             re_run_clstr = extra_args['re_run_clstr']
         else:
             re_run_clstr = True
+        if 'mark_LHW_AW' in extra_args.keys():
+            mark_LHW_AW = extra_args['mark_LHW_AW']
     else:
         extra_args = False
         plot_slopes = False
         mv_avg = False
+        mark_LHW_AW = False
     # Add a title
     plt_title = a_group.plot_title
     ## Make a standard x vs. y scatter plot
@@ -584,13 +611,13 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             ax.w_yaxis.pane.fill = False
             ax.w_zaxis.pane.fill = False
         # If there aren't that many points, make the markers bigger
-        m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
+        m_size, m_alpha = ahf.ahf.get_marker_size_and_alpha(len(df[x_key]))
         # Plot every point the same color, size, and marker
         if plot_3d == False:
             # Plot in 2D
-            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=ahf.ahf.std_marker, alpha=m_alpha, zorder=5)
             # Output the x and y data, along with cluster id, to a pickle file
-            df[[x_key, y_key, 'cluster']].to_pickle('outputs/'+this_BGR+'_x_y_cluster_id.pickle')
+            # df[[x_key, y_key, 'cluster']].to_pickle('outputs/'+this_BGR+'_x_y_cluster_id.pickle')
             # Take moving average of the data
             if x_key in ['dt_start', 'dt_end'] and mv_avg:
                 print('\t- Taking moving average of the data')
@@ -609,7 +636,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 ax.plot(df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
         else:
             # Plot in 3D
-            ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
         # Check whether to mark outliers
         print('\t- Marking outliers:',mrk_outliers)
         if mrk_outliers:
@@ -632,6 +659,10 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             if plot_slopes:
                 x_data = np.array(df[x_key].values, dtype=np.float64)
                 y_data = np.array(df[y_key].values, dtype=np.float64)
+        # Check whether to mark LHW and AW
+        print('\t- Marking LHW and AW:',mark_LHW_AW)
+        if mark_LHW_AW:
+            mark_the_LHW_and_AW(ax, x_key, y_key)
         if plot_slopes:
             if plot_3d == False:
                 if x_key == 'cRL':
@@ -676,7 +707,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                     ahf.add_linear_slope(ax, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
             else:
                 # Fit a 2d polynomial to the z data
-                plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
+                ahf.plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
         # Add a line at nir_var = 1, if plotting nir
         if 'nir_' in x_key:
             # Get bounds of axes
@@ -698,12 +729,14 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         # Invert y-axis if specified
         if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         # Plot on twin axes, if specified
         if not isinstance(tw_x_key, type(None)):
             tw_clr = get_var_color(tw_x_key)
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
-            tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=m_alpha)
+            tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha)
             tw_ax_y.set_xlabel(pp.xlabels[1])
             # Change color of the ticks on the twin axis
             tw_ax_y.tick_params(axis='x', colors=tw_clr)
@@ -711,9 +744,9 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             tw_clr = get_var_color(tw_y_key)
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
-            tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=std_marker, alpha=m_alpha)
+            tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha)
             # Invert y-axis if specified
-            if tw_y_key in y_invert_vars:
+            if tw_y_key in ahf.y_invert_vars:
                 tw_ax_x.invert_yaxis()
             tw_ax_x.set_ylabel(pp.ylabels[1])
             # Change color of the ticks on the twin axis
@@ -741,7 +774,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         # Get unique sources
         these_sources = np.unique(df['source'])
         # If there aren't that many points, make the markers bigger
-        m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+        m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
         # if len(df[x_key]) < 1000:
         #     m_size = map_mrk_size
         # elif len(df[x_key]) < 100000:
@@ -756,14 +789,16 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             # Get the data for just this source
             this_df = df[df['source'] == source] 
             # Plot every point from this df the same color, size, and marker
-            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
             i += 1
             # Add legend to report the total number of points for this instrmt
             lgnd_label = source+': '+str(len(this_df[x_key]))+' points'
             lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
         # Invert y-axis if specified
-        if y_key in y_invert_vars:
+        if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         notes_string = ''.join(this_df.notes.unique())
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
@@ -830,7 +865,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 # Drop duplicates to have just one row per cluster
                 this_df.drop_duplicates(subset=new_cl_vars, keep='first', inplace=True)
             # If there aren't that many points, make the markers bigger
-            m_size, m_alpha = get_marker_size_and_alpha(len(this_df[x_key]))
+            m_size, m_alpha = ahf.get_marker_size_and_alpha(len(this_df[x_key]))
             # if len(this_df[x_key]) < 1000:
             #     m_size = map_mrk_size
             # else: 
@@ -843,7 +878,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             if y_key in ['dt_start', 'dt_end']:
                 this_df[y_key] = mpl.dates.date2num(this_df[y_key])
             # Plot every point from this df the same color, size, and marker
-            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
             # Add error bars if applicable
             if errorbars:
                 if not isinstance(x_err_key, type(None)):
@@ -855,8 +890,10 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
             i += 1
         # Invert y-axis if specified
-        if y_key in y_invert_vars:
+        if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         notes_string = ''.join(this_df.notes.unique())
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
@@ -892,7 +929,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             print('No instruments included, aborting script')
             exit(0)
         # If there aren't that many points, make the markers bigger
-        m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+        m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
         # if len(df[x_key]) < 1000:
         #     m_size = map_mrk_size
         # elif len(df[x_key]) < 100000:
@@ -908,15 +945,17 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Plot every point from this df the same color, size, and marker
-            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(this_df[x_key], this_df[y_key], color=my_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
             i += 1
             # Add legend to report the total number of points for this instrmt
             lgnd_label = instrmt+': '+str(len(this_df[x_key]))+' points'
             lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
             notes_string = ''.join(this_df.notes.unique())
         # Invert y-axis if specified
-        if y_key in y_invert_vars:
+        if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -988,10 +1027,12 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 # clr_min = None
                 # clr_max = 100
         # Make the 2D histogram, the number of bins really changes the outcome
-        heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
+        heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=ahf.get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
         # Invert y-axis if specified
-        if y_key in y_invert_vars:
+        if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         # `hist2d` returns a tuple, the index 3 of which is the mappable for a colorbar
         cbar = plt.colorbar(heatmap[3], ax=ax, extend=clr_ext)
         cbar.set_label('points per pixel')
@@ -1057,6 +1098,11 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             ax.w_xaxis.pane.fill = False
             ax.w_yaxis.pane.fill = False
             ax.w_zaxis.pane.fill = False
+        # Check whether to mark LHW and AW
+        print('\t- Marking LHW and AW:',mark_LHW_AW)
+        if mark_LHW_AW:
+            mark_the_LHW_and_AW(ax, x_key, y_key)
+            pp.mark_LHW_AW = False
         # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
         invert_y_axis, a_group.data_frames, foo0, foo1, foo2 = ahf.plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, None, None, None, clr_map, None, None, None, None, box_and_whisker=False, plot_slopes=plot_slopes)
         # Format the axes for datetimes, if necessary
@@ -1091,12 +1137,12 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         else:
             cmap_data = df[clr_map]
         # Get the colormap
-        this_cmap = get_color_map(clr_map)
+        this_cmap = ahf.get_color_map(clr_map)
         #
         if plot_hist:
             return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
         # If there aren't that many points, make the markers bigger
-        m_size, m_alpha = get_marker_size_and_alpha(len(df[x_key]))
+        m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
         # if len(df[x_key]) < 1000:
         #     m_size = map_mrk_size
         # elif len(df[x_key]) < 100000:
@@ -1113,27 +1159,29 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             ax.w_yaxis.pane.fill = False
             ax.w_zaxis.pane.fill = False
             # Plot
-            heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+            heatmap = ax.scatter(df[x_key], df[y_key], zs=df_z_key, c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=5)
             if plot_slopes:
                 # Fit a 2d polynomial to the z data
-                plot_polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
+                ahf.plot_polyfit2d(ax, pp, df[x_key], df[y_key], df_z_key)
         else:
             if plot_slopes and x_key=='lon' and y_key=='lat':
                 # Fit a 2d polynomial to the z data
-                plot_polyfit2d(ax, pp, df[x_key], df[y_key], df[clr_map], in_3D=False)
+                ahf.plot_polyfit2d(ax, pp, df[x_key], df[y_key], df[clr_map], in_3D=False)
                 # Plot the scatter
-                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
+                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=5, alpha=ahf.map_alpha)
             elif plot_slopes:
                 # Plot the scatter
-                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
+                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=5, alpha=ahf.map_alpha)
                 # Plot a linear slope
                 ahf.add_linear_slope(ax, df, df[x_key], df[y_key], x_key, y_key, alt_std_clr, plot_slopes)
             else:
                 # Plot the scatter
-                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
+                heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=5)
         # Invert y-axis if specified
-        if y_key in y_invert_vars:
+        if y_key in ahf.y_invert_vars:
             invert_y_axis = True
+        else:
+            invert_y_axis = False
         # Plot on twin axes, if specified
         if not isinstance(tw_x_key, type(None)):
             tw_clr = get_var_color(tw_x_key)
@@ -1141,7 +1189,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 tw_clr = alt_std_clr
             # Add backing x to distinguish from main axis
             tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
-            tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
+            tw_ax_y.scatter(df[tw_x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=4)
             tw_ax_y.set_xlabel(pp.xlabels[1])
             # Change color of the axis label on the twin axis
             tw_ax_y.xaxis.label.set_color(tw_clr)
@@ -1155,9 +1203,9 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
                 tw_clr = alt_std_clr
             # Add backing x to distinguish from main axis
             tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size*10, marker='x', zorder=3)
-            tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=4)
+            tw_ax_x.scatter(df[x_key], df[tw_y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=ahf.std_marker, zorder=4)
             # Invert y-axis if specified
-            if tw_y_key in y_invert_vars:
+            if tw_y_key in ahf.y_invert_vars:
                 tw_ax_x.invert_yaxis()
             tw_ax_x.set_ylabel(pp.ylabels[1])
             # Change color of the axis label on the twin axis
@@ -1212,10 +1260,17 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
 
 ################################################################################
 
-this_clr_map = 'clr_all_same'
-# this_clr_map = 'cluster'
+# this_clr_map = 'clr_all_same'
+this_clr_map = 'cluster'
 
 # Make the plot parameters
+# pp_test = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['press'], 'mark_LHW_AW':True}, legend=False)
+# # Make the subplot groups
+# group_test = Analysis_Group2([df], pp_test, plot_title=this_BGR)
+# # Make the figure
+# make_figure([group_test])
+
+# # Make the plot parameters
 # this_y_var = 'ca_press'
 # pp_test = ahf.Plot_Parameters(x_vars=['ca_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
 # pp_test2 = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=[this_y_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)
@@ -1229,8 +1284,27 @@ this_clr_map = 'clr_all_same'
 # # Make the figure
 # # make_figure([group_test])
 # make_figure([group_test, group_test2, group_test3, group_test4], use_same_x_axis=True)#, row_col_list=[1,1, 0.8, 1.25])
-# 
+
 # exit(0)
+
+# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
+if True:
+    pfs_LHW_AW = bob.pfs_LHW_and_AW
+    press_lims_LHW = [300,150]
+    press_fit_lims_LHW = [75,-75]
+    press_lims_AW = [550,350]
+    press_fit_lims_AW = [100,-100]
+    SA_lims_LHW = [34.105, 34.095]
+    SA_lims_AW = [35.03, 34.97]
+    CT_lims_LHW = [-0.8, -1.4]
+    CT_lims_AW = [0.97, 0.57]
+    LHW_AW_legend = False
+    # Make the plot parameters
+    pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    # Make the subplot groups
+    group_LHW_fit_map = Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'LHW core, $p(S_A\approx34.1)$')
+    # Make the figure
+    make_figure([group_LHW_fit_map])
 
 # Plot of pcs_press for all profiles agains press
 if False:

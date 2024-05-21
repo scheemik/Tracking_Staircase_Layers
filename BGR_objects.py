@@ -45,7 +45,7 @@ dfs0 = ahf.Data_Filters()
 # Data filter object that keeps all profiles
 dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any', press_TC_max_range=None)
 # Data filter object that limits the minimum pressure
-dfs1 = ahf.Data_Filters(min_press=this_min_press)
+dfs1 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2023/08/15 00:00:00'])
 
 # Beaufort Gyre Region
 ## Data filter objects for different time periods

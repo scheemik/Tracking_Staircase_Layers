@@ -86,21 +86,21 @@ dark_mode = False
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
 #   https://jacksonlab.agronomy.wisc.edu/2016/05/23/15-level-colorblind-friendly-palette/
-jackson_clr = np.array(["#000000",  #  0 black
-                        "#004949",  #  1 dark olive
-                        "#009292",  #  2 teal
-                        "#ff6db6",  #  3 hot pink
-                        "#ffb6db",  #  4 light pink
-                        "#490092",  #  5 dark purple
-                        "#006ddb",  #  6 royal blue
-                        "#b66dff",  #  7 violet
-                        "#6db6ff",  #  8 sky blue
-                        "#b6dbff",  #  9 pale blue
-                        "#920000",  # 10 dark red
-                        "#924900",  # 11 brown
-                        "#db6d00",  # 12 dark orange
-                        "#24ff24",  # 13 neon green
-                        "#ffff6d"]) # 14 yellow
+jackson_clr = np.array(["#000000",  #  0 black              #
+                        "#004949",  #  1 dark olive         # light
+                        "#009292",  #  2 teal               # light / dark
+                        "#ff6db6",  #  3 hot pink           # 
+                        "#ffb6db",  #  4 light pink         #         dark
+                        "#490092",  #  5 dark purple        # light
+                        "#006ddb",  #  6 royal blue         # light / dark
+                        "#b66dff",  #  7 violet             #         dark
+                        "#6db6ff",  #  8 sky blue           #
+                        "#b6dbff",  #  9 pale blue          #         dark
+                        "#920000",  # 10 dark red           # light
+                        "#924900",  # 11 brown              #
+                        "#db6d00",  # 12 dark orange        # light
+                        "#24ff24",  # 13 neon green         # light / dark
+                        "#ffff6d"]) # 14 yellow             #         dark
 
 # Enable dark mode plotting
 if dark_mode:
@@ -124,7 +124,7 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-    clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
+    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]]
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
@@ -2621,10 +2621,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
             re_run_clstr = extra_args['re_run_clstr']
         else:
             re_run_clstr = True
+        if 'mark_LHW_AW' in extra_args.keys():
+            mark_LHW_AW = extra_args['mark_LHW_AW']
     else:
         extra_args = False
         plot_slopes = False
         mv_avg = False
+        mark_LHW_AW = False
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis
@@ -2703,6 +2706,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 df = df.droplevel('Vertical')
                 df.reset_index(level=['Time'], inplace=True)
                 df.drop_duplicates(inplace=True, subset=['Time'])
+        # Check whether to add LHW and AW
+        if mark_LHW_AW:
+            mark_the_LHW_AW(ax, x_key, y_key)
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # Check for histogram
@@ -3722,6 +3728,72 @@ def make_subplot(ax, a_group, fig, ax_pos):
 
 ################################################################################
 # Auxiliary plotting functions #################################################
+################################################################################
+
+def parse_LHW_AW_keys(x_key, y_key):
+    """
+    Takes in the x and y keys and returns the corresponding LHW and AW keys
+
+    x_key       A string of the x key
+    y_key       A string of the y key
+    """
+    return_keys = []
+    # Check for the LHW and AW keys
+    for ext in ['_TC_min', '_TC_max']:
+        for key in [x_key, y_key]:
+            affix = ''
+            suffix = ''
+            if 'ca_' in key:
+                # Take out first 3 characters of the string to leave the original variable name
+                key_str = key[3:]
+                affix = 'av_'
+            elif 'trd_' in key:
+                # Take out first 4 characters of the string to leave the original variable name
+                key_str = key[4:]
+                affix = 'trd_'
+            else:
+                key_str = key
+            if '-fit' in key:
+                # Take out last 4 characters of the string to leave the original variable name
+                key_str = key_str[:-4]
+                suffix = '-fit'
+            if key_str == 'sigma':
+                key_str = 'sig'
+            if key_str in ['dt_start', 'dt_end']:
+                return_keys.append(key_str)
+            else:
+                return_keys.append(affix + key_str + ext + suffix)
+    return return_keys[0], return_keys[1], return_keys[2], return_keys[3]
+
+def mark_the_LHW_AW(ax, x_key, y_key):
+    """
+    Marks the location of the LHW and AW boundaries on the plot
+
+    ax          The axis on which to mark the boundaries
+    x_key       The string of the name for the x data
+    y_key       The string of the name for the y data
+    """
+    print('\t- Marking the LHW and AW boundaries')
+    # Parse the bounds keys
+    x_LHW_key, y_LHW_key, x_AW_key, y_AW_key = parse_LHW_AW_keys(x_key, y_key)
+    # Load the bounds data
+    this_BGR = 'BGR_all'
+    # this_BGR = 'BGR1516'
+    bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
+    # Find the x and y values for the LHW and AW
+    var_arrs = []
+    for var_key in [x_LHW_key, y_LHW_key, x_AW_key, y_AW_key]:
+        if var_key in ['dt_start', 'dt_end']:
+            var_arrs.append(mpl.dates.date2num(bnds_df[var_key].values))
+        else:
+            var_arrs.append(bnds_df[var_key].values)
+    # Get marker size and alpha
+    mrk_s, mrk_a = get_marker_size_and_alpha(len(var_arrs[0]))
+    mrk_a = mrk_a*2
+    # Plot the LHW and AW
+    ax.scatter(var_arrs[0], var_arrs[1], color=jackson_clr[6], s=mrk_s, marker='v', zorder=4, alpha=mrk_a)
+    ax.scatter(var_arrs[2], var_arrs[3], color=jackson_clr[3], s=mrk_s, marker='^', zorder=4, alpha=mrk_a)
+
 ################################################################################
 
 def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes, anno_prefix=''):
@@ -5624,6 +5696,19 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         except:
             # if c_lims are not provided
             CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(z_data), vmax=max(z_data))
+        # Find the min / max values and their locations
+        min_idx = np.argmin(fitted_surf)
+        max_idx = np.argmax(fitted_surf)
+        min_val = fitted_surf.flatten()[min_idx]
+        max_val = fitted_surf.flatten()[max_idx]
+        min_x = x_grid.flatten()[min_idx]
+        max_x = x_grid.flatten()[max_idx]
+        min_y = y_grid.flatten()[min_idx]
+        max_y = y_grid.flatten()[max_idx]
+        print('\t- Minimum value of',min_val,'at x:',min_x,'y:',min_y)
+        print('\t- Maximum value of',max_val,'at x:',max_x,'y:',max_y)
+        # Plot a marker at the maximum value
+        ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15)
 
 ################################################################################
 
@@ -6713,7 +6798,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
         # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
-        if False:
+        if True:
             # Select date on which to place the cluster numbers on the left-hand side
             x_place = mpl.dates.date2num(datetime.fromisoformat('2005-07-01'))
             these_clst_ids = []

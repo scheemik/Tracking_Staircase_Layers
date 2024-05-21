@@ -63,7 +63,7 @@ l_styles = ['-', '--', '-.', ':']
 ################################################################################
 
 # Make the data set
-ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs_all)
+ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1)
 # Make the plot parameters
 pp_ = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['dt_start', 'lon', 'lat', 'press_TC_max', 'press_TC_min', 'SA_TC_max', 'SA_TC_min', 'CT_TC_max', 'CT_TC_min', 'sig_TC_max', 'sig_TC_min']}, legend=False)
 # Make the subplot groups
