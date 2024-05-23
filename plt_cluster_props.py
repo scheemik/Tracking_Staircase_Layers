@@ -83,12 +83,18 @@ def get_axis_labels(pp):
     # Build dictionary of axis labels
     ax_labels = {
                  'instrmt':r'Instrument',
+                 'dt_start':r'Datetime of profile start',
+                 'dt_end':r'Datetime of profile end',
                  'lat':r'Latitude ($^\circ$N)',
                  'lon':r'Longitude ($^\circ$E+)',
                  'hist':r'Occurrences',
                  'press':r'Pressure (dbar)',
                  'press_TC_max':r'$p(\Theta_{max})$ (dbar)',
                  'press_TC_min':r'$p(S_A\approx34.1)$ (dbar)',
+                 'SA_TC_max':r'$S_A(\Theta_{max})$ (g/kg)',
+                 'SA_TC_min':r'$S_A\approx34.1$ (g/kg)',
+                 'CT_TC_max':r'$\Theta_{max}$ ($^\circ$C)',
+                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$ ($^\circ$C)',
                  'SA':r'$S_A$ (g/kg)',
                  'CT':r'$\Theta$ ($^\circ$C)',
                  'sigma':r'$\sigma_1$ (kg/m$^3$)',
@@ -122,6 +128,13 @@ def get_axis_labels(pp):
     else:
         pp.ylabels[0] = None
         pp.ylabels[1] = None
+    # Get colormap label
+    if not isinstance(pp.clr_map, type(None)):
+        try:
+            pp.clabel = var_attr_dicts[0][pp.clr_map]['label']
+        except:
+            pp.clabel = make_var_label(pp.clr_map, ax_labels)
+
     return pp
 
 def make_var_label(var_key, ax_labels):
@@ -302,7 +315,7 @@ class Analysis_Group2:
         self.plt_params = get_axis_labels(plt_params)
         self.plot_title = plot_title
 
-def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y_axis=None, row_col_list=None):
+def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_axis=None, row_col_list=None):
     """
     Takes in a list of Analysis_Group objects, one for each subplot. Determines
     the needed arrangement of subplots, then passes one Analysis_Group object to
@@ -352,6 +365,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
             print('\t- Set share_x_axis to True')
         else:
             use_same_x_axis = False
+            print('\t- Set share_x_axis to False')
         #
     else:
         use_same_x_axis = False
@@ -362,9 +376,12 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
             print('\t- Set share_y_axis to True')
         else:
             use_same_y_axis = False
+            print('\t- Set share_y_axis to False')
         #
     else:
         use_same_y_axis = False
+    print('\t- Using same x axis:',use_same_x_axis)
+    print('\t- Using same y axis:',use_same_y_axis)
     tight_layout_h_pad = 1.0 #None
     tight_layout_w_pad = 1.0 #None
     if n_subplots == 1:
@@ -413,7 +430,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
             else:
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
-            xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i])#, fig, ax_pos)
+            xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
             if use_same_x_axis:
                 # If on the top row
                 if i < cols == 0:
@@ -485,7 +502,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
 
 ################################################################################
 
-def make_subplot(ax, a_group):#, fig, ax_pos):
+def make_subplot(ax, a_group, fig, ax_pos):
     """
     Takes in an Analysis_Group object which has the data and plotting parameters
     to produce a subplot. Returns the x and y labels and the subplot title
@@ -497,8 +514,12 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
     """
     # Get relevant parameters for the plot
     pp = a_group.plt_params
-    # plot_type = pp.plot_type
+    plot_type = pp.plot_type
     clr_map   = pp.clr_map
+    # Check the plot type
+    if plot_type == 'map':
+        x_label, y_label, z_label, plt_title, ax, invert_y_axis = ahf.make_subplot(ax, a_group, fig, ax_pos)
+        return x_label, y_label, plt_title, ax, invert_y_axis
     # Check the extra arguments
     add_isos = False
     errorbars = False
@@ -544,6 +565,8 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             re_run_clstr = True
         if 'mark_LHW_AW' in extra_args.keys():
             mark_LHW_AW = extra_args['mark_LHW_AW']
+        else:
+            mark_LHW_AW = False
     else:
         extra_args = False
         plot_slopes = False
@@ -577,6 +600,11 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         tw_ax_x  = None
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
+    # Format the dates if necessary
+    if x_key in ['dt_start', 'dt_end']:
+        df[x_key] = mpl.dates.date2num(df[x_key])
+    if y_key in ['dt_start', 'dt_end']:
+        df[y_key] = mpl.dates.date2num(df[y_key])
     # Check for cluster-based variables
     # if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
     #     m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
@@ -589,7 +617,9 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
     if clr_map == 'clr_all_same':
         # Check for histogram
         if plot_hist:
-            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
+            print('\t- Plotting histogram')
+            x_label, y_label, z_label, plt_title, ax, invert_y_axis = ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
+            return x_label, y_label, plt_title, ax, invert_y_axis
         # Set whether to plot in 3D
         if isinstance(z_key, type(None)):
             df_z_key = 0
@@ -611,29 +641,30 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
             ax.w_yaxis.pane.fill = False
             ax.w_zaxis.pane.fill = False
         # If there aren't that many points, make the markers bigger
-        m_size, m_alpha = ahf.ahf.get_marker_size_and_alpha(len(df[x_key]))
+        m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
         # Plot every point the same color, size, and marker
         if plot_3d == False:
             # Plot in 2D
-            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=ahf.ahf.std_marker, alpha=m_alpha, zorder=5)
+            ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
             # Output the x and y data, along with cluster id, to a pickle file
             # df[[x_key, y_key, 'cluster']].to_pickle('outputs/'+this_BGR+'_x_y_cluster_id.pickle')
             # Take moving average of the data
             if x_key in ['dt_start', 'dt_end'] and mv_avg:
                 print('\t- Taking moving average of the data')
+                # Make a copy of the dataframe
+                time_df = df.copy()
                 # Need to convert dt_start back to datetime to take rolling average
-                df[x_key] = mpl.dates.num2date(df[x_key])
-                # Make a different version of the dataframe with dt_start as the index
-                time_df = df.set_index(x_key)
+                time_df[x_key] = mpl.dates.num2date(time_df[x_key])
+                # Set dt_start as the index
+                time_df = time_df.set_index(x_key)
                 # Sort by the dt_start index
                 time_df.sort_index(inplace=True)
                 # Take the moving average of the data
                 time_df[y_key+'_mv_avg'] = time_df[y_key].rolling(mv_avg, min_periods=1).mean()
                 # Convert the original dataframe's dt_start back to numbers for plotting
-                df[x_key] = mpl.dates.date2num(df[x_key])
                 time_df.reset_index(level=x_key, inplace=True)
                 time_df[x_key] = mpl.dates.date2num(time_df[x_key])
-                ax.plot(df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
+                ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
         else:
             # Plot in 3D
             ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
@@ -770,7 +801,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'source':
         if plot_hist:
-            return plot_histogram(a_group, ax, pp, df, x_key, y_key,clr_map, legend=pp.legend)
+            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key,clr_map, legend=pp.legend)
         # Get unique sources
         these_sources = np.unique(df['source'])
         # If there aren't that many points, make the markers bigger
@@ -825,7 +856,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'clr_by_dataset':
         if plot_hist:
-            return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
+            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
         # # Check for cluster-based variables
         new_cl_vars = []
         for key in [x_key, y_key, z_key]:
@@ -920,7 +951,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     elif clr_map == 'instrmt':
         if plot_hist:
-            return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
+            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
         # Add column where the source-instrmt combination ensures uniqueness
         df['source-instrmt'] = df['source']+' '+df['instrmt'].astype("string")
         # Get unique instrmts
@@ -1067,7 +1098,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         #   Legend is handled inside plot_clusters()
         # Check for histogram
         if plot_hist:
-            return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, clstr_dict={'m_pts':m_pts, 'rel_val':rel_val})
+            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, clstr_dict={'m_pts':m_pts, 'rel_val':rel_val})
         # Format the dates if necessary (don't need this because it's done above)
         if x_key in ['dt_start', 'dt_end']:
             print(df[x_key])
@@ -1140,7 +1171,7 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
         this_cmap = ahf.get_color_map(clr_map)
         #
         if plot_hist:
-            return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
+            return ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map=clr_map, legend=pp.legend)
         # If there aren't that many points, make the markers bigger
         m_size, m_alpha = ahf.get_marker_size_and_alpha(len(df[x_key]))
         # if len(df[x_key]) < 1000:
@@ -1260,8 +1291,8 @@ def make_subplot(ax, a_group):#, fig, ax_pos):
 
 ################################################################################
 
-# this_clr_map = 'clr_all_same'
-this_clr_map = 'cluster'
+this_clr_map = 'clr_all_same'
+# this_clr_map = 'cluster'
 
 # Make the plot parameters
 # pp_test = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=['ca_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['press'], 'mark_LHW_AW':True}, legend=False)
@@ -1287,24 +1318,88 @@ this_clr_map = 'cluster'
 
 # exit(0)
 
-# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
-if True:
-    pfs_LHW_AW = bob.pfs_LHW_and_AW
-    press_lims_LHW = [300,150]
-    press_fit_lims_LHW = [75,-75]
-    press_lims_AW = [550,350]
-    press_fit_lims_AW = [100,-100]
-    SA_lims_LHW = [34.105, 34.095]
-    SA_lims_AW = [35.03, 34.97]
-    CT_lims_LHW = [-0.8, -1.4]
-    CT_lims_AW = [0.97, 0.57]
-    LHW_AW_legend = False
-    # Make the plot parameters
-    pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+
+pfs_LHW_AW = bob.pfs_LHW_and_AW
+press_lims_LHW = [300,150]
+press_fit_lims_LHW = [75,-75]
+press_lims_AW = [550,350]
+press_fit_lims_AW = [100,-100]
+SA_lims_LHW = [34.105, 34.095]
+SA_lims_AW = [35.03, 34.97]
+CT_lims_LHW = [-0.8, -1.4]
+CT_lims_AW = [0.97, 0.57]
+LHW_AW_legend = False
+#*# Maps of LHW and AW cores in pressure
+if False:
+    print('')
+    print('- Creating maps of LHW and AW cores')
+    # Make the Plot Parameters
+    pp_LHW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_AW_map = ahf.Plot_Parameters(plot_type='map', clr_map='press_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':press_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
-    group_LHW_fit_map = Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'LHW core, $p(S_A\approx34.1)$')
+    group_LHW_map = Analysis_Group2([bnds_df], pp_LHW_map, plot_title=r'LHW core')#, $p(S_A\approx34.1)$')
+    group_AW_map = Analysis_Group2([bnds_df], pp_AW_map, plot_title=r'AW core')#, $p(\Theta_{max})$')
     # Make the figure
-    make_figure([group_LHW_fit_map])
+    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False)
+# Maps of LHW and AW cores in SA and CT
+if True:
+    print('')
+    print('- Creating maps of LHW and AW cores in SA and CT')
+    # Make the Plot Parameters
+    pp_LHW_SA_map = ahf.Plot_Parameters(plot_type='map', clr_map='SA_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':SA_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_CT_map = ahf.Plot_Parameters(plot_type='map', clr_map='CT_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':CT_lims_LHW}, legend=LHW_AW_legend)
+    pp_AW_SA_map = ahf.Plot_Parameters(plot_type='map', clr_map='SA_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':SA_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_CT_map = ahf.Plot_Parameters(plot_type='map', clr_map='CT_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':CT_lims_AW}, legend=LHW_AW_legend)
+    # Make the subplot groups
+    group_LHW_SA_map = Analysis_Group2([bnds_df], pp_LHW_SA_map, plot_title=r'LHW core, $S_A$')
+    group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core, $\Theta$')
+    group_AW_SA_map = Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
+    group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
+    # Make the figure
+    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False)
+#*# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
+if False:
+    print('')
+    print('- Creating a histogram and map of LHW and AW cores')
+    # Make the Plot Parameters
+    # Top of the thermocline, LHW core
+    pp_LHW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
+    ## Bottom of the thermocline, AW core
+    pp_AW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
+    # Make the subplot groups
+    group_LHW_hist = Analysis_Group2([bnds_df], pp_LHW_hist, plot_title=r'LHW core, $p(S_A\approx34.1)$')
+    group_LHW_fit_map = Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'$p(S_A\approx34.1)$ and polyfit2d')
+    group_LHW_res_map = Analysis_Group2([bnds_df], pp_LHW_res_map, plot_title=r'Residuals')
+    group_LHW_res_hist = Analysis_Group2([bnds_df], pp_LHW_res_hist, plot_title=r'Residuals')
+    group_AW_hist = Analysis_Group2([bnds_df], pp_AW_hist, plot_title=r'AW core, $p(\Theta_{max})$')
+    group_AW_fit_map = Analysis_Group2([bnds_df], pp_AW_fit_map, plot_title=r'$p(\Theta_{max})$ and  polyfit2d')
+    group_AW_res_map = Analysis_Group2([bnds_df], pp_AW_res_map, plot_title=r'Residuals')
+    group_AW_res_hist = Analysis_Group2([bnds_df], pp_AW_res_hist, plot_title=r'Residuals')
+    # Make the figure
+    make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.4, 1.6])
+#*# Tracking LHW and AW cores over time
+if False:
+    print('')
+    print('- Creating a plot of LHW and AW cores over time')
+    # Make the Plot Parameters
+    across_x_var = 'dt_start'
+    pp_LHW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_LHW})
+    pp_LHW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_min-fit'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_LHW})
+    pp_AW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_AW})
+    pp_AW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max-fit'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_AW},)
+    # Make the subplot groups
+    group_LHW = Analysis_Group2([bnds_df], pp_LHW, plot_title=r'LHW core, $p(S_A\approx34.1)$')
+    group_LHW_fit = Analysis_Group2([bnds_df], pp_LHW_fit, plot_title=r'$p(S_A\approx34.1)$ - polyfit2d')
+    group_AW = Analysis_Group2([bnds_df], pp_AW, plot_title=r'AW core, $p(\Theta_{max})$')
+    group_AW_fit = Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
+    # Make the figure
+    make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5])
 
 # Plot of pcs_press for all profiles agains press
 if False:

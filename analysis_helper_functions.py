@@ -3669,16 +3669,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 print('Error: Could not find variable',clr_map,'to use as colormap. Aborting script')
                 exit(0)
             # If not plotting very many points, increase the marker size
+            # print('len(df):',len(df))
+            # exit(0)
             if len(df) < 10:
                 mrk_s = big_map_mrkr
                 mrk_a = mrk_alpha
-            elif len(df) > 10000:
+            elif len(df) > 20000:
                 mrk_s = map_mrk_size
                 mrk_a = 0.05
             else:
-                mrk_s = map_mrk_size
-                mrk_a = mrk_alpha3
-            mrk_s, mrk_a = get_marker_size_and_alpha(len(df['lon']))
+                mrk_s = big_map_mrkr/2
+                mrk_a = mrk_alpha
+                # mrk_s = map_mrk_size
+                # mrk_a = mrk_alpha3
+            # mrk_s, mrk_a = get_marker_size_and_alpha(len(df['lon']))
             # Format the dates if necessary
             if clr_map == 'dt_start' or clr_map == 'dt_end':
                 cmap_data = mpl.dates.date2num(df[clr_map])
