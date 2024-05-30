@@ -499,6 +499,47 @@ BGR_HPC_clstrd_dict = { 'BGR04':{'HPC_BGR04_clstrd':'all'},
                                     }
 }
 
+# From HPC, before relabeling
+BGR_HPC_unrelab_dict = {  'BGR04':{'HPC_BGR04_clstrd_unrelab':'all'},
+                        'BGR0506':{'HPC_BGR0506_clstrd_unrelab':'all'},
+                        'BGR0607':{'HPC_BGR0607_clstrd_unrelab':'all'},
+                        'BGR0708':{'HPC_BGR0708_clstrd_unrelab':'all'},
+                        'BGR0809':{'HPC_BGR0809_clstrd_unrelab':'all'},
+                        'BGR0910':{'HPC_BGR0910_clstrd_unrelab':'all'},
+                        'BGR1011':{'HPC_BGR1011_clstrd_unrelab':'all'},
+                        'BGR1112':{'HPC_BGR1112_clstrd_unrelab':'all'},
+                        'BGR1213':{'HPC_BGR1213_clstrd_unrelab':'all'},
+                        'BGR1314':{'HPC_BGR1314_clstrd_unrelab':'all'},
+                        'BGR1415':{'HPC_BGR1415_clstrd_unrelab':'all'},
+                        'BGR1516':{'HPC_BGR1516_clstrd_unrelab':'all'},
+                        'BGR1617':{'HPC_BGR1617_clstrd_unrelab':'all'},
+                        'BGR1718':{'HPC_BGR1718_clstrd_unrelab':'all'},
+                        'BGR1819':{'HPC_BGR1819_clstrd_unrelab':'all'},
+                        'BGR1920':{'HPC_BGR1920_clstrd_unrelab':'all'},
+                        'BGR2021':{'HPC_BGR2021_clstrd_unrelab':'all'},
+                        'BGR2122':{'HPC_BGR2122_clstrd_unrelab':'all'},
+                        'BGR2223':{'HPC_BGR2223_clstrd_unrelab':'all'},
+                        'BGR_all':{ 
+                                    'HPC_BGR0506_clstrd_unrelab':'all',
+                                    'HPC_BGR0607_clstrd_unrelab':'all',
+                                    'HPC_BGR0708_clstrd_unrelab':'all',
+                                    'HPC_BGR0809_clstrd_unrelab':'all',
+                                    'HPC_BGR0910_clstrd_unrelab':'all',
+                                    'HPC_BGR1011_clstrd_unrelab':'all',
+                                    'HPC_BGR1112_clstrd_unrelab':'all',
+                                    'HPC_BGR1213_clstrd_unrelab':'all',
+                                    'HPC_BGR1314_clstrd_unrelab':'all',
+                                    'HPC_BGR1415_clstrd_unrelab':'all',
+                                    'HPC_BGR1516_clstrd_unrelab':'all',
+                                    'HPC_BGR1617_clstrd_unrelab':'all',
+                                    'HPC_BGR1718_clstrd_unrelab':'all',
+                                    'HPC_BGR1819_clstrd_unrelab':'all',
+                                    'HPC_BGR1920_clstrd_unrelab':'all',
+                                    'HPC_BGR2021_clstrd_unrelab':'all',
+                                    'HPC_BGR2122_clstrd_unrelab':'all',
+                                    }
+}
+
 ## Relabeling clusters
 # From HPC
 BGR_HPC_relab_dict  = { 
