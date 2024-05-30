@@ -148,6 +148,8 @@ for var in ['press-fit', 'SA-fit', 'CT-fit', 'sigma-fit', 'alpha-fit', 'beta-fit
     calc_vars.append('trd_'+var)
 for var in ['press', 'SA', 'CT', 'sigma', 'alpha', 'beta']:
     calc_vars.append('ca_'+var)
+    calc_vars.append('cs_'+var)
+    calc_vars.append('csd_'+var)
     calc_vars.append('nir_'+var)
     calc_vars.append('trd_'+var)
 # Calculate new cluster variables

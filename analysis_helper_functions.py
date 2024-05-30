@@ -92,7 +92,7 @@ jackson_clr = np.array(["#000000",  #  0 black              #
                         "#ff6db6",  #  3 hot pink           # 
                         "#ffb6db",  #  4 light pink         #         dark
                         "#490092",  #  5 dark purple        # light
-                        "#006ddb",  #  6 royal blue         # light / dark
+                        "#006ddb",  #  6 royal blue         #         dark
                         "#b66dff",  #  7 violet             #         dark
                         "#6db6ff",  #  8 sky blue           #
                         "#b6dbff",  #  9 pale blue          #         dark
@@ -100,7 +100,7 @@ jackson_clr = np.array(["#000000",  #  0 black              #
                         "#924900",  # 11 brown              #
                         "#db6d00",  # 12 dark orange        # light
                         "#24ff24",  # 13 neon green         # light / dark
-                        "#ffff6d"]) # 14 yellow             #         dark
+                        "#ffff6d"]) # 14 yellow             # light / dark
 
 # Enable dark mode plotting
 if dark_mode:
@@ -124,7 +124,7 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]]
+    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
@@ -177,6 +177,16 @@ map_marker = '.' #'x'
 map_ln_wid = 0.5
 l_cap_size = 3.0
 anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.5)
+
+# Plotting parameters for the LHW and AW
+LHW_mrk = 'v'
+LHW_clr = 'k'
+LHW_facealtclr = jackson_clr[6]
+LHW_edgeclr = jackson_clr[6]
+AW_mrk = '^'
+AW_clr = 'k'
+AW_facealtclr = jackson_clr[3]
+AW_edgeclr = jackson_clr[3]
 
 # The magnitude limits for axis ticks before they use scientific notation
 sci_lims = (-2,3)
@@ -2264,7 +2274,7 @@ def add_std_title(a_group):
 
 ################################################################################
 
-def add_std_legend(ax, data, x_key, lgd_str=' points'):
+def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False):
     """
     Adds in standard information to this subplot's legend, as appropriate
 
@@ -2272,15 +2282,21 @@ def add_std_legend(ax, data, x_key, lgd_str=' points'):
     data        A pandas data frame which is plotted on this axis
     x_key       The string of the column name for the x data from the dataframe
     """
+    lgnd_hndls = []
     # Add legend to report the total number of points and notes on the data
     n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(data[x_key]))+lgd_str)
+    lgnd_hndls.append(n_pts_patch)
     notes_string = ''.join(data.notes.unique())
     # Only add the notes_string if it contains something
     if len(notes_string) > 1:
         notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
-        ax.legend(handles=[n_pts_patch, notes_patch])
-    else:
-        ax.legend(handles=[n_pts_patch])
+        lgnd_hndls.append(notes_patch)
+    if mark_LHW_AW:
+        # Add legend entries for LHW and AW
+        lgnd_hndls = []
+        lgnd_hndls.append(mpl.lines.Line2D([],[],color=LHW_clr, label='LHW', marker=LHW_mrk, markersize=10, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, markeredgewidth=0.5, linewidth=0))
+        lgnd_hndls.append(mpl.lines.Line2D([],[],color=AW_clr, label='AW', marker=AW_mrk, markersize=10, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, markeredgewidth=0.5, linewidth=0))
+    lgnd = ax.legend(handles=lgnd_hndls)
 
 ################################################################################
 
@@ -2305,7 +2321,7 @@ def get_var_color(var):
     if var in ['entry', 'prof_no', 'dt_start', 'dt_end', 'lon', 'lat', 'press', 'depth', 'og_press', 'og_depth', 'press_TC_max', 'press_TC_min']:
         return std_clr
     elif var in ['iT', 'CT', 'PT', 'alpha']:
-        return 'lightcoral'
+        return 'indianred' # 'lightcoral'
     elif var in ['SP', 'SA', 'beta']:
         return 'cornflowerblue'
     elif var in ['sigma']:
@@ -2385,13 +2401,16 @@ def get_marker_size_and_alpha(n_points):
     n_points    The number of points in the dataset
     """
     # Set the marker size and alpha based on the number of points
-    if n_points < 1000:
+    if n_points < 200:
+        m_size = map_mrk_size*2
+        m_alpha = mrk_alpha
+    elif n_points < 1000:
         m_size = map_mrk_size
         m_alpha = mrk_alpha
     elif n_points < 10000:
         m_size = mrk_size
         m_alpha = mrk_alpha
-    elif n_points < 10000000:
+    elif n_points < 100000:#00:
         m_size = mrk_size2
         m_alpha = mrk_alpha2
     else:
@@ -2443,7 +2462,7 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
         for aug_15 in all_08_15s:
-            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.4, zorder=10)
+            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=10)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2623,6 +2642,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             re_run_clstr = True
         if 'mark_LHW_AW' in extra_args.keys():
             mark_LHW_AW = extra_args['mark_LHW_AW']
+        else:
+            mark_LHW_AW = False
     else:
         extra_args = False
         plot_slopes = False
@@ -2784,7 +2805,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     x_data = np.array(df[x_key].values, dtype=np.float64)
                     y_data = np.array(df[y_key].values, dtype=np.float64)
                 if plot_3d == False:
-                    add_linear_slope(ax, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
+                    add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
                 else:
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
@@ -2811,9 +2832,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_ax_x.set_ylabel(pp.ylabels[1])
                 # Change color of the ticks on the twin axis
                 tw_ax_x.tick_params(axis='y', colors=tw_clr)
+                # Invert twin y-axis if specified
+                if tw_y_key in y_invert_vars:
+                    tw_ax_x.invert_yaxis()
+                    print('\t- Inverting twin y-axis')
             # Add a standard legend
             if pp.legend:
-                add_std_legend(ax, df, x_key)
+                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
             # Check whether to plot isopycnals
@@ -3222,7 +3247,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Plot the scatter
                     heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5, alpha=map_alpha)
                     # Plot a linear slope
-                    add_linear_slope(ax, df, df[x_key], df[y_key], x_key, y_key, alt_std_clr, plot_slopes)
+                    add_linear_slope(ax, pp, df, df[x_key], df[y_key], x_key, y_key, alt_std_clr, plot_slopes)
                 else:
                     # Plot the scatter
                     heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
@@ -3795,16 +3820,20 @@ def mark_the_LHW_AW(ax, x_key, y_key):
     mrk_s, mrk_a = get_marker_size_and_alpha(len(var_arrs[0]))
     mrk_a = mrk_a*2
     # Plot the LHW and AW
-    ax.scatter(var_arrs[0], var_arrs[1], color=jackson_clr[6], s=mrk_s, marker='v', zorder=4, alpha=mrk_a)
-    ax.scatter(var_arrs[2], var_arrs[3], color=jackson_clr[3], s=mrk_s, marker='^', zorder=4, alpha=mrk_a)
+    # ax.scatter(var_arrs[0], var_arrs[1], color=jackson_clr[6], s=mrk_s, marker='v', zorder=4, alpha=mrk_a)
+    # ax.scatter(var_arrs[2], var_arrs[3], color=jackson_clr[3], s=mrk_s, marker='^', zorder=4, alpha=mrk_a)
+    s_to_markersize = np.sqrt(mrk_s)
+    ax.plot(var_arrs[0], var_arrs[1], color=LHW_clr, markersize=s_to_markersize, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, alpha=mrk_a, zorder=4)
+    ax.plot(var_arrs[2], var_arrs[3], color=AW_clr, markersize=s_to_markersize, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, alpha=mrk_a, zorder=4)
 
 ################################################################################
 
-def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes, anno_prefix=''):
+def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes, anno_prefix=''):
     """
     Adds a line of best fit to the data
 
     ax          The axis on which to add the line
+    pp          The Plot_Params object
     df          Pandas dataframe of the data
     x_data      The x data to use for the line of best fit
     y_data      The y data to use for the line of best fit
@@ -3850,6 +3879,22 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
     y_mean = np.mean(y_data)
     x_stdv = np.std(x_data)
     y_stdv = np.std(y_data)
+    # Get bounds of axes
+    x_bnds = ax.get_xbound()
+    y_bnds = ax.get_ybound()
+    # If there are x_lims and y_lims provided, use those instead
+    try:
+        if not isinstance(pp.ax_lims['x_lims'], type(None)):
+            x_bnds = pp.ax_lims['x_lims']
+    except:
+        foo = 2
+    try:
+        if not isinstance(pp.ax_lims['y_lims'], type(None)):
+            y_bnds = pp.ax_lims['y_lims']
+    except:
+        foo = 2
+    x_span = abs(x_bnds[1] - x_bnds[0])
+    y_span = abs(y_bnds[1] - y_bnds[0])
     # Add annotation to say what the slope is
     annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
     if switch_xy:
@@ -3861,7 +3906,10 @@ def add_linear_slope(ax, df, x_data, y_data, x_key, y_key, linear_clr, plot_slop
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=6)
     # Put annotation on the plot
-    ax.annotate(anno_prefix+annotation_string+per_unit, xy=(x_mean+x_stdv/4,y_mean+y_stdv/0.5), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
+    # anno_x = x_mean+x_stdv/4
+    anno_x = max(x_bnds) - 2*x_span/5
+    anno_y = y_mean+y_stdv/0.5
+    ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -3981,7 +4029,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     tax         Twin x axis
     clstr_dict  A dictionary of clustering values: m_pts, rel_val
     """
-    # print('in plot_histogram()')
+    print('in plot_histogram()')
     # print(df)
     # Find the histogram parameters, if given
     if not isinstance(pp.extra_args, type(None)):
@@ -4067,6 +4115,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         notes_string = ''.join(df.notes.unique())
         # Plot twin axis if specified
         if not isinstance(tw_var_key, type(None)):
+            print('\t- Plotting histogram on twin axis')
             tw_clr = get_var_color(tw_var_key)
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
@@ -4076,10 +4125,16 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             tw_ax.hist(h_var, bins=res_bins, color=tw_clr, alpha=hist_alpha, orientation=orientation)
             if orientation == 'vertical':
                 tw_ax.set_xlabel(tw_label)
+                tw_ax.xaxis.label.set_color(tw_clr)
                 tw_ax.tick_params(axis='x', colors=tw_clr)
             elif orientation == 'horizontal':
                 tw_ax.set_ylabel(tw_label)
+                tw_ax.yaxis.label.set_color(tw_clr)
                 tw_ax.tick_params(axis='y', colors=tw_clr)
+                # Invert twin y-axis if specified
+                if tw_var_key in y_invert_vars:
+                    tw_ax.invert_yaxis()
+                    print('\t- Inverting twin y-axis')
             # Check whether to plot lines for mean and standard deviation
             if plt_hist_lines:
                 if orientation == 'vertical':
@@ -5711,8 +5766,9 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         max_y = y_grid.flatten()[max_idx]
         print('\t- Minimum value of',min_val,'at x:',min_x,'y:',min_y)
         print('\t- Maximum value of',max_val,'at x:',max_x,'y:',max_y)
-        # Plot a marker at the maximum value
-        ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15)
+        # Plot a marker at the maximum value, but only if the fit was to pressure
+        if pp.clr_map == 'press':
+            ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15)
 
 ################################################################################
 
@@ -6508,13 +6564,17 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         cRL_y_data = np.array(df[df['out_cRL']==True][y_key].values, dtype=np.float64)
         nir_x_data = np.array(df[df['out_nir_SA']==True][x_key].values, dtype=np.float64)
         nir_y_data = np.array(df[df['out_nir_SA']==True][y_key].values, dtype=np.float64)
-        if clr_map == 'clr_all_same':
-            # Plot over the outliers in a different color
-            ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', zorder=6)
-            ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', zorder=6)
+        if x_key in ['ca_FH_cumul']:
+            # Don't plot the outliers
+            foo = 2
         else:
-            ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
-            ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
+            if clr_map == 'clr_all_same':
+                # Plot over the outliers in a different color
+                ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', zorder=4)
+                ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', zorder=4)
+            else:
+                ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
+                ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
@@ -6532,7 +6592,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         # Mark the outliers
         if clr_map == 'clr_all_same':
             # Plot over the outliers in a different color
-            ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=6)
+            ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
         else:
             ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
     # Print the outliers
@@ -6606,11 +6666,16 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             fit_vars = pp.extra_args['fit_vars']
         except:
             fit_vars = False
+        try:
+            mark_LHW_AW = pp.extra_args['mark_LHW_AW']
+        except:
+            mark_LHW_AW = False
     else:
         plt_noise = True
         sort_clstrs = True
         clstrs_to_plot = []
         fit_vars = False
+        mark_LHW_AW = False
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
@@ -6759,11 +6824,20 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 ax.errorbar(x_data, y_data, yerr=yerrs, color=my_clr, capsize=l_cap_size)
             elif 'nir' in x_key or 'cRL' in x_key or 'cRl' in x_key:
                 my_mkr = r"${}$".format(str(i))
+                # Plot a backing circle for the cluster number if it's a light color
+                if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                    ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
+                # Plot the cluster number
                 ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=1, zorder=5)
             else:
                 if plot_3d == False:
                     # Plot in 2D
                     ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
+                    # If using a number as a marker, plot a backing circle
+                    if my_mkr == r"${}$".format(str(i)):
+                        # Plot a backing circle for the cluster number if it's a light color
+                        if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                            ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=4)
                 else:
                     # Plot in 3D
                     ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
@@ -6783,7 +6857,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             if plot_slopes and x_key != 'cRL' and 'ca_' not in x_key and 'nir' not in x_key and 'trd' not in x_key:
                 print('\t- Finding slope for cluster',i)
                 if plot_3d == False:
-                    add_linear_slope(ax, df_this_cluster, x_data, y_data, x_key, y_key, my_clr, plot_slopes, anno_prefix=str(i)+': ')
+                    add_linear_slope(ax, pp, df_this_cluster, x_data, y_data, x_key, y_key, my_clr, plot_slopes, anno_prefix=str(i)+': ')
                 else:
                     # Fit a 2d polynomial to the z data
                     plot_polyfit2d(ax, pp, x_data, y_data, df_z_key)
@@ -6802,7 +6876,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
         # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
-        if True:
+        if x_key in ['dt_start', 'dt_end']:
             # Select date on which to place the cluster numbers on the left-hand side
             x_place = mpl.dates.date2num(datetime.fromisoformat('2005-07-01'))
             these_clst_ids = []
@@ -6811,7 +6885,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
             # for i in cluster_numbers:
             # Just the clusters that appear in BGR0506
-            for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
+            for i in range(0, 80):
+            # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
                 # Get data just between 2005-08-15 and 2006-08-15
@@ -6821,8 +6896,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                # This plots a circle upon which to put the cluster number
-                # ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                # Plot a backing circle for the cluster number if it's a light color
+                if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the left-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
@@ -6835,7 +6911,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
             # for i in cluster_numbers:
             # Just the clusters that appear in BGR2122
-            for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
+            for i in range(0, 65):
+            # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
                 # Get data just between 2005-08-15 and 2006-08-15
@@ -6845,8 +6922,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                # This plots a circle upon which to put the cluster number
-                # ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                # Plot a backing circle for the cluster number if it's a light color
+                if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the right-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
@@ -6856,17 +6934,41 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Get bounds of axes
             x_bnds = ax.get_xbound()
             y_bnds = ax.get_ybound()
+            # If there are x_lims and y_lims provided, use those instead
+            if not isinstance(pp.ax_lims['x_lims'], type(None)):
+                x_bnds = pp.ax_lims['x_lims']
+            if not isinstance(pp.ax_lims['y_lims'], type(None)):
+                y_bnds = pp.ax_lims['y_lims']
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
+            # print('x_bnds:',x_bnds)
+            # print('y_bnds:',y_bnds)
+            # print('x_span:',x_span)
+            # print('y_span:',y_span)
             # Add line at nir_var = -1
+            print('\t- Adding line at '+x_key+' = 1')
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
-            ax.annotate(r'$IR_{S_A}=1$', xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
+            anno_x = 1+x_span/8
+            anno_y = min(y_bnds)+y_span/2
+            print('\t\t- Annotating at',anno_x,anno_y)
+            anno_text = ax.annotate(r'$IR_{S_A}=1$', xy=(anno_x,anno_y), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
+            anno_text.set_fontsize(10)
         # Add some lines if plotting cRL or trd
         if plot_slopes and (x_key == 'cRL' or 'ca_' in x_key or 'nir' in x_key or 'trd' in x_key):
         # if plot_slopes:
             # Get bounds of axes
             x_bnds = ax.get_xbound()
             y_bnds = ax.get_ybound()
+            # If there are x_lims and y_lims provided, use those instead
+            if not isinstance(pp.ax_lims, type(None)):
+                try:
+                    x_bnds = pp.ax_lims['x_lims']
+                except:
+                    foo = 2
+                try:
+                    y_bnds = pp.ax_lims['y_lims']
+                except:
+                    foo = 2
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
             # Get the data without the outliers
@@ -6898,30 +7000,41 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 print('\t- Sum of square residuals:',ss_res)
                 print('\t- Total sum of squares:',ss_tot)
                 print('\t- R^2:',R2)
+                print('\t- Median cRL:',np.median(x_data))
+                print('\t- Mean cRL:',np.mean(x_data))
+                print('\t- Standard deviation of cRL:',np.std(x_data))
                 # Make an array of values to plot log fit line 
                 y_arr = np.linspace(y_bnds[0], y_bnds[1], 50)
                 # Plot the fit
                 ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
                 # Add annotation to say what the line is
                 line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
-                ann_x_loc = x_mean+0.5*x_stdv
-                ann_x_loc = min(x_bnds) + (1/3)*x_span
-                ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
+                anno_x = x_mean+0.5*x_stdv
+                anno_x = min(x_bnds) + (1/3)*x_span
+                anno_y = y_span/3+min(y_bnds)
+                anno_x = min(x_bnds) + 2*x_span/4
+                anno_y = min(y_bnds)+y_span/2
+                anno_text = ax.annotate(line_label, xy=(anno_x,anno_y), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
+                anno_text.set_fontsize(10)
                 # Limit the y axis
                 ax.set_ylim((y_bnds[0],y_bnds[1]))
             # Plot linear fit line
             else: 
-                add_linear_slope(ax, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
+                add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, alt_std_clr, plot_slopes)
             #
         # Add legend to report the total number of points and notes on the data
         if legend:
-            n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
-            m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
-            n_clusters = int(len(cluster_numbers))
-            n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
-            n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
-            rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
-            ax.legend(handles=[n_pts_patch, m_pts_patch, n_clstr_patch, n_noise_patch, rel_val_patch])
+            if mark_LHW_AW:
+                # Add standard legend
+                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
+            else:
+                n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
+                m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))
+                n_clusters = int(len(cluster_numbers))
+                n_clstr_patch = mpl.lines.Line2D([],[],color=cnt_clr, label=r'$n_{cl}$: '+str(n_clusters) + r', $m_{cls}$: '+str(m_cls), marker='*', linewidth=0)
+                n_noise_patch = mpl.patches.Patch(color=std_clr, label=r'$n_{noise pts}$: '+str(n_noise_pts), alpha=noise_alpha, edgecolor=None)
+                rel_val_patch = mpl.patches.Patch(color='none', label='DBCV: %.4f'%(rel_val))
+                ax.legend(handles=[n_pts_patch, m_pts_patch, n_clstr_patch, n_noise_patch, rel_val_patch])
         # Add inset axis for box-and-whisker plot
         if box_and_whisker:
             inset_ax = inset_axes(ax, width="30%", height="10%", loc=4)
