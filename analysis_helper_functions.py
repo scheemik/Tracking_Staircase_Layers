@@ -965,7 +965,9 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 if sort_clstrs:
                     df = sort_clusters(df, cluster_numbers, ax=None)
                 # Filter to just some clusters
+                # print('\t- Before filtering to',plt_these_clstrs,'len(df):',len(df))
                 df = filter_to_these_clstrs(df, cluster_numbers, plt_these_clstrs)
+                # print('\t- After filtering to',plt_these_clstrs,'len(df):',len(df))
             ## Re-grid temperature and salinity data
             if not isinstance(profile_filters.regrid_TS, type(None)):
                 # print('\t-Applying regrid_TS filter')
@@ -1139,8 +1141,9 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     #
                 # 
             #
-            # Append the filtered dataframe to the list
-            output_dfs.append(df)
+            # Append the filtered dataframe to the list, but only if it has data
+            if len(df) > 0:
+                output_dfs.append(df)
         #
     elif plot_scale == 'by_pf':
         for ds in arr_of_ds:
@@ -1714,24 +1717,29 @@ def txt_summary(groups_to_summarize, filename=None):
         # Concatonate all the pandas data frames together
         df = pd.concat(a_group.data_frames)
         # Find the total number of profiles
-        # df['prof_no-dt_start'] = df['prof_no']+' '+df['dt_start']
+        df['prof_no-dt_start'] = df['instrmt'].astype(str)+' '+df['prof_no'].astype(str)
+        n_profs2 = len(np.unique(np.array(df['prof_no-dt_start'], dtype=type(''))))
         n_profs = len(np.unique(np.array(df['dt_start'], dtype=type(''))))
+        # Find the unique ITP numbers
+        itp_nos = np.unique(np.array(df['instrmt'].values))
         # Put all of the lines together
         lines.append("Group "+str(i)+":")
         # lines.append("\t"+add_std_title(a_group))
         lines.append(print_global_variables(a_group.data_set))
         lines.append("\t\tVariables to keep:")
         lines.append("\t\t"+str(a_group.vars_to_keep))
+        lines.append("\t\tNumber of ITPs: ")
+        lines.append("\t\t\t"+str(len(itp_nos))+': '+str(itp_nos))
         lines.append("\t\tNumber of profiles: ")
-        lines.append("\t\t\t"+str(n_profs))
+        lines.append("\t\t\t"+str(n_profs)+' / '+str(n_profs2))
         lines.append("\t\tNumber of data points: ")
         lines.append("\t\t\t"+str(len(df)))
         # Find the ranges of the variables available
-        print('working on ranges')
-        var_attr_dict = a_group.data_set.var_attr_dicts[0]
-        for var in a_group.vars_to_keep:
-            if var in var_attr_dict.keys():
-                lines.append(report_range(df, var, var_attr_dict[var]))
+        # print('working on ranges')
+        # var_attr_dict = a_group.data_set.var_attr_dicts[0]
+        # for var in a_group.vars_to_keep:
+        #     if var in var_attr_dict.keys():
+        #         lines.append(report_range(df, var, var_attr_dict[var]))
             #
         #
         # Check for SDA variables
@@ -2286,7 +2294,8 @@ def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False):
     # Add legend to report the total number of points and notes on the data
     n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(data[x_key]))+lgd_str)
     lgnd_hndls.append(n_pts_patch)
-    notes_string = ''.join(data.notes.unique())
+    # notes_string = ''.join(data.notes.unique())
+    notes_string = ''
     # Only add the notes_string if it contains something
     if len(notes_string) > 1:
         notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -2884,7 +2893,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
-            notes_string = ''.join(this_df.notes.unique())
+            # notes_string = ''.join(this_df.notes.unique())
+            notes_string = ''
             # Only add the notes_string if it contains something
             if len(notes_string) > 1:
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -2977,7 +2987,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Invert y-axis if specified
             if y_key in y_invert_vars:
                 invert_y_axis = True
-            notes_string = ''.join(this_df.notes.unique())
+            # notes_string = ''.join(this_df.notes.unique())
+            notes_string = ''
             # Only add the notes_string if it contains something
             if len(notes_string) > 1:
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -3118,7 +3129,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add legend to report the total number of points and pixels on the plot
             n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
             pixel_patch  = mpl.patches.Patch(color='none', label=str(xy_bins)+'x'+str(xy_bins)+' pixels')
-            notes_string = ''.join(df.notes.unique())
+            # notes_string = ''.join(df.notes.unique())
+            notes_string = ''
             # Only add the notes_string if it contains something
             if pp.legend:
                 if len(notes_string) > 1:
@@ -3522,7 +3534,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             print('mrk_s:',mrk_s)
             print('mrk_a:',mrk_a)
             # Plot every point the same color, size, and marker
-            ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=mrk_a, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+            ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=0, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Add a standard legend
             if pp.legend:
                 add_std_legend(ax, df, 'lon', lgd_str=' profiles')
@@ -3865,11 +3877,13 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
+        print('\t\t- Intercept is',c)
         print('\t\t- R^2 value is',rvalue)
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
+        print('\t\t- Intercept is',c,'+/-',sd_c)
     # Find mean and standard deviation of x and y data
     # x_mean = df.loc[:,x_key].mean()
     # y_mean = df.loc[:,y_key].mean()
@@ -3893,6 +3907,11 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
             y_bnds = pp.ax_lims['y_lims']
     except:
         foo = 2
+    # Check whether to convert the x_bnds from strings to numbers
+    if x_key in ['dt_start', 'dt_end'] and isinstance(x_bnds[0], str):
+        # Replace the '/'s with '-'s in x_bnds
+        x_bnds = [x_bnds[0].replace('/','-'), x_bnds[1].replace('/','-')]
+        x_bnds = mpl.dates.date2num(x_bnds)
     x_span = abs(x_bnds[1] - x_bnds[0])
     y_span = abs(y_bnds[1] - y_bnds[0])
     # Add annotation to say what the slope is
@@ -4112,7 +4131,8 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         mean_patch    = mpl.patches.Patch(color=std_clr, label='Mean:    ' + '%.4f'%mean)
         std_dev_patch = mpl.patches.Patch(color=std_clr, label='Std dev: '+'%.4f'%std_dev)
         hndls = [n_pts_patch, median_patch, mean_patch, std_dev_patch]
-        notes_string = ''.join(df.notes.unique())
+        # notes_string = ''.join(df.notes.unique())
+        notes_string = ''
         # Plot twin axis if specified
         if not isinstance(tw_var_key, type(None)):
             print('\t- Plotting histogram on twin axis')
@@ -4307,7 +4327,8 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Add legend handle to report overall statistics
             lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
             lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
-            notes_string = ''.join(df.notes.unique())
+            # notes_string = ''.join(df.notes.unique())
+            notes_string = ''
         # Only add the notes_string if it contains something
         if len(notes_string) > 1:
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -4566,7 +4587,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     if tw_y_key:
         df = df[df[tw_y_key].notnull()]
     # Get notes
-    notes_string = ''.join(df.notes.unique())
+    # notes_string = ''.join(df.notes.unique())
+    notes_string = ''
     # Check for extra arguments
     if extra_args:
         # Check whether to narrow down the profiles to plot
@@ -5251,7 +5273,8 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     # Clean out the null values
     df = df[df[x_key].notnull() & df[y_key].notnull()]
     # Get notes
-    notes_string = ''.join(df.notes.unique())
+    # notes_string = ''.join(df.notes.unique())
+    notes_string = ''
     # Check for extra arguments
     if extra_args:
         # Check whether to narrow down the profiles to plot
@@ -6775,6 +6798,16 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     # else:
     #     mrk_outliers = False
     print('\t- Mark outliers:',mrk_outliers)
+    # Recalculate the cumulative heat flux without outliers
+    if 'ca_FH_cumul' in x_key:
+        # Mark outliers
+        mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=['cRL', 'nir_SA'])
+        # Remove the outliers from the df
+        df = df[df['out_'+x_key]==False]
+        # Sort the cluster average heat flux by the y_key variable
+        df = df.sort_values(by=y_key)
+        # Calculate the cumulative heat flux, starting with the lowest value of y_key
+        df['ca_FH_cumul'] = df['ca_FH'].cumsum()
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
     # Which colormap?
@@ -7235,8 +7268,12 @@ def filter_to_these_clstrs(df, cluster_numbers, clstrs_to_plot=[]):
                 tmp_df_list.append(df[df['cluster'] == i])
         if len(tmp_df_list) == 0:
             print('No points in clusters',clstrs_to_plot,'found')
-            tmp_df_list.append(pd.DataFrame(index=df.index, columns=df.columns))
-            # print(tmp_df_list[0])
+            # Make blank dataframe with the same columns as df
+            tmp_df = pd.DataFrame(index=df.index, columns=df.columns)
+            # Remove all rows with nan values
+            tmp_df = tmp_df.dropna()
+            # Append this to the list
+            tmp_df_list.append(tmp_df)
             # exit(0)
         df = pd.concat(tmp_df_list)
     return df
