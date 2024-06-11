@@ -566,10 +566,91 @@ BGR_HPC_relab_dict  = {
 }
 
 BGR_all_clstr_plt_ranges = {
+    6:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.8,-1.4],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    23:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.6,-1.25],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    35:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.55,-1.05],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    52:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.41,-0.8],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
     63:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.195,-0.51],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    69:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[-0.12,-0.35],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    79:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[0.15,-0.05],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    90:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[0.5,0.2],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    95:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[0.63,0.35],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.588,34.570],
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
+    96:{
+        'press_lims':[350,200],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[0.63,0.35],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],

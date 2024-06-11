@@ -1919,7 +1919,7 @@ if False:
         # ahf.make_figure([group_p_v_lat])
         ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])
     #*# Comparing plots along time for pressure and pressure-polyfit2d with trendlines
-    if False:
+    if True:
         print('')
         print('- Comparing plots along time for one cluster press minus lat-lon-press polyfit2d') 
         # Make the Plot Parameters
@@ -2061,6 +2061,33 @@ if False:
     # group_clstr_6 = ahf.Analysis_Group(ds_this_BGR, pfs_clstr_6, pp_fit, plot_title=plt_these_clstrs_titles[5])
     # # Make the figure
     ahf.make_figure([group_clstr_1, group_clstr_2, group_clstr_3, group_clstr_4])#, group_clstr_5, group_clstr_6])
+
+################################################################################
+## Pre-clustered maps of many different clusters
+################################################################################
+plt_these_clstrs = [6, 23, 35, 52, 63, 69, 79, 90, 96]
+this_var = 'CT'
+# Plotting across lat-lon many clusters' temperature polyfit2d
+if False:
+    print('')
+    print('- Creating lat-lon plots for many clusters` temperature polyfit2d') 
+    filename_prefix = file_date+this_BGR
+    # Make a list for the subplot groups
+    groups_to_plot_hist = []
+    groups_to_plot_map = []
+    for i in plt_these_clstrs:
+        # Get the cluster ranges dictionary
+        clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[i]
+        # Make the profile filters
+        pfs_clstr = ahf.Profile_Filters(clstrs_to_plot=[i])
+        # Make the Plot Parameters
+        pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=this_var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[this_var+'_lims']})
+        pp_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=[this_var], legend=True, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':[this_var, 'SA','cluster']}, ax_lims={'y_lims':clstr_ranges_dict[this_var+'_lims']})
+        # Make the subplot group
+        groups_to_plot_hist.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_hist, plot_title='Cluster '+str(i)))
+        groups_to_plot_map.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_map, plot_title='Cluster '+str(i)))
+    ahf.make_figure(groups_to_plot_hist, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_clusters_'+this_var+'_hist.png')
+    ahf.make_figure(groups_to_plot_map, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_clusters_'+this_var+'_map.png')
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods
