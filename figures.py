@@ -230,7 +230,7 @@ print('- Creating data sets')
 # this_BGR = 'BGR1213'
 # this_BGR = 'BGR1314'
 # this_BGR = 'BGR1415'
-# this_BGR = 'BGR1516'
+this_BGR = 'BGR1516'
 # this_BGR = 'BGR1617'
 # this_BGR = 'BGR1718'
 # this_BGR = 'BGR1819'
@@ -280,9 +280,9 @@ this_BGR = 'BGR_all'
 # ds_BGR04   = ahf.Data_Set(bps.BGR_HPC_clstrd_dict['BGR04'], bob.dfs_all)
 
 # All years, relabeled clusters
-ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
+# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
 # Before relabeling
-# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
+ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -381,14 +381,16 @@ if False:
 ################################################################################
 #*# ITP number vs time
 if False:
+    # Note that I switch some of the colors around before making this plot, 
+    #   namely using blue instead of yellow for readability
     print('')
     print('- Creating plot of ITP number vs time')
     # Make the Plot Parameters
-    pp_ITP_vs_time = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['dt_start'], y_vars=['instrmt'], clr_map='instrmt', legend=False)
+    pp_ITP_vs_time = ahf.Plot_Parameters(plot_scale='by_pf', x_vars=['dt_start'], y_vars=['instrmt'], clr_map='instrmt', legend=False, ax_lims={'x_lims':bps.date_range_dict[this_BGR]})
     # Make the Analysis Group
-    group_ITP_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_ITP_vs_time)
+    group_ITP_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_ITP_vs_time, plot_title='')
     # Make the figure
-    ahf.make_figure([group_ITP_vs_time])
+    ahf.make_figure([group_ITP_vs_time], row_col_list=[1,1, 0.75, 1.68], filename='C1_ITPs_vs_time.pdf')
 
 # Output summary
 if False:
@@ -411,7 +413,7 @@ if False:
 ################################################################################
 pp_map = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})
 pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
-pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'})
+pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'}, legend=False)
 # Map of all ITP profiles
 if False:
     print('')
@@ -434,7 +436,7 @@ if False:
     group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
     group_map_BGR = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False, filename='Figure_1.pickle')
+    ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_double_map.png')
 ## Map of just in the Beaufort Gyre Region
 if False:
     print('')
@@ -494,7 +496,7 @@ CT_lims_LHW = [-0.8, -1.4]
 CT_lims_AW = [0.97, 0.57]
 LHW_AW_legend = False
 
-#*# Maps of LHW and AW cores in pressure
+# Maps of LHW and AW cores in pressure
 if False:
     print('')
     print('- Creating maps of LHW and AW cores')
@@ -538,7 +540,7 @@ if False:
     group_AW_map_CT = ahf.Analysis_Group(ds_this_BGR_unclstrd, pfs_LHW_AW, pp_AW_map_CT, plot_title=r'AW core, $\Theta_{max}$')
     # Make the figure
     ahf.make_figure([group_LHW_map_SA, group_LHW_map_CT, group_AW_map_SA, group_AW_map_CT], use_same_x_axis=False, use_same_y_axis=False)
-#*# Histogram and map of LHW and AW cores
+# Histogram and map of LHW and AW cores
 if False:
     print('')
     print('- Creating a histogram and map of LHW and AW cores')
@@ -565,7 +567,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.4, 1.6])
     # ahf.make_figure([group_LHW_hist, group_AW_hist], use_same_x_axis=False, use_same_y_axis=False)
-#*# Tracking LHW and AW cores over time
+# Tracking LHW and AW cores over time
 if False:
     print('')
     print('- Creating a plot of LHW and AW cores over time')
@@ -1141,7 +1143,7 @@ if False:
     # Make the figure
     # ahf.make_figure([group_ex_area_map, group_ex_area_time])
     ahf.make_figure([group_ex_area_map])
-#*# Plotting the profiles from the example area, separated by period
+# Plotting the profiles from the example area, separated by period
 if False:
     print('')
     print('- Creating profile plots that separate by period')
@@ -1296,7 +1298,7 @@ if False:
 ################################################################################
 # Make x-limits by adding one month to either side of the date range
 dt_this_BGR_x_lims = []
-up_or_dn = -3 # integers only
+up_or_dn = -4 # integers only
 for this_dt in bps.date_range_dict[this_BGR]:
     # Add or subtract 1 to the month in the format 'YYYY/MM/DD HH:MM:SS', padding with zeros
     this_month = str(int(this_dt[5:7])+up_or_dn).zfill(2)
@@ -1319,11 +1321,11 @@ if False:
     print('')
     print('- Creating plot of salinity vs time')
     # Make the Plot Parameters
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True, 'use_raster':False}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.68])#, filename='BGR_all_SA_vs_dt.pickle')
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 #*# Temperature vs. time
 if False:
     print('')
@@ -1333,7 +1335,7 @@ if False:
     # Make the subplot groups
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.5, 1.68], filename='BGR_all_CT_vs_dt.pickle')
+    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='C5_BGR_all_CT_vs_dt.pickle')
 #*# Pressure vs. time
 if False:
     print('')
@@ -1343,7 +1345,7 @@ if False:
     # Make the subplot groups
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.5, 1.68], filename='BGR_all_press_vs_dt.pickle')
+    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='C4_BGR_all_press_vs_dt.pickle')
 #*# Density anomaly vs. time
 if False:
     print('')
@@ -1353,7 +1355,7 @@ if False:
     # Make the subplot groups
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.5, 1.68], filename='BGR_all_sigma_vs_dt.pickle')
+    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='C6_BGR_all_sigma_vs_dt.pickle')
 
 # Temperature vs. time and pressure vs. time
 if False:
@@ -1495,8 +1497,8 @@ if False:
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
 # Define the profile filters
-if False:
-# for this_cluster_id in [63]:
+# if False:
+for this_cluster_id in [63]:
     # Make title and file name prefix
     this_cluster_title = 'Cluster '+str(this_cluster_id)
     filename_prefix = file_date+this_BGR+'_clstr_'+str(this_cluster_id)
@@ -1510,6 +1512,7 @@ if False:
         print('- Creating maps and histograms of pre-clustered BGR ITP data for just one cluster')
         groups_to_plot_maps = []
         groups_to_plot_hists = []
+        groups_to_plot = []
         for var in ['press','SA','CT']:
             # Make the Plot Parameters
             pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':[var, 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[var+'_lims']})
@@ -1517,8 +1520,11 @@ if False:
             # Make the subplot groups
             groups_to_plot_maps.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map, plot_title=''))
             groups_to_plot_hists.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist, plot_title=''))
+            groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map, plot_title=''))
+            groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist, plot_title=''))
         # Plot the figure
-        ahf.make_figure(groups_to_plot_maps + groups_to_plot_hists, use_same_y_axis=False)
+        ahf.make_figure(groups_to_plot_maps + groups_to_plot_hists, use_same_y_axis=False, row_col_list=[2,3, 0.45, 1.4], filename='f8_'+filename_prefix+'_maps_hists.png')
+        # ahf.make_figure(groups_to_plot, use_same_y_axis=False, row_col_list=[3,2, 0.9, 1.4], filename='f8_'+filename_prefix+'_maps_hists.png')
     # Just one cluster in SA vs. la_CT space
     if False:
         print('')
@@ -1929,7 +1935,7 @@ if False:
         group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title=this_cluster_title)#+'Uncorrected')
         group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='')#'Corrected by lat-lon-press polyfit2d')
         # # Make the figure
-        ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4])#, filename=filename_prefix+'_press_and_press-fit_vs_time.png')
+        ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4], filename='C8_'+filename_prefix+'_press_and_press-fit_vs_time.pdf')
         # ahf.make_figure([group_p_v_lat], row_col_list=[1,1, 0.45, 1.4])
     # Comparing plots along longitude for pressure and pressure-polyfit2d with trendlines
     if False:

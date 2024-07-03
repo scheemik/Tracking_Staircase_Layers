@@ -137,17 +137,55 @@ def get_axis_labels(pp):
                  'cRl':r'Lateral density ratio $R_L$ with $\theta$',
                  'n_points':'Number of points in cluster',
                 }
+    # Build dictionary of axis labels without units
+    ax_labels_no_units = {
+                 'instrmt':r'Instrument',
+                 'dt_start':r'Datetime of profile start',
+                 'dt_end':r'Datetime of profile end',
+                 'lat':r'Latitude',
+                 'lon':r'Longitude',
+                 'hist':r'Occurrences',
+                 'press':r'Pressure',
+                 'press_TC_max':r'$p(\Theta_{max})$',
+                 'press_TC_min':r'$p(S_A\approx34.1)$',
+                 'SA_TC_max':r'$S_A(\Theta_{max})$',
+                 'SA_TC_min':r'$S_A\approx34.1$',
+                 'CT_TC_max':r'$\Theta_{max}$',
+                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$',
+                 'SA':r'$S_A$',
+                 'CT':r'$\Theta$',
+                 'sigma':r'$\sigma_1$',
+                 'rho':r'$\rho$',
+                 'cp':r'$C_p$',
+                 'FH':r'Heat Flux',
+                 'FH_cumul':r'Cumulative Heat Flux',
+                 'alpha':r'$\alpha$',
+                 'beta':r'$\beta$',
+                 'aiT':r'$\alpha T$',
+                 'aCT':r'$\alpha \Theta$',
+                 'aPT':r'$\alpha \theta$',
+                 'BSP':r'$\beta S_P$',
+                 'BSt':r'$\beta_{PT} S_P$',
+                 'BSA':r'$\beta S_A$',
+                 'distance':r'Along-path distance',
+                 'm_pts':r'Minimum density threshold $m_{pts}$',
+                 'DBCV':'Relative validity measure (DBCV)',
+                 'n_clusters':'Number of clusters',
+                 'cRL':r'Lateral density ratio $R_L$',
+                 'cRl':r'Lateral density ratio $R_L$ with $\theta$',
+                 'n_points':'Number of points in cluster',
+                }
     # Get x axis labels
     if not isinstance(pp.x_vars, type(None)):
         for i in range(len(pp.x_vars)):
-            pp.xlabels[i] = make_var_label(pp.x_vars[i], ax_labels)
+            pp.xlabels[i] = make_var_label(pp.x_vars[i], ax_labels, ax_labels_no_units)
     else:
         pp.xlabels[0] = None
         pp.xlabels[1] = None
     # Get y axis labels
     if not isinstance(pp.y_vars, type(None)):
         for i in range(len(pp.y_vars)):
-            pp.ylabels[i] = make_var_label(pp.y_vars[i], ax_labels)
+            pp.ylabels[i] = make_var_label(pp.y_vars[i], ax_labels, ax_labels_no_units)
     else:
         pp.ylabels[0] = None
         pp.ylabels[1] = None
@@ -156,11 +194,11 @@ def get_axis_labels(pp):
         try:
             pp.clabel = var_attr_dicts[0][pp.clr_map]['label']
         except:
-            pp.clabel = make_var_label(pp.clr_map, ax_labels)
+            pp.clabel = make_var_label(pp.clr_map, ax_labels, ax_labels_no_units)
 
     return pp
 
-def make_var_label(var_key, ax_labels):
+def make_var_label(var_key, ax_labels, ax_labels_no_units):
     """
     Takes in a variable key and returns the corresponding label
 
@@ -174,7 +212,7 @@ def make_var_label(var_key, ax_labels):
         # Take out the first 13 characters of the string to leave the original variable name
         var_str = var_key[13:]
         # return 'Percent non-zero trend in '+ ax_labels[var_str] + '/year'
-        return 'Trend in layer thickness (%/year)'
+        return 'Trend in layer thickness (\%/year)'
     # Check for non-zero cluster average of profile cluster span variables
     if 'nzca_pcs_' in var_key:
         # Take out the first 9 characters of the string to leave the original variable name
@@ -212,7 +250,7 @@ def make_var_label(var_key, ax_labels):
         if '-fit' in var_str:
             # Take out the first 3 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return 'NZCS/P of '+ ax_labels[var_str] + ' - polyfit2d'
+            return 'NZCS/P of '+ ax_labels_no_units[var_str] + ' $-$ polyfit2d'
         elif 'mean' in var_str:
             # Take out the last 5 characters of the string to leave the original variable name
             var_str = var_str[:-5]
@@ -229,7 +267,7 @@ def make_var_label(var_key, ax_labels):
         if '-fit' in var_str:
             # Take out the first 3 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return 'CS/P of '+ ax_labels[var_str] + ' - polyfit2d'
+            return 'CS/P of '+ ax_labels_no_units[var_str] + ' $-$ polyfit2d'
         else:
             # return 'Profile cluster span of '+ ax_labels[var_str]
             return 'CS/P of '+ ax_labels[var_str]
@@ -302,7 +340,7 @@ def make_var_label(var_key, ax_labels):
         if '-fit' in var_str:
             # Take out the first 3 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return '('+ ax_labels[var_str] + ' - polyfit2d)/year'
+            return '('+ ax_labels_no_units[var_str] + ' $-$ polyfit2d)/year'
         else:  
             return ''+ ax_labels[var_str] + '/year'
     # Check for the polyfit2d of a variable
@@ -314,7 +352,7 @@ def make_var_label(var_key, ax_labels):
     elif '-fit' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[:-4]
-        return ax_labels[var_str] + ' - polyfit2d'
+        return ax_labels_no_units[var_str] + ' $-$ polyfit2d'
     if var_key in ax_labels.keys():
         return ax_labels[var_key]
     else:
@@ -422,7 +460,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     print('\t- Using same x axis:',use_same_x_axis)
     print('\t- Using same y axis:',use_same_y_axis)
     tight_layout_h_pad = 1.0 #None
-    tight_layout_w_pad = 1.0 #None
+    tight_layout_w_pad = 0 #None
     if n_subplots == 1:
         if isinstance(row_col_list, type(None)):
             rows, cols, f_ratio, f_size = n_row_col_dict[str(n_subplots)]
@@ -461,8 +499,13 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
         else:
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
-        fig, axes = ahf.set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
+        if n_subplots == 8:
+            fig, axes = ahf.set_fig_axes([1,1], [0.6,1,1,0.6], fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
+        else:
+            fig, axes = ahf.set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
         for i in range(n_subplots):
+            subplot_label_x = -0.13
+            subplot_label_y = -0.18
             print('- Subplot '+string.ascii_lowercase[i])
             if rows > 1 and cols > 1:
                 i_ax = (i//cols,i%cols)
@@ -470,23 +513,41 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
             xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
+            # Find the plot type
+            plot_type = groups_to_plot[i].plt_params.plot_type
             if use_same_x_axis:
                 # If on the top row
-                if i < cols == 0:
-                    tight_layout_h_pad = -1
+                if i < cols:# == 0:
+                    subplot_label_y = -0.1
+                    tight_layout_h_pad = -0.5
                     ax.set_title(plt_title)
                 # If in the bottom row
                 elif i >= n_subplots-cols:
+                    subplot_label_y = -0.18
                     ax.set_xlabel(xlabel)
             else:
                 ax.set_title(plt_title)
                 ax.set_xlabel(xlabel)
+                if plot_type == 'map':
+                    subplot_label_y = 0
+                    # If not on the top row
+                    if i >= cols:
+                        tight_layout_h_pad = 2.0
             ax.set_title(plt_title)
             if use_same_y_axis:
                 # If in the far left column
                 if i%cols == 0:
-                    tight_layout_w_pad = -1
+                    tight_layout_w_pad = 0 #-1
                     ax.set_ylabel(ylabel)
+                    # subplot_label_x = -0.05
+                    # subplot_label_y = -0.07
+                    subplot_label_x = -0.07
+                    subplot_label_y = -0.1
+                else:
+                    # subplot_label_x = -0.03
+                    # subplot_label_y = -0.07
+                    subplot_label_x = -0.03
+                    subplot_label_y = -0.1
                 # Invert y-axis if specified
                 if i == 0 and invert_y_axis:
                     ax.invert_yaxis()
@@ -497,6 +558,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 if invert_y_axis:
                     ax.invert_yaxis()
                     print('\t- Inverting y-axis-')
+            if n_subplots == 8:
+                subplot_label_x = -0.20
+            # Label subplots a, b, c, ...
+            print('\t- Adding subplot label with offsets:',subplot_label_x, subplot_label_y)
+            ax.text(subplot_label_x, subplot_label_y, r'\textbf{('+string.ascii_lowercase[i]+')}', transform=ax.transAxes, size=ahf.font_size_labels, fontweight='bold')
             # If axes limits given, limit axes
             this_ax_pp = groups_to_plot[i].plt_params
             if not isinstance(this_ax_pp.ax_lims, type(None)):
@@ -515,8 +581,6 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             print('\t- Adding grid lines:',this_ax_pp.add_grid)
             if this_ax_pp.add_grid:
                 ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
-            # Label subplots a, b, c, ...
-            ax.text(-0.1, -0.1, '('+string.ascii_lowercase[i]+')', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
         # Turn off unused axes
         if n_subplots < (rows*cols):
             for i in range(rows*cols-1, n_subplots-1, -1):
@@ -525,12 +589,13 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
         print('Too many subplots')
         exit(0)
     #
+    print('- Adjusting subplot spacing with h_pad:',tight_layout_h_pad,'w_pad:',tight_layout_w_pad)
     plt.tight_layout(pad=0.4, h_pad=tight_layout_h_pad, w_pad=tight_layout_w_pad)
     #
     if filename != None:
         print('- Saving figure to outputs/'+filename)
-        if '.png' in filename:
-            plt.savefig('outputs/'+filename, dpi=1000)
+        if '.png' in filename or '.pdf' in filename:
+            plt.savefig('outputs/'+filename, dpi=600)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -844,10 +909,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Plot the fit
                     ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
                     # Add annotation to say what the line is
-                    line_label = "$R_L = " + ahf.format_sci_notation(z[0]) + " p^2 + " + ahf.format_sci_notation(z[1])+ "p " + ahf.format_sci_notation(z[2])+"$"
+                    line_label = r"$\mathbf{R_L = " + ahf.format_sci_notation(z[0]) + " p^2 + " + ahf.format_sci_notation(z[1])+ "p " + ahf.format_sci_notation(z[2])+"}$"
+                    print('line_label:',line_label)
                     ann_x_loc = x_mean+0.5*x_stdv
                     ann_x_loc = min(x_bnds) + (1/3)*x_span
-                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, weight='bold', bbox=ahf.anno_bbox, zorder=12)
+                    ax.annotate(line_label, xy=(ann_x_loc,y_span/3+min(y_bnds)), xycoords='data', color=alt_std_clr, fontweight='bold', bbox=ahf.anno_bbox, zorder=12)
+                    anno_text.set_fontsize(ahf.font_size_lgnd)
                     # Limit the y axis
                     ax.set_ylim((y_bnds[0],y_bnds[1]))
                 # Plot linear fit line
@@ -866,16 +933,17 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add line at nir_var = -1
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
             if x_key == 'nir_press':
-                annotate_str = r'$IR_{p}=1$'
+                annotate_str = r'$\mathbf{IR_{p}=1}$'
             elif x_key == 'nir_SA':
-                annotate_str = r'$IR_{S_A}=1$'
+                annotate_str = r'$\mathbf{IR_{S_A}=1}$'
             elif x_key == 'nir_CT':
-                annotate_str = r'$IR_{\Theta}=1$'
+                annotate_str = r'$\mathbf{IR_{\Theta}=1}$'
             else:
-                annotate_str = r'$IR=1$'
-            ax.annotate(annotate_str, xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=ahf.anno_bbox, zorder=12)
+                annotate_str = r'$\mathbf{IR=1}$'
+            ax.annotate(annotate_str, xy=(1+x_span/10,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, fontweight='bold', alpha=0.5, bbox=ahf.anno_bbox, zorder=12)
+            anno_text.set_fontsize(ahf.font_size_lgnd)
         # Add the integrated heat flux line if 'ca_FH_cumul' in x_key
-        if 'ca_FH_cumul' in x_key:
+        if False:#'ca_FH_cumul' in x_key:
             # Get bounds of y axis
             y_bnds = ax.get_ybound()
             # Make a array of values to plot the line
@@ -901,7 +969,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add annotation to say what the line is
             # line_label = "Integrated Heat Flux"
             # ann_x_loc = x_bnds[0]+0.5*x_span
-            # ax.annotate(line_label, xy=(ann_x_loc,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=ahf.anno_bbox, zorder=12)
+            # ax.annotate(line_label, xy=(ann_x_loc,y_bnds[0]+y_span/5), xycoords='data', color=std_clr, fontweight='bold', alpha=0.5, bbox=ahf.anno_bbox, zorder=12)
             # Use polyfit 
             deg = 2
             z = np.polyfit(y_data, x_data, deg)
@@ -954,7 +1022,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if pp.legend:
             ahf.add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+        ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
         # Check whether to plot isopycnals
         # if add_isos:
         #     add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1480,9 +1548,9 @@ SA_lims_LHW = [34.105, 34.095]
 SA_lims_AW = [35.03, 34.97]
 CT_lims_LHW = [-0.8, -1.4]
 CT_lims_AW = [0.97, 0.57]
-LHW_AW_legend = True
+LHW_AW_legend = False
 #*# Maps of LHW and AW cores in pressure
-if False:
+if True:
     print('')
     print('- Creating maps of LHW and AW cores')
     # Make the Plot Parameters
@@ -1493,12 +1561,12 @@ if False:
     # Make the subplot groups
     group_LHW_map = Analysis_Group2([bnds_df], pp_LHW_map, plot_title=r'LHW core')
     group_AW_map = Analysis_Group2([bnds_df], pp_AW_map, plot_title=r'AW core')
-    group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core')
-    group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core')
+    # group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core')
+    # group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core')
     # Make the figure
-    # make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False)
-    make_figure([group_LHW_map, group_AW_map, group_LHW_CT_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6])
-# Maps of LHW and AW cores in SA and CT
+    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.6], filename='f2_LHW_and_AW_press_maps.png')
+    # make_figure([group_LHW_map, group_AW_map, group_LHW_CT_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='LHW_and_AW_press_maps.pdf')
+#*# Maps of LHW and AW cores in SA and CT
 if False:
     print('')
     print('- Creating maps of LHW and AW cores in SA and CT')
@@ -1513,7 +1581,7 @@ if False:
     group_AW_SA_map = Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
     group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
     # Make the figure
-    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6])
+    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='C2_LHW_AW_maps_SA_CT.png')
 #*# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
 if False:
     print('')
@@ -1539,7 +1607,7 @@ if False:
     group_AW_res_map = Analysis_Group2([bnds_df], pp_AW_res_map, plot_title=r'Residuals')
     group_AW_res_hist = Analysis_Group2([bnds_df], pp_AW_res_hist, plot_title=r'Residuals')
     # Make the figure
-    make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.4, 1.6])
+    make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.5, 1.6], filename='f3_LHW_and_AW_hists_and_polyfits.pdf')
 #*# Tracking LHW and AW cores over time
 if False:
     print('')
@@ -1556,15 +1624,15 @@ if False:
     group_AW = Analysis_Group2([bnds_df], pp_AW, plot_title=r'AW core, $p(\Theta_{max})$')
     group_AW_fit = Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
     # Make the figure
-    make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5])
+    make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='f4_LHW_and_AW_trends_in_time.pdf')
 ################################################################################
 # Evaluating the clusters
 #*# Plot of nir_SA and cRL for all clusters
 if False:
     this_ca_var = 'ca_press'
     these_y_lims = [355,190]
-    this_ca_var = 'ca_SA'
-    these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
+    # this_ca_var = 'ca_SA'
+    # these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
     # Make the plot parameters
     pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-5,160], 'y_lims':these_y_lims})
     pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-100,100], 'y_lims':these_y_lims})
@@ -1572,7 +1640,7 @@ if False:
     group_nir = Analysis_Group2([df], pp_nir, plot_title='')#this_BGR)
     group_cRL = Analysis_Group2([df], pp_cRL, plot_title='')#this_BGR)
     # Make the figure
-    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25])
+    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='f7_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
 ################################################################################
 # The IR and spans in all variables for all clusters
 # Make plots of the IR and cluster spans in the cluster properties
@@ -1602,8 +1670,8 @@ plot_slopes = 'OLS'
 these_ax_lims = None#{'y_lims':[355,190]}
 add_legend = True
 if False:
-# for this_ca_var in ['ca_press']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
-    for this_clr_map in ['clr_all_same']:#, 'cluster']:
+# for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
+    for this_clr_map in ['clr_all_same', 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['ca_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
         pp_SA_trends = ahf.Plot_Parameters(x_vars=['ca_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
@@ -1615,42 +1683,42 @@ if False:
         group_CT_trends = Analysis_Group2([df], pp_CT_trends)
         group_sig_trends = Analysis_Group2([df], pp_sig_trends)
         # Make the figure
-        make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
+        make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03], filename='ca_vars_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
     these_ax_lims = None
 ################################################################################
 # The trends of all the clusters
 #*# Make plots of the polyfit2d trends in the cluster properties
 plot_slopes = 'OLS'
-these_ax_lims = {'y_lims':[355,190]}
+these_ax_lims = None #{'y_lims':[355,190]}
 add_legend = True
 if False:
-# for this_ca_var in ['ca_press']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
-    for this_clr_map in ['clr_all_same']:#, 'cluster']:
+# for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
+    for this_clr_map in ['clr_all_same', 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
         pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
         pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
-        pp_sig_trends = ahf.Plot_Parameters(x_vars=['trd_sigma-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
+        # pp_sig_trends = ahf.Plot_Parameters(x_vars=['trd_sigma-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
         # Make the subplot groups
         group_press_trends = Analysis_Group2([df], pp_press_trends)
         group_SA_trends = Analysis_Group2([df], pp_SA_trends)
         group_CT_trends = Analysis_Group2([df], pp_CT_trends)
-        group_sig_trends = Analysis_Group2([df], pp_sig_trends)
+        # group_sig_trends = Analysis_Group2([df], pp_sig_trends)
         # Make the figure
-        make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-        # make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
+        # make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
+        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='f9_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
     these_ax_lims = None
 ################################################################################
 # Thicknesses of the layers
 # Plot of pcs_press for all profiles against this_ca_var
-this_clr_map = 'clr_all_same'
-# this_clr_map = 'cluster'
+# this_clr_map = 'clr_all_same'
+this_clr_map = 'cluster'
 # this_ca_var = 'ca_press'
 # this_vert_var = 'press'
 this_ca_var = 'ca_SA'
 this_vert_var = 'SA'
-if True:
+if False:
     # Load the per-profile data
     df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
     # To compare to Shibley et al. 2019 Figure 6b: 
@@ -1718,7 +1786,7 @@ if True:
         # Make the subplot groups
         group_nzpcs = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=this_plt_title)
         # Make the figure
-        make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1])
+        make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1], filename='C10_ITP13_compare_to_Shibley2019fig6b.pdf')
 
     # Plot of trends in pcs_press for each cluster, with zero values and without
     if False:
@@ -1732,7 +1800,7 @@ if True:
         make_figure([group_nzpcs, group_pcs])#, group_nzpcs_fit])#, row_col_list=[1,1, 0.8, 1.25])
     
     #*# Plots of thicknesses all layers, cluster average thickness, and trends in thickness
-    if False:
+    if True:
         # Make the plot parameters
         """
         Note to myself: I've already taken out the outlier clusters in nzdf_per_pf
@@ -1746,11 +1814,11 @@ if True:
         group_ca_nzpcs = Analysis_Group2([df], pp_ca_nzpcs, plot_title='')
         group_trd_nzpcs= Analysis_Group2([df], pp_trd_nzpcs, plot_title='')
         # Make the figure
-        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02])# row_col_list=[1,2, 0.45, 1.2])
+        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='f10_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
     
     # Plot of thickness for just one cluster
     this_clstr_id = 5
-    if True:
+    if False:
         # Reduce nzdf_per_pf to only that cluster
         nzdf_per_pf = nzdf_per_pf[nzdf_per_pf['cluster'] == this_clstr_id]
         # Make the plot parameters
@@ -1760,7 +1828,7 @@ if True:
         # Make the figure
         make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1])
 
-    # Maps of layer thicknesses
+    #*# Maps of layer thicknesses
     if False:
         # Narrow nzdf_per_pf to only cluster 63
         # nzdf_per_pf = nzdf_per_pf[nzdf_per_pf['cluster'] == 63]
@@ -1776,7 +1844,7 @@ if True:
         group_pcs_map = Analysis_Group2([nzdf_per_pf], pp_pcs_map, plot_title='')
         group_pcs_hist = Analysis_Group2([nzdf_per_pf], pp_pcs_hist, plot_title='')
         # Make the figure
-        make_figure([group_pcs_map, group_pcs_hist])
+        make_figure([group_pcs_map, group_pcs_hist], filename='C11_BGR_all_nzpcs_press_mean_per_pf.pdf')
 ################################################################################
 # Calculating heat flux in W/m^2
 # Plots of cluster averages of components of the heat flux
@@ -1796,7 +1864,7 @@ if False:
     group_rho = Analysis_Group2([df], pp_rho, plot_title='')
     # Make the figure
     # make_figure([group_height, group_cp])
-    make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6])
+    make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6], filename='C12_BGR_all_FH_comps_vs_SA.pdf')
 # Plot of the heat flux in W/m^2
 if False:
     # Make the Plot Parameters
@@ -1806,7 +1874,7 @@ if False:
     group_FH = Analysis_Group2([df], pp_FH, plot_title='')
     group_FH_cumul = Analysis_Group2([df], pp_FH_cumul, plot_title='')
     # Make the figure
-    make_figure([group_FH, group_FH_cumul])#, row_col_list=[1,1, 0.3, 1.04])
+    make_figure([group_FH, group_FH_cumul], filename='f11_FH_and_cumul_vs_SA.pdf')#, row_col_list=[1,1, 0.3, 1.04])
 
 
 exit(0)

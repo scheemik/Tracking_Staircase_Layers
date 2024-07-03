@@ -51,6 +51,8 @@ import hdbscan
 from geopy.distance import geodesic
 # For calculating Orthogonal Distance Regression for Total Least Squares
 from orthoregress import orthoregress
+# For a style that matches scientific papers
+import scienceplots
 # For special colormaps
 try:
     from cmcrameri import cm
@@ -82,6 +84,8 @@ available_variables_list = []
 # Declare variables for plotting
 ################################################################################
 dark_mode = False
+fixed_width_image = True
+plt.style.use('science')
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
@@ -125,6 +129,7 @@ else:
     clr_land  = 'grey'
     clr_lines = 'k'
     clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
+    # clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
@@ -143,10 +148,20 @@ bathy_smap = plt.cm.ScalarMappable(cmap=cm1)
 bathy_smap.set_array([])
 
 # Set some plotting styles
-font_size_plt = 12
-font_size_labels = 14
-font_size_ticks = 12
-font_size_lgnd = 10
+if fixed_width_image:
+    font_size_plt = 19
+    font_size_labels = 21
+    font_size_ticks = 15
+    font_size_lgnd = 14
+    big_map_mrkr  = 120
+    cent_mrk_size = 55
+else:
+    font_size_plt = 12
+    font_size_labels = 14
+    font_size_ticks = 12
+    font_size_lgnd = 10
+    big_map_mrkr  = 80
+    cent_mrk_size = 50
 mpl.rcParams['font.size'] = font_size_plt
 mpl.rcParams['axes.labelsize'] = font_size_labels
 mpl.rcParams['xtick.labelsize'] = font_size_ticks
@@ -159,7 +174,7 @@ mrk_size3     = 0.5
 mrk_alpha     = 0.5
 mrk_alpha2    = 0.3
 mrk_alpha3    = 0.1
-noise_alpha   = 0.05
+noise_alpha   = 0.01
 grid_alpha    = 0.3
 plt.rcParams['grid.color'] = (0.5,0.5,0.5,grid_alpha)
 hist_alpha    = 0.8
@@ -168,15 +183,13 @@ map_alpha     = 0.7
 pf_mrk_alpha  = 0.3
 lgnd_mrk_size = 60
 map_mrk_size  = 25
-big_map_mrkr  = 80
 sml_map_mrkr  = 5
-cent_mrk_size = 50
 pf_mrk_size   = 5 #15
 std_marker = '.'
 map_marker = '.' #'x'
 map_ln_wid = 0.5
 l_cap_size = 3.0
-anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.5)
+anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.75)
 
 # Plotting parameters for the LHW and AW
 LHW_mrk = 'v'
@@ -1650,7 +1663,7 @@ def get_axis_label(var_key, var_attr_dicts):
         if '-fit' in var_str:
             # Take out the last 4 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
+            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' $-$ polyfit2d'
         else:  
             return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + '/year'
     # Check for trend variables
@@ -1661,7 +1674,7 @@ def get_axis_label(var_key, var_attr_dicts):
         if '-fit' in var_str:
             # Take out the last 4 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
+            return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + ' $-$ polyfit2d'
         else:  
             return 'Trend in '+ var_attr_dicts[0][var_str]['label'] + '/year'
     # Check for the polyfit2d of a variable
@@ -1673,7 +1686,7 @@ def get_axis_label(var_key, var_attr_dicts):
     elif '-fit' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[:-4]
-        return var_attr_dicts[0][var_str]['label'] + ' - polyfit2d'
+        return var_attr_dicts[0][var_str]['label'] + ' $-$ polyfit2d'
     # Build dictionary of axis labels
     ax_labels = {
                  'instrmt':r'Instrument',
@@ -2053,7 +2066,9 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     else:
         use_same_z_axis = False
     tight_layout_h_pad = 1.0 #None
-    tight_layout_w_pad = 1.0 #None
+    tight_layout_w_pad = 0 #None
+    subplot_label_x = -0.13
+    subplot_label_y = -0.18
     if n_subplots == 1:
         if isinstance(row_col_list, type(None)):
             rows, cols, f_ratio, f_size = n_row_col_dict[str(n_subplots)]
@@ -2108,13 +2123,17 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
             xlabel, ylabel, zlabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
+            # Find the plot type
+            plot_type = groups_to_plot[i].plt_params.plot_type
             if use_same_x_axis:
                 # If on the top row
-                if i < cols == 0:
-                    tight_layout_h_pad = -1
+                if i < cols:# == 0:
+                    subplot_label_y = -0.1
+                    tight_layout_h_pad = -0.5
                     ax.set_title(plt_title)
                 # If in the bottom row
                 elif i >= n_subplots-cols:
+                    subplot_label_y = -0.18
                     ax.set_xlabel(xlabel)
             else:
                 ax.set_title(plt_title)
@@ -2135,6 +2154,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 if invert_y_axis:
                     ax.invert_yaxis()
                     print('\t- Inverting y-axis-')
+            if plot_type == 'map':
+                subplot_label_y = 0
+            # Label subplots a, b, c, ...
+            print('\t- Adding subplot label with offsets:',subplot_label_x, subplot_label_y)
+            ax.text(subplot_label_x, subplot_label_y, r'\textbf{('+string.ascii_lowercase[i]+')}', transform=ax.transAxes, size=font_size_lgnd, fontweight='bold')
             # If axes limits given, limit axes
             this_ax_pp = groups_to_plot[i].plt_params
             if not isinstance(this_ax_pp.ax_lims, type(None)):
@@ -2158,11 +2182,6 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             print('\t- Adding grid lines:',this_ax_pp.add_grid)
             if this_ax_pp.add_grid:
                 ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
-            # Label subplots a, b, c, ...
-            try:
-                ax.text(-0.1, -0.1, '('+string.ascii_lowercase[i]+')', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
-            except:
-                foo = 2
         # Turn off unused axes
         if n_subplots < (rows*cols):
             for i in range(rows*cols-1, n_subplots-1, -1):
@@ -2175,8 +2194,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     #
     if filename != None:
         print('- Saving figure to outputs/'+filename)
-        if '.png' in filename:
-            plt.savefig('outputs/'+filename, dpi=400)
+        if '.png' in filename or '.pdf' in filename:
+            plt.savefig('outputs/'+filename, dpi=600)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -2231,6 +2250,9 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
         print('\tSet share_x_axis to', share_x_axis)
     # Set ratios by passing dictionary as 'gridspec_kw', and share y axis
     fig, axes = plt.subplots(figsize=(w*fig_size,h*fig_size), nrows=rows, ncols=cols, gridspec_kw=plot_ratios, sharex=share_x_axis, sharey=share_y_axis, subplot_kw=dict(projection=prjctn))
+    if rows != 1 or cols != 1:
+        fixed_width = 16
+        fig.set_size_inches(fixed_width, fixed_width*h/w)
     # Set ticklabel format for all axes
     if (rows+cols)>2:
         for ax in axes.flatten():
@@ -2429,7 +2451,7 @@ def get_marker_size_and_alpha(n_points):
 
 ################################################################################
 
-def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None):
+def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None, aug_zorder=10):
     """
     Formats any datetime axes to show actual dates, as appropriate. Also adds
     vertical lines at every August 15th, if applicable
@@ -2442,6 +2464,7 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
     tw_y_key    The string of the name for the y data on the twin axis
     tw_ax_x     The twin x axis on which to format
     z_key       The string of the name for the z data on the main axis
+    aug_zorder  The zorder to use for the August 15th vertical lines
     """
     # Make an array of all August 15ths
     all_08_15s = [  '2005/08/15 00:00:00', 
@@ -2471,7 +2494,7 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
         for aug_15 in all_08_15s:
-            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=10)
+            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=aug_zorder)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2531,9 +2554,9 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
         pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'({m:s}$\pm${pm_m:s})$\times$10$^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
+            return r'({m:s}\pm{pm_m:s})\times 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
         else:
-            return r'{x:0.{ndp:d}f}$\pm${pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+            return r'{x:0.{ndp:d}f}\pm{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
 ################################################################################
 
@@ -2849,7 +2872,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -3422,9 +3445,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
         #   Add gridlines to show longitude and latitude
         gl = ax.gridlines(draw_labels=True, color=clr_lines, alpha=grid_alpha, linestyle='--', zorder=7)
         #       x is actually all labels around the edge
-        gl.xlabel_style = {'size':8, 'color':clr_lines, 'zorder':7}
+        gl.xlabel_style = {'size':font_size_lgnd, 'color':clr_lines, 'zorder':7}
         #       y is actually all labels within map
-        gl.ylabel_style = {'size':8, 'color':clr_lines, 'zorder':7}
+        gl.ylabel_style = {'size':font_size_lgnd, 'color':clr_lines, 'zorder':7}
         #   Plotting the coastlines takes a really long time
         # ax.coastlines()
         # Add bounding box
@@ -3728,7 +3751,15 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # The color of each point corresponds to the number of the profile it came from
             heatmap = ax.scatter(df['lon'], df['lat'], c=cmap_data, cmap=get_color_map(clr_map), s=mrk_s, marker=map_marker, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Create the colorbar
-            cbar = plt.colorbar(heatmap, ax=ax)
+            if True:
+                from mpl_toolkits.axes_grid1 import make_axes_locatable
+                # create an axes on the right side of ax. The width of cax will be 5%
+                # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes("right", size="5%", pad=0.5, axes_class=mpl.axes.Axes)
+                cbar = plt.colorbar(heatmap, cax=cax)
+            else:
+                cbar = plt.colorbar(heatmap, ax=ax)
             # Format the colorbar ticks, if necessary
             if clr_map == 'dt_start' or clr_map == 'dt_end':
                 loc = mpl.dates.AutoDateLocator()
@@ -3918,17 +3949,20 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
     if switch_xy:
         # Annotate the inverse of the slope
-        annotation_string = r'$1/$ '+annotation_string
+        # annotation_string = r'1/ '+annotation_string
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, zorder=6)
+        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, linewidth=2, zorder=6)
     else:
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, zorder=6)
+        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=6)
     # Put annotation on the plot
     # anno_x = x_mean+x_stdv/4
-    anno_x = max(x_bnds) - 2*x_span/5
+    anno_x = max(x_bnds) - 5*x_span/12
     anno_y = y_mean+y_stdv/0.5
-    ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, weight='bold', bbox=anno_bbox, zorder=12)
+    if dark_mode:
+        ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
+    else:
+        ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -5790,7 +5824,7 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         print('\t- Minimum value of',min_val,'at x:',min_x,'y:',min_y)
         print('\t- Maximum value of',max_val,'at x:',max_x,'y:',max_y)
         # Plot a marker at the maximum value, but only if the fit was to pressure
-        if pp.clr_map == 'press':
+        if pp.clr_map == 'press' or pp.clr_map == 'press_TC_max' or pp.clr_map == 'press_TC_min':
             ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15)
 
 ################################################################################
@@ -6593,8 +6627,8 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         else:
             if clr_map == 'clr_all_same':
                 # Plot over the outliers in a different color
-                ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', zorder=4)
-                ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', zorder=4)
+                ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', alpha=mrk_alpha, zorder=4)
+                ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
             else:
                 ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
                 ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
@@ -6693,12 +6727,17 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             mark_LHW_AW = pp.extra_args['mark_LHW_AW']
         except:
             mark_LHW_AW = False
+        try:
+            use_raster = pp.extra_args['use_raster']
+        except:
+            use_raster = False
     else:
         plt_noise = True
         sort_clstrs = True
         clstrs_to_plot = []
         fit_vars = False
         mark_LHW_AW = False
+        use_raster = False
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
@@ -6736,7 +6775,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     if plt_noise:
         if plot_3d == False:
             # Plot in 2D
-            ax.scatter(df_noise[x_key], df_noise[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
+            if use_raster:
+                ax.plot(df_noise[x_key], df_noise[y_key], color=std_clr, markersize=m_size, marker=std_marker, alpha=noise_alpha, zorder=1, rasterized=True)
+            else:
+                ax.scatter(df_noise[x_key], df_noise[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
         else:
             # Plot in 3D
             ax.scatter(df_noise[x_key], df_noise[y_key], zs=df_noise_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=noise_alpha, zorder=1)
@@ -6827,7 +6869,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
                 # m_size = cent_mrk_size
                 # my_mkr = r"${}$".format(str(i))
-                m_alpha = mrk_alpha3
+                m_alpha = mrk_alpha3/2
             # Find the data from this cluster
             df_this_cluster = df[df['cluster']==i]
             # If this cluster has no points, skip it
@@ -6864,8 +6906,11 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=1, zorder=5)
             else:
                 if plot_3d == False:
-                    # Plot in 2D
-                    ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
+                    # Plot in 2D')
+                    if use_raster:
+                        ax.plot(x_data, y_data, color=my_clr, markersize=m_size, marker=my_mkr, alpha=m_alpha, zorder=5, rasterized=True)
+                    else:
+                        ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
                     # If using a number as a marker, plot a backing circle
                     if my_mkr == r"${}$".format(str(i)):
                         # Plot a backing circle for the cluster number if it's a light color
@@ -6881,7 +6926,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_mean = np.mean(y_data)
                 y_stdv = np.std(y_data)
                 # This plots a circle upon which to put the centroid symbol
-                ax.scatter(x_mean, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', zorder=9)
+                ax.scatter(x_mean, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', zorder=9)
                 # This will plot a marker at the centroid
                 # ax.scatter(x_mean, y_mean, color=cnt_clr, s=cent_mrk_size, marker=my_mkr, zorder=10)
                 # This will plot the cluster number at the centroid
@@ -6900,6 +6945,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Record mean and standard deviation to calculate normalized inter-cluster range
             # clstr_means.append(y_mean)
             # clstr_stdvs.append(y_stdv)
+        print('\t- Used marker size:',m_size,'and alpha:',m_alpha)
         # Mark outliers, if specified
         if x_key != 'cRL' and x_key != 'nir_SA':
             other_out_vars = ['cRL', 'nir_SA']
@@ -6918,7 +6964,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
             # for i in cluster_numbers:
             # Just the clusters that appear in BGR0506
-            for i in range(0, 80):
+            for i in range(0, 148):# 80):
             # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
@@ -6931,7 +6977,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot a backing circle for the cluster number if it's a light color
                 if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', alpha=0.5, zorder=9)
+                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the left-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
@@ -6944,7 +6990,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
             # for i in cluster_numbers:
             # Just the clusters that appear in BGR2122
-            for i in range(0, 65):
+            for i in range(0, 137):# 65):
             # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
@@ -6957,7 +7003,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 # Plot a backing circle for the cluster number if it's a light color
                 if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.1, marker='o', alpha=0.5, zorder=9)
+                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the right-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
@@ -6984,8 +7030,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             anno_x = 1+x_span/8
             anno_y = min(y_bnds)+y_span/2
             print('\t\t- Annotating at',anno_x,anno_y)
-            anno_text = ax.annotate(r'$IR_{S_A}=1$', xy=(anno_x,anno_y), xycoords='data', color=std_clr, weight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
-            anno_text.set_fontsize(10)
+            anno_text = ax.annotate(r'$\mathbf{IR_{S_A}=1}$', xy=(anno_x,anno_y), xycoords='data', color=std_clr, fontweight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
+            anno_text.set_fontsize(font_size_lgnd)
         # Add some lines if plotting cRL or trd
         if plot_slopes and (x_key == 'cRL' or 'ca_' in x_key or 'nir' in x_key or 'trd' in x_key):
         # if plot_slopes:
@@ -7041,14 +7087,14 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # Plot the fit
                 ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
                 # Add annotation to say what the line is
-                line_label = "$R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"$"
+                line_label = r"$\mathbf{R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"}$"
                 anno_x = x_mean+0.5*x_stdv
                 anno_x = min(x_bnds) + (1/3)*x_span
                 anno_y = y_span/3+min(y_bnds)
                 anno_x = min(x_bnds) + 2*x_span/4
                 anno_y = min(y_bnds)+y_span/2
-                anno_text = ax.annotate(line_label, xy=(anno_x,anno_y), xycoords='data', color=alt_std_clr, weight='bold', bbox=anno_bbox, zorder=12)
-                anno_text.set_fontsize(10)
+                anno_text = ax.annotate(line_label, xy=(anno_x,anno_y), xycoords='data', color=alt_std_clr, fontweight='bold', bbox=anno_bbox, zorder=12)
+                anno_text.set_fontsize(font_size_lgnd)
                 # Limit the y axis
                 ax.set_ylim((y_bnds[0],y_bnds[1]))
             # Plot linear fit line
@@ -7085,7 +7131,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
-    #
+    # Set as raster, if specified
+    if use_raster:
+        # ax.set_rasterization_zorder(25)
+        print('\t- Rasterized axis')
     return invert_y_axis, [df], m_pts, m_cls, rel_val
 
 ################################################################################

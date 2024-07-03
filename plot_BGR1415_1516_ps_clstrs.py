@@ -24,6 +24,8 @@ import pandas as pd
 import string
 import analysis_helper_functions as ahf
 import dill as pl
+# For a style that matches scientific papers
+import scienceplots
 
 # For common BGR parameters
 import BGR_params as bps
@@ -47,6 +49,7 @@ for my_csv in ['ps_files/BGR1415_ps.csv', 'ps_files/BGR1516_ps.csv']:
 # Declare variables for plotting
 ################################################################################
 dark_mode = False
+plt.style.use('science')
 
 # Enable dark mode plotting
 if dark_mode:
@@ -62,6 +65,17 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
+
+# Set some plotting styles
+font_size_plt = 19
+font_size_labels = 21
+font_size_ticks = 15
+font_size_lgnd = 11
+mpl.rcParams['font.size'] = font_size_plt
+mpl.rcParams['axes.labelsize'] = font_size_labels
+mpl.rcParams['xtick.labelsize'] = font_size_ticks
+mpl.rcParams['ytick.labelsize'] = font_size_ticks
+mpl.rcParams['legend.fontsize'] = font_size_lgnd
 
 # Set some plotting styles
 grid_alpha    = 0.3
@@ -181,6 +195,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
         use_same_y_axis = False
     tight_layout_h_pad = 1.0 #None
     tight_layout_w_pad = 1.0 #None
+    subplot_label_x = -0.13
+    subplot_label_y = -0.18
     if n_subplots == 1:
         if isinstance(row_col_list, type(None)):
             rows, cols, f_ratio, f_size = n_row_col_dict[str(n_subplots)]
@@ -226,11 +242,13 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
             xlabel, ylabel, plt_title, ax = make_subplot(axes[i_ax], groups_to_plot[i])#, fig, ax_pos)
             if use_same_x_axis:
                 # If on the top row
-                if i < cols == 0:
-                    tight_layout_h_pad = -1
+                if i < cols:# == 0:
+                    subplot_label_y = -0.1
+                    tight_layout_h_pad = -0.5
                     ax.set_title(plt_title)
                 # If in the bottom row
                 elif i >= n_subplots-cols:
+                    subplot_label_y = -0.18
                     ax.set_xlabel(xlabel)
             else:
                 ax.set_title(plt_title)
@@ -243,6 +261,9 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
                     ax.set_ylabel(ylabel)
             else:
                 ax.set_ylabel(ylabel)
+            # Label subplots a, b, c, ...
+            print('\t- Adding subplot label with offsets:',subplot_label_x, subplot_label_y)
+            ax.text(subplot_label_x, subplot_label_y, r'\textbf{('+string.ascii_lowercase[i]+')}', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
             # If axes limits given, limit axes
             this_ax_pp = groups_to_plot[i].plt_params
             if not isinstance(this_ax_pp.ax_lims, type(None)):
@@ -261,8 +282,6 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
             print('\t- Adding grid lines:',this_ax_pp.add_grid)
             if this_ax_pp.add_grid:
                 ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
-            # Label subplots a, b, c, ...
-            ax.text(-0.1, -0.1, '('+string.ascii_lowercase[i]+')', transform=ax.transAxes, size=mpl.rcParams['axes.labelsize'], fontweight='bold')
         # Turn off unused axes
         if n_subplots < (rows*cols):
             for i in range(rows*cols-1, n_subplots-1, -1):
@@ -275,8 +294,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
     #
     if filename != None:
         print('- Saving figure to outputs/'+filename)
-        if '.png' in filename:
-            plt.savefig('outputs/'+filename, dpi=1000)
+        if '.png' in filename or '.pdf' in filename:
+            plt.savefig('outputs/'+filename, dpi=600)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -404,4 +423,4 @@ pfs_0 = ahf.Profile_Filters()
 group_clstr_BGR1415 = ahf.Analysis_Group(ds_BGR1415, pfs_0, pp_pre_clstrd, plot_title='BGR1415 Clusters')
 group_clstr_BGR1516 = ahf.Analysis_Group(ds_BGR1516, pfs_0, pp_pre_clstrd, plot_title='BGR1516 Clusters')
 # Plot the figure
-make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4])#, filename='new_BGOS_test_sweep.pickle')
+make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='f5_BGR1415-1516_ps_and_clstrs.png')
