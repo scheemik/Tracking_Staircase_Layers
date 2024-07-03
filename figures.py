@@ -842,6 +842,40 @@ if False:
     ahf.make_figure([group_SA_vs_time, group_map], row_col_list=[1,2, 0.31, 1.1], filename=file_date+this_BGR+'_SA_vs_time_and_map.png')
 
 ################################################################################
+## Plotting the data over time
+################################################################################
+# Make x-limits by adding one month to either side of the date range
+dt_this_BGR_x_lims = []
+up_or_dn = -4 # integers only
+for this_dt in bps.date_range_dict[this_BGR]:
+    # Add or subtract 1 to the month in the format 'YYYY/MM/DD HH:MM:SS', padding with zeros
+    this_month = str(int(this_dt[5:7])+up_or_dn).zfill(2)
+    # If the month is 0, set it to 12 and subtract 1 from the year
+    if this_month == '00':
+        this_month = '12'
+        this_year = str(int(this_dt[0:4])-1).zfill(4)
+    # If the month is 13, set it to 1 and add 1 to the year
+    elif this_month == '13':
+        this_month = '01'
+        this_year = str(int(this_dt[0:4])+1).zfill(4)
+    # If the 
+    else:
+        this_year = this_dt[0:4]
+    # Add the new date to the list
+    dt_this_BGR_x_lims.append(this_year+'/'+this_month+'/'+this_dt[8:])
+    up_or_dn = abs(up_or_dn)
+# Salinity vs. time, colored all the same
+if False:
+    print('')
+    print('- Creating plot of salinity vs time, colored all the same')
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_all_same', extra_args={'sort_clstrs':False, 'plt_noise':False, 'mark_LHW_AW':True, 'use_raster':False, 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups 
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='t1_'+this_BGR+'_SA_vs_dt.pickle')
+
+################################################################################
 ## 2D histogram plots
 ################################################################################
 # SA vs. Time
@@ -849,11 +883,11 @@ if False:
     print('')
     print('- Creating density histogram plot of salinity vs time')
     # Make the Plot Parameters
-    pp_density_hist = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='density_hist', extra_args={'clr_min':0, 'clr_max':10, 'clr_ext':'max', 'xy_bins':1000, 'log_axes':[False,False,True]})
+    pp_density_hist = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='density_hist', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True, 'use_raster':False, 'clr_min':0, 'clr_max':10, 'clr_ext':'max', 'xy_bins':1000, 'log_axes':[False,False,True]}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
     # Make the subplot groups
-    group_density_hist = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_density_hist)
+    group_density_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_density_hist, plot_title='')
     # Make the figure
-    ahf.make_figure([group_density_hist], row_col_list=[1,1, 0.45, 1.4])#, filename=file_date+this_BGR+'_SA_vs_time_density_hist.png')
+    ahf.make_figure([group_density_hist], row_col_list=[1,1, 0.7, 1.8], filename='t1_'+this_BGR+'_SA_vs_dt_density_hist.pickle')
 
 ################################################################################
 ## Filter effects
@@ -1371,6 +1405,24 @@ if False:
     ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.5, 1.69])
 
 ################################################################################
+## Histograms of non-noise points for each period, stacked on to each other
+################################################################################
+# Salinity histograms for each period
+if True:
+    print('')
+    print('- Creating histogram of salinity for each time period')
+    # Make the Plot Parameters 
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA'], clr_map='plt_by_dataset', extra_args={'n_h_bins':500, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[True,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':500, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups 
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
+    # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
+    # Make the figure
+    # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
+
+
+################################################################################
 # Cluster average pressure vs cluster average salinity
 if False:
     print('')
@@ -1497,8 +1549,8 @@ if False:
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
 # Define the profile filters
-# if False:
-for this_cluster_id in [63]:
+if False:
+# for this_cluster_id in [63]:
     # Make title and file name prefix
     this_cluster_title = 'Cluster '+str(this_cluster_id)
     filename_prefix = file_date+this_BGR+'_clstr_'+str(this_cluster_id)

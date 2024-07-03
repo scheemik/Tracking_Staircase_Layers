@@ -905,6 +905,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
     # What's the plot scale?
     if plot_scale == 'by_vert':
         for ds in arr_of_ds:
+            # print('\t- Applying filters to',ds.Source,ds.Instrument)
             # Find extra variables, if applicable
             ds = calc_extra_vars(ds, vars_to_keep)
             # Convert to a pandas data frame
@@ -933,7 +934,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 print('after:',len(df))
             # Remove rows where the plot variables are null
             for var in plot_vars:
-                # print('\t-Removing null values',var)
+                # print('\t- Removing null values',var)
                 if var in vars_to_keep and var not in ['distance']:
                     # print('\t\t- for:',var)
                     df = df[df[var].notnull()]
@@ -945,7 +946,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # print(ds.Source,ds.Instrument)
             ## Filter each profile to certain ranges
             df = filter_profile_ranges(df, profile_filters, 'press', 'depth', 'sigma', iT_key='iT', CT_key='CT',PT_key='PT', SP_key='SP', SA_key='SA')
-            # print('\t- actually done filtering profile ranges')
+            # print('\t- Actually done filtering profile ranges')
             # Filter to just pressures above p(TC_max)
             if profile_filters.lt_pTC_max:
                 # print('\t- Applying lt_pTC_max filter')
@@ -1252,7 +1253,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             output_dfs.append(df)
         #
     #
-    # print('\t-Almost done applying profile filters')
+    # print('\t- Almost done applying profile filters')
     if False:
         # Output a list of all the profiles this dataset contains
         for df in output_dfs:
@@ -1268,7 +1269,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             # print('\tThere are',len(list_of_pfs),'profiles in this dataframe:',list_of_pfs)
             # print(df)
         # exit(0)
-    # print('\t-Done applying profile filters')
+    # print('\t- Done applying profile filters')
     return output_dfs
 
 ################################################################################
@@ -1338,7 +1339,7 @@ def filter_profile_ranges(df, profile_filters, p_key, d_key, sig_key, iT_key=Non
     SP_key              A string of the practical salinity variable to filter
     SA_key              A string of the absolute salinity variable to filter
     """
-    # print('\t-Filtering profile ranges')
+    # print('\t- Filtering profile ranges')
     #   Filter to a certain longitude range
     if not isinstance(profile_filters.lon_range, type(None)):
         # print('\t\t-Applying lon_range filter')
@@ -1440,6 +1441,7 @@ def calc_extra_vars(ds, vars_to_keep):
     ds                  An xarray from the arr_of_ds of a custom Data_Set object
     vars_to_keep        A list of variables to keep for the analysis
     """
+    # print('\t- Calculating extra variables')
     # Check for variables to calculate
     if 'aiT' in vars_to_keep:
         ds['aiT'] = ds['alpha'] * ds['iT']
@@ -2002,7 +2004,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     row_col_list        [rows, cols, f_ratio, f_size], if none given, will use 
                         the defaults specified below in n_row_col_dict
     """
-    # print('in make_figure')
+    print('- Making the figure')
     # Define number of rows and columns based on number of subplots
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
     n_row_col_dict = {'1':[1,1, 0.8, 1.25], '2':[1,2, 0.5, 1.25], '2.5':[2,1, 0.8, 1.25],
@@ -2076,6 +2078,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
         fig, ax = set_fig_axes([1], [1], fig_ratio=f_ratio, fig_size=f_size)
+        print('- Subplot 1/1')
         xlabel, ylabel, zlabel, plt_title, ax, invert_y_axis = make_subplot(ax, groups_to_plot[0], fig, 111)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -2635,6 +2638,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     fit_vars = False
     log_axes = 'None'
     mpi_run = False
+    # print('\t- Checking extra arguments')
     if not isinstance(pp.extra_args, type(None)):
         extra_args = pp.extra_args
         if 'plot_slopes' in extra_args.keys():
@@ -2676,12 +2680,18 @@ def make_subplot(ax, a_group, fig, ax_pos):
             mark_LHW_AW = extra_args['mark_LHW_AW']
         else:
             mark_LHW_AW = False
+        try:
+            plt_noise = extra_args['plt_noise']
+        except:
+            plt_noise = True
     else:
         extra_args = False
         plot_slopes = False
         mv_avg = False
         mark_LHW_AW = False
+        plt_noise = True
     # Concatonate all the pandas data frames together
+    # print('\t- Concatenating data frames')
     df = pd.concat(a_group.data_frames)
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
@@ -2724,14 +2734,19 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     xlabel, ylabel = plot_clstr_param_sweep(ax, tw_ax_x, a_group, plt_title)
                 return xlabel, ylabel, pp.zlabels[0], plt_title, ax, invert_y_axis
         # Concatonate all the pandas data frames together
+        # print('\t- Concatenating data frames again')
         df = pd.concat(a_group.data_frames)
         # Format the dates if necessary
         if x_key in ['dt_start', 'dt_end']:
+            print('\t- Formatting datetime axis (this takes a while)')
             df[x_key] = mpl.dates.date2num(df[x_key])
         if y_key in ['dt_start', 'dt_end']:
+            print('\t- Formatting datetime axis (this takes a while)')
             df[y_key] = mpl.dates.date2num(df[y_key])
         if z_key in ['dt_start', 'dt_end']:
+            print('\t- Formatting datetime axis (this takes a while)')
             df[z_key] = mpl.dates.date2num(df[z_key])
+        # print('\t- Formatting ITP numbers')
         # Format the ITP numbers if necessary
         if x_key == 'instrmt':
             df[x_key] = df[x_key].str.zfill(3)
@@ -2743,6 +2758,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df[z_key] = df[z_key].str.zfill(3)
         # Check for cluster-based variables
         if x_key in clstr_vars or y_key in clstr_vars or z_key in clstr_vars or tw_x_key in clstr_vars or tw_y_key in clstr_vars or clr_map in clstr_vars:
+            print('\t- Checking for cluster-based variables')
             m_pts, m_cls, cl_x_var, cl_y_var, cl_z_var, plot_slopes, b_a_w_plt = get_cluster_args(pp)
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[x_key,y_key,z_key,tw_x_key,tw_y_key,clr_map], re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
@@ -2762,6 +2778,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check whether to add LHW and AW
         if mark_LHW_AW:
             mark_the_LHW_AW(ax, x_key, y_key)
+        # Check whether to remove noise points
+        if plt_noise == False:
+            print('\t- Removing noise points')
+            print('before removing noise points:',len(df))
+            df = df[df.cluster!=-1]
+            print('after removing noise points:',len(df))
+        print('max SA:',df['SA'].max())
+        print('min SA:',df['SA'].min())
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # Check for histogram
@@ -2941,6 +2965,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
+        elif clr_map == 'plt_by_dataset':
+            if plot_hist:
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
         elif clr_map == 'clr_by_dataset':
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
@@ -4095,6 +4122,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         except:
             plt_hist_lines = False
         try:
+            pdf_hist = pp.extra_args['pdf_hist']
+        except:
+            pdf_hist = False
+        try:
             plt_noise = pp.extra_args['plt_noise']
         except:
             plt_noise = True
@@ -4113,6 +4144,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     else:
         n_h_bins = None
         plt_hist_lines = False
+        pdf_hist = False
         plt_noise = True
         sort_clstrs = True
         log_axes = 'None'
@@ -4142,10 +4174,27 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     invert_y_axis = False
     # Determine the color mapping to be used
     if clr_map == 'clr_all_same':
+        # Check whether to remove noise points
+        if plt_noise == False:
+            df = df[df.cluster!=-1]
         # Get histogram parameters
         h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
         # Plot the histogram
-        ax.hist(h_var, bins=res_bins, color=std_clr, orientation=orientation)
+        if pdf_hist:
+            # Get the histogram
+            this_hist, these_bin_edges = np.histogram(h_var, bins=res_bins)
+            # Estimate the (non-normalized) PDF from the histogram by 
+            #   plotting line through the bin centers
+            bin_centers = 0.5*(these_bin_edges[1:]+these_bin_edges[:-1])
+            if orientation == 'vertical':
+                pdf_x_arr = bin_centers
+                pdf_y_arr = this_hist
+            else:
+                pdf_x_arr = this_hist
+                pdf_y_arr = bin_centers
+            ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle='-')
+        else:
+            ax.hist(h_var, bins=res_bins, color=std_clr, orientation=orientation)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
@@ -4222,6 +4271,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 ax.legend(handles=hndls+tw_hndls)
         # Check whether to change any axes to log scale
         if len(log_axes) == 3:
+            print('\t- Changing axes to log scale: ',log_axes)
             if log_axes[0]:
                 ax.set_xscale('log')
             if log_axes[1]:
@@ -4281,6 +4331,112 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 ax.set_yscale('log')
             if log_axes[2]:
                 ax.set_zscale('log')
+        # Add a standard title
+        plt_title = add_std_title(a_group)
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
+    elif clr_map == 'plt_by_dataset':
+        i = 0
+        lgnd_hndls = []
+        df_labels = [*a_group.data_set.sources_dict.keys()]
+        print('df_labels:',df_labels)
+        # Prepare to split axis by making a divider
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+        # create an axes on the right side of ax. The width of cax will be 5%
+        # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+        divider = make_axes_locatable(ax)
+        # Loop through each dataframe 
+        #   which correspond to the datasets input to the Data_Set object's sources_dict
+        for this_df in a_group.data_frames:
+            # If a subsequent dataset, split the axis
+            if i > 0:
+                if orientation == 'vertical':
+                    sub_ax = divider.append_axes("bottom", size="100%", pad=0, axes_class=mpl.axes.Axes)
+                else:
+                    sub_ax = divider.append_axes("right", size="100%", pad=0, axes_class=mpl.axes.Axes)
+            else:
+                sub_ax = ax
+            # Check whether to remove noise points
+            if plt_noise == False:
+                print('before removing noise points:',len(df))
+                df = df[df.cluster!=-1]
+                print('after removing noise points:',len(df))
+                this_df = this_df[this_df.cluster!=-1]
+            # Decide on the color, don't go off the end of the array
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
+            # Get histogram parameters
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            # Plot the histogram
+            if pdf_hist:
+                # Get the histogram
+                this_hist, these_bin_edges = np.histogram(h_var, bins=res_bins)
+                # Estimate the (non-normalized) PDF from the histogram by 
+                #   plotting line through the bin centers
+                bin_centers = 0.5*(these_bin_edges[1:]+these_bin_edges[:-1])
+                if orientation == 'vertical':
+                    pdf_x_arr = bin_centers
+                    pdf_y_arr = this_hist
+                else:
+                    pdf_x_arr = this_hist
+                    pdf_y_arr = bin_centers
+                sub_ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle='-')
+            else:
+                sub_ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
+            # Add legend handle to report the total number of points for this dataset
+            lgnd_label = df_labels[i]+': '+str(len(this_df[var_key]))+' points, Median:'+'%.4f'%median
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
+            # Add legend handle to report overall statistics
+            lgnd_label = 'Mean:'+ '%.4f'%mean+', Std dev:'+'%.4f'%std_dev
+            lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label, alpha=hist_alpha))
+            notes_string = ''.join(this_df.notes.unique())
+            # If subsequent dataset, adjust axis
+            if i > 0:
+                # Invert y-axis if specified
+                if y_key in y_invert_vars:
+                    sub_ax.invert_yaxis()
+                # Apply the same axis limits to the sub_ax
+                if not isinstance(pp.ax_lims, type(None)):
+                    try:
+                        sub_ax.set_xlim(pp.ax_lims['x_lims'])
+                        # print('\t- Applying x-axis limits to sub_ax')
+                    except:
+                        foo = 2
+                    try:
+                        sub_ax.set_ylim(pp.ax_lims['y_lims'])
+                        # print('\t- Applying y-axis limits to sub_ax')
+                    except:
+                        foo = 2
+                # Apply a grid, if applicable
+                if pp.add_grid:
+                    sub_ax.grid(color=std_clr, linestyle='--', alpha=grid_alpha)
+                # Turn of the shared axis
+                if orientation == 'vertical':
+                    sub_ax.get_xaxis().set_visible(False)
+                else:
+                    sub_ax.get_yaxis().set_visible(False)
+                # Add axis label to the sub_ax to denote each dataset
+                if orientation == 'vertical':
+                    sub_ax.set_ylabel(df_labels[i][7:11])
+                else:
+                    sub_ax.set_xlabel(df_labels[i][7:11])
+            # Check whether to change any axes to log scale
+            if len(log_axes) == 3:
+                if log_axes[0]:
+                    sub_ax.set_xscale('log')
+                if log_axes[1]:
+                    sub_ax.set_yscale('log')
+                if log_axes[2]:
+                    sub_ax.set_zscale('log')
+            i += 1
+        # Only add the notes_string if it contains something
+        if len(notes_string) > 1:
+            notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
+            lgnd_hndls.append(notes_patch)
+        # Invert y-axis if specified
+        if y_key in y_invert_vars:
+            invert_y_axis = True
+        # Add legend with custom handles
+        if legend:
+            lgnd = ax.legend(handles=lgnd_hndls)
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -4500,7 +4656,7 @@ def get_hist_params(df, h_key, n_h_bins=25):
     mean    = np.mean(h_var)
     std_dev = np.std(h_var)
     # Define the bins to use in the histogram, np.arange(start, stop, step)
-    if True:
+    if False:
         start = mean - 3*std_dev
         stop  = mean + 3*std_dev
         step  = std_dev / n_h_bins
