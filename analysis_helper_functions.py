@@ -6887,13 +6887,21 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             use_raster = pp.extra_args['use_raster']
         except:
             use_raster = False
+        try:
+            mark_left_right_clusters = pp.extra_args['mark_LR']
+        except:
+            mark_left_right_clusters = True
     else:
         plt_noise = True
         sort_clstrs = True
+        relab_these = False
+        plot_centroid = False
         clstrs_to_plot = []
+        mrk_outliers = False
         fit_vars = False
         mark_LHW_AW = False
         use_raster = False
+        mark_left_right_clusters = True
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
@@ -7111,7 +7119,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
         # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
-        if x_key in ['dt_start', 'dt_end']:
+        if x_key in ['dt_start', 'dt_end'] and mark_left_right_clusters:
             # Select date on which to place the cluster numbers on the left-hand side
             x_place = mpl.dates.date2num(datetime.fromisoformat('2005-07-01'))
             these_clst_ids = []
