@@ -1580,9 +1580,44 @@ def make_subplot(ax, a_group, fig, ax_pos):
     #     exit(0)
     # Check whether to connect clusters across periods
     if connect_p:
+        # Concatonate all the dataframes
+        df = pd.concat(dfs)
         # Color lines between pairs of clusters that are each others nearest neighbors
         # Add column to dataframe to track mutual nearest neighbors
-        df[y_key+'_mnn'] = np.nan
+        df[y_key+'_mnn_cid'] = np.nan
+        df[y_key+'_mnn_x'] = np.nan
+        df[y_key+'_mnn_y'] = np.nan
+        # Loop over each dataset
+        these_BGRs = np.unique(df['dataset'])
+        n_BGRs = len(these_BGRs)
+        dfs = []
+        for b in range(n_BGRs-1):
+            this_BGR = these_BGRs[b]
+            print('- Plotting data from',this_BGR)
+            # Get the data for this dataset
+            this_df = df[df['dataset'] == this_BGR]
+            these_clusters = np.unique(this_df['cluster'])
+            # Get the data for the next dataset
+            next_df = df[df['dataset'] == these_BGRs[b+1]]
+            # Loop over each cluster
+            for c in range(len(these_clusters)):
+                this_cluster = these_clusters[c]
+                # Get the fnn cluster id
+                this_fnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_cid'].values[0]
+                # Find that cluster in the next dataset, check it's bnn cluster id
+                next_bnn_cid = next_df[next_df['cluster'] == this_fnn_cid][y_key+'_bnn_cid'].values[0]
+                # If that bnn cluster id is the same as the current cluster id, then they are mutual nearest neighbors
+                if next_bnn_cid == this_cluster:
+                    # First make a mask
+                    this_cluster_mask = (this_df['cluster'] == this_cluster)
+                    # Copy the fnn cid, x, and y to the mnn columns
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_cid'] = this_fnn_cid
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_x'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_x'].values[0]
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_y'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_y'].values[0]
+            # Print this_df columns for cluster, fnn, and mnn
+            # print(this_df[['cluster', y_key+'_fnn_cid', y_key+'_fnn_y', y_key+'_mnn_cid', y_key+'_mnn_y']].sort_values(by=['cluster']).to_string())
+            if clr_map == 'cluster': 
+                quiver_nn(ax, this_df, x_key, y_key, mnn=True)
     return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     print('ERROR: Should not have gotten here. Aborting script')
     exit(0)
@@ -1607,11 +1642,15 @@ def quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True, mnn=False):
     if fnn:
         U_ = this_df[y_key+'_fnn_x'].values.astype(np.float64) - X_
         V_ = this_df[y_key+'_fnn_y'].values.astype(np.float64) - Y_
-        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc=std_clr, alpha=0.5)
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc=std_clr, alpha=0.5, zorder=1)
     if bnn:
         U_ = this_df[y_key+'_bnn_x'].values.astype(np.float64) - X_
         V_ = this_df[y_key+'_bnn_y'].values.astype(np.float64) - Y_
-        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='none', ec='b', hatch='|||||', alpha=1)
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='none', ec='b', hatch='|||||', alpha=1, zorder=3)
+    if mnn:
+        U_ = this_df[y_key+'_mnn_x'].values.astype(np.float64) - X_
+        V_ = this_df[y_key+'_mnn_y'].values.astype(np.float64) - Y_
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='r', alpha=1, zorder=2)
 
 ################################################################################
 
@@ -1627,7 +1666,7 @@ if True:
     print('')
     print('- Creating a plot showing arrows between nearest neighbors between periods')
     # Make the Plot Parameters
-    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=False, add_grid=False, extra_args={'mark_LR':False})
+    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=False, add_grid=False, extra_args={'mark_LR':False, 'connect_p':True})
     # Make the subplot groups
     group_ca_SA_per_period = Analysis_Group2([df], pp_ca_SA_per_period, plot_title=r'')
     # Make the figure
