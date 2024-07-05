@@ -64,10 +64,10 @@ l_styles = ['-', '--', '-.', ':']
 # Make the profile filters
 pfs_0 = ahf.Profile_Filters()
 # Make the plot parameters
-# these_vars_to_keep = ['dt_start', 'lon', 'lat', 'cluster', 'press', 'SA', 'CT', 'sigma', 'alpha', 'beta']
-these_vars_to_keep = ['dt_start', 'cluster', 'SA']
-# pp_ = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':these_vars_to_keep}, legend=False)
-pp_ = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':these_vars_to_keep}, legend=False)
+these_vars_to_keep = ['dt_start', 'lon', 'lat', 'cluster', 'press', 'SA', 'CT', 'sigma', 'alpha', 'beta']
+# these_vars_to_keep = ['dt_start', 'cluster', 'SA']
+pp_ = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':these_vars_to_keep}, legend=False)
+# pp_ = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['clst_prob'], extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':these_vars_to_keep}, legend=False)
 
 # Start a list of the data frames
 dfs = []
@@ -151,14 +151,14 @@ for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011
     print(df.columns)
 
     # Make a list of variables to calculate
-    calc_vars = []#'n_points', 'cRL']
+    calc_vars = ['n_points', 'cRL']
     # for var in ['press-fit', 'SA-fit', 'CT-fit', 'sigma-fit', 'alpha-fit', 'beta-fit']:
     #     calc_vars.append('trd_'+var)
     for var in ['SA']:#, 'press', 'CT', 'sigma', 'alpha', 'beta']:
         calc_vars.append('ca_'+var)
-        # calc_vars.append('cs_'+var)
-        # calc_vars.append('csd_'+var)
-        # calc_vars.append('nir_'+var)
+        calc_vars.append('cs_'+var)
+        calc_vars.append('csd_'+var)
+        calc_vars.append('nir_'+var)
         # calc_vars.append('trd_'+var)
     # Calculate new cluster variables
     print('Calculating cluster properties')

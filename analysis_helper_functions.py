@@ -2454,11 +2454,12 @@ def get_marker_size_and_alpha(n_points):
 
 ################################################################################
 
-def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None, aug_zorder=10):
+def format_datetime_axes(add_grid, x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key=None, tw_ax_x=None, z_key=None, aug_zorder=10):
     """
     Formats any datetime axes to show actual dates, as appropriate. Also adds
     vertical lines at every August 15th, if applicable
 
+    add_grid    True/False whether to add grid lines to the plot
     x_key       The string of the name for the x data on the main axis
     y_key       The string of the name for the y data on the main axis
     ax          The main axis on which to format
@@ -2496,8 +2497,9 @@ def format_datetime_axes(x_key, y_key, ax, tw_x_key=None, tw_ax_y=None, tw_y_key
         ax.xaxis.set_major_locator(loc)
         ax.xaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
         # Add vertical lines
-        for aug_15 in all_08_15s:
-            ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=aug_zorder)
+        if add_grid:
+            for aug_15 in all_08_15s:
+                ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=aug_zorder)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2896,7 +2898,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -2947,7 +2949,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 lgnd_hndls.append(notes_patch)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Add legend with custom handles
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
@@ -3044,7 +3046,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 lgnd_hndls.append(notes_patch)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Add legend with custom handles
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
@@ -3106,7 +3108,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -3189,7 +3191,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 else:
                     ax.legend(handles=[n_pts_patch, pixel_patch])
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -3242,7 +3244,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
             invert_y_axis, a_group.data_frames, a_group.data_set.arr_of_ds[0].attrs['Clustering m_pts'], a_group.data_set.arr_of_ds[0].attrs['Clustering m_cls'], a_group.data_set.arr_of_ds[0].attrs['Clustering DBCV'] = plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, cl_z_var, clr_map, m_pts, m_cls, rel_val, ell, box_and_whisker=b_a_w_plt, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -3372,7 +3374,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 add_std_legend(ax, df, x_key)
             # Format the axes for datetimes, if necessary
-            format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+            format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -4173,7 +4175,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     # Set variable as to whether to invert the y axis
     invert_y_axis = False
     # Determine the color mapping to be used
-    if clr_map == 'clr_all_same':
+    if clr_map in ['clr_all_same', 'fnn', 'bnn']:
         # Check whether to remove noise points
         if plt_noise == False:
             df = df[df.cluster!=-1]
@@ -5704,7 +5706,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     if invert_y_axis:
         ax.invert_zaxis()
     # Format the axes for datetimes, if necessary
-    format_datetime_axes(x_key, z_key, ax, z_key=y_key)
+    format_datetime_axes(pp.add_grid, x_key, z_key, ax, z_key=y_key)
     # Since the y and z axes are flipped, return False for invert_y_axis
     return pp.xlabels[0], pp.zlabels[0], pp.ylabels[0], plt_title, ax, False
 

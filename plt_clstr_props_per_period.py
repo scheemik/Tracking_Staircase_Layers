@@ -671,12 +671,22 @@ def make_subplot(ax, a_group, fig, ax_pos):
             mark_LHW_AW = extra_args['mark_LHW_AW']
         else:
             mark_LHW_AW = False
+        if 'all_BGR' in extra_args.keys():
+            all_BGR = extra_args['all_BGR']
+        else:
+            all_BGR = False
+        if 'connect_p' in extra_args.keys():
+            connect_p = extra_args['connect_p']
+        else:
+            connect_p = False
     else:
         extra_args = False
         plot_slopes = False
         mrk_outliers = False
         mv_avg = False
         mark_LHW_AW = False
+        all_BGR = False
+        connect_p = False
     # Add a title
     plt_title = a_group.plot_title
     ## Make a standard x vs. y scatter plot
@@ -711,122 +721,97 @@ def make_subplot(ax, a_group, fig, ax_pos):
     if y_key in ['dt_start', 'dt_end']:
         df[y_key] = mpl.dates.date2num(df[y_key])
     # Check for variables to be calculated
-    if 'percnztrd_pcs_press' in x_key or 'percnztrd_pcs_press' in y_key:
-        # Calculate the percent trend in non-zero thickness
-        df['percnztrd_pcs_press'] = df['nztrd_pcs_press']/df['nzca_pcs_press']*100
-    if 'ca_rho' in x_key or 'ca_rho' in y_key:
-        # Calculate the cluster average density
-        df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-    if 'ca_cp' in x_key or 'ca_cp' in y_key:
-        # First, calculate the exact temperature
-        df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-        # Calculate the cluster average heat capacity
-        df['ca_cp'] = gsw.cp_t_exact(df['ca_SA'].values, df['ca_iT'].values, df['ca_press'].values)
-    if 'ca_FH' in x_key or 'ca_FH' in y_key:
-        ## Calculating the heat flux, need to calculate the components first
-        # First, calculate the exact temperature
-        df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-        # Calculate the cluster average heat capacity
-        df['ca_cp'] = gsw.cp_t_exact(df['ca_SA'].values, df['ca_iT'].values, df['ca_press'].values)
-        # Calculate the cluster average density
-        df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-        # Calculate the conversion factor to change year to seconds
-        yr_to_s = 365.25*24*60*60
-        # Calculate the heat flux
-        df['ca_FH'] = df['nzca_pcs_press']*df['ca_cp']*df['ca_rho']*df['trd_CT-fit']/yr_to_s
-    if 'ca_FH_cumul' in x_key:
-        ## Calculating the cumulative heat flux, need to calculate the components first
-        # First, calculate the exact temperature
-        df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-        # Calculate the cluster average heat capacity
-        df['ca_cp'] = gsw.cp_t_exact(df['ca_SA'].values, df['ca_iT'].values, df['ca_press'].values)
-        # Calculate the cluster average density
-        df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-        # Calculate the conversion factor to change year to seconds
-        yr_to_s = 365.25*24*60*60
-        # Calculate the heat flux
-        df['ca_FH'] = df['nzca_pcs_press']*df['ca_cp']*df['ca_rho']*df['trd_CT-fit']/yr_to_s
-        # Sort the cluster average heat flux by the y_key variable
-        df = df.sort_values(by=y_key)
-        # Calculate the cumulative heat flux, starting with the lowest value of y_key
-        df['ca_FH_cumul'] = df['ca_FH'].cumsum()
+    if 'hist' in x_key or 'hist' in y_key:
+        # Add a blank column to the dataframe
+        df['hist'] = np.nan
     # Loop over each dataset
-    these_BGRs = np.unique(df['dataset'])
+    if all_BGR:
+        these_BGRs = ['BGR_all']
+    else:
+        these_BGRs = np.unique(df['dataset'])
     n_BGRs = len(these_BGRs)
+    dfs = []
     for b in range(n_BGRs):
         this_BGR = these_BGRs[b]
         print('- Plotting data from',this_BGR)
         # Get the data for this dataset
-        this_df = df[df['dataset'] == this_BGR]
-        these_clusters = np.unique(this_df['cluster'])
-        # Find nearest neighbors in the next and previous periods
-        if x_key in ['dt_start', 'dt_end'] and y_key in ['ca_SA']:
-            # Add columns to this_df to store the nearest neighbor data
-            #   Forward nearest neighbor
-            this_df[y_key+'_fnn_cid'] = np.nan
-            this_df[y_key+'_fnn_x'] = np.nan
-            this_df[y_key+'_fnn_y'] = np.nan
-            #   Backward nearest neighbor
-            this_df[y_key+'_bnn_cid'] = np.nan
-            this_df[y_key+'_bnn_x'] = np.nan
-            this_df[y_key+'_bnn_y'] = np.nan
-            # For the first period, just calculate the forward nearest neighbors
-            if b == 0:
-                # Get the data for the next dataset
-                next_df = df[df['dataset'] == these_BGRs[b+1]]
-                # Loop over each cluster
-                for c in range(len(these_clusters)):
-                    this_cluster = these_clusters[c]
-                    # Get the y data for this cluster
-                    this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
-                    # Find the nearest neighbor in the next period
-                    df_sort = next_df.iloc[(next_df[y_key]-this_y_val).abs().argsort()[:1]]
-                    # print('\t- '+this_BGR+' cluster',this_cluster,'has y value',this_y_val)
-                    # print('\t\t- Nearest neighbor in '+these_BGRs[b+1]+': cluster',df_sort['cluster'].values[0],'with y value',df_sort[y_key].values[0])
-                    # Record the nearest neighbor's cluster id, x value, and y value
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_cid'] = df_sort['cluster'].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_x'] = df_sort[x_key].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_y'] = df_sort[y_key].values[0]
-                quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=False)
-            # For middle periods, calculate both nearest neighbors
-            elif b > 0 and b < n_BGRs-1:
-                # Get the data for the previous and next datasets
-                prev_df = df[df['dataset'] == these_BGRs[b-1]]
-                next_df = df[df['dataset'] == these_BGRs[b+1]]
-                # Loop over each cluster
-                for c in range(len(these_clusters)):
-                    this_cluster = these_clusters[c]
-                    # Get the y data for this cluster
-                    this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
-                    # Find the nearest neighbor in the previous period
-                    df_sort = prev_df.iloc[(prev_df[y_key]-this_y_val).abs().argsort()[:1]]
-                    # Record the nearest neighbor's cluster id, x value, and y value
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_cid'] = df_sort['cluster'].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_x'] = df_sort[x_key].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_y'] = df_sort[y_key].values[0]
-                    # Find the nearest neighbor in the next period
-                    df_sort = next_df.iloc[(next_df[y_key]-this_y_val).abs().argsort()[:1]]
-                    # Record the nearest neighbor's cluster id, x value, and y value
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_cid'] = df_sort['cluster'].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_x'] = df_sort[x_key].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_y'] = df_sort[y_key].values[0]
-                quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True)
-            # For the last period, just calculate the backward nearest neighbors
-            elif b == n_BGRs-1:
-                # Get the data for the previous dataset
-                prev_df = df[df['dataset'] == these_BGRs[b-1]]
-                # Loop over each cluster
-                for c in range(len(these_clusters)):
-                    this_cluster = these_clusters[c]
-                    # Get the y data for this cluster
-                    this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
-                    # Find the nearest neighbor in the previous period
-                    df_sort = prev_df.iloc[(prev_df[y_key]-this_y_val).abs().argsort()[:1]]
-                    # Record the nearest neighbor's cluster id, x value, and y value
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_cid'] = df_sort['cluster'].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_x'] = df_sort[x_key].values[0]
-                    this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_y'] = df_sort[y_key].values[0]
-                quiver_nn(ax, this_df, x_key, y_key, fnn=False, bnn=True)
+        if this_BGR == 'BGR_all':
+            this_df = df
+        else:
+            this_df = df[df['dataset'] == this_BGR]
+            these_clusters = np.unique(this_df['cluster'])
+            # Find nearest neighbors in the next and previous periods
+            if x_key in ['dt_start', 'dt_end', 'hist'] and y_key in ['ca_SA']:
+                # Add columns to this_df to store the nearest neighbor data
+                #   Forward nearest neighbor
+                this_df[y_key+'_fnn_cid'] = np.nan
+                this_df[y_key+'_fnn_x'] = np.nan
+                this_df[y_key+'_fnn_y'] = np.nan
+                #   Backward nearest neighbor
+                this_df[y_key+'_bnn_cid'] = np.nan
+                this_df[y_key+'_bnn_x'] = np.nan
+                this_df[y_key+'_bnn_y'] = np.nan
+                # For the first period, just calculate the forward nearest neighbors
+                if b == 0:
+                    # Get the data for the next dataset
+                    next_df = df[df['dataset'] == these_BGRs[b+1]]
+                    # Loop over each cluster
+                    for c in range(len(these_clusters)):
+                        this_cluster = these_clusters[c]
+                        # Get the y data for this cluster
+                        this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
+                        # Find the nearest neighbor in the next period
+                        df_sort = next_df.iloc[(next_df[y_key]-this_y_val).abs().argsort()[:1]]
+                        # print('\t- '+this_BGR+' cluster',this_cluster,'has y value',this_y_val)
+                        # print('\t\t- Nearest neighbor in '+these_BGRs[b+1]+': cluster',df_sort['cluster'].values[0],'with y value',df_sort[y_key].values[0])
+                        # Record the nearest neighbor's cluster id, x value, and y value
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_cid'] = df_sort['cluster'].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_x'] = df_sort[x_key].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_y'] = df_sort[y_key].values[0]
+                    if clr_map == 'cluster': 
+                        quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=False)
+                # For middle periods, calculate both nearest neighbors
+                elif b > 0 and b < n_BGRs-1:
+                    # Get the data for the previous and next datasets
+                    prev_df = df[df['dataset'] == these_BGRs[b-1]]
+                    next_df = df[df['dataset'] == these_BGRs[b+1]]
+                    # Loop over each cluster
+                    for c in range(len(these_clusters)):
+                        this_cluster = these_clusters[c]
+                        # Get the y data for this cluster
+                        this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
+                        # Find the nearest neighbor in the previous period
+                        df_sort = prev_df.iloc[(prev_df[y_key]-this_y_val).abs().argsort()[:1]]
+                        # Record the nearest neighbor's cluster id, x value, and y value
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_cid'] = df_sort['cluster'].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_x'] = df_sort[x_key].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_y'] = df_sort[y_key].values[0]
+                        # Find the nearest neighbor in the next period
+                        df_sort = next_df.iloc[(next_df[y_key]-this_y_val).abs().argsort()[:1]]
+                        # Record the nearest neighbor's cluster id, x value, and y value
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_cid'] = df_sort['cluster'].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_x'] = df_sort[x_key].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_fnn_y'] = df_sort[y_key].values[0]
+                    if clr_map == 'cluster': 
+                        quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True)
+                # For the last period, just calculate the backward nearest neighbors
+                elif b == n_BGRs-1:
+                    # Get the data for the previous dataset
+                    prev_df = df[df['dataset'] == these_BGRs[b-1]]
+                    # Loop over each cluster
+                    for c in range(len(these_clusters)):
+                        this_cluster = these_clusters[c]
+                        # Get the y data for this cluster
+                        this_y_val = this_df[this_df['cluster'] == this_cluster][y_key].values[0]
+                        # Find the nearest neighbor in the previous period
+                        df_sort = prev_df.iloc[(prev_df[y_key]-this_y_val).abs().argsort()[:1]]
+                        # Record the nearest neighbor's cluster id, x value, and y value
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_cid'] = df_sort['cluster'].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_x'] = df_sort[x_key].values[0]
+                        this_df.loc[this_df['cluster'] == this_cluster, y_key+'_bnn_y'] = df_sort[y_key].values[0]
+                    if clr_map == 'cluster': 
+                        quiver_nn(ax, this_df, x_key, y_key, fnn=False, bnn=True)
+                #
             #
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
@@ -1075,19 +1060,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 ahf.add_std_legend(ax, this_df, x_key, mark_LHW_AW=mark_LHW_AW)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
-            # Check whether to plot isopycnals
-            # if add_isos:
-            #     add_isopycnals(ax, this_df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
-            # Check whether to change any axes to log scale
-            # if len(log_axes) == 3:
-            #     if log_axes[0]:
-            #         ax.set_xscale('log')
-            #     if log_axes[1]:
-            #         ax.set_yscale('log')
-            #     if log_axes[2]:
-            #         ax.set_zscale('log')
-            # return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
         elif clr_map == 'source':
             if plot_hist:
                 return ahf.plot_histogram(a_group, ax, pp, this_df, x_key, y_key,clr_map, legend=pp.legend)
@@ -1125,7 +1098,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 lgnd_hndls.append(notes_patch)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Add legend with custom handles
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
@@ -1220,7 +1193,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 lgnd_hndls.append(notes_patch)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Add legend with custom handles
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
@@ -1284,7 +1257,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 lgnd = ax.legend(handles=lgnd_hndls)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, this_df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1368,7 +1341,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 else:
                     ax.legend(handles=[n_pts_patch, pixel_patch])
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, this_df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1429,7 +1402,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
             invert_y_axis, a_group.data_frames, foo0, foo1, foo2 = ahf.plot_clusters(a_group, ax, pp, this_df, x_key, y_key, z_key, None, None, None, clr_map, None, None, None, None, box_and_whisker=False, plot_slopes=plot_slopes)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, this_df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1561,7 +1534,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if pp.legend:
                 ahf.add_std_legend(ax, this_df, x_key)
             # Format the axes for datetimes, if necessary
-            ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+            ahf.format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
             # Check whether to plot isopycnals
             if add_isos:
                 add_isopycnals(ax, this_df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1576,30 +1549,69 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             # plt_title = add_std_title(a_group)
             # return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
-        else:
-            # Did not provide a valid clr_map
-            print('Colormap',clr_map,'not valid')
-            exit(0)
-        #
+        # 
+        dfs.append(this_df)
     #
+    if clr_map == 'fnn':
+        # Concatonate all the dataframes
+        df = pd.concat(dfs)
+        # Calculate the differences between the cluster and its forward nearest neighbors
+        df[y_key+'_fnn_diff'] = df[y_key] - df[y_key+'_fnn_y']
+        # Change the axis labels
+        pp.ylabels[0] = r'NN-diff of ' + pp.ylabels[0]
+        # Check for histogram
+        if plot_hist:
+            print('\t- Plotting histogram')
+            x_label, y_label, z_label, plt_title, ax, invert_y_axis = ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key+'_fnn_diff', clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_y_key, tyk=tw_y_key, tax=tw_ax_x)
+    elif clr_map == 'bnn':
+        # Concatonate all the dataframes
+        df = pd.concat(dfs)
+        # Calculate the differences between the cluster and its backward nearest neighbors
+        df[y_key+'_bnn_diff'] = df[y_key] - df[y_key+'_bnn_y']
+        # Change the axis labels
+        pp.ylabels[0] = r'NN-diff of ' + pp.ylabels[0]
+        # Check for histogram
+        if plot_hist:
+            print('\t- Plotting histogram')
+            x_label, y_label, z_label, plt_title, ax, invert_y_axis = ahf.plot_histogram(a_group, ax, pp, df, x_key, y_key+'_bnn_diff', clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_y_key, tyk=tw_y_key, tax=tw_ax_x)
+    # else:
+    #     # Did not provide a valid clr_map
+    #     print('Colormap',clr_map,'not valid')
+    #     exit(0)
+    # Check whether to connect clusters across periods
+    if connect_p:
+        # Color lines between pairs of clusters that are each others nearest neighbors
+        # Add column to dataframe to track mutual nearest neighbors
+        df[y_key+'_mnn'] = np.nan
     return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     print('ERROR: Should not have gotten here. Aborting script')
     exit(0)
 
 ################################################################################
 
-def quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True):
-                # Use the quiver function to plot arrows from each cluster to its nearest neighbor
-                X_ = this_df[x_key].values.astype(np.float64)
-                Y_ = this_df[y_key].values.astype(np.float64)
-                if fnn:
-                    U_ = this_df[y_key+'_fnn_x'].values.astype(np.float64) - X_
-                    V_ = this_df[y_key+'_fnn_y'].values.astype(np.float64) - Y_
-                    ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc=std_clr, alpha=0.5)
-                if bnn:
-                    U_ = this_df[y_key+'_bnn_x'].values.astype(np.float64) - X_
-                    V_ = this_df[y_key+'_bnn_y'].values.astype(np.float64) - Y_
-                    ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='none', ec='b', hatch='|||||', alpha=1)
+def quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True, mnn=False):
+    """
+    Plot arrows from each cluster to its nearest neighbor
+
+    ax      : the axis to plot on
+    this_df : the dataframe with the data
+    x_key   : the x variable
+    y_key   : the y variable
+    fnn     : plot the forward nearest neighbors
+    bnn     : plot the backward nearest neighbors
+    mnn     : plot the mutual nearest neighbors
+    """
+    # Use the quiver function to plot arrows from each cluster to its nearest neighbor
+    X_ = this_df[x_key].values.astype(np.float64)
+    Y_ = this_df[y_key].values.astype(np.float64)
+    if fnn:
+        U_ = this_df[y_key+'_fnn_x'].values.astype(np.float64) - X_
+        V_ = this_df[y_key+'_fnn_y'].values.astype(np.float64) - Y_
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc=std_clr, alpha=0.5)
+    if bnn:
+        U_ = this_df[y_key+'_bnn_x'].values.astype(np.float64) - X_
+        V_ = this_df[y_key+'_bnn_y'].values.astype(np.float64) - Y_
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='none', ec='b', hatch='|||||', alpha=1)
 
 ################################################################################
 
@@ -1607,29 +1619,45 @@ this_clr_map = 'clr_all_same'
 this_clr_map = 'cluster'
 
 ################################################################################
-# LHW and AW plots
+# Plots investigating nearest neighbors across periods
 ################################################################################
-pfs_LHW_AW = bob.pfs_LHW_and_AW
-press_lims_LHW = [300,150]
-press_fit_lims_LHW = [75,-75]
-press_lims_AW = [550,350]
-press_fit_lims_AW = [100,-100]
-SA_lims_LHW = [34.105, 34.095]
-SA_lims_AW = [35.03, 34.97]
-CT_lims_LHW = [-0.8, -1.4]
-CT_lims_AW = [0.97, 0.57]
-LHW_AW_legend = False
-#*# Tracking LHW and AW cores over time
+across_x_var = 'dt_start'
+# Tracking nearest neighbors between periods
 if True:
     print('')
-    print('- Creating a plot of LHW and AW cores over time')
+    print('- Creating a plot showing arrows between nearest neighbors between periods')
     # Make the Plot Parameters
-    across_x_var = 'dt_start'
-    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=LHW_AW_legend, extra_args={'mark_LR':False})#, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_LHW})
+    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=False, add_grid=False, extra_args={'mark_LR':False})
     # Make the subplot groups
     group_ca_SA_per_period = Analysis_Group2([df], pp_ca_SA_per_period, plot_title=r'')
     # Make the figure
     make_figure([group_ca_SA_per_period])
+# Histogram of differences between nearest neighbors between periods
+if False:
+    print('')
+    print('- Creating a plot showing histograms of differences in nearest neighbors between periods')
+    # Make the Plot Parameters
+    pp_fnn_ca_SA_per_period = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['ca_SA'], clr_map='fnn', legend=True, extra_args={'n_h_bins':100})
+    pp_bnn_ca_SA_per_period = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['ca_SA'], clr_map='bnn', legend=True, extra_args={'n_h_bins':100})
+    # Make the subplot groups
+    group_fnn_ca_SA_per_period = Analysis_Group2([df], pp_fnn_ca_SA_per_period, plot_title=r'Forward Nearest Neighbors')
+    group_bnn_ca_SA_per_period = Analysis_Group2([df], pp_bnn_ca_SA_per_period, plot_title=r'Backward Nearest Neighbors')
+    # Make the figure
+    make_figure([group_fnn_ca_SA_per_period, group_bnn_ca_SA_per_period])
+# Histograms of cluster spans and standard deviations
+if False:
+    print('')
+    print('- Creating a plot showing histograms of cluster spans and standard deviations')
+    # Make the Plot Parameters
+    pp_span_per_period = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['cs_SA'], clr_map='clr_all_same', legend=True, extra_args={'n_h_bins':150, 'all_BGR':True}, ax_lims={'y_lims':[0, 0.04]})
+    pp_std_per_period = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['csd_SA'], clr_map='clr_all_same', legend=True, extra_args={'n_h_bins':50, 'all_BGR':True}, ax_lims={'y_lims':[0, 0.04]})
+    pp_nir_per_period = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['nir_SA'], clr_map='clr_all_same', legend=True, extra_args={'n_h_bins':150, 'all_BGR':True}, ax_lims={'y_lims':[0, 4]})
+    # Make the subplot groups
+    group_span_per_period = Analysis_Group2([df], pp_span_per_period, plot_title=r'')
+    group_std_per_period = Analysis_Group2([df], pp_std_per_period, plot_title=r'')
+    group_nir_per_period = Analysis_Group2([df], pp_nir_per_period, plot_title=r'')
+    # Make the figure
+    make_figure([group_span_per_period, group_std_per_period, group_nir_per_period])
 ################################################################################
 # Evaluating the clusters
 #*# Plot of nir_SA and cRL for all clusters
