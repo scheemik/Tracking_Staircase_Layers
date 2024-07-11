@@ -1405,10 +1405,10 @@ if False:
     ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.5, 1.69])
 
 ################################################################################
-## Histograms of non-noise points for each period, stacked on to each other
+## Salinity histograms
 ################################################################################
-# Salinity histograms for each period
-if True:
+# Salinity histograms of non-noise points for each period, stacked on to each other
+if False:
     print('')
     print('- Creating histogram of salinity for each time period')
     # Make the Plot Parameters 
@@ -1420,7 +1420,19 @@ if True:
     # Make the figure
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
-
+# Salinity histogram of non-noise points for all periods
+if True:
+    print('')
+    print('- Creating a histogram of salinity for all time periods')
+    # Make the Plot Parameters 
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':1000, 'pdf_hist':True, 'mv_avg':0.0102, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':[34.085, 35.05]}, legend=False)
+    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':500, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups 
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
+    # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
+    # Make the figure
+    # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 
 ################################################################################
 # Cluster average pressure vs cluster average salinity

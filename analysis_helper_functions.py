@@ -2826,7 +2826,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             if plot_3d == False:
                 # Plot in 2D
                 ax.scatter(df[x_key], df[y_key], color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
-                # Take moving average of the data
+                # Take moving average of the data if the x-axis is time
                 if x_key in ['dt_start', 'dt_end'] and mv_avg:
                     print('\t- Taking moving average of the data')
                     # Make a copy of the dataframe
@@ -4143,6 +4143,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             clstrs_to_plot = pp.extra_args['clstrs_to_plot']
         except:
             clstrs_to_plot = []
+        try:
+            mv_avg = pp.extra_args['mv_avg']
+        except:
+            mv_avg = False
     else:
         n_h_bins = None
         plt_hist_lines = False
@@ -4151,6 +4155,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         sort_clstrs = True
         log_axes = 'None'
         clstrs_to_plot = []
+        mv_avg = False
     # Load in variables
     if x_key == 'hist':
         var_key = y_key
@@ -4210,6 +4215,34 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 ax.axhline(mean, color='r')
                 ax.axhline(mean-2*std_dev, color='r', linestyle='--')
                 ax.axhline(mean+2*std_dev, color='r', linestyle='--')
+        # Take the moving average across a histogram
+        if mv_avg and pdf_hist:
+            # Make a new pandas dataframe with columns for bin_centers and this_hist
+            hist_df = pd.DataFrame({'bin_centers':bin_centers, 'this_hist':this_hist})
+            # Find the spacing between the bin centers (assuming np.histogram does evenly spaced bins)
+            bin_spacing = abs(bin_centers[1]-bin_centers[0])
+            # Find number of bin_spacings that most closely matches the window size
+            window_size = int(mv_avg/bin_spacing)
+            # Take the moving average across the histogram
+            print('\t- Taking moving average across the histogram, window size:',window_size,'rows')
+            hist_df['this_hist_mv_avg'] = hist_df['this_hist'].rolling(window=window_size, center=True, win_type='boxcar').mean()
+            if orientation == 'vertical':
+                mv_avg_x_key = 'bin_centers'
+                mv_avg_y_key = 'this_hist_mv_avg'
+            else:
+                mv_avg_x_key = 'this_hist_mv_avg'
+                mv_avg_y_key = 'bin_centers'
+            ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color='b', linestyle='-')
+            # Find the intersection points of the moving average with the histogram
+            if True:
+                # Find the difference between the moving average and the histogram
+                hist_df['diff'] = hist_df['this_hist'] - hist_df['this_hist_mv_avg']
+                # Find the points where the difference changes sign
+                hist_df['sign_change'] = np.sign(hist_df['diff'].shift(1)) != np.sign(hist_df['diff'])
+                # Plot vertical lines at all intersection points
+                for i in range(len(hist_df)):
+                    if hist_df['sign_change'].iloc[i]:
+                        ax.axvline(hist_df['bin_centers'].iloc[i], color='b', linestyle=':')
         # Add legend to report overall statistics
         n_pts_patch   = mpl.patches.Patch(color=std_clr, label=str(len(h_var))+' points')
         median_patch  = mpl.patches.Patch(color=std_clr, label='Median:  '+'%.4f'%median)
