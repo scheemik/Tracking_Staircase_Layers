@@ -620,6 +620,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     pp = a_group.plt_params
     plot_type = pp.plot_type
     clr_map   = pp.clr_map
+    first_dfs = pp.first_dfs
     # Check the plot type
     if plot_type == 'map':
         x_label, y_label, z_label, plt_title, ax, invert_y_axis = ahf.make_subplot(ax, a_group, fig, ax_pos)
@@ -749,6 +750,19 @@ def make_subplot(ax, a_group, fig, ax_pos):
         df = df.sort_values(by=y_key)
         # Calculate the cumulative heat flux, starting with the lowest value of y_key
         df['ca_FH_cumul'] = df['ca_FH'].cumsum()
+    # Check whether to calculate first differences
+    if any(first_dfs):
+        print('\t- Calculating first differences')
+        if first_dfs[0]:
+            # Sort the dataframe by the x_key variable
+            df = df.sort_values(by=x_key)
+            # Calculate the first differences
+            df[x_key] = df[x_key].diff()
+        if first_dfs[1]:
+            # Sort the dataframe by the y_key variable
+            df = df.sort_values(by=y_key)
+            # Calculate the first differences
+            df[y_key] = df[y_key].diff()
     # Determine the color mapping to be used
     if clr_map == 'clr_all_same':
         # Check for histogram
@@ -1550,7 +1564,7 @@ CT_lims_LHW = [-0.8, -1.4]
 CT_lims_AW = [0.97, 0.57]
 LHW_AW_legend = False
 #*# Maps of LHW and AW cores in pressure
-if True:
+if False:
     print('')
     print('- Creating maps of LHW and AW cores')
     # Make the Plot Parameters
@@ -1625,6 +1639,21 @@ if False:
     group_AW_fit = Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
     # Make the figure
     make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='f4_LHW_and_AW_trends_in_time.pdf')
+################################################################################
+# Histograms of the cluster properties
+#*# Histogram of cluster average temperature
+if False:
+    this_ca_var = 'ca_CT'
+    these_y_lims = None #[355,190]
+    # this_ca_var = 'ca_SA'
+    # these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
+    # Make the plot parameters
+    pp_ca_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=[this_ca_var], first_dfs=[False,True], extra_args={'n_h_bins':50, 're_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=True)#, ax_lims={'x_lims':[-100,100], 'y_lims':these_y_lims})
+    # Make the subplot groups
+    group_ca_hist = Analysis_Group2([df], pp_ca_hist, plot_title='')#this_BGR)
+    # Make the figure
+    make_figure([group_ca_hist])#, row_col_list=[1,2, 0.48, 1.25], filename='f7_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
+################################################################################
 ################################################################################
 # Evaluating the clusters
 #*# Plot of nir_SA and cRL for all clusters

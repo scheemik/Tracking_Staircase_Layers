@@ -595,7 +595,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600)
+            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -1078,7 +1078,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             lgnd_hndls = []
             for source in these_sources:
                 # Decide on the color, don't go off the end of the array
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = ahf.distinct_clrs[i%len(ahf.distinct_clrs)]
                 # Get the data for just this source
                 this_source_df = this_df[this_df['source'] == source] 
                 # Plot every point from this df the same color, size, and marker
@@ -1164,7 +1164,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # else: 
                 #     m_size = mrk_size
                 # Decide on the color, don't go off the end of the array
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = ahf.distinct_clrs[i%len(ahf.distinct_clrs)]
                 # Format the dates if necessary
                 if x_key in ['dt_start', 'dt_end']:
                     this_df[x_key] = mpl.dates.date2num(this_df[x_key])
@@ -1236,7 +1236,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Get the data for just this instrmt
                 this_instrmt_df = this_df[this_df['source-instrmt'] == instrmt]
                 # Decide on the color, don't go off the end of the array
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = ahf.distinct_clrs[i%len(ahf.distinct_clrs)]
                 # Plot every point from this df the same color, size, and marker
                 ax.scatter(this_instrmt_df[x_key], this_instrmt_df[y_key], color=my_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha, zorder=5)
                 i += 1
@@ -1274,14 +1274,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 i = 0
                 for tick in ax.get_xticklabels():
                     # Decide on the color, don't go off the end of the array
-                    my_clr = distinct_clrs[i%len(distinct_clrs)]
+                    my_clr = ahf.distinct_clrs[i%len(ahf.distinct_clrs)]
                     # Color just the tick label for this instrmt
                     tick.set_color(my_clr)
             if y_key == 'instrmt':
                 i = 0
                 for tick in ax.get_yticklabels():
                     # Decide on the color, don't go off the end of the array
-                    my_clr = distinct_clrs[i%len(distinct_clrs)]
+                    my_clr = ahf.distinct_clrs[i%len(ahf.distinct_clrs)]
                     # Color just the tick label for this instrmt
                     tick.set_color(my_clr)
                     i += 1
@@ -1582,23 +1582,28 @@ def make_subplot(ax, a_group, fig, ax_pos):
     if connect_p:
         # Concatonate all the dataframes
         df = pd.concat(dfs)
+        m_size = ahf.cent_mrk_size
         # Color lines between pairs of clusters that are each others nearest neighbors
         # Add column to dataframe to track mutual nearest neighbors
         df[y_key+'_mnn_cid'] = np.nan
         df[y_key+'_mnn_x'] = np.nan
         df[y_key+'_mnn_y'] = np.nan
-        # Loop over each dataset
+        df['layer_id'] = np.nan
+
+        ## Loop over each dataset to make the initial connections
         these_BGRs = np.unique(df['dataset'])
         n_BGRs = len(these_BGRs)
         dfs = []
-        for b in range(n_BGRs-1):
+        l = 0 # layer id
+        # The first time period is the base, has no prev time period
+        for b in [0]:
             this_BGR = these_BGRs[b]
-            print('- Plotting data from',this_BGR)
+            print('- Connecting across periods for',this_BGR)
             # Get the data for this dataset
-            this_df = df[df['dataset'] == this_BGR]
+            this_df = df[df['dataset'] == this_BGR].copy()
             these_clusters = np.unique(this_df['cluster'])
             # Get the data for the next dataset
-            next_df = df[df['dataset'] == these_BGRs[b+1]]
+            next_df = df[df['dataset'] == these_BGRs[b+1]].copy()
             # Loop over each cluster
             for c in range(len(these_clusters)):
                 this_cluster = these_clusters[c]
@@ -1606,6 +1611,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 this_fnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_cid'].values[0]
                 # Find that cluster in the next dataset, check it's bnn cluster id
                 next_bnn_cid = next_df[next_df['cluster'] == this_fnn_cid][y_key+'_bnn_cid'].values[0]
+                if np.isnan(this_fnn_cid) or np.isnan(next_bnn_cid):
+                    print('NaN found in cluster',this_cluster)
+                    exit(0)
                 # If that bnn cluster id is the same as the current cluster id, then they are mutual nearest neighbors
                 if next_bnn_cid == this_cluster:
                     # First make a mask
@@ -1614,10 +1622,153 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     this_df.loc[this_cluster_mask, y_key+'_mnn_cid'] = this_fnn_cid
                     this_df.loc[this_cluster_mask, y_key+'_mnn_x'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_x'].values[0]
                     this_df.loc[this_cluster_mask, y_key+'_mnn_y'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_y'].values[0]
+                    # Assign a layer id
+                    this_df.loc[this_cluster_mask, 'layer_id'] = int(l)
+                    # # Decide on the color, don't go off the end of the array
+                    # my_clr = ahf.distinct_clrs[l%len(ahf.distinct_clrs)]
+                    # # Draw a line between the two clusters
+                    # x_vals = [this_df[this_df['cluster'] == this_cluster][x_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][x_key].values[0]]
+                    # y_vals = [this_df[this_df['cluster'] == this_cluster][y_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][y_key].values[0]]
+                    # ax.plot(x_vals, y_vals, color=my_clr, zorder=4)
+                    # Add a marker for the layer id
+                    # ax.scatter(np.mean(x_vals), np.mean(y_vals), marker=r"${}$".format(str(l)), color=my_clr, s=m_size, zorder=6)
+                    # # Plot a backing circle for the cluster number if it's a light color
+                    # if my_clr in [ahf.jackson_clr[13], ahf.jackson_clr[14]]:
+                    #     ax.scatter(np.mean(x_vals), np.mean(y_vals), color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
+                    l += 1
+                    print('l:',l)
             # Print this_df columns for cluster, fnn, and mnn
             # print(this_df[['cluster', y_key+'_fnn_cid', y_key+'_fnn_y', y_key+'_mnn_cid', y_key+'_mnn_y']].sort_values(by=['cluster']).to_string())
-            if clr_map == 'cluster': 
-                quiver_nn(ax, this_df, x_key, y_key, mnn=True)
+            # if clr_map == 'cluster': 
+            #     quiver_nn(ax, this_df, x_key, y_key, mnn=True)
+            # Add this_df to the list of dfs
+            dfs.append(this_df)
+        for b in range(1,n_BGRs-1):
+            this_BGR = these_BGRs[b]
+            print('- Connecting across periods for',this_BGR)
+            # Get the data for the prev dataset
+            prev_df = this_df # df[df['dataset'] == these_BGRs[b-1]]
+            # Get the data for this dataset
+            this_df = next_df # df[df['dataset'] == this_BGR]
+            these_clusters = np.unique(this_df['cluster'])
+            # Get the data for the next dataset
+            next_df = df[df['dataset'] == these_BGRs[b+1]].copy()
+            # Loop over each cluster
+            for c in range(len(these_clusters)):
+                this_cluster = these_clusters[c]
+                # Get the bnn cluster id
+                this_bnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_bnn_cid'].values[0]
+                # Find that cluster in the prev dataset, check it's fnn cluster id
+                prev_fnn_cid = prev_df[prev_df['cluster'] == this_bnn_cid][y_key+'_fnn_cid'].values[0]
+                # Get the fnn cluster id
+                this_fnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_cid'].values[0]
+                # Find that cluster in the next dataset, check it's bnn cluster id
+                next_bnn_cid = next_df[next_df['cluster'] == this_fnn_cid][y_key+'_bnn_cid'].values[0]
+                if np.isnan(this_fnn_cid) or np.isnan(next_bnn_cid):
+                    print('NaN found in cluster',this_cluster)
+                    print('this_bnn_cid:',this_bnn_cid)
+                    print('prev_fnn_cid:',prev_fnn_cid)
+                    print('this_fnn_cid:',this_fnn_cid)
+                    print('next_bnn_cid:',next_bnn_cid)
+                    exit(0)
+                # If that bnn cluster id is the same as the current cluster id, then they are mutual nearest neighbors
+                if next_bnn_cid == this_cluster:
+                    # First make a mask
+                    this_cluster_mask = (this_df['cluster'] == this_cluster)
+                    # Copy the fnn cid, x, and y to the mnn columns
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_cid'] = this_fnn_cid
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_x'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_x'].values[0]
+                    this_df.loc[this_cluster_mask, y_key+'_mnn_y'] = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_y'].values[0]
+                    # If that fnn cluster id is the same as the current cluster id, copy the prev layer id
+                    if np.isnan(prev_fnn_cid):
+                        use_this_l = l
+                        l += 1
+                        print('l:',l)
+                    elif prev_fnn_cid == this_cluster:
+                        use_this_l = int(prev_df[prev_df['cluster'] == this_bnn_cid]['layer_id'].values[0])
+                    else:
+                        use_this_l = l
+                        l += 1
+                        print('l:',l)
+                    # Assign a layer id
+                    this_df.loc[this_cluster_mask, 'layer_id'] = use_this_l
+                    # # Decide on the color, don't go off the end of the array
+                    # my_clr = ahf.distinct_clrs[use_this_l%len(ahf.distinct_clrs)]
+                    # # Draw a line between the two clusters
+                    # x_vals = [this_df[this_df['cluster'] == this_cluster][x_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][x_key].values[0]]
+                    # y_vals = [this_df[this_df['cluster'] == this_cluster][y_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][y_key].values[0]]
+                    # ax.plot(x_vals, y_vals, color=my_clr, zorder=4)
+                    # # Add a marker for the layer id
+                    # ax.scatter(np.mean(x_vals), np.mean(y_vals), marker=r"${}$".format(str(use_this_l)), color=my_clr, s=m_size, zorder=6)
+                    # # Plot a backing circle for the cluster number if it's a light color
+                    # if my_clr in [ahf.jackson_clr[13], ahf.jackson_clr[14]]:
+                    #     ax.scatter(np.mean(x_vals), np.mean(y_vals), color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
+            # Print this_df columns for cluster, fnn, and mnn
+            # print(this_df[['cluster', y_key+'_fnn_cid', y_key+'_fnn_y', y_key+'_mnn_cid', y_key+'_mnn_y']].sort_values(by=['cluster']).to_string())
+            # if clr_map == 'cluster': 
+            #     quiver_nn(ax, this_df, x_key, y_key, mnn=True)
+            # Add this_df to the list of dfs
+            dfs.append(this_df)
+        # Add the last dataset to the list of dfs
+        dfs.append(next_df)
+        ## Loop over each dataset to make the final connections
+        if clr_map == 'cluster':
+            for b in [0]:
+                this_BGR = these_BGRs[b]
+                print('- Plotting connections for',this_BGR)
+                # Get the data for this dataset
+                this_df = dfs[b]
+                these_clusters = np.unique(this_df['cluster'])
+                # Get the data for the next dataset
+                next_df = dfs[b+1]
+                # Loop over each cluster
+                for c in range(len(these_clusters)):
+                    this_cluster = int(these_clusters[c])
+                    # print('\t- Plotting connections for cluster',this_cluster)
+                    # Get layer id
+                    l = this_df[this_df['cluster'] == this_cluster]['layer_id'].values[0]
+                    # print('\t\t- l:',l)
+                    # If l is not nan, they have a mutual nearest neighbor
+                    if not np.isnan(l):
+                        # Get the fnn cluster id
+                        this_fnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_cid'].values[0]
+                        # Convert l into an integer
+                        l = int(l)
+                        # Decide on the color, don't go off the end of the array
+                        my_clr = ahf.distinct_clrs[l%len(ahf.distinct_clrs)]
+                        # Draw a line between the two clusters
+                        x_vals = [this_df[this_df['cluster'] == this_cluster][x_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][x_key].values[0]]
+                        y_vals = [this_df[this_df['cluster'] == this_cluster][y_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][y_key].values[0]]
+                        ax.plot(x_vals, y_vals, color=my_clr, zorder=4)
+            for b in range(1,n_BGRs-1):
+                this_BGR = these_BGRs[b]
+                print('- Plotting connections for',this_BGR)
+                # Get the data for the prev dataset
+                prev_df = dfs[b-1]
+                # Get the data for this dataset
+                this_df = dfs[b]
+                these_clusters = np.unique(this_df['cluster'])
+                # Get the data for the next dataset
+                next_df = dfs[b+1]
+                # Loop over each cluster
+                for c in range(len(these_clusters)):
+                    this_cluster = int(these_clusters[c])
+                    # print('\t- Plotting connections for cluster',this_cluster)
+                    # Get layer id
+                    l = this_df[this_df['cluster'] == this_cluster]['layer_id'].values[0]
+                    # print('\t\t- l:',l)
+                    # If l is not nan, they have a mutual nearest neighbor
+                    if not np.isnan(l):
+                        # Get the fnn cluster id
+                        this_fnn_cid = this_df[this_df['cluster'] == this_cluster][y_key+'_fnn_cid'].values[0]
+                        # Convert l into an integer
+                        l = int(l)
+                        # Decide on the color, don't go off the end of the array
+                        my_clr = ahf.distinct_clrs[l%len(ahf.distinct_clrs)]
+                        # Draw a line between the two clusters
+                        x_vals = [this_df[this_df['cluster'] == this_cluster][x_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][x_key].values[0]]
+                        y_vals = [this_df[this_df['cluster'] == this_cluster][y_key].values[0], next_df[next_df['cluster'] == this_fnn_cid][y_key].values[0]]
+                        ax.plot(x_vals, y_vals, color=my_clr, zorder=4)
     return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
     print('ERROR: Should not have gotten here. Aborting script')
     exit(0)
@@ -1642,7 +1793,7 @@ def quiver_nn(ax, this_df, x_key, y_key, fnn=True, bnn=True, mnn=False):
     if fnn:
         U_ = this_df[y_key+'_fnn_x'].values.astype(np.float64) - X_
         V_ = this_df[y_key+'_fnn_y'].values.astype(np.float64) - Y_
-        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc=std_clr, alpha=0.5, zorder=1)
+        ax.quiver(X_, Y_, U_, V_, angles='xy', scale_units='xy', scale=1, width=0.001, headwidth=5, headlength=7, fc='none', ec=std_clr, hatch='|||||', alpha=0.5, zorder=1)
     if bnn:
         U_ = this_df[y_key+'_bnn_x'].values.astype(np.float64) - X_
         V_ = this_df[y_key+'_bnn_y'].values.astype(np.float64) - Y_
@@ -1666,11 +1817,11 @@ if True:
     print('')
     print('- Creating a plot showing arrows between nearest neighbors between periods')
     # Make the Plot Parameters
-    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=False, add_grid=False, extra_args={'mark_LR':False, 'connect_p':True})
+    pp_ca_SA_per_period = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['ca_SA'], clr_map='cluster', legend=False, add_grid=False, extra_args={'mark_outliers':True, 'mark_LR':False, 'connect_p':True})
     # Make the subplot groups
     group_ca_SA_per_period = Analysis_Group2([df], pp_ca_SA_per_period, plot_title=r'')
     # Make the figure
-    make_figure([group_ca_SA_per_period])
+    make_figure([group_ca_SA_per_period], row_col_list=[1,1, 0.7, 1.5])#, filename='BGR_all_SA_vs_'+across_x_var+'_connection.png')
 # Histogram of differences between nearest neighbors between periods
 if False:
     print('')
