@@ -4196,6 +4196,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             if orientation == 'vertical':
                 pdf_x_arr = bin_centers
                 pdf_y_arr = this_hist
+                # Add vertical lines at all the salinity divisions
+                if True:
+                    for SA_div in bps.BGR_HPC_SA_divs:
+                        ax.axvline(SA_div, color='b', linestyle=':')
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
@@ -4235,14 +4239,53 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color='b', linestyle='-')
             # Find the intersection points of the moving average with the histogram
             if True:
+                # Make a new array to store values of min_x
+                min_x_arr = []
                 # Find the difference between the moving average and the histogram
                 hist_df['diff'] = hist_df['this_hist'] - hist_df['this_hist_mv_avg']
                 # Find the points where the difference changes sign
                 hist_df['sign_change'] = np.sign(hist_df['diff'].shift(1)) != np.sign(hist_df['diff'])
-                # Plot vertical lines at all intersection points
-                for i in range(len(hist_df)):
-                    if hist_df['sign_change'].iloc[i]:
-                        ax.axvline(hist_df['bin_centers'].iloc[i], color='b', linestyle=':')
+                # Get just the rows where diff is not nan
+                hist_df = hist_df[~np.isnan(hist_df['diff'])]
+                # Eliminate window_size//2 points at the beginning and end
+                # hist_df = hist_df[window_size//2:len(hist_df)-window_size//2]
+                # Find just the rows where the sign changes
+                hist_df_intsec = hist_df[hist_df['sign_change']]
+                # For each pair of intersection points, 
+                for i in range(0, len(hist_df_intsec)-1):
+                    # Get the x values of the intersection points
+                    x1 = hist_df_intsec['bin_centers'].iloc[i]
+                    x2 = hist_df_intsec['bin_centers'].iloc[i+1]
+                    if x1 == x2:
+                        print('x1 and x2 are the same')
+                        exit(0)
+                    elif np.isnan(x1) or np.isnan(x2):
+                        print('x1 or x2 is NaN')
+                        continue
+                    # print('x1:',x1)
+                    # print('x2:',x2)
+                    # Get just the rows between these points
+                    hist_df_between = hist_df[(hist_df['bin_centers'] > x1) & (hist_df['bin_centers'] < x2)]
+                    # Check to make sure there was at least one row between those points
+                    if len(hist_df_between) > 1:
+                        # print('\thist_df_between[diff]:')
+                        # print(hist_df_between['diff'])
+                        # If the 'diff' values between these points are negative,
+                        #   then find the minimum of 'this_hist' between these points
+                        if hist_df_between['diff'].max() < 0:
+                            # Find the minimum of 'this_hist' between these points
+                            min_this_hist = hist_df_between['this_hist'].min()
+                            # print('\tmin_this_hist:',min_this_hist)
+                            min_x = hist_df_between['bin_centers'][hist_df_between['this_hist'] == min_this_hist].values[0]
+                            # print('\tmin_x:',min_x)
+                            min_x_arr.append(min_x)
+                            # Plot vertical lines at the minimums between intersection points
+                            ax.axvline(min_x, color='b', linestyle=':')
+                        #
+                    #
+                print('\t- Found',len(min_x_arr),'minimums between intersection points')
+                print(min_x_arr)
+            #
         # Add legend to report overall statistics
         n_pts_patch   = mpl.patches.Patch(color=std_clr, label=str(len(h_var))+' points')
         median_patch  = mpl.patches.Patch(color=std_clr, label='Median:  '+'%.4f'%median)
@@ -4515,6 +4558,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 pdf_y_arr = bin_centers
             ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle=my_l_style)
             i += 1
+        # Add vertical lines at all the salinity divisions
+        if True:
+            for SA_div in bps.BGR_HPC_SA_divs:
+                ax.axvline(SA_div, color='b', linestyle=':')
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True

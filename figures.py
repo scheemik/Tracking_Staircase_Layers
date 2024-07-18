@@ -1411,13 +1411,14 @@ if False:
 ################################################################################
 ## Salinity histograms
 ################################################################################
+n_bins = 1000
 # Salinity histograms of non-noise points for each period, next to each other
 if False:
     print('')
     print('- Creating histogram of salinity for each time period')
     # Make the Plot Parameters 
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA'], clr_map='plt_by_dataset', extra_args={'n_h_bins':500, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
-    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':500, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['SA'], clr_map='plt_by_dataset', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':n_bins, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
@@ -1425,31 +1426,42 @@ if False:
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other
-if False:
+if True:
     print('')
     print('- Creating stacked "waterfall" histogram of salinity for each time period')
     n_SA_ranges = 4
+    add_total_pdf = True
     # Split the S_range_LHW_AW range into n_SA_ranges sub-ranges
     SA_ranges = np.linspace(bps.S_range_LHW_AW[0], bps.S_range_LHW_AW[1], n_SA_ranges+1)
     groups_to_plot = []
+    groups_to_plot2 = []
     # Make the Plot Parameters, per salinity sub-range
     for i in range(n_SA_ranges):
         # Define the salinity range
         this_S_range = [SA_ranges[i], SA_ranges[i+1]]
         # Make the profile filters
         pfs_SA0 = ahf.Profile_Filters(SA_range=this_S_range)
-        pp_stacked_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='stacked', extra_args={'n_h_bins':500, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
+        if add_total_pdf:
+            # Make the Plot Parameters 
+            p_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
+            # Make the subplot group
+            groups_to_plot2.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, p_SA_hist, plot_title=''))
+        # Make the Plot Parameters
+        pp_stacked_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='stacked', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
         # Make the subplot group
         groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, pp_stacked_SA_hist, plot_title=''))
     # Make the figure
-    ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.8, 1.8], use_same_x_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
+    if add_total_pdf:
+        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.6, 1.8], use_same_x_axis=False, use_same_y_axis=False)
+    else:
+        ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.8, 1.8], use_same_x_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other, compared to total histogram of all periods
 if False:
     print('')
     print('- Creating stacked "waterfall" histogram of salinity for each time period')
     # Make the Plot Parameters 
-    pp_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':500, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':SA_range0}, legend=False)
-    pp_stacked_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='stacked', extra_args={'n_h_bins':500, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':SA_range0}, legend=False)
+    pp_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':SA_range0}, legend=False)
+    pp_stacked_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='stacked', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':SA_range0}, legend=False)
     # Make the subplot groups 
     group_SA_hist = ahf.Analysis_Group(ds_this_BGR, pfs_SA0, pp_SA_hist, plot_title='')
     group_stacked_SA_hist = ahf.Analysis_Group(ds_this_BGR, pfs_SA0, pp_stacked_SA_hist, plot_title='')
@@ -1457,12 +1469,12 @@ if False:
     # ahf.make_figure([group_stacked_SA_hist])
     ahf.make_figure([group_SA_hist, group_stacked_SA_hist], row_col_list=[2,1, 0.5, 1.8], use_same_y_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 # Salinity histogram of non-noise points for all periods
-if True:
+if False:
     print('')
     print('- Creating a histogram of salinity for all time periods')
     # Make the Plot Parameters 
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':1000, 'pdf_hist':True, 'mv_avg':0.1, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=False)
-    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':500, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':0.1, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=False)
+    # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':n_bins, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
