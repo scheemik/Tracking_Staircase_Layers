@@ -2786,8 +2786,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             print('before removing noise points:',len(df))
             df = df[df.cluster!=-1]
             print('after removing noise points:',len(df))
-        print('max SA:',df['SA'].max())
-        print('min SA:',df['SA'].min())
+        # print('max SA:',df['SA'].max())
+        # print('min SA:',df['SA'].min())
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # Check for histogram
@@ -2967,7 +2967,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], pp.zlabels[0], plt_title, ax, invert_y_axis
-        elif clr_map == 'plt_by_dataset':
+        elif clr_map == 'plt_by_dataset' or clr_map == 'stacked':
             if plot_hist:
                 return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend)
         elif clr_map == 'clr_by_dataset':
@@ -4472,6 +4472,52 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Add legend with custom handles
         if legend:
             lgnd = ax.legend(handles=lgnd_hndls)
+        # Add a standard title
+        plt_title = add_std_title(a_group)
+        return x_label, y_label, None, plt_title, ax, invert_y_axis
+    elif clr_map == 'stacked':
+        # Only works if plotting a pdf_hist
+        if not pdf_hist:
+            print('Cannot plot stacked histograms without pdf_hist=True')
+            exit(0)
+        i = 0
+        lgnd_hndls = []
+        df_labels = [*a_group.data_set.sources_dict.keys()]
+        # print('df_labels:',df_labels)
+        # Loop through each dataframe 
+        #   which correspond to the datasets input to the Data_Set object's sources_dict
+        for this_df in a_group.data_frames:
+            # Trim df_label
+            df_labels[i] = df_labels[i][7:11]
+            # Check whether to remove noise points
+            if plt_noise == False:
+                # print('before removing noise points:',len(df))
+                df = df[df.cluster!=-1]
+                # print('after removing noise points:',len(df))
+                this_df = this_df[this_df.cluster!=-1]
+            # Decide on the color, don't go off the end of the array
+            my_l_style = l_styles[i%len(l_styles)]
+            # Get histogram parameters
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            ## Plot the histogram
+            # Get the histogram
+            this_hist, these_bin_edges = np.histogram(h_var, bins=res_bins)
+            # Normalize the heights of the histogram bars to 1 and add offset
+            this_hist = this_hist/np.max(this_hist) + i*0.4
+            # Estimate the PDF from the histogram by 
+            #   plotting line through the bin centers
+            bin_centers = 0.5*(these_bin_edges[1:]+these_bin_edges[:-1])
+            if orientation == 'vertical':
+                pdf_x_arr = bin_centers
+                pdf_y_arr = this_hist
+            else:
+                pdf_x_arr = this_hist
+                pdf_y_arr = bin_centers
+            ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle=my_l_style)
+            i += 1
+        # Invert y-axis if specified
+        if y_key in y_invert_vars:
+            invert_y_axis = True
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
