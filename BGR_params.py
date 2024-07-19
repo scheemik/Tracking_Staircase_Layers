@@ -565,6 +565,46 @@ BGR_HPC_relab_dict  = {
     'BGR_all':{},
 }
 
+# After relabeling based on SA dividers
+BGR_HPC_SA_div_dict =  {  'BGR04':{'HPC_BGR04_clstrd_SA_divs':'all'},
+                        'BGR0506':{'HPC_BGR0506_clstrd_SA_divs':'all'},
+                        'BGR0607':{'HPC_BGR0607_clstrd_SA_divs':'all'},
+                        'BGR0708':{'HPC_BGR0708_clstrd_SA_divs':'all'},
+                        'BGR0809':{'HPC_BGR0809_clstrd_SA_divs':'all'},
+                        'BGR0910':{'HPC_BGR0910_clstrd_SA_divs':'all'},
+                        'BGR1011':{'HPC_BGR1011_clstrd_SA_divs':'all'},
+                        'BGR1112':{'HPC_BGR1112_clstrd_SA_divs':'all'},
+                        'BGR1213':{'HPC_BGR1213_clstrd_SA_divs':'all'},
+                        'BGR1314':{'HPC_BGR1314_clstrd_SA_divs':'all'},
+                        'BGR1415':{'HPC_BGR1415_clstrd_SA_divs':'all'},
+                        'BGR1516':{'HPC_BGR1516_clstrd_SA_divs':'all'},
+                        'BGR1617':{'HPC_BGR1617_clstrd_SA_divs':'all'},
+                        'BGR1718':{'HPC_BGR1718_clstrd_SA_divs':'all'},
+                        'BGR1819':{'HPC_BGR1819_clstrd_SA_divs':'all'},
+                        'BGR1920':{'HPC_BGR1920_clstrd_SA_divs':'all'},
+                        'BGR2021':{'HPC_BGR2021_clstrd_SA_divs':'all'},
+                        'BGR2122':{'HPC_BGR2122_clstrd_SA_divs':'all'},
+                        'BGR_all':{ 
+                                    'HPC_BGR0506_clstrd_SA_divs':'all',
+                                    'HPC_BGR0607_clstrd_SA_divs':'all',
+                                    'HPC_BGR0708_clstrd_SA_divs':'all',
+                                    'HPC_BGR0809_clstrd_SA_divs':'all',
+                                    'HPC_BGR0910_clstrd_SA_divs':'all',
+                                    'HPC_BGR1011_clstrd_SA_divs':'all',
+                                    'HPC_BGR1112_clstrd_SA_divs':'all',
+                                    'HPC_BGR1213_clstrd_SA_divs':'all',
+                                    'HPC_BGR1314_clstrd_SA_divs':'all',
+                                    'HPC_BGR1415_clstrd_SA_divs':'all',
+                                    'HPC_BGR1516_clstrd_SA_divs':'all',
+                                    'HPC_BGR1617_clstrd_SA_divs':'all',
+                                    'HPC_BGR1718_clstrd_SA_divs':'all',
+                                    'HPC_BGR1819_clstrd_SA_divs':'all',
+                                    'HPC_BGR1920_clstrd_SA_divs':'all',
+                                    'HPC_BGR2021_clstrd_SA_divs':'all',
+                                    'HPC_BGR2122_clstrd_SA_divs':'all',
+                                    }
+}
+
 # An array of all the values of salinity to use as divisions between clusters
 # These are the salinity values at the minimums of the pdf of salinity
 #     of all non-noise points for every period, found by taking a rolling
@@ -573,92 +613,178 @@ BGR_HPC_relab_dict  = {
 #     of the pdf between those points (the troughs of the pdf)
 BGR_HPC_SA_divs = [34.1590168476106, 34.179234064102346, 34.19485645866415, 34.21139781761194, 34.22334435462979, 34.24080467796357, 34.258265001297346, 34.27296843147316, 34.28307703971903, 34.29686150550886, 34.315240793228625, 34.33913386726432, 34.35383729744014, 34.371297620773916, 34.39151483726566, 34.405299303055486, 34.417245840073335, 34.43103030586316, 34.44297684288101, 34.45859923744281, 34.47605956077659, 34.48892506218043, 34.50362849235624, 34.523845708847986, 34.542224996567754, 34.55968531990153, 34.57346978569136, 34.587254251481184, 34.60839043235892, 34.625850755692696, 34.6414731502545, 34.65250072288636, 34.66904208183415, 34.68742136955392, 34.704881692887696, 34.72142305183549, 34.74072130394124, 34.767371271134905, 34.78299366569671, 34.79861606025851, 34.806886739732406, 34.82618499183816, 34.847321172715894, 34.862943567277696, 34.87397113990956, 34.88775560569938, 34.91072971534909, 34.92910900306886, 34.954840005876534]
 
+# From manual relabeling:
+# BGR_all_clstr_plt_ranges = {
+#     6:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.8,-1.4],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     23:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.6,-1.25],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     35:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.55,-1.05],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     52:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.41,-0.8],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     63:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.195,-0.51],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     69:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[-0.12,-0.35],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     79:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[0.15,-0.05],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     90:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[0.5,0.2],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     95:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[0.63,0.35],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+#     96:{
+#         'press_lims':[350,200],
+#         'pcs_press_lims':[0,3],
+#         'CT_lims':[0.63,0.35],
+#         'pcs_CT_lims':[0,0.035],
+#         'SA_lims':[34.588,34.570],
+#         'pcs_SA_lims':[0,0.01],
+#         'sig_lims':[32.4,32.36]
+#         },
+# }
+
+# From SA divs:
 BGR_all_clstr_plt_ranges = {
-    6:{
+    3:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.8,-1.4],
+        'CT_lims':[-0.72,-1.38],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    23:{
+    9:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.6,-1.25],
+        'CT_lims':[-0.62,-1.28],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    35:{
+    18:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.55,-1.05],
+        'CT_lims':[-0.43,-0.95],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    52:{
+    22:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.41,-0.8],
+        'CT_lims':[-0.38,-0.75],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    63:{
-        'press_lims':[350,200],
+    27:{
+        'press_lims':[340,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.195,-0.51],
+        'CT_lims':[-0.20,-0.5],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    69:{
+    36:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[-0.12,-0.35],
+        'CT_lims':[0.16,-0.07],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    79:{
+    39:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[0.15,-0.05],
+        'CT_lims':[0.33,0.07],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    90:{
+    42:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[0.5,0.2],
+        'CT_lims':[0.48,0.18],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
-    95:{
+    47:{
         'press_lims':[350,200],
         'pcs_press_lims':[0,3],
-        'CT_lims':[0.63,0.35],
-        'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
-        'pcs_SA_lims':[0,0.01],
-        'sig_lims':[32.4,32.36]
-        },
-    96:{
-        'press_lims':[350,200],
-        'pcs_press_lims':[0,3],
-        'CT_lims':[0.63,0.35],
+        'CT_lims':[0.7,0.4],
         'pcs_CT_lims':[0,0.035],
         'SA_lims':[34.588,34.570],
         'pcs_SA_lims':[0,0.01],

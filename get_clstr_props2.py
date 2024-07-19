@@ -75,6 +75,9 @@ dfs = []
 for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011', 'BGR1112', 'BGR1213', 'BGR1314', 'BGR1415', 'BGR1516', 'BGR1617', 'BGR1718', 'BGR1819', 'BGR1920', 'BGR2021', 'BGR2122']:
     # Make the data set
     ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
+    filename = 'BGR_all'
+    # ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+    # filename = 'BGR_all_SA_divs'
     # Make the subplot groups
     group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
     # Concatonate all the pandas data frames together
@@ -189,4 +192,4 @@ for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011
 # Concatonate all the pandas data frames together
 df = pd.concat(dfs)
 # Pickle the data frame to a file
-pl.dump(df, open('outputs/BGR_all_cluster_properties_unrelab.pickle', 'wb'))
+pl.dump(df, open('outputs/'+filename+'_cluster_properties_unrelab.pickle', 'wb'))

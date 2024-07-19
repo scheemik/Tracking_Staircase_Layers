@@ -3954,19 +3954,15 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     x_stdv = np.std(x_data)
     y_stdv = np.std(y_data)
     # Get bounds of axes
-    x_bnds = ax.get_xbound()
-    y_bnds = ax.get_ybound()
-    # If there are x_lims and y_lims provided, use those instead
+    #   If there are x_lims and y_lims provided, use those
     try:
-        if not isinstance(pp.ax_lims['x_lims'], type(None)):
-            x_bnds = pp.ax_lims['x_lims']
+        x_bnds = pp.ax_lims['x_lims']
     except:
-        foo = 2
+        x_bnds = ax.get_xbound()
     try:
-        if not isinstance(pp.ax_lims['y_lims'], type(None)):
-            y_bnds = pp.ax_lims['y_lims']
+        y_bnds = pp.ax_lims['y_lims']
     except:
-        foo = 2
+        y_bnds = ax.get_ybound()
     # Check whether to convert the x_bnds from strings to numbers
     if x_key in ['dt_start', 'dt_end'] and isinstance(x_bnds[0], str):
         # Replace the '/'s with '-'s in x_bnds
@@ -4301,7 +4297,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(df, tw_var_key)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(df, tw_var_key, n_h_bins)
             # Plot the histogram
             tw_ax.hist(h_var, bins=res_bins, color=tw_clr, alpha=hist_alpha, orientation=orientation)
             if orientation == 'vertical':
@@ -4326,6 +4322,12 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                     tw_ax.axhline(mean, color='r', alpha=0.5)
                     tw_ax.axhline(mean-2*std_dev, color='r', linestyle='--', alpha=0.5)
                     tw_ax.axhline(mean+2*std_dev, color='r', linestyle='--', alpha=0.5)
+            # Check whether to adjust the twin axes limits
+            if not isinstance(pp.ax_lims, type(None)):
+                if 'tw_y_lims' in pp.ax_lims.keys():
+                    tw_ax.set_ylim(pp.ax_lims['tw_y_lims'])
+                if 'tw_x_lims' in pp.ax_lims.keys():
+                    tw_ax.set_xlim(pp.ax_lims['tw_x_lims'])
             # Add legend to report overall statistics
             n_pts_patch   = mpl.patches.Patch(color=tw_clr, label=str(len(h_var))+' points', alpha=hist_alpha)
             median_patch  = mpl.patches.Patch(color=tw_clr, label='Median:  '+'%.4f'%median, alpha=hist_alpha)
@@ -4763,7 +4765,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
 
 ################################################################################
 
-def get_hist_params(df, h_key, n_h_bins=25):
+def get_hist_params(df, h_key, n_h_bins=50):
     """
     Returns the needed information to make a histogram
 
@@ -4772,7 +4774,7 @@ def get_hist_params(df, h_key, n_h_bins=25):
     n_h_bins    The number of histogram bins to use
     """
     if isinstance(n_h_bins, type(None)):
-        n_h_bins = 25
+        n_h_bins = 50
     # Pull out the variable to plot, removing null values
     try:
         h_var = np.array(df[df[h_key].notnull()][h_key])
@@ -7303,13 +7305,22 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Add a line at nir_var = 1, if plotting nir
         if 'nir_' in x_key:
             # Get bounds of axes
-            x_bnds = ax.get_xbound()
-            y_bnds = ax.get_ybound()
-            # If there are x_lims and y_lims provided, use those instead
-            if not isinstance(pp.ax_lims['x_lims'], type(None)):
+            #   If there are x_lims and y_lims provided, use those
+            try:
                 x_bnds = pp.ax_lims['x_lims']
-            if not isinstance(pp.ax_lims['y_lims'], type(None)):
+            except:
+                x_bnds = ax.get_xbound()
+            try:
                 y_bnds = pp.ax_lims['y_lims']
+            except:
+                y_bnds = ax.get_ybound()
+            # x_bnds = ax.get_xbound()
+            # y_bnds = ax.get_ybound()
+            # # If there are x_lims and y_lims provided, use those instead
+            # if not isinstance(pp.ax_lims['x_lims'], type(None)):
+            #     x_bnds = pp.ax_lims['x_lims']
+            # if not isinstance(pp.ax_lims['y_lims'], type(None)):
+            #     y_bnds = pp.ax_lims['y_lims']
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
             # print('x_bnds:',x_bnds)
@@ -7328,18 +7339,15 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if plot_slopes and (x_key == 'cRL' or 'ca_' in x_key or 'nir' in x_key or 'trd' in x_key):
         # if plot_slopes:
             # Get bounds of axes
-            x_bnds = ax.get_xbound()
-            y_bnds = ax.get_ybound()
-            # If there are x_lims and y_lims provided, use those instead
-            if not isinstance(pp.ax_lims, type(None)):
-                try:
-                    x_bnds = pp.ax_lims['x_lims']
-                except:
-                    foo = 2
-                try:
-                    y_bnds = pp.ax_lims['y_lims']
-                except:
-                    foo = 2
+            #   If there are x_lims and y_lims provided, use those
+            try:
+                x_bnds = pp.ax_lims['x_lims']
+            except:
+                x_bnds = ax.get_xbound()
+            try:
+                y_bnds = pp.ax_lims['y_lims']
+            except:
+                y_bnds = ax.get_ybound()
             x_span = abs(x_bnds[1] - x_bnds[0])
             y_span = abs(y_bnds[1] - y_bnds[0])
             # Get the data without the outliers

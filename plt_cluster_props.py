@@ -66,7 +66,8 @@ l_styles = ['-', '--', '-.', ':']
 ################################################################################
 
 # Unpickle the data frame from a file
-df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
+df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb'))
+# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
 # df = pl.load(open('outputs/'+this_BGR+'_cluster_properties-pf.pickle', 'rb'))
@@ -1036,7 +1037,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if pp.legend:
             ahf.add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
+        ahf.format_datetime_axes(True, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
         # Check whether to plot isopycnals
         # if add_isos:
         #     add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1086,7 +1087,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(True, x_key, y_key, ax)
         # Add legend with custom handles
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
@@ -1181,7 +1182,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
             lgnd_hndls.append(notes_patch)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(True, x_key, y_key, ax)
         # Add legend with custom handles
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
@@ -1245,7 +1246,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if pp.legend:
             lgnd = ax.legend(handles=lgnd_hndls)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(True, x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1329,7 +1330,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             else:
                 ax.legend(handles=[n_pts_patch, pixel_patch])
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(True, x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1390,7 +1391,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Make sure to assign m_pts and DBCV to the analysis group to enable writing out to netcdf
         invert_y_axis, a_group.data_frames, foo0, foo1, foo2 = ahf.plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, None, None, None, clr_map, None, None, None, None, box_and_whisker=False, plot_slopes=plot_slopes)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax)
+        ahf.format_datetime_axes(True, x_key, y_key, ax)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1522,7 +1523,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if pp.legend:
             ahf.add_std_legend(ax, df, x_key)
         # Format the axes for datetimes, if necessary
-        ahf.format_datetime_axes(x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
+        ahf.format_datetime_axes(True, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
         # Check whether to plot isopycnals
         if add_isos:
             add_isopycnals(ax, df, x_key, y_key, p_ref=isopycnals, place_isos=place_isos, tw_x_key=tw_x_key, tw_ax_y=tw_ax_y, tw_y_key=tw_y_key, tw_ax_x=tw_ax_x)
@@ -1641,7 +1642,7 @@ if False:
     make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='f4_LHW_and_AW_trends_in_time.pdf')
 ################################################################################
 # Histograms of the cluster properties
-#*# Histogram of cluster average temperature
+# Histogram of cluster average temperature
 if False:
     this_ca_var = 'ca_CT'
     these_y_lims = None #[355,190]
@@ -1652,7 +1653,7 @@ if False:
     # Make the subplot groups
     group_ca_hist = Analysis_Group2([df], pp_ca_hist, plot_title='')#this_BGR)
     # Make the figure
-    make_figure([group_ca_hist])#, row_col_list=[1,2, 0.48, 1.25], filename='f7_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
+    make_figure([group_ca_hist])
 ################################################################################
 ################################################################################
 # Evaluating the clusters
@@ -1663,13 +1664,13 @@ if False:
     # this_ca_var = 'ca_SA'
     # these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
     # Make the plot parameters
-    pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-5,160], 'y_lims':these_y_lims})
-    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-100,100], 'y_lims':these_y_lims})
+    pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[0,2], 'y_lims':these_y_lims}) # 'x_lims':[-5,160]
+    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-60,0], 'y_lims':these_y_lims}) # 'x_lims':[-100,100]
     # Make the subplot groups
     group_nir = Analysis_Group2([df], pp_nir, plot_title='')#this_BGR)
     group_cRL = Analysis_Group2([df], pp_cRL, plot_title='')#this_BGR)
     # Make the figure
-    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='f7_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
+    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='f7-1_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
 ################################################################################
 # The IR and spans in all variables for all clusters
 # Make plots of the IR and cluster spans in the cluster properties
@@ -1694,7 +1695,7 @@ if False:
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
 ################################################################################
 # The properties of the clusters
-#*# Make plots of the polyfit2d trends in the cluster properties
+# Make plots of the polyfit2d trends in the cluster properties
 plot_slopes = 'OLS'
 these_ax_lims = None#{'y_lims':[355,190]}
 add_legend = True
@@ -1721,8 +1722,8 @@ if False:
 plot_slopes = 'OLS'
 these_ax_lims = None #{'y_lims':[355,190]}
 add_legend = True
-if False:
-# for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
+# if False:
+for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
     for this_clr_map in ['clr_all_same', 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
@@ -1736,7 +1737,7 @@ if False:
         # group_sig_trends = Analysis_Group2([df], pp_sig_trends)
         # Make the figure
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='f9_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
+        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='f9-1_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
     these_ax_lims = None
 ################################################################################
 # Thicknesses of the layers
