@@ -230,7 +230,7 @@ print('- Creating data sets')
 # this_BGR = 'BGR1213'
 # this_BGR = 'BGR1314'
 # this_BGR = 'BGR1415'
-this_BGR = 'BGR1516'
+# this_BGR = 'BGR1516'
 # this_BGR = 'BGR1617'
 # this_BGR = 'BGR1718'
 # this_BGR = 'BGR1819'
@@ -879,7 +879,7 @@ if False:
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='t1_'+this_BGR+'_SA_vs_dt.pickle')
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='t1_'+this_BGR+'_SA_vs_dt.png')
 
 ################################################################################
 ## 2D histogram plots
@@ -1427,7 +1427,7 @@ if False:
     # Make the figure
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
-# Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other
+#**# Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other
 if False:
     print('')
     print('- Creating stacked "waterfall" histogram of salinity for each time period')
@@ -1454,9 +1454,9 @@ if False:
         groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, pp_stacked_SA_hist, plot_title=''))
     # Make the figure
     if add_total_pdf:
-        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.6, 1.8], use_same_x_axis=False, use_same_y_axis=False)
+        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f3_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
     else:
-        ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.8, 1.8], use_same_x_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
+        ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.8, 1.8], use_same_x_axis=False, filename='f3_'+this_BGR+'_SA_hists_stacked.png')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other, compared to total histogram of all periods
 if False:
     print('')
@@ -1470,7 +1470,7 @@ if False:
     # Make the figure
     # ahf.make_figure([group_stacked_SA_hist])
     ahf.make_figure([group_SA_hist, group_stacked_SA_hist], row_col_list=[2,1, 0.5, 1.8], use_same_y_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
-# Salinity histogram of non-noise points for all periods
+#**# Salinity histogram of non-noise points for all periods
 if False:
     print('')
     print('- Creating a histogram of salinity for all time periods')
@@ -1482,7 +1482,7 @@ if False:
     # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
     # Make the figure
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.8], filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
 
 ################################################################################
 # Cluster average pressure vs cluster average salinity
@@ -1621,25 +1621,19 @@ for this_cluster_id in [27]:
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     # Make the profile filters for this cluster
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
-    #*# Just one cluster, maps and hists (og and fit) of press, SA, and CT
+    #**# Just one cluster, maps (og and fit) of press, SA, and CT
     if True:
         print('')
-        print('- Creating maps and histograms of pre-clustered BGR ITP data for just one cluster')
+        print('- Creating maps of pre-clustered BGR ITP data for just one cluster')
         groups_to_plot_maps = []
-        groups_to_plot_hists = []
         groups_to_plot = []
-        for var in ['press','SA','CT']:
+        for var in ['press']:#,'SA','CT']:
             # Make the Plot Parameters
-            pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':[var, 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[var+'_lims']})
-            pp_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=[var+'-fit', var], legend=False, extra_args={'n_h_bins':100, 'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':[var, 'SA','cluster'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':clstr_ranges_dict[var+'-fit_lims'], 'tw_y_lims':clstr_ranges_dict[var+'_lims']})
+            pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':[var, 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[var+'_lims']})
             # Make the subplot groups
-            groups_to_plot_maps.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map, plot_title=''))
-            groups_to_plot_hists.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist, plot_title=''))
             groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map, plot_title=''))
-            groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_hist, plot_title=''))
         # Plot the figure
-        ahf.make_figure(groups_to_plot_maps + groups_to_plot_hists, use_same_y_axis=False, row_col_list=[2,3, 0.45, 1.4], filename='f8-1_'+filename_prefix+'_maps_hists.png')
-        # ahf.make_figure(groups_to_plot, use_same_y_axis=False, row_col_list=[3,2, 0.9, 1.4], filename='f8_'+filename_prefix+'_maps_hists.png')
+        ahf.make_figure(groups_to_plot, use_same_y_axis=False, row_col_list=[1,3, 0.4, 1.4], filename='s3_'+filename_prefix+'_maps.png')
     # Just one cluster in SA vs. la_CT space
     if False:
         print('')
@@ -2190,7 +2184,7 @@ if False:
 plt_these_clstrs = [3, 9, 18, 22, 27, 36, 39, 42, 47]
 this_var = 'CT'
 # Plotting across lat-lon many clusters' temperature polyfit2d
-if True:
+if False:
     print('')
     print('- Creating lat-lon plots for many clusters` temperature polyfit2d') 
     # filename_prefix = file_date+this_BGR

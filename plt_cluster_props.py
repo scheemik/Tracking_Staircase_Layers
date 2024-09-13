@@ -37,6 +37,10 @@ import BGR_objects as bob
 # this_BGR = 'BGR1516'
 this_BGR = 'BGR_all'
 
+# Specify which connection method to use
+connect_by = 'SA_divs'
+# connect_by = 'manual'
+
 ################################################################################
 # Declare variables for plotting
 ################################################################################
@@ -65,12 +69,11 @@ l_styles = ['-', '--', '-.', ':']
 
 ################################################################################
 
-# Unpickle the data frame from a file
-df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb'))
-# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
-# df = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
-# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties2.pickle', 'rb'))
-# df = pl.load(open('outputs/'+this_BGR+'_cluster_properties-pf.pickle', 'rb'))
+# Unpickle the data frames from file
+if connect_by == 'SA_divs':
+    df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb'))
+elif connect_by == 'manual':    
+    df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
 bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
 
 # # Sort df by ca_SA
@@ -1724,7 +1727,7 @@ these_ax_lims = None #{'y_lims':[355,190]}
 add_legend = True
 # if False:
 for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
-    for this_clr_map in ['clr_all_same', 'cluster']:
+    for this_clr_map in ['clr_all_same']:#, 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
         pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
@@ -1737,7 +1740,7 @@ for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
         # group_sig_trends = Analysis_Group2([df], pp_sig_trends)
         # Make the figure
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='f9-1_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
+        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03])#, filename='f9-1_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
     these_ax_lims = None
 ################################################################################
 # Thicknesses of the layers

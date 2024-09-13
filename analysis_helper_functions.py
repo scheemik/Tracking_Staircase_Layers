@@ -83,7 +83,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = False
+dark_mode = True
 fixed_width_image = True
 plt.style.use('science')
 
@@ -128,8 +128,8 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
-    # clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
+    # clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
+    clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
@@ -2198,7 +2198,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600)
+            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -2253,7 +2253,7 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
         print('\tSet share_x_axis to', share_x_axis)
     # Set ratios by passing dictionary as 'gridspec_kw', and share y axis
     fig, axes = plt.subplots(figsize=(w*fig_size,h*fig_size), nrows=rows, ncols=cols, gridspec_kw=plot_ratios, sharex=share_x_axis, sharey=share_y_axis, subplot_kw=dict(projection=prjctn))
-    if rows != 1 or cols != 1:
+    if True:#rows != 1 or cols != 1:
         fixed_width = 16
         fig.set_size_inches(fixed_width, fixed_width*h/w)
     # Set ticklabel format for all axes
@@ -3362,7 +3362,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             try:
                 ax_lims_keys = list(pp.ax_lims.keys())
                 if 'c_lims' in ax_lims_keys:
-                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    cbar.mappable.set_clim(vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
                     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             except:
                 foo = 2
@@ -3798,7 +3798,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             try:
                 ax_lims_keys = list(pp.ax_lims.keys())
                 if 'c_lims' in ax_lims_keys:
-                    cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                    cbar.mappable.set_clim(vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
                     print('\t- Set c_lims to',pp.ax_lims['c_lims'])
             except:
                 foo = 2
@@ -4526,14 +4526,20 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             print('Cannot plot stacked histograms without pdf_hist=True')
             exit(0)
         i = 0
-        lgnd_hndls = []
+        tick_vals = []
         df_labels = [*a_group.data_set.sources_dict.keys()]
-        # print('df_labels:',df_labels)
+        y_label = ''
+        # Get the number of data_frames in a_group
+        n_dfs = len(a_group.data_frames)
+        # Make a set of sequential colors to choose from
+        # period_cmap = cm.batlow
+        # period_clrs = period_cmap(np.linspace(0, 1, n_dfs))
         # Loop through each dataframe 
         #   which correspond to the datasets input to the Data_Set object's sources_dict
         for this_df in a_group.data_frames:
             # Trim df_label
             df_labels[i] = df_labels[i][7:11]
+            tick_vals.append(int(i))
             # Check whether to remove noise points
             if plt_noise == False:
                 # print('before removing noise points:',len(df))
@@ -4541,14 +4547,16 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 # print('after removing noise points:',len(df))
                 this_df = this_df[this_df.cluster!=-1]
             # Decide on the color, don't go off the end of the array
-            my_l_style = l_styles[i%len(l_styles)]
+            # my_clr = period_clrs[i%len(period_clrs)]
+            my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
             ## Plot the histogram
             # Get the histogram
             this_hist, these_bin_edges = np.histogram(h_var, bins=res_bins)
-            # Normalize the heights of the histogram bars to 1 and add offset
-            this_hist = this_hist/np.max(this_hist) + i*0.4
+            # Normalize the heights of the histogram bars and add offset
+            norm_factor = 2.0 # the bigger the norm_factor, the more the lines overlap
+            this_hist = this_hist/np.max(this_hist)*norm_factor - norm_factor/5 + i
             # Estimate the PDF from the histogram by 
             #   plotting line through the bin centers
             bin_centers = 0.5*(these_bin_edges[1:]+these_bin_edges[:-1])
@@ -4558,7 +4566,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
-            ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle=my_l_style)
+            ax.plot(pdf_x_arr, pdf_y_arr, color=my_clr, zorder=n_dfs+10-i)
             i += 1
         # Add vertical lines at all the salinity divisions
         if True:
@@ -4567,6 +4575,26 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
+        # Set ticks and color them to match the stack
+        if orientation == 'horizontal':
+            # Set ticks
+            ax.xaxis.set_ticks(tick_vals, df_labels)
+            i = 0
+            for tick in ax.get_xticklabels():
+                # Decide on the color, don't go off the end of the array
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # Color just the tick label for this instrmt
+                tick.set_color(my_clr)
+        if orientation == 'vertical':
+            # Set ticks
+            ax.yaxis.set_ticks(tick_vals, df_labels)
+            i = 0
+            for tick in ax.get_yticklabels():
+                # Decide on the color, don't go off the end of the array
+                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                # Color just the tick label for this instrmt
+                tick.set_color(my_clr)
+                i += 1
         # Add a standard title
         plt_title = add_std_title(a_group)
         return x_label, y_label, None, plt_title, ax, invert_y_axis
@@ -5374,7 +5402,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 try:
                     ax_lims_keys = list(pp.ax_lims.keys())
                     if 'c_lims' in ax_lims_keys:
-                        cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                        cbar.mappable.set_clim(vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
                         print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 except:
                     foo = 2
@@ -5737,7 +5765,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
                 try:
                     ax_lims_keys = list(pp.ax_lims.keys())
                     if 'c_lims' in ax_lims_keys:
-                        cbar.mappable.set_clim(pp.ax_lims['c_lims'])
+                        cbar.mappable.set_clim(vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
                         print('\t- Set c_lims to',pp.ax_lims['c_lims'])
                 except:
                     foo = 2
@@ -6847,6 +6875,11 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
         v_cids = np.array(df['cluster'].values, dtype=np.int64)
         # Mask out cluster ids 120 or higher
         v_cids = np.ma.masked_where(v_cids>=120, v_cids)
+        # Mask out the first and last cluster
+        # cid_min = 0
+        # cid_max = max(v_cids)
+        # v_cids = np.ma.masked_where((v_cids==cid_min) | (v_cids==cid_max), v_cids)
+        # print('v_cids:',v_cids)
         # Apply the mask to the values
         v_values = np.ma.masked_where(v_cids.mask, v_values)
         if outlier_type == 'zscore':
@@ -6868,6 +6901,10 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
             df['out_'+v_key] = (df['mzs_'+v_key] > threshold) | (df['mzs_'+v_key] < -threshold)
         # Set the clusters with ids 120 or higher to True in outlier column
         df['out_'+v_key].loc[df['cluster']>=120] = True
+        # Set the first and last clusters to True in outlier column
+        #   This is because they were not divided correctly due to the rolling average
+        # df['out_'+v_key].loc[df['cluster']==cid_min] = True
+        # df['out_'+v_key].loc[df['cluster']==cid_max] = True
     # print(df)
     # exit(0)
     return df
