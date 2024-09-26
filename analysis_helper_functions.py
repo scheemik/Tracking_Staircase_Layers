@@ -514,15 +514,16 @@ def list_xarrays(sources_dict):
     input dictionary
 
     sources_dict    A dictionary with the following format:
-                    {'ITP_1':[13,22,32],'ITP_2':'all'}
+                    {'ITP_1':['1-13','1-22','1-32'],'ITP_2':'all'} or
+                    {'HPC_BGR0506_clstrd_SA_divs':['3-313', '3-315', '3-317', '3-319', '3-321']}
                     where the keys are the netcdf filenames without the extension
-                    and the values are lists of profiles to include or 'all'
+                    and the values are lists of instrmt-profile_number to include or 'all'
     """
     # Make an empty list
     xarrays = []
     var_attr_dicts = []
     for source in sources_dict.keys():
-        print('Loading data from netcdfs/'+source+'.nc')
+        print('- Loading data from netcdfs/'+source+'.nc')
         ds = xr.load_dataset('netcdfs/'+source+'.nc')
         # Build the dictionary of netcdf attributes, variables, units, etc.
         var_attrs = {}
@@ -536,8 +537,18 @@ def list_xarrays(sources_dict):
         if isinstance(pf_list, list):
             # Start a blank list for all the profile-specific xarrays
             temp_list = []
-            for pf in pf_list:
-                temp_list.append(ds.where(ds.prof_no==pf, drop=True).squeeze())
+            for inst_pf in pf_list:
+                # Check to make sure inst_pf is a string
+                if not isinstance(inst_pf, type('')):
+                    print('Expecting list of profiles to contain string objects. Found '+str(type(inst_pf)))
+                    print('Aborting script')
+                    exit(0)
+                # Split the instrmt number from the profile number (assumes a hyphen split)
+                split_var = inst_pf.split('-', 1)
+                this_instrmt = split_var[0]
+                this_pf = int(split_var[1])
+                temp_list.append(ds.where((ds.instrmt==this_instrmt) & (ds.prof_no==this_pf), drop=True).squeeze())
+                # temp_list.append(ds.where((ds.prof_no==this_pf), drop=True).squeeze())
             # Concatonate all those xarrays together
             ds1 = xr.concat(temp_list, 'Time')
             xarrays.append(ds1)

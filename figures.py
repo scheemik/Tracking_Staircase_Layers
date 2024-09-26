@@ -284,7 +284,7 @@ this_BGR = 'BGR_all'
 # Before relabeling
 # ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
 # Relabeled based on SA dividers
-ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -1092,6 +1092,22 @@ if False:
     group_ex_pfs_CT = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pfs_CT, plot_title='')
     # Make the figure
     ahf.make_figure([group_ex_pfs_SA, group_ex_pfs_CT], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
+#*# Example profiles from ITP3, recreating figure 8 from Schee et al. 2024
+if True:
+    print('')
+    print('- Creating figure of clustered example profiles from ITP3')
+    ITP3_some_pfs_2 = [313, 315, 317, 319, 321]
+    ITP3_some_pfs_2 = ['3-313', '3-315', '3-317', '3-319', '3-321']
+    ITP3_some_pfs_ax_lims_2 = {'y_lims':[370,300]}
+    # Make the dataset for just example profiles in ITP3
+    ds_ITP3_some_pfs2 = ahf.Data_Set({'HPC_BGR0506_clstrd_SA_divs':ITP3_some_pfs_2}, bob.dfs_all)
+    # Make the Plot Parameters
+    pp_ITP3_some_pfs_2 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'plt_noise':False}, legend=True)
+    # pp_ITP3_some_pfs_2 = ahf.Plot_Parameters(x_vars=['SA','CT'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'plt_noise':True}, legend=True)#, ax_lims=ITP3_some_pfs_ax_lims_2)
+    # Make the Analysis Groups
+    group_ITP3_some_pfs_2 = ahf.Analysis_Group(ds_ITP3_some_pfs2, pfs_0, pp_ITP3_some_pfs_2)
+    # Make the figure
+    ahf.make_figure([group_ITP3_some_pfs_2], row_col_list=[1,1, 0.27, 0.90])#, filename=file_prefix+'Figure_8.png')
 
 ################################################################################
 ## Waterfall plots
@@ -2267,7 +2283,7 @@ if False:
 
 
 
-
+exit(0)
 
 
 
