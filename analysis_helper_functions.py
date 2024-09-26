@@ -545,8 +545,9 @@ def list_xarrays(sources_dict):
                     exit(0)
                 # Split the instrmt number from the profile number (assumes a hyphen split)
                 split_var = inst_pf.split('-', 1)
-                this_instrmt = split_var[0]
+                this_instrmt = split_var[0] # do not convert type
                 this_pf = int(split_var[1])
+                # Remember to have parentheses around each condition
                 temp_list.append(ds.where((ds.instrmt==this_instrmt) & (ds.prof_no==this_pf), drop=True).squeeze())
                 # temp_list.append(ds.where((ds.prof_no==this_pf), drop=True).squeeze())
             # Concatonate all those xarrays together
@@ -5460,18 +5461,20 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             print('\tcluster_numbers:',cluster_numbers)
             # Plot noise points first
             if plt_noise:
-                ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
-                #ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
+                # ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=noise_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
+                ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
                 if plt_noise:
                     tw_ax_y.scatter(df_clstrs[df_clstrs.cluster==-1][tw_x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
             # Loop through each cluster
+            # if False:
             for i in cluster_numbers:
                 # Decide on the color and symbol, don't go off the end of the arrays
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
+                my_mkr = r"${}$".format(str(i))
                 # print('\t\tcluster:',i,'my_clr:',my_clr,'my_mkr:',my_mkr)
                 # Get relevant data
                 x_data = df_clstrs[df_clstrs.cluster == i][x_key]
@@ -5479,7 +5482,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 alphas = df_clstrs[df_clstrs.cluster == i]['clst_prob']
                 # Plot the points for this cluster with the specified color, marker, and alpha value
                 # ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=alphas, zorder=5)
-                ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                ax.scatter(x_data, y_data, color=my_clr, s=30, marker=my_mkr, alpha=pf_alpha, zorder=5)
                 # Plot on twin axes, if specified
                 if not isinstance(tw_x_key, type(None)):
                     t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
