@@ -83,7 +83,7 @@ available_variables_list = []
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = True
+dark_mode = False
 fixed_width_image = True
 plt.style.use('science')
 
@@ -2786,8 +2786,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             print('before removing noise points:',len(df))
             df = df[df.cluster!=-1]
             print('after removing noise points:',len(df))
-        # print('max SA:',df['SA'].max())
-        # print('min SA:',df['SA'].min())
+        # print('x_key:',x_key)
+        # print('y_key:',y_key)
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # Check for histogram
@@ -6854,13 +6854,14 @@ def calc_extra_cl_vars(df, new_cl_vars):
 
 ################################################################################
 
-def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
+def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'zscore'):
     """
     Finds any outliers in the dataframe with respect to the x and y keys
 
     df              A pandas data frame
     var_keys        A list of strings of the names of the columns on which to 
                         find outliers
+    mrk_outliers    Either True, or 'ends' (to mask out first and last cluster ids before calculations)
     threshold       The threshold zscore for which to consider an outlier
     """
     outlier_type = 'MZS'        # Modified Z-Score
@@ -6875,13 +6876,22 @@ def find_outliers(df, var_keys, threshold=2, outlier_type = 'zscore'):
         v_cids = np.array(df['cluster'].values, dtype=np.int64)
         # Mask out cluster ids 120 or higher
         v_cids = np.ma.masked_where(v_cids>=120, v_cids)
-        # Mask out the first and last cluster
-        # cid_min = 0
-        # cid_max = max(v_cids)
-        # v_cids = np.ma.masked_where((v_cids==cid_min) | (v_cids==cid_max), v_cids)
-        # print('v_cids:',v_cids)
+        if mrk_outliers == 'ends':
+            # print('before')
+            # print('v_cids:',v_cids)
+            # Mask out the first and last cluster
+            cid_min = 0
+            cid_max = max(v_cids)
+            v_cids = np.ma.masked_where((v_cids==cid_min) | (v_cids==cid_max), v_cids)
+            # print('after')
+            # print('v_cids:',v_cids)
+            # Make a column to specify those end points should be considered outliers
+            df['out_ends'] = (df['cluster'] == cid_min) | (df['cluster'] == cid_max)
+        else:
+            df['out_ends'] = False
         # Apply the mask to the values
         v_values = np.ma.masked_where(v_cids.mask, v_values)
+        # print('v_values:',v_values)
         if outlier_type == 'zscore':
             # Find the zscores 
             v_zscores = stats.mstats.zscore(v_values)
@@ -6921,7 +6931,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
     x_key           A string of the variable from df to use on the x axis
     y_key           A string of the variable from df to use on the y axis
     clr_map         A string of the color map to use
-    mrk_outliers    True/False as whether to mark the outliers (or 'pre-calc')
+    mrk_outliers    True/False as whether to mark the outliers (or 'pre-calced', or 'ends')
     find_all        True/False as whether to find outliers in both cRL and nir_SP
     threshold       The threshold zscore for which to consider an outlier
     mrk_clr         The color in which to mark the outliers
@@ -6932,18 +6942,21 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
     if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
         print('\t- Marking outliers in cRL and nir_SA')
         if mrk_outliers != 'pre-calced':
-            df = find_outliers(df, ['cRL', 'nir_SA'], threshold)
+            df = find_outliers(df, ['cRL', 'nir_SA'], mrk_outliers, threshold)
         # Set the values of all rows for 'out_'+x_key to False
         ## If I don't do this, then the values not set to True below are NaN
         df['out_'+x_key] = False
-        # Set rows of 'out_'+x_key to True if either 'out_cRL' or 'out_nir_SA' is True
+        # Set rows of 'out_'+x_key to True if either 'out_cRL', 'out_nir_SA', or 'out_ends' is True
         df.loc[df['out_cRL']==True, 'out_'+x_key] = True
         df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
-        # Plot the outliers in 'cRL' and 'nir_SA' in a different color
+        df.loc[df['out_ends']==True, 'out_'+x_key] = True
+        # Plot the outliers in 'cRL', 'nir_SA', and 'ends' in different colors
         cRL_x_data = np.array(df[df['out_cRL']==True][x_key].values, dtype=np.float64)
         cRL_y_data = np.array(df[df['out_cRL']==True][y_key].values, dtype=np.float64)
         nir_x_data = np.array(df[df['out_nir_SA']==True][x_key].values, dtype=np.float64)
         nir_y_data = np.array(df[df['out_nir_SA']==True][y_key].values, dtype=np.float64)
+        end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
+        end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
         if x_key in ['ca_FH_cumul']:
             # Don't plot the outliers
             foo = 2
@@ -6952,16 +6965,18 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
                 # Plot over the outliers in a different color
                 ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', alpha=mrk_alpha, zorder=4)
                 ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
+                ax.scatter(end_x_data, end_y_data, color=jackson_clr[12], s=mk_size, marker='o', alpha=mrk_alpha, zorder=4)
             else:
                 ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
                 ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
+                ax.scatter(end_x_data, end_y_data, edgecolors=jackson_clr[12], s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
     else:
         print('\t- Marking outliers in',x_key)
         if mrk_outliers != 'pre-calced':
-            df = find_outliers(df, [x_key], threshold)
+            df = find_outliers(df, [x_key], mrk_outliers, threshold)
         if x_key == 'cRL':
             mrk_clr = 'r'
         elif x_key == 'nir_SA':

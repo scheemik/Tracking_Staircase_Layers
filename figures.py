@@ -385,7 +385,7 @@ if False:
 ################################################################################
 ## Overviews
 ################################################################################
-#*# ITP number vs time
+#**# ITP number vs time
 if False:
     # Note that I switch some of the colors around before making this plot, 
     #   namely using blue instead of yellow for readability
@@ -396,7 +396,7 @@ if False:
     # Make the Analysis Group
     group_ITP_vs_time = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_ITP_vs_time, plot_title='')
     # Make the figure
-    ahf.make_figure([group_ITP_vs_time], row_col_list=[1,1, 0.75, 1.68], filename='C1_ITPs_vs_time.pdf')
+    ahf.make_figure([group_ITP_vs_time], row_col_list=[1,1, 0.75, 1.68], filename='s1_ITPs_vs_time.pdf')
 
 # Output summary
 if False:
@@ -1611,9 +1611,9 @@ if False:
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
 # Define the profile filters
-# if False:
+if False:
 # for this_cluster_id in [63]:
-for this_cluster_id in [27]:
+# for this_cluster_id in [27]:
     # Make title and file name prefix
     this_cluster_title = 'Cluster '+str(this_cluster_id)
     filename_prefix = file_date+this_BGR+'_clstr_'+str(this_cluster_id)
@@ -1627,13 +1627,13 @@ for this_cluster_id in [27]:
         print('- Creating maps of pre-clustered BGR ITP data for just one cluster')
         groups_to_plot_maps = []
         groups_to_plot = []
-        for var in ['press']:#,'SA','CT']:
+        for var in ['press','SA','CT']:
             # Make the Plot Parameters
-            pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':[var, 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[var+'_lims']})
+            pp_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map=var, legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':[var, 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict[var+'_lims']})
             # Make the subplot groups
             groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map, plot_title=''))
         # Plot the figure
-        ahf.make_figure(groups_to_plot, use_same_y_axis=False, row_col_list=[1,3, 0.4, 1.4], filename='s3_'+filename_prefix+'_maps.png')
+        ahf.make_figure(groups_to_plot, use_same_y_axis=False, row_col_list=[1,3, 0.25, 1.4], filename='s3_'+filename_prefix+'_maps.png')
     # Just one cluster in SA vs. la_CT space
     if False:
         print('')
