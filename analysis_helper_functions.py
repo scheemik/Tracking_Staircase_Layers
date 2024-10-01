@@ -3456,10 +3456,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
             ex_S = 70
             ex_E = -180
             ex_W = 180
+        # Create projection
+        arctic_proj = ccrs.NorthPolarStereo(central_longitude=cent_lon)
+        # Set higher resolution
+        arctic_proj._threshold = 100
         # Remove the current axis
         ax.remove()
         # Replace axis with one that can be made into a map
-        ax = fig.add_subplot(ax_pos, projection=ccrs.NorthPolarStereo(central_longitude=cent_lon))
+        ax = fig.add_subplot(ax_pos, projection=arctic_proj)
         ax.set_extent([ex_E, ex_W, ex_S, ex_N], ccrs.PlateCarree())
         #   Add ocean first, then land. Otherwise the ocean covers the land shapes
         # ax.add_feature(cartopy.feature.OCEAN, color=bathy_clrs[0])
@@ -3554,12 +3558,29 @@ def make_subplot(ax, a_group, fig, ax_pos):
         else:
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
+            bb_res = 50
             if bbox == 'BGR':
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                # Add a polygon patch
+                # The coordinates need to be listed in counter-clockwise order
+                lat_corners = np.array([73, 73, 81.5, 81.5])
+                lon_corners = np.array([-160, -130, -130, -160])
+                # The above makes a box, below curves the top and bottom along latitude lines
+                top_lons = np.linspace(-130, -160, bb_res)
+                bot_lons = np.linspace(-160, -130, bb_res)
+                top_lats = np.zeros((len(top_lons)), np.float64) + 81.5
+                bot_lats = np.zeros((len(bot_lons)), np.float64) + 73.0
+                lon_corners = np.concatenate([top_lons, bot_lons])
+                lat_corners = np.concatenate([top_lats, bot_lats])
+                poly_corners = np.zeros((len(lat_corners), 2), np.float64)
+                poly_corners[:,0] = lon_corners
+                poly_corners[:,1] = lat_corners
+                poly_patch = plt.Polygon(poly_corners, closed=True, ec='r', fill=True, lw=0.5, fc='r', transform=ccrs.Geodetic(), zorder=bb_zorder)
+                ax.add_patch(poly_patch)
             elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
                 ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary

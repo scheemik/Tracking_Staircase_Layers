@@ -1652,11 +1652,13 @@ if True:
     # Make the Plot Parameters
     pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'}, legend=True)
     pp_map_one_cluster = ahf.Plot_Parameters(plot_type='map', clr_map='press', extra_args={'map_extent':'Western_Arctic', 'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'c_lims':clstr_ranges_dict['press_lims']}, legend=False)
+    pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
     # Make the subplot groups
     group_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='All profiles')
     group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Cluster '+str(this_cluster_id)+' fit')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map_by_date, group_map_one_cluster], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
+    ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,3, 0.25, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
 ################################################################################
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
