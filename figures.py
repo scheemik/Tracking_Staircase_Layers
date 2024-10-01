@@ -284,7 +284,7 @@ this_BGR = 'BGR_all'
 # Before relabeling
 # ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
 # Relabeled based on SA dividers
-# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -444,6 +444,23 @@ if False:
     group_map_BGR = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_double_map.png')
+#**# Map of all profiles in BGR plus examples of clustered profiles
+if False:
+    print('')
+    print('- Creating a map of all BGR profiles and a plot of example clustered profiles from ITP3')
+    # Set up a dataset for just the example profiles in ITP3
+    ITP3_some_pfs_2 = ['3-313', '3-315', '3-317']#, '3-319', '3-321']
+    ITP3_some_pfs_ax_lims_2 = {'y_lims':[300,200]}
+    # Make the dataset for just example profiles in ITP3
+    ds_ITP3_some_pfs2 = ahf.Data_Set({'HPC_BGR0506_clstrd_SA_divs':ITP3_some_pfs_2}, bob.dfs_all)
+    # Make the Plot Parameters
+    pp_ITP3_some_pfs_2 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True}, legend=True, ax_lims=ITP3_some_pfs_ax_lims_2)
+    # Make the subplot groups
+    # group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
+    group_map_BGR = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='')
+    group_ITP3_some_pfs_2 = ahf.Analysis_Group(ds_ITP3_some_pfs2, pfs_0, pp_ITP3_some_pfs_2, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_map_BGR, group_ITP3_some_pfs_2], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_map_and_ex_pfs.png')
 ## Map of just in the Beaufort Gyre Region
 if False:
     print('')
@@ -1093,8 +1110,8 @@ if False:
     group_ex_pfs_CT = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_pfs_CT, plot_title='')
     # Make the figure
     ahf.make_figure([group_ex_pfs_SA, group_ex_pfs_CT], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
-#*# Example profiles from ITP3, recreating figure 8 from Schee et al. 2024
-if True:
+## Example profiles from ITP3, recreating figure 8 from Schee et al. 2024
+if False:
     print('')
     print('- Creating figure of clustered example profiles from ITP3')
     ITP3_some_pfs_2 = ['3-313', '3-315', '3-317']#, '3-319', '3-321']
@@ -1462,7 +1479,7 @@ if False:
         pfs_SA0 = ahf.Profile_Filters(SA_range=this_S_range)
         if add_total_pdf:
             # Make the Plot Parameters 
-            p_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
+            p_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
             # Make the subplot group
             groups_to_plot2.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, p_SA_hist, plot_title=''))
         # Make the Plot Parameters
@@ -1499,7 +1516,7 @@ if False:
     # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
     # Make the figure
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.8], filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.5, 1.8])#, filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
 
 ################################################################################
 # Cluster average pressure vs cluster average salinity
@@ -1624,6 +1641,22 @@ if False:
     group_these_clstrs = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_these_clstrs)
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
+#**# Map of all profiles by date, plus map of fit to one cluster
+if True:
+    this_cluster_id = 27
+    clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
+    print('')
+    print('- Creating a map of profiles by date and a map of cluster',this_cluster_id)
+    # Make the profile filters for this cluster
+    pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
+    # Make the Plot Parameters
+    pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'}, legend=True)
+    pp_map_one_cluster = ahf.Plot_Parameters(plot_type='map', clr_map='press', extra_args={'map_extent':'Western_Arctic', 'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'c_lims':clstr_ranges_dict['press_lims']}, legend=False)
+    # Make the subplot groups
+    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='All profiles')
+    group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Cluster '+str(this_cluster_id)+' fit')
+    # Make the figure
+    ahf.make_figure([group_map_by_date, group_map_one_cluster], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
 ################################################################################
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################

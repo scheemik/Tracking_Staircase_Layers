@@ -1950,9 +1950,9 @@ for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
     # for this_clr_map in ['cluster']:
         # Make the Plot Parameters
         ## Just one cluster, maps (og and fit) of press, SA, or CT
-        if False:
+        # if False:
         # for this_cluster_id in [63]:
-        # for this_cluster_id in [27]:
+        for this_cluster_id in [27]:
             ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
             lon_BGR = bps.lon_BGR
             lat_BGR = bps.lat_BGR
@@ -2030,7 +2030,7 @@ for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
         #
         # Make the subplot groups
         f5_groups = [
-                        # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),
+                        ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),
                         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA_map, plot_title=this_cluster_title),
                         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_map, plot_title=this_cluster_title),
                         Analysis_Group2([df], pp_press_trends, plot_title=''),
@@ -2038,9 +2038,9 @@ for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
                         # Analysis_Group2([df], pp_ca_nzpcs, plot_title=''),
                         Analysis_Group2([df], pp_trd_nzpcs, plot_title=''),
                         # Analysis_Group2([df], pp_SA_trends, plot_title=''),
-                        Analysis_Group2([df], pp_CT_trends, plot_title=''),
-                        # Analysis_Group2([df], pp_FH, plot_title=''),
-                        Analysis_Group2([df], pp_FH_cumul, plot_title=''),
+                        # Analysis_Group2([df], pp_CT_trends, plot_title=''),
+                        Analysis_Group2([df], pp_FH, plot_title=''),
+                        # Analysis_Group2([df], pp_FH_cumul, plot_title=''),
                         # Analysis_Group2([df], pp_sig_trends, plot_title=''),
         ]
         # Make the figure

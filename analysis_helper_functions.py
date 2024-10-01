@@ -85,6 +85,8 @@ available_variables_list = []
 ################################################################################
 dark_mode = False
 fixed_width_image = True
+png_dpi = 100 # Setting the dpi higher causes lat and lon labels to disappear on maps. This is solved in more recent versions of cartopy and matplotlib
+transparent_figures = False
 plt.style.use('science')
 
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
@@ -200,6 +202,9 @@ AW_mrk = '^'
 AW_clr = 'k'
 AW_facealtclr = jackson_clr[3]
 AW_edgeclr = jackson_clr[3]
+# For SA divs
+SA_divs_clr = alt_std_clr
+SA_divs_line = '-'
 
 # The magnitude limits for axis ticks before they use scientific notation
 sci_lims = (-2,3)
@@ -2210,7 +2215,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
+            plt.savefig('outputs/'+filename, dpi=png_dpi, transparent=transparent_figures)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -3575,7 +3580,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df, rel_val, m_pts, m_cls, ell = HDBSCAN_(a_group.data_set.arr_of_ds, df, cl_x_var, cl_y_var, cl_z_var, m_pts, m_cls=m_cls, extra_cl_vars=[clr_map], re_run_clstr=re_run_clstr)
         print('\t- Plot slopes:',plot_slopes)
         # Drop dimensions, if needed
-        if 'Vertical' in df.index.names:
+        if 'Vertical' in df.index.names and clr_map not in vertical_vars:
             # Drop duplicates along the `Time` dimension
             #   (need to make the index `Time` a column first)
             print('\t- Dropping `Vertical` dimension')
@@ -3761,9 +3766,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
         else:
             # Make sure it isn't a vertical variable
-            if clr_map in vertical_vars:
-                print('Cannot use',clr_map,'as colormap for a map plot')
-                exit(0)
+            # if clr_map in vertical_vars:
+            #     print('Cannot use',clr_map,'as colormap for a map plot')
+            #     exit(0)
             # print('df.columns:',df.columns)
             # print(df)
             if clr_map not in np.array(df.columns):
@@ -3791,6 +3796,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 cmap_data = df[clr_map]
             # The color of each point corresponds to the number of the profile it came from
             heatmap = ax.scatter(df['lon'], df['lat'], c=cmap_data, cmap=get_color_map(clr_map), s=mrk_s, marker=map_marker, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
+            # Check whether to fit a 2d polynomial to the data
+            if plot_slopes:
+                plot_polyfit2d(ax, pp, df['lon'], df['lat'], df[clr_map], in_3D=False, plot_type=plot_type)
             # Create the colorbar
             if True:
                 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -4204,10 +4212,19 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             if orientation == 'vertical':
                 pdf_x_arr = bin_centers
                 pdf_y_arr = this_hist
-                # Add vertical lines at all the salinity divisions
+                # Add vertical lines at all the salinity divisions and the moving average line
                 if True:
                     for SA_div in bps.BGR_HPC_SA_divs:
-                        ax.axvline(SA_div, color='b', linestyle=':')
+                        ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                    # Load the data from the csv
+                    hist_df = pd.read_csv('outputs/SA_divs_mv_avg_line.csv')
+                    # Remove rows where 'this_hist_mv_avg' is null
+                    hist_df = hist_df[hist_df['this_hist_mv_avg'].notnull()]
+                    # Narrow range to just what is within this histograms bin centers
+                    hist_df = hist_df[hist_df['bin_centers'] > min(pdf_x_arr)]
+                    hist_df = hist_df[hist_df['bin_centers'] < max(pdf_x_arr)]
+                    # Plot the line
+                    ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line)
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
@@ -4244,7 +4261,9 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             else:
                 mv_avg_x_key = 'this_hist_mv_avg'
                 mv_avg_y_key = 'bin_centers'
-            ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color='b', linestyle='-')
+            ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color=SA_divs_clr, linestyle=SA_divs_line)
+            # Save this line to a csv
+            hist_df.to_csv('outputs/SA_divs_mv_avg_line.csv')
             # Find the intersection points of the moving average with the histogram
             if True:
                 # Make a new array to store values of min_x
@@ -4288,7 +4307,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                             # print('\tmin_x:',min_x)
                             min_x_arr.append(min_x)
                             # Plot vertical lines at the minimums between intersection points
-                            ax.axvline(min_x, color='b', linestyle=':')
+                            ax.axvline(min_x, color='b', linestyle='--')
                         #
                     #
                 print('\t- Found',len(min_x_arr),'minimums between intersection points')
@@ -4583,7 +4602,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Add vertical lines at all the salinity divisions
         if True:
             for SA_div in bps.BGR_HPC_SA_divs:
-                ax.axvline(SA_div, color='b', linestyle=':')
+                ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
@@ -5482,7 +5501,7 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 alphas = df_clstrs[df_clstrs.cluster == i]['clst_prob']
                 # Plot the points for this cluster with the specified color, marker, and alpha value
                 # ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=alphas, zorder=5)
-                ax.scatter(x_data, y_data, color=my_clr, s=30, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                ax.scatter(x_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
                 # Plot on twin axes, if specified
                 if not isinstance(tw_x_key, type(None)):
                     t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
@@ -6098,7 +6117,7 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
 
 ################################################################################
 
-def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_pts=50, in_3D=True):
+def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_pts=50, in_3D=True, plot_type=None):
     """
     Takes in x, y, and z data on an axis. Finds a polynomial fit of the z data 
     and plots the result as a surface.
@@ -6120,6 +6139,12 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
     # print('x_data.shape:',x_data.shape)
     # print('y_data.shape:',y_data.shape)
     # print('z_data.shape:',z_data.shape)
+    # Prepare axis transform, if necessary
+    print('plot_type:',plot_type)
+    if plot_type == 'map':
+        this_transform = ccrs.PlateCarree()
+    else:
+        this_transform = None
     # Find the solution to the polyfit
     soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
     # Make a grid for the solution to plot on 
@@ -6136,10 +6161,10 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         # Plot the contours
         try:
             # if c_lims are provided
-            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']))
+            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(pp.ax_lims['c_lims']), vmax=max(pp.ax_lims['c_lims']), transform=this_transform)
         except:
             # if c_lims are not provided
-            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(z_data), vmax=max(z_data))
+            CS = ax.contourf(x_grid, y_grid, fitted_surf, n_grid_pts, cmap=get_color_map(pp.z_vars[0]), vmin=min(z_data), vmax=max(z_data), transform=this_transform)
         # Find the min / max values and their locations
         min_idx = np.argmin(fitted_surf)
         max_idx = np.argmax(fitted_surf)
@@ -6153,7 +6178,7 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         print('\t- Maximum value of',max_val,'at x:',max_x,'y:',max_y)
         # Plot a marker at the maximum value, but only if the fit was to pressure
         if pp.clr_map == 'press' or pp.clr_map == 'press_TC_max' or pp.clr_map == 'press_TC_min':
-            ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15)
+            ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15, transform=this_transform)
 
 ################################################################################
 
