@@ -29,11 +29,16 @@ test_S_range = [34.4, 34.6]
 lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 
-# Example area, choosen to have a few profiles from all time periods
+# Example area, chosen to have a few profiles from all time periods
 # lon_ex_area = [-141.19, -140.27] # [-143.8,-139.8]
 # lat_ex_area = [76.66, 77.33] # [76.6,77.6]
-lon_ex_area = [-143.35, -141.81]
-lat_ex_area = [76.23, 76.837] 
+# lon_ex_area = [-143.35, -141.81]
+# lat_ex_area = [76.23, 76.837] 
+# Different example area, chosen to encompass only one profile which is close to
+#   -150.1902, 74.3886, the location of the minimum point for cluster 27's pressure polyfit
+temp_buff = 0.25
+lon_ex_area = [-150.1902+temp_buff, -150.1902-temp_buff]
+lat_ex_area = [74.3886+temp_buff, 74.3886-temp_buff]
 
 # For this study, I'm only using profiles that extend down to at least 400 dbar
 this_min_press = 400

@@ -540,12 +540,13 @@ def list_xarrays(sources_dict):
         # Check whether to only take certain profiles
         pf_list = sources_dict[source]
         if isinstance(pf_list, list):
+            # print('Keeping just these profiles:',str(pf_list))
             # Start a blank list for all the profile-specific xarrays
             temp_list = []
             for inst_pf in pf_list:
                 # Check to make sure inst_pf is a string
                 if not isinstance(inst_pf, type('')):
-                    print('Expecting list of profiles to contain string objects. Found '+str(type(inst_pf)))
+                    print('Expecting list of profiles to contain string objects. Found '+str(inst_pf)+' '+str(type(inst_pf)))
                     print('Aborting script')
                     exit(0)
                 # Split the instrmt number from the profile number (assumes a hyphen split)
@@ -566,6 +567,7 @@ def list_xarrays(sources_dict):
             exit(0)
         #
     # print(var_attr_dicts)
+    # print('xarrays',xarrays)
     return xarrays, var_attr_dicts
 
 ################################################################################
@@ -3608,6 +3610,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
             df = df.droplevel('Vertical')
             df.reset_index(level=['Time'], inplace=True)
             df.drop_duplicates(inplace=True, subset=['Time'])
+        # print('df:')
+        # print(df)
+        # exit(0)
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # If not plotting very many points, increase the marker size
@@ -3771,6 +3776,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.scatter(this_df['lon'], this_df['lat'], color=my_clr, s=mrk_s, marker=map_marker, alpha=1.0, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = str(df_labels[i][4:-7])+': '+str(len(this_df['lon']))+' profiles'
+                if len(this_df['lon']) > 0 and len(this_df['lon']) < 5:
+                    lgnd_label += ', '+str(list(np.unique(this_df['prof_no'].values)))
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
                 notes_string = ''.join(this_df.notes.unique())
                 # Increase i to get next color in the array

@@ -122,36 +122,44 @@ ITP35_pfs2 = {'ITP_035':ITP35_some_pfs2}
 
 ## Example profiles that appeared in other studies
 ex_pfs1 = {
-            'ITP_001':[1257],               # Shibley2017 Figure 3b, 800-0 m, 235-200 m
-            # 'ITP_002':[113],                # Bebieva2019a Figure 1, 750-0 m, 385-230 m
-            # 'ITP_002':[185],                # Timmermans2008 Figure 4, 260-220 m
-            'ITP_003':[1073],               # Timmermans2008 Figure 2, 740-0 m, 290-240 m
-            'ITP_004':[453],                # Lu2022 Figure 2, 750-0 m, 350-270 m
-            'ITP_006':[475, 747],           # Toole2011 Figure 6, 300-0 m
-            # 'ITP_008':[1301],               # Shibley2017 Figure 3a, 800-0 m, 260-230 m
-            'ITP_041':[515],                # Bebieva2017(unpub) Figure 1, 750-0 m, 390-230 m
-            'ITP_064':[377],                # vanderBoog2021a Figure A1, 750-250 m
+            'ITP_001':['1-1257'],               # Shibley2017 Figure 3b, 800-0 m, 235-200 m
+            # 'ITP_002':['2-113'],                # Bebieva2019a Figure 1, 750-0 m, 385-230 m
+            # 'ITP_002':['2-185'],                # Timmermans2008 Figure 4, 260-220 m
+            'ITP_003':['3-1073'],               # Timmermans2008 Figure 2, 740-0 m, 290-240 m
+            'ITP_004':['4-453'],                # Lu2022 Figure 2, 750-0 m, 350-270 m
+            'ITP_006':['6-475', '6-747'],           # Toole2011 Figure 6, 300-0 m
+            # 'ITP_008':['8-1301'],               # Shibley2017 Figure 3a, 800-0 m, 260-230 m
+            'ITP_041':['41-515'],                # Bebieva2017(unpub) Figure 1, 750-0 m, 390-230 m
+            'ITP_064':['64-377'],                # vanderBoog2021a Figure A1, 750-250 m
           }
 ex_pfs1_zoom_range = [280,250]
 ex_pfs1_zoom_range = [290,270]
 
 ## Example profiles spaced roughly evenly in time
 ex_pfs2 = {
-            'ITP_001':[1,365,1457],
-            'ITP_003':[701,1057],
-            'ITP_004':[331,693],
-            'ITP_005':[205],
-            'ITP_006':[505],
-            'ITP_008':[739],
-            'ITP_011':[949,1345],
-            'ITP_013':[209,621],
-            'ITP_018':[389],
-            'ITP_021':[391,747],
-            'ITP_033':[263,441,625],
-            'ITP_035':[297],
-            'ITP_041':[271,449,631],
-            'ITP_042':[83],
+            'ITP_001':['1-1','1-365','1-1457'],
+            'ITP_003':['3-701','3-1057'],
+            'ITP_004':['4-331','4-693'],
+            'ITP_005':['5-205'],
+            'ITP_006':['6-505'],
+            'ITP_008':['8-739'],
+            'ITP_011':['11-949','11-1345'],
+            'ITP_013':['13-209','13-621'],
+            'ITP_018':['18-389'],
+            'ITP_021':['21-391','21-747'],
+            'ITP_033':['33-263','33-441','33-625'],
+            'ITP_035':['35-297'],
+            'ITP_041':['41-271','41-449','41-631'],
+            'ITP_042':['42-83'],
           }
+
+## Example profiles near -150.19, 74.38, the minimum pressure for Cluster 27
+pfs_p_min = {
+            # 'ITP_077':['77-1728'],
+            'ITP_113':['113-4646'],
+
+          }
+
 ## test quarterly slices
 dfs1_q = ahf.Data_Filters(date_range=['2011/05/14 18:00:00','2011/05/16 00:00:00'])
 
@@ -1045,7 +1053,7 @@ if False:
     # ds_ITP_ex_pfs = ahf.Data_Set(ITP2_ex_pfs, bob.dfs0)
     # ds_ITP_ex_pfs = ahf.Data_Set(ITP3_pfs1, bob.dfs0)
     # ds_ITP_ex_pfs = ahf.Data_Set(ITP35_pfs1, ahf.Data_Filters(cast_direction='any', press_TC_max_range=None))
-    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, bob.dfs_all)
+    ds_ITP_ex_pfs = ahf.Data_Set(ex_pfs1, bob.dfs_all) # pfs_p_min
     # Make the Plot Parameters
     pp_pfs = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True, 'shift_pfs':True}, legend=True)#, ax_lims={'y_lims':[200,0]})
     # Make the Analysis Groups
@@ -1223,9 +1231,9 @@ if False:
     print('- Creating profile plots that separate by period')
     # Make the profile filters
     pfs_ex_area_zoomed = bob.pfs_ex_area
-    pfs_ex_area_zoomed['p_range'] = ex_pfs1_zoom_range
+    # pfs_ex_area_zoomed['p_range'] = ex_pfs1_zoom_range
     # Make the Plot Parameters
-    pp_pfs_by_instrmt = ahf.Plot_Parameters(plot_type='profiles', x_vars=['SA'], y_vars=['press'], clr_map='cluster', extra_args={'plot_pts':False, 'separate_periods':True}, legend=False)#, ax_lims={'y_lims':ex_pfs1_zoom_range})
+    pp_pfs_by_instrmt = ahf.Plot_Parameters(plot_type='profiles', x_vars=['SA'], y_vars=['press'], clr_map='clr_all_same', extra_args={'plot_pts':False, 'separate_periods':True}, legend=True)#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups pfs_BGR1 pfs_0
     group_pfs_by_instrmt = ahf.Analysis_Group(ds_this_BGR, pfs_ex_area_zoomed, pp_pfs_by_instrmt, plot_title='Example profiles')
     # Make the figure
@@ -1642,23 +1650,51 @@ if False:
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
 #**# Map of all profiles by date, plus map of fit to one cluster
-if True:
+if False:
     this_cluster_id = 27
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     print('')
     print('- Creating a map of profiles by date and a map of cluster',this_cluster_id)
+    # Make the data set
+    ds_ITP_ex_pfs = ahf.Data_Set({'ITP_070':['70-2277']}, bob.dfs_all)
+    # ds_ITP_ex_pfs = ahf.Data_Set({'ITP_077':['77-1496']}, bob.dfs_all)
     # Make the profile filters for this cluster
     pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
     # Make the Plot Parameters
     pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'}, legend=True)
     pp_map_one_cluster = ahf.Plot_Parameters(plot_type='map', clr_map='press', extra_args={'map_extent':'Western_Arctic', 'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'c_lims':clstr_ranges_dict['press_lims']}, legend=False)
     pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
+    pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True, 'shift_pfs':True}, legend=True)
     # Make the subplot groups
     group_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='All profiles')
     group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Cluster '+str(this_cluster_id)+' fit')
     group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,3, 0.25, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
+    ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic, group_example_profiles1], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
+# Example profile plot, CT and SA
+if False:
+    print('')
+    print('- Creating figure of example profiles')
+    # Make the dataset for just example profiles in BGR1314
+    ds_some_pfs = ahf.Data_Set({'HPC_BGR1314_clstrd_SA_divs':['70-2277']}, bob.dfs_all)
+    # ds_some_pfs = ahf.Data_Set({'HPC_BGR1314_clstrd_SA_divs':['77-1496']}, bob.dfs_all)
+    # Make the dataset for just example profiles in BGR2021
+    # ds_some_pfs = ahf.Data_Set({'HPC_BGR2021_clstrd_SA_divs':['113-4606']}, bob.dfs_all)
+    # Make the dataset for example profiles in BGR1314 and BGR2021
+    # ds_some_pfs = ahf.Data_Set({'HPC_BGR1314_clstrd_SA_divs':['77-1726', '77-1728'], 'HPC_BGR2021_clstrd_SA_divs':['113-4626', '113-4646']}, bob.dfs_all)
+    # Make the data set
+    ds_ITP_ex_pfs = ahf.Data_Set({'ITP_070':['70-2277']}, bob.dfs_all)
+    # ds_ITP_ex_pfs = ahf.Data_Set({'ITP_077':['77-1496']}, bob.dfs_all)
+    # ds_ITP_ex_pfs = ahf.Data_Set({'ITP_113':['113-4606']}, bob.dfs_all)
+    # Make the Plot Parameters
+    pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True, 'shift_pfs':True}, legend=True)#, ax_lims={'y_lims':[200,0]})
+    pp_pfs2 = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['press'], plot_type='profiles', clr_map='cluster', extra_args={'sort_clstrs':False, 'plot_pts':True, 'mark_thermocline':False, 'shift_pfs':True}, legend=True)#, ax_lims={'y_lims':[200,0]})
+    # Make the Analysis Groups
+    group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
+    group_example_profiles2 = ahf.Analysis_Group(ds_some_pfs, pfs_0, pp_pfs2, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[1,2, 0.5, 1.4])
 ################################################################################
 ## Pre-clustered comparing single clusters across time periods
 ################################################################################
