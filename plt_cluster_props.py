@@ -556,6 +556,9 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             fig, axes = ahf.set_fig_axes([1,1], [0.6,1,1,0.6], fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
         else:
             fig, axes = ahf.set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
+        # Create a blank array for the axes labels
+        xlabels = [[None for x in range(cols)] for y in range(rows)]
+        ylabels = [[None for x in range(cols)] for y in range(rows)]
         for i in range(n_subplots):
             subplot_label_x = -0.13
             subplot_label_y = -0.18
@@ -566,6 +569,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
             xlabel, ylabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
+            xlabels[i//cols][i%cols] = xlabel
+            ylabels[i//cols][i%cols] = ylabel
             # Find the plot type
             plot_type = groups_to_plot[i].plt_params.plot_type
             if use_same_x_axis:
@@ -580,7 +585,16 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.set_xlabel(xlabel)
             else:
                 ax.set_title(plt_title)
-                ax.set_xlabel(xlabel)
+                # If on the top row
+                if i < cols:
+                    ax.set_xlabel(xlabel)
+                else:
+                    # If this has the same label as the plot above
+                    if xlabel == xlabels[i//cols-1][i%cols]:
+                        # Delete the xlabel from the plot above
+                        axes[(i//cols-1,i%cols)].set_xlabel(None)
+                    # Add in xlabel to this plot
+                    ax.set_xlabel(xlabel)
                 if plot_type == 'map':
                     subplot_label_y = 0
                     # If not on the top row
@@ -606,7 +620,16 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.invert_yaxis()
                     print('\t- Inverting y-axis')
             else:
-                ax.set_ylabel(ylabel)
+                # If in the far left column
+                if i%cols == 0:
+                    ax.set_ylabel(ylabel)
+                else:
+                    # If this has the same label as the plot to the left
+                    if ylabel == ylabels[i//cols][i%cols-1]:
+                        # Don't add ylabel
+                        foo = 2
+                    else:
+                        ax.set_ylabel(ylabel)
                 # Invert y-axis if specified
                 if invert_y_axis:
                     ax.invert_yaxis()

@@ -2137,6 +2137,9 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
         fig, axes = set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis, share_z_axis=use_same_z_axis)
+        # Create a blank array for the axes labels
+        xlabels = [[None for x in range(cols)] for y in range(rows)]
+        ylabels = [[None for x in range(cols)] for y in range(rows)]
         for i in range(n_subplots):
             print('- Subplot '+string.ascii_lowercase[i])
             if rows > 1 and cols > 1:
@@ -2145,6 +2148,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 i_ax = i
             ax_pos = int(str(rows)+str(cols)+str(i+1))
             xlabel, ylabel, zlabel, plt_title, ax, invert_y_axis = make_subplot(axes[i_ax], groups_to_plot[i], fig, ax_pos)
+            xlabels[i//cols][i%cols] = xlabel
+            ylabels[i//cols][i%cols] = ylabel
             # Find the plot type
             plot_type = groups_to_plot[i].plt_params.plot_type
             if use_same_x_axis:
@@ -2159,7 +2164,21 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.set_xlabel(xlabel)
             else:
                 ax.set_title(plt_title)
-                ax.set_xlabel(xlabel)
+                # If on the top row
+                if i < cols:
+                    ax.set_xlabel(xlabel)
+                else:
+                    # If this has the same label as the plot above
+                    if xlabel == xlabels[i//cols-1][i%cols]:
+                        # Delete the xlabel from the plot above
+                        axes[(i//cols-1,i%cols)].set_xlabel(None)
+                    # Add in xlabel to this plot
+                    ax.set_xlabel(xlabel)
+                if plot_type == 'map':
+                    subplot_label_y = 0
+                    # If not on the top row
+                    if i >= cols:
+                        tight_layout_h_pad = 2.0
             ax.set_title(plt_title)
             if use_same_y_axis:
                 # If in the far left column
@@ -2171,8 +2190,16 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     ax.invert_yaxis()
                     print('\t- Inverting y-axis')
             else:
-                ax.set_ylabel(ylabel)
-                # Invert y-axis if specified
+                # If in the far left column
+                if i%cols == 0:
+                    ax.set_ylabel(ylabel)
+                else:
+                    # If this has the same label as the plot to the left
+                    if ylabel == ylabels[i//cols][i%cols-1]:
+                        # Don't add ylabel
+                        foo = 2
+                    else:
+                        ax.set_ylabel(ylabel)
                 if invert_y_axis:
                     ax.invert_yaxis()
                     print('\t- Inverting y-axis-')
