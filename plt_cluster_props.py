@@ -556,9 +556,11 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             fig, axes = ahf.set_fig_axes([1,1], [0.6,1,1,0.6], fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
         else:
             fig, axes = ahf.set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis)
-        # Create a blank array for the axes labels
+        # Create a blank array for the axis labels and axis limits
         xlabels = [[None for x in range(cols)] for y in range(rows)]
         ylabels = [[None for x in range(cols)] for y in range(rows)]
+        x_lims = [[None for x in range(cols)] for y in range(rows)]
+        y_lims = [[None for x in range(cols)] for y in range(rows)]
         for i in range(n_subplots):
             subplot_label_x = -0.13
             subplot_label_y = -0.18
@@ -1964,8 +1966,12 @@ if False:
 ################################################################################
 # Results summary plot
 #*# Make plots of the polyfit2d trends in the cluster properties
+x_lims_dict = {
+                'ca_press':[200,450],
+                'ca_CT':[-1.2,0.9],
+                'nzca_pcs_press':[-0.2,7]
+}
 plot_slopes = 'OLS'
-these_ax_lims = {'y_lims':[355,190]}
 add_legend = False
 # if False:
 for this_clr_map in ['clr_all_same']:#, 'cluster']:
@@ -1977,13 +1983,13 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
     elif this_ca_var == 'ca_SA':
         these_y_lims = [35.02,34.1]
     # if False:
-    for this_plt_var in ['ca_press', 'ca_CT', 'ca_SA']:
+    for this_plt_var in ['ca_press', 'ca_CT', 'nzca_pcs_press']:# 'ca_SA']:
         # Make the Plot Parameters
         if this_plt_var == 'nzca_pcs_press':
             mrk_LHW_AW = False
         else:
             mrk_LHW_AW = True
-        pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
+        pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW}, legend=add_legend, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
         # Make the subplot groups
         groups_to_plot.append(Analysis_Group2([df], pp_ca_plot, plot_title=''))
     # Add in plots of trends over time
@@ -2009,7 +2015,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
             #
             pp_CT_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['CT', 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['CT_lims']})
         if this_ca_var == 'ca_press':
-            these_y_lims = [355,190]
+            these_y_lims = [375,200]
         elif this_ca_var == 'ca_SA':
             these_y_lims = [35.02,34.1]
         ## Trends in vars
@@ -2027,14 +2033,10 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         # 
         ## Layer thicknesses
         these_x_lims = [0, 16]
-        if this_ca_var == 'ca_press':
-            these_y_lims = [355,190]
-        elif this_ca_var == 'ca_SA':
+        if this_ca_var == 'ca_SA':
             if this_clr_map == 'clr_all_same':
-                these_y_lims = [35.02,34.1]
                 these_x_lims = [0,8]
             elif this_clr_map == 'cluster':
-                these_y_lims = [35.02,34.1]
                 these_x_lims = [0,20]
         # Load the per-profile data (only needed if using nzdf_per_pf, which I haven't calculated for the SA-divs yet)
         if False:
@@ -2069,7 +2071,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         #
         # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-2,2], 'y_lims':these_y_lims})
-        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-40,40], 'y_lims':these_y_lims})
+        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'y_lims':these_y_lims})
         #
         # Make the subplot groups
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),

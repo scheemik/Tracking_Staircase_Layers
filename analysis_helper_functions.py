@@ -205,6 +205,10 @@ AW_edgeclr = jackson_clr[3]
 # For SA divs
 SA_divs_clr = alt_std_clr
 SA_divs_line = '-'
+# Colors to mark outliers
+out_clr_RL = 'b'
+out_clr_IR = 'r'
+out_clr_end = jackson_clr[12]
 
 # The magnitude limits for axis ticks before they use scientific notation
 sci_lims = (-2,3)
@@ -2137,7 +2141,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             rows, cols, f_ratio, f_size = row_col_list
         n_subplots = int(np.floor(n_subplots))
         fig, axes = set_fig_axes([1]*rows, [1]*cols, fig_ratio=f_ratio, fig_size=f_size, share_x_axis=use_same_x_axis, share_y_axis=use_same_y_axis, share_z_axis=use_same_z_axis)
-        # Create a blank array for the axes labels
+        # Create a blank array for the axis labels
         xlabels = [[None for x in range(cols)] for y in range(rows)]
         ylabels = [[None for x in range(cols)] for y in range(rows)]
         for i in range(n_subplots):
@@ -2372,10 +2376,15 @@ def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False):
         notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
         lgnd_hndls.append(notes_patch)
     if mark_LHW_AW:
+        # Get existing legend labels
+        old_hndls, foo = ax.get_legend_handles_labels()
         # Add legend entries for LHW and AW
         lgnd_hndls = []
         lgnd_hndls.append(mpl.lines.Line2D([],[],color=LHW_clr, label='LHW', marker=LHW_mrk, markersize=10, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, markeredgewidth=0.5, linewidth=0))
         lgnd_hndls.append(mpl.lines.Line2D([],[],color=AW_clr, label='AW', marker=AW_mrk, markersize=10, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, markeredgewidth=0.5, linewidth=0))
+        # Add in old labels
+        for hndl in old_hndls:
+            lgnd_hndls.append(hndl)
     lgnd = ax.legend(handles=lgnd_hndls)
 
 ################################################################################
@@ -7057,13 +7066,13 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         else:
             if clr_map == 'clr_all_same':
                 # Plot over the outliers in a different color
-                ax.scatter(cRL_x_data, cRL_y_data, color='r', s=mk_size, marker='x', alpha=mrk_alpha, zorder=4)
-                ax.scatter(nir_x_data, nir_y_data, color='b', s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
-                ax.scatter(end_x_data, end_y_data, color=jackson_clr[12], s=mk_size, marker='o', alpha=mrk_alpha, zorder=4)
+                ax.scatter(cRL_x_data, cRL_y_data, color=out_clr_RL, s=mk_size, marker='x', alpha=mrk_alpha, zorder=4, label=r'$R_L$ outlier')
+                ax.scatter(nir_x_data, nir_y_data, color=out_clr_IR, s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
+                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
             else:
-                ax.scatter(cRL_x_data, cRL_y_data, edgecolors='r', s=mk_size*5, marker='o', facecolors='none', zorder=2)
-                ax.scatter(nir_x_data, nir_y_data, edgecolors='b', s=mk_size*6, marker='o', facecolors='none', zorder=2)
-                ax.scatter(end_x_data, end_y_data, edgecolors=jackson_clr[12], s=mk_size*6, marker='o', facecolors='none', zorder=2)
+                ax.scatter(cRL_x_data, cRL_y_data, edgecolors=out_clr_RL, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+                ax.scatter(nir_x_data, nir_y_data, edgecolors=out_clr_IR, s=mk_size*6, marker='o', facecolors='none', zorder=2)
+                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
@@ -7072,9 +7081,11 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, [x_key], mrk_outliers, threshold)
         if x_key == 'cRL':
-            mrk_clr = 'r'
+            mrk_clr = out_clr_RL
         elif x_key == 'nir_SA':
-            mrk_clr = 'b'
+            mrk_clr = out_clr_IR
+        else:
+            mrk_clr = 'r'
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
