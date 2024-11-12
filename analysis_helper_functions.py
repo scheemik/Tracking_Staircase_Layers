@@ -1649,7 +1649,7 @@ def get_axis_label(var_key, var_attr_dicts):
     elif 'ca_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
         var_str = var_key[3:]
-        return 'Cluster average of '+ var_attr_dicts[0][var_str]['label']
+        return 'Cluster average '+ var_attr_dicts[0][var_str]['label']
     # Check for cluster span variables
     elif 'cs_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -3084,9 +3084,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Add error bars if applicable
                 if errorbars:
                     if not isinstance(x_err_key, type(None)):
-                        ax.errorbar(this_df[x_key], this_df[y_key], xerr=this_df[x_err_key], color=my_clr, capsize=l_cap_size, fmt='none')
+                        ax.errorbar(this_df[x_key], this_df[y_key], xerr=this_df[x_err_key], color=my_clr, capsize=l_cap_size, fmt='none', alpha=m_alpha, zorder=4)
                     if not isinstance(y_err_key, type(None)):
-                        ax.errorbar(this_df[x_key], this_df[y_key], yerr=this_df[y_err_key], color=my_clr, capsize=l_cap_size, fmt='none')
+                        ax.errorbar(this_df[x_key], this_df[y_key], yerr=this_df[y_err_key], color=my_clr, capsize=l_cap_size, fmt='none', alpha=m_alpha, zorder=4)
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = df_labels[i]+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
@@ -3984,6 +3984,29 @@ def mark_the_LHW_AW(ax, x_key, y_key):
 
 ################################################################################
 
+def get_display_unit_string(var_key):
+    """
+    Returns a string of the unit associated with var_key in a display format
+
+    var_key     The string of the name for the data, a column header in the dataframe
+    """
+    if var_key in ['ca_press', 'nzca_pcs_press']:
+        return r'dbar'
+    elif var_key == 'ca_SA':
+        return r'(g/kg)'
+    elif var_key == 'ca_CT':
+        return r' ^\circ C'
+    elif var_key == 'trd_press-fit':
+        return r'dbar/yr'
+    elif var_key == 'trd_SA-fit':
+        return r'(g/kg)/yr'
+    elif var_key == 'trd_CT-fit':
+        return r' ^\circ C/yr'
+    elif var_key == 'percnztrd_pcs_press':
+        return r' \%/yr'
+    else:
+        return ''
+
 def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_slopes, anno_prefix=''):
     """
     Adds a line of best fit to the data
@@ -3998,11 +4021,14 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     linear_clr  The color to make the line
     plot_slopes The type of line to plot, either 'OLS' or 'TLS'
     """
+    unit_str = '\ '+get_display_unit_string(x_key)
     if x_key in ['dt_start', 'dt_end']:
         per_unit = '/yr'
         adjustment_factor = 365.25 # units for dt_start and dt_end are in days, adjust to years
     else:
-        per_unit = ''
+        per_unit = get_display_unit_string(y_key)
+        if not per_unit == '':
+            per_unit = '/'+per_unit
         adjustment_factor = 1
     # Check whether to switch x and y for finding the slope
     if x_key in ['BSP', 'BSA'] or 'trd_' in x_key or 'ca_' in x_key or 'pcs_' in x_key:
@@ -4020,13 +4046,13 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         # sd_m, sd_c = 0, 0
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
-        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
         print('\t\t- Intercept is',c)
         print('\t\t- R^2 value is',rvalue)
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
-        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit,'for',len(x_data_),'points')
+        print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
         print('\t\t- Intercept is',c,'+/-',sd_c)
     # Find mean and standard deviation of x and y data
     # x_mean = df.loc[:,x_key].mean()
@@ -4064,14 +4090,27 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     else:
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=6)
+    
+    # Add an auxiliary legend to note the slope
+    #   Note: because of a really annoying limitation on not being able to use add_artist
+    #   programatically with multiple subplots, this only works if you aren't otherwise
+    #   adding a legend. If you try to use add_artist, you'll get this error:
+    #   ValueError: Can not reset the axes. You are probably trying to re-use an artist in more than one Axes which is not supported
+    temp_lgnd = ax.legend(handles=[mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
+                                   mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0)], fontsize="12")
+    # Set color of legend text
+    for lgnd_line, lgnd_text in zip(temp_lgnd.get_lines(), temp_lgnd.get_texts()):
+        lgnd_text.set_color(linear_clr)
+    
+    # Below code still works, but the above code automatically puts the label in a place where it likely doesn't overlap
     # Put annotation on the plot
     # anno_x = x_mean+x_stdv/4
-    anno_x = max(x_bnds) - 5*x_span/12
-    anno_y = y_mean+y_stdv/0.5
-    if dark_mode:
-        ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
-    else:
-        ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
+    # anno_x = max(x_bnds) - 5*x_span/12
+    # anno_y = y_mean+y_stdv/0.5
+    # if dark_mode:
+    #     ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
+    # else:
+    #     ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 

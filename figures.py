@@ -452,7 +452,7 @@ if False:
     group_map_BGR = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map_BGR], use_same_x_axis=False, use_same_y_axis=False, filename='f1_BGR_all_double_map.png')
-#**# Map of all profiles in BGR plus examples of clustered profiles
+## Map of all profiles in BGR plus examples of clustered profiles
 if False:
     print('')
     print('- Creating a map of all BGR profiles and a plot of example clustered profiles from ITP3')
@@ -1213,7 +1213,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_lat_lon_hist], row_col_list=[1,1, 0.45, 1.4])
 # Selecting the example area
-if False:
+if True:
     print('')
     print('- Creating a map showing the example area')
     # Make the Plot Parameters
