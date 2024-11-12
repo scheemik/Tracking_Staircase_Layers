@@ -244,6 +244,23 @@ def get_axis_labels(pp):
 
     return pp
 
+def str_lowercase(this_str):
+    """
+    Takes in a string and returns a version that is lower case only when the string 
+    contains only letters a-z, which avoids changing the case of greek letters
+
+    this_str        The string to be converted
+    """
+    # Check to make sure this_str is a string
+    if isinstance(this_str, type('')):
+        print('YES THIS IS A STRING')
+        if this_str.isalpha():
+            return this_str.lower()
+        return this_str
+    else:
+        print('Warning: attempted use of str_lowercase() on datatype',type(this_str))
+        return this_str
+
 def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
     """
     Takes in a variable key and returns the corresponding label
@@ -356,7 +373,7 @@ def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
         if var_str == 'FH_cumul':
             return ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
         else:
-            return 'Cluster average '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+            return 'Cluster average '+ str_lowercase(ax_labels_no_units[var_str]) + get_units_strs(var_str)[0]
     # Check for cluster span variables
     elif 'cs_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
