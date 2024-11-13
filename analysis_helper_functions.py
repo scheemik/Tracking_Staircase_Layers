@@ -2770,12 +2770,16 @@ def make_subplot(ax, a_group, fig, ax_pos):
         try:
             tw_x_key = pp.x_vars[1]
             tw_ax_y  = ax.twiny()
+            # Set ticklabel format for twin axis
+            tw_ax_y.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
         except:
             tw_x_key = None
             tw_ax_y  = None
         try:
             tw_y_key = pp.y_vars[1]
             tw_ax_x  = ax.twinx()
+            # Set ticklabel format for twin axis
+            tw_ax_x.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
         except:
             tw_y_key = None
             tw_ax_x  = None
@@ -2934,6 +2938,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_ax_y.set_xlabel(pp.xlabels[1])
                 # Change color of the ticks on the twin axis
                 tw_ax_y.tick_params(axis='x', colors=tw_clr)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_x_lims' in pp.ax_lims.keys():
+                        tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                        print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
             elif not isinstance(tw_y_key, type(None)):
                 tw_clr = get_var_color(tw_y_key)
                 if tw_clr == std_clr:
@@ -2949,6 +2958,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if tw_y_key in y_invert_vars:
                     tw_ax_x.invert_yaxis()
                     print('\t- Inverting twin y-axis')
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_y_lims' in pp.ax_lims.keys():
+                        tw_ax_x.set_ylim(pp.ax_lims['tw_y_lims'])
+                        print('\t- Set tw_y_lims to',pp.ax_lims['tw_y_lims'])
             # Add a standard legend
             if pp.legend:
                 add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
@@ -3388,6 +3402,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_ax_y.tick_params(axis='x', colors=tw_clr)
                 # Create the colorbar
                 cbar = plt.colorbar(heatmap, ax=tw_ax_y)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_x_lims' in pp.ax_lims.keys():
+                        tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                        print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
             elif not isinstance(tw_y_key, type(None)):
                 tw_clr = get_var_color(tw_y_key)
                 if tw_clr == std_clr:
@@ -3405,6 +3424,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 tw_ax_x.tick_params(axis='y', colors=tw_clr)
                 # Create the colorbar
                 cbar = plt.colorbar(heatmap, ax=tw_ax_x)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_y_lims' in pp.ax_lims.keys():
+                        tw_ax_x.set_ylim(pp.ax_lims['tw_y_lims'])
+                        print('\t- Set tw_y_lims to',pp.ax_lims['tw_y_lims'])
             else:
                 # Create the colorbar
                 cbar = plt.colorbar(heatmap, ax=ax)
@@ -3996,6 +4020,8 @@ def get_display_unit_string(var_key):
         return r'(g/kg)'
     elif var_key == 'ca_CT':
         return r' ^\circ C'
+    elif var_key == 'ca_FH':
+        return r'W/m^2'
     elif var_key == 'trd_press-fit':
         return r'dbar/yr'
     elif var_key == 'trd_SA-fit':
@@ -4022,6 +4048,7 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     plot_slopes The type of line to plot, either 'OLS' or 'TLS'
     """
     unit_str = '\ '+get_display_unit_string(x_key)
+    # print('x_key:',x_key,'unit_str:',unit_str)
     if x_key in ['dt_start', 'dt_end']:
         per_unit = '/yr'
         adjustment_factor = 365.25 # units for dt_start and dt_end are in days, adjust to years
@@ -4890,10 +4917,14 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Plot the noise histogram on a twin axis
             if orientation == 'vertical':
                 tw_ax = ax.twinx()
+                # Set ticklabel format for twin axis
+                tw_ax.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
                 tw_ax.set_ylabel('Number of noise points')
                 tw_ax.set_yscale('log')
             elif orientation == 'horizontal':
                 tw_ax = ax.twiny()
+                # Set ticklabel format for twin axis
+                tw_ax.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
                 tw_ax.set_xlabel('Number of noise points')
                 tw_ax.set_xscale('log')
             n, bins, patches = tw_ax.hist(h_var, bins=res_bins, color=std_clr, alpha=noise_alpha, orientation=orientation, zorder=1)
@@ -4993,6 +5024,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     try:
         tw_x_key = pp.x_vars[1]
         tw_ax_y  = ax.twiny()
+        # Set ticklabel format for twin axis
+        tw_ax_y.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
         tw_clr = get_var_color(tw_x_key)
         if tw_clr == std_clr:
             tw_clr = alt_std_clr
@@ -5002,6 +5035,8 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     try:
         tw_y_key = pp.y_vars[1]
         tw_ax_x  = ax.twinx()
+        # Set ticklabel format for twin axis
+        tw_ax_x.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
         tw_clr = get_var_color(tw_y_key)
         if tw_clr == std_clr:
             tw_clr = alt_std_clr
@@ -5293,6 +5328,11 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         if invert_tw_y_axis:
             tw_ax_y.invert_yaxis()
             print('\t- Inverting twin y axis')
+        # Check whether to adjust the twin axes limits
+        if not isinstance(pp.ax_lims, type(None)):
+            if 'tw_x_lims' in pp.ax_lims.keys():
+                tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
     # if True:
     #     # Change color of the axis label
     #     ax.xaxis.label.set_color(var_clr)
@@ -5523,6 +5563,11 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
                 tw_ax_y.scatter(tvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_x_lims' in pp.ax_lims.keys():
+                        tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                        print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
             #
             # Create the colorbar, but only on the first profile
             if i == 0:
@@ -5563,6 +5608,11 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_x_lims' in pp.ax_lims.keys():
+                        tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                        print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
                 if plot_pts:
                     tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
                 if TC_max_key:
@@ -5588,6 +5638,11 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'tw_x_lims' in pp.ax_lims.keys():
+                        tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                        print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
                 if plt_noise:
                     tw_ax_y.scatter(df_clstrs[df_clstrs.cluster==-1][tw_x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=noise_alpha, zorder=2)
             # Loop through each cluster
@@ -5609,6 +5664,11 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                 if not isinstance(tw_x_key, type(None)):
                     t_data = df_clstrs[df_clstrs.cluster == i][tw_x_key]
                     tw_ax_y.scatter(t_data, y_data, color=my_clr, s=pf_mrk_size, marker=my_mkr, alpha=pf_alpha, zorder=5)
+                    # Check whether to adjust the twin axes limits
+                    if not isinstance(pp.ax_lims, type(None)):
+                        if 'tw_x_lims' in pp.ax_lims.keys():
+                            tw_ax_y.set_ylim(pp.ax_lims['tw_x_lims'])
+                            print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
                 #
             #
         #

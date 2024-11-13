@@ -251,10 +251,11 @@ def str_lowercase(this_str):
 
     this_str        The string to be converted
     """
+    # print('CHECKING:',this_str)
     # Check to make sure this_str is a string
-    if isinstance(this_str, type('')):
-        print('YES THIS IS A STRING')
-        if this_str.isalpha():
+    if isinstance(this_str, type('')) and len(this_str) > 0:
+        # print('YES THIS IS A STRING')
+        if all(x.isalpha() or x.isspace() for x in this_str):
             return this_str.lower()
         return this_str
     else:
@@ -793,15 +794,20 @@ def make_subplot(ax, a_group, fig, ax_pos):
     try:
         tw_x_key = pp.x_vars[1]
         tw_ax_y  = ax.twiny()
+        # Set ticklabel format for twin axis
+        tw_ax_y.ticklabel_format(style='sci', scilimits=ahf.sci_lims, useMathText=True)
     except:
         tw_x_key = None
         tw_ax_y  = None
     try:
         tw_y_key = pp.y_vars[1]
         tw_ax_x  = ax.twinx()
+        # Set ticklabel format for twin axis
+        tw_ax_x.ticklabel_format(style='sci', scilimits=ahf.sci_lims, useMathText=True)
     except:
         tw_y_key = None
         tw_ax_x  = None
+    print('tw_x_key:',tw_x_key,'tw_y_key:',tw_y_key)
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Format the dates if necessary
@@ -810,18 +816,18 @@ def make_subplot(ax, a_group, fig, ax_pos):
     if y_key in ['dt_start', 'dt_end']:
         df[y_key] = mpl.dates.date2num(df[y_key])
     # Check for variables to be calculated
-    if 'percnztrd_pcs_press' in x_key or 'percnztrd_pcs_press' in y_key:
+    if 'percnztrd_pcs_press' in pp.x_vars or 'percnztrd_pcs_press' in pp.y_vars:
         # Calculate the percent trend in non-zero thickness
         df['percnztrd_pcs_press'] = df['nztrd_pcs_press']/df['nzca_pcs_press']*100
-    if 'ca_rho' in x_key or 'ca_rho' in y_key:
+    if 'ca_rho' in pp.x_vars or 'ca_rho' in pp.y_vars:
         # Calculate the cluster average density
         df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
-    if 'ca_cp' in x_key or 'ca_cp' in y_key:
+    if 'ca_cp' in pp.x_vars or 'ca_cp' in pp.y_vars:
         # First, calculate the exact temperature
         df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
         # Calculate the cluster average heat capacity
         df['ca_cp'] = gsw.cp_t_exact(df['ca_SA'].values, df['ca_iT'].values, df['ca_press'].values)
-    if 'ca_FH' in x_key or 'ca_FH' in y_key:
+    if 'ca_FH' in pp.x_vars or 'ca_FH' in pp.y_vars:
         ## Calculating the heat flux, need to calculate the components first
         # First, calculate the exact temperature
         df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
@@ -833,7 +839,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         yr_to_s = 365.25*24*60*60
         # Calculate the heat flux
         df['ca_FH'] = df['nzca_pcs_press']*df['ca_cp']*df['ca_rho']*df['trd_CT-fit']/yr_to_s
-    if 'ca_FH_cumul' in x_key:
+    if 'ca_FH_cumul' in pp.x_vars:
         ## Calculating the cumulative heat flux, need to calculate the components first
         # First, calculate the exact temperature
         df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
@@ -1154,24 +1160,38 @@ def make_subplot(ax, a_group, fig, ax_pos):
             invert_y_axis = False
         # Plot on twin axes, if specified
         if not isinstance(tw_x_key, type(None)):
-            tw_clr = get_var_color(tw_x_key)
+            tw_clr = ahf.get_var_color(tw_x_key)
             if tw_clr == std_clr:
-                tw_clr = alt_std_clr
-            tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha)
+                tw_clr = 'purple'
+            tw_ax_y.scatter(df[tw_x_key], df[y_key], color=tw_clr, s=m_size*0.1, marker='s', alpha=m_alpha)
             tw_ax_y.set_xlabel(pp.xlabels[1])
             # Change color of the ticks on the twin axis
             tw_ax_y.tick_params(axis='x', colors=tw_clr)
+            # Change color of the axis label on the twin axis
+            tw_ax_y.xaxis.label.set_color(tw_clr)
+            # Check whether to adjust the twin axes limits
+            if not isinstance(pp.ax_lims, type(None)):
+                if 'tw_x_lims' in pp.ax_lims.keys():
+                    tw_ax_y.set_xlim(pp.ax_lims['tw_x_lims'])
+                    print('\t- Set tw_x_lims to',pp.ax_lims['tw_x_lims'])
         elif not isinstance(tw_y_key, type(None)):
-            tw_clr = get_var_color(tw_y_key)
+            tw_clr = ahf.get_var_color(tw_y_key)
             if tw_clr == std_clr:
-                tw_clr = alt_std_clr
-            tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size, marker=ahf.std_marker, alpha=m_alpha)
+                tw_clr = 'purple'
+            tw_ax_x.scatter(df[x_key], df[tw_y_key], color=tw_clr, s=m_size*0.1, marker='s', alpha=m_alpha)
             # Invert y-axis if specified
             if tw_y_key in ahf.y_invert_vars:
                 tw_ax_x.invert_yaxis()
             tw_ax_x.set_ylabel(pp.ylabels[1])
             # Change color of the ticks on the twin axis
             tw_ax_x.tick_params(axis='y', colors=tw_clr)
+            # Change color of the axis label on the twin axis
+            tw_ax_x.yaxis.label.set_color(tw_clr)
+            # Check whether to adjust the twin axes limits
+            if not isinstance(pp.ax_lims, type(None)):
+                if 'tw_y_lims' in pp.ax_lims.keys():
+                    tw_ax_x.set_ylim(pp.ax_lims['tw_y_lims'])
+                    print('\t- Set tw_y_lims to',pp.ax_lims['tw_y_lims'])
         # Add errorbars, if specified
         if errorbars:
             if x_err_key:
@@ -1614,7 +1634,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             invert_y_axis = False
         # Plot on twin axes, if specified
         if not isinstance(tw_x_key, type(None)):
-            tw_clr = get_var_color(tw_x_key)
+            tw_clr = ahf.get_var_color(tw_x_key)
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
             # Add backing x to distinguish from main axis
@@ -1628,7 +1648,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Create the colorbar
             cbar = plt.colorbar(heatmap, ax=tw_ax_y)
         elif not isinstance(tw_y_key, type(None)):
-            tw_clr = get_var_color(tw_y_key)
+            tw_clr = ahf.get_var_color(tw_y_key)
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
             # Add backing x to distinguish from main axis
@@ -2048,8 +2068,8 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         these_y_lims = [355,190]
     elif this_ca_var == 'ca_SA':
         these_y_lims = [35.02,34.1]
-    # if False:
-    for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
+    if False:
+    # for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
         # Make the Plot Parameters
         if this_plt_var == 'nzca_pcs_press':
             mrk_LHW_AW = False
@@ -2096,11 +2116,11 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         #
         pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
-        pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
+        pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit', 'ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['press', 'cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims, 'tw_x_lims':[-0.00056,0.002]})
         #
         pp_sig_trends = ahf.Plot_Parameters(x_vars=['trd_sigma-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
-        pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
+        pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':False}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
         pp_FH_cumul = ahf.Plot_Parameters(x_vars=['ca_FH_cumul'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         # 
@@ -2151,13 +2171,13 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA_map, plot_title=this_cluster_title),
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_map, plot_title=this_cluster_title),
         # groups_to_plot.append(Analysis_Group2([df], pp_SA_trends, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_CT_trends, plot_title=''))
-        # groups_to_plot.append(Analysis_Group2([df], pp_FH, plot_title=''))
+        groups_to_plot.append(Analysis_Group2([df], pp_CT_trends, plot_title=''))           #**
+        groups_to_plot.append(Analysis_Group2([df], pp_FH, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_FH_cumul, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))
+        # groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
         # groups_to_plot.append(Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_ca_nzpcs, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))
+        # groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**
         # Analysis_Group2([df], pp_sig_trends, plot_title=''),
     # Make the figure
     # row_col_list=[1,4, 0.3, 1.03])
