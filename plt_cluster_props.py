@@ -71,6 +71,7 @@ l_styles = ['-', '--', '-.', ':']
 
 # Unpickle the data frames from file
 if connect_by == 'SA_divs':
+    # df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties_og.pickle', 'rb')) # before 2024-11-13
     df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb'))
 elif connect_by == 'manual':    
     df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
@@ -807,7 +808,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     except:
         tw_y_key = None
         tw_ax_x  = None
-    print('tw_x_key:',tw_x_key,'tw_y_key:',tw_y_key)
+    # print('tw_x_key:',tw_x_key,'tw_y_key:',tw_y_key)
     # Concatonate all the pandas data frames together
     df = pd.concat(a_group.data_frames)
     # Format the dates if necessary
@@ -819,6 +820,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
     if 'percnztrd_pcs_press' in pp.x_vars or 'percnztrd_pcs_press' in pp.y_vars:
         # Calculate the percent trend in non-zero thickness
         df['percnztrd_pcs_press'] = df['nztrd_pcs_press']/df['nzca_pcs_press']*100
+        df['percnztrdsd_pcs_press'] = df['nztrdsd_pcs_press']/df['nzca_pcs_press']*100
     if 'ca_rho' in pp.x_vars or 'ca_rho' in pp.y_vars:
         # Calculate the cluster average density
         df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
@@ -938,6 +940,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 var_str = split_var[1]
                 if prefix == 'ca':
                     x_err_key = 'csd_'+var_str
+                elif prefix == 'trd':
+                    x_err_key = 'trdsd_'+var_str
                 else:
                     x_err_key = False
             if isinstance(y_key, type('str')) and '_' in y_key:
@@ -947,10 +951,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 var_str = split_var[1]
                 if prefix == 'ca':
                     y_err_key = 'csd_'+var_str
+                elif prefix == 'trd':
+                    y_err_key = 'trdsd_'+var_str
                 else:
                     y_err_key = False
-            print('x_err_key:',x_err_key)
-            print('y_err_key:',y_err_key)
+            print('\t- x_err_key:',x_err_key)
+            print('\t- y_err_key:',y_err_key)
             if x_err_key == False and y_err_key == False:
                 errorbars = False
             print('\t- Adding errorbars:',errorbars)
@@ -2068,8 +2074,8 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         these_y_lims = [355,190]
     elif this_ca_var == 'ca_SA':
         these_y_lims = [35.02,34.1]
-    if False:
-    # for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
+    # if False:
+    for this_plt_var in ['ca_CT', 'ca_press']:#, 'nzca_pcs_press']:# 'ca_SA']:
         # Make the Plot Parameters
         if this_plt_var == 'nzca_pcs_press':
             mrk_LHW_AW = False
@@ -2116,7 +2122,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         #
         pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
-        pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit', 'ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['press', 'cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims, 'tw_x_lims':[-0.00056,0.002]})
+        pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit',], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['press', 'cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims, 'tw_x_lims':[-0.00056,0.002]})
         #
         pp_sig_trends = ahf.Plot_Parameters(x_vars=['trd_sigma-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
@@ -2172,9 +2178,9 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_map, plot_title=this_cluster_title),
         # groups_to_plot.append(Analysis_Group2([df], pp_SA_trends, plot_title=''))
         groups_to_plot.append(Analysis_Group2([df], pp_CT_trends, plot_title=''))           #**
-        groups_to_plot.append(Analysis_Group2([df], pp_FH, plot_title=''))
+        # groups_to_plot.append(Analysis_Group2([df], pp_FH, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_FH_cumul, plot_title=''))
-        # groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
+        groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
         # groups_to_plot.append(Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_ca_nzpcs, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**

@@ -6721,6 +6721,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
         elif prefix == 'nzca':
             # Calculate the cluster average version of the variable, neglecting all zero values
             #   Reduces the number of points to just one per cluster
+            #   At the same time, calculate the standard deviation, `nzscd`
             # Get a list of clusters in this dataframe
             clstr_ids = np.unique(np.array(df['cluster'].values))
             clstr_ids = clstr_ids[~np.isnan(clstr_ids)]
@@ -6743,11 +6744,15 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     clstr_mean = datetime.strftime(these_values[len(these_values)//2].astype(datetime), '%Y-%m-%d %H:%M:%S')
                     print('clstr_mean:',clstr_mean)
                     # print('type(clstr_mean):',type(clstr_mean))
+                    clstr_std = None
+                    print('Warning: calculating `nzcsd_'+var+'` not implemented, all values are `None`')
                     # exit(0)
                 else:
                     clstr_mean = np.mean(df_this_cluster[var].values)
+                    clstr_std  = np.std(df_this_cluster[var].values)
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_mean
+                df.loc[df['cluster']==i, 'nzcsd_'+var] = clstr_std
                 # print(str(i)+','+str(clstr_mean))
         elif prefix == 'cs':
             # Calculate the cluster span version of the variable
@@ -6921,6 +6926,8 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = m*adjustment_factor
+                df.loc[df['cluster']==i, 'trdsd_'+var] = sd_m*adjustment_factor
+                df.loc[df['cluster']==i, 'trdR2_'+var] = rvalue
                 # print('cluster '+str(i)+', '+str(m))
             #
             # Make sure that I've calculated cRL and nir_SA as well
@@ -6992,6 +6999,8 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = m*adjustment_factor
+                df.loc[df['cluster']==i, 'nztrdsd_'+var] = sd_m*adjustment_factor
+                df.loc[df['cluster']==i, 'nztrdR2_'+var] = rvalue
                 # print('cluster '+str(i)+', '+str(m))
             #
             # Make sure that I've calculated cRL and nir_SA as well

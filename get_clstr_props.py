@@ -76,7 +76,7 @@ group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
 # Concatonate all the pandas data frames together
 df = pd.concat(group_.data_frames)
 
-calc_pcs_vars = False
+calc_pcs_vars = True
 if calc_pcs_vars:
     # Make a deep copy of the data frame to calculate cluster properties per profile
     df_copy = df.copy(deep=True)
@@ -98,28 +98,28 @@ if calc_pcs_vars:
     # Pickle the data frame to a file
     print('Pickling to outputs/'+filename+'_pf_cluster_properties.pickle')
     pl.dump(df_per_pf, open('outputs/'+filename+'_pf_cluster_properties.pickle', 'wb'))
-# else:
-#     # Load in temp file
-#     print('Loading from to outputs/'+filename+'_pf_cluster_properties.pickle')
-#     df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
-# 
-# # Make a list of variables to calculate
-# calc_vars = []
-# for var in ['press']:#, 'SA', 'CT', 'sigma']:
-#     calc_vars.append('trd_pcs_'+var)
-#     calc_vars.append('nztrd_pcs_'+var)
-#     calc_vars.append('ca_pcs_'+var)
-#     calc_vars.append('nzca_pcs_'+var)
-# # Calculate the above variables for the cluster spans per profile
-# print('Calculating cluster averages in the cluster spans per profile')
-# df_per_pf = ahf.calc_extra_cl_vars(df_per_pf, calc_vars)
-# print(df_per_pf.columns)
-# # Drop duplicates to get one row per cluster
-# df_per_pf = df_per_pf.drop_duplicates(subset=['cluster'])
-# # Drop Time dimension
-# df_per_pf = df_per_pf.droplevel('Time')
-# # Drop the columns for dt_start and entry
-# df_per_pf = df_per_pf.drop(columns=['dt_start', 'entry'])
+else:
+    # Load in temp file
+    print('Loading from to outputs/'+filename+'_pf_cluster_properties.pickle')
+    df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
+
+# Make a list of variables to calculate
+calc_vars = []
+for var in ['press']:#, 'SA', 'CT', 'sigma']:
+    calc_vars.append('trd_pcs_'+var)
+    calc_vars.append('nztrd_pcs_'+var)
+    calc_vars.append('ca_pcs_'+var)
+    calc_vars.append('nzca_pcs_'+var)
+# Calculate the above variables for the cluster spans per profile
+print('Calculating cluster averages in the cluster spans per profile')
+df_per_pf = ahf.calc_extra_cl_vars(df_per_pf, calc_vars)
+print(df_per_pf.columns)
+# Drop duplicates to get one row per cluster
+df_per_pf = df_per_pf.drop_duplicates(subset=['cluster'])
+# Drop Time dimension
+df_per_pf = df_per_pf.droplevel('Time')
+# Drop the columns for dt_start and entry
+df_per_pf = df_per_pf.drop(columns=['dt_start', 'entry'])
 
 # Calculate fit variables over lat-lon for each cluster
 print('Calculating fit variables over lat-lon for each cluster')
@@ -165,10 +165,10 @@ df = df.droplevel('Time')
 # Drop the columns for dt_start and entry
 df = df.drop(columns=['dt_start', 'entry'])
 
-# # Add the values from pf data frame to the main data frame
-# print('Adding values from pf data frame to the main data frame')
-# df = df.merge(df_per_pf, left_index=True, right_index=True, how='outer', suffixes=('', '_y'))
-# df.drop(df.filter(regex='_y$').columns, axis=1, inplace=True)
+# Add the values from pf data frame to the main data frame
+print('Adding values from pf data frame to the main data frame')
+df = df.merge(df_per_pf, left_index=True, right_index=True, how='outer', suffixes=('', '_y'))
+df.drop(df.filter(regex='_y$').columns, axis=1, inplace=True)
 
 print('df:')
 print(df)
