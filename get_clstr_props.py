@@ -76,7 +76,10 @@ group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
 # Concatonate all the pandas data frames together
 df = pd.concat(group_.data_frames)
 
-calc_pcs_vars = True
+# NOTE: Enabling `calc_pcs_vars` will make this script take very long to run
+#       It took several days on my laptop. It could be parallelized, but I
+#       never got around to implementing that. Load from the file when possible.
+calc_pcs_vars = False
 if calc_pcs_vars:
     # Make a deep copy of the data frame to calculate cluster properties per profile
     df_copy = df.copy(deep=True)
@@ -84,7 +87,7 @@ if calc_pcs_vars:
     # Make a list of cluster properties per profile to calculate
     calc_vars = []
     for var in ['press', 'SA', 'CT', 'sigma']:
-        # calc_vars.append('pca_'+var)
+        calc_vars.append('pca_'+var)
         calc_vars.append('pcs_'+var)
 
     # Calculate new cluster variables

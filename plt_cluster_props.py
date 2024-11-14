@@ -489,7 +489,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     #   key: number of subplots, value: (rows, cols, f_ratio, f_size)
     n_row_col_dict = {'1':[1,1, 0.8, 1.25], '2':[1,2, 0.5, 1.25], '2.5':[2,1, 0.8, 1.25],
                       '3':[1,3, 0.2, 1.50], '4':[2,2, 0.7, 2.00],
-                      '5':[2,3, 0.5, 2.00], '6':[2,3, 0.5, 2.00],
+                      '5':[2,3, 0.5, 2.00], '6':[2,3, 0.6, 2.00],
                       '7':[2,4, 0.4, 2.00], '8':[2,4, 0.4, 2.00],
                       '9':[3,3, 0.8, 2.00]}
     # Figure out what layout of subplots to make
@@ -940,8 +940,14 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 var_str = split_var[1]
                 if prefix == 'ca':
                     x_err_key = 'csd_'+var_str
+                elif prefix == 'nzca':
+                    x_err_key = 'nzcsd_'+var_str
                 elif prefix == 'trd':
                     x_err_key = 'trdsd_'+var_str
+                elif prefix == 'nztrd':
+                    x_err_key = 'nztrdsd_'+var_str
+                elif prefix == 'percnztrd':
+                    x_err_key = 'percnztrdsd_'+var_str
                 else:
                     x_err_key = False
             if isinstance(y_key, type('str')) and '_' in y_key:
@@ -2075,7 +2081,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
     elif this_ca_var == 'ca_SA':
         these_y_lims = [35.02,34.1]
     # if False:
-    for this_plt_var in ['ca_CT', 'ca_press']:#, 'nzca_pcs_press']:# 'ca_SA']:
+    for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
         # Make the Plot Parameters
         if this_plt_var == 'nzca_pcs_press':
             mrk_LHW_AW = False
@@ -2183,7 +2189,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
         # groups_to_plot.append(Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''))
         # groups_to_plot.append(Analysis_Group2([df], pp_ca_nzpcs, plot_title=''))
-        # groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**
+        groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**
         # Analysis_Group2([df], pp_sig_trends, plot_title=''),
     # Make the figure
     # row_col_list=[1,4, 0.3, 1.03])
