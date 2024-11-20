@@ -6920,6 +6920,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
                     print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                     print('\t\t- R^2 value is',rvalue)
+                    df.loc[df['cluster']==i, 'trdR2_'+var] = rvalue
                 else:
                     # Find the slope of the total least-squares of the points for this cluster
                     m, c, sd_m, sd_c = orthoregress(x_data, y_data)
@@ -6927,7 +6928,6 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = m*adjustment_factor
                 df.loc[df['cluster']==i, 'trdsd_'+var] = sd_m*adjustment_factor
-                df.loc[df['cluster']==i, 'trdR2_'+var] = rvalue
                 # print('cluster '+str(i)+', '+str(m))
             #
             # Make sure that I've calculated cRL and nir_SA as well
@@ -6955,12 +6955,14 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
                 print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
                 print('\t\t- R^2 value is',rvalue)
+                df['trdR2_'+var] = rvalue
             else:
                 # Find the slope of the total least-squares of the points
                 m, c, sd_m, sd_c = orthoregress(x_data, y_data)
                 print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
             # Put this value to the original dataframe
             df[this_var] = m*adjustment_factor
+            df['trdsd_'+var] = sd_m*adjustment_factor
         elif prefix == 'nztrd':
             # Find the trend vs. dt_start of each cluster for the variable, neglecting all zero values
             #   Reduces the number of points to just one per cluster

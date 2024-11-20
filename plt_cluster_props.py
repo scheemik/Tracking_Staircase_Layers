@@ -77,6 +77,24 @@ elif connect_by == 'manual':
     df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
 bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
 
+# print('bnds_df.columns:')
+# print(bnds_df.columns)
+
+def print_LHW_AW_vals(bnds_df):
+    """
+    Prints out values of the LHW and AW cores in a readable format
+    """
+    # For the LHW and AW
+    for bound_str in ['TC_min', 'TC_max']:
+        print('- For '+bound_str+':')
+        # For each of the three main variables
+        for var_str in ['SA', 'CT', 'press']:
+            # Find the average values
+            print('\t- Average '+var_str+': '+str(bnds_df['av_'+var_str+'_'+bound_str].values[0]))
+            # Find the trend in time
+            print('\t- Fit-corrected trend in '+var_str+': '+str(bnds_df['trd_'+var_str+'_'+bound_str+'-fit'].values[0]) + ' +/- ' + str(bnds_df['trdsd_'+var_str+'_'+bound_str+'-fit'].values[0]) + ' with R^2 of ' + str(bnds_df['trdR2_'+var_str+'_'+bound_str+'-fit'].values[0]))
+# print_LHW_AW_vals(bnds_df)
+
 # print('df.columns:')
 # print(list(df.columns))
 # exit(0)
@@ -294,7 +312,7 @@ def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
         var_str = var_key[9:]
         # return 'NZCA/CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
         # return 'Cluster average thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        return 'Cluster average thickness' + get_units_strs(var_str)[0]
+        return 'Layer average thickness' + get_units_strs(var_str)[0]
     # Check for cluster average of profile cluster span variables
     if 'ca_pcs_' in var_key:
         # Take out the first 7 characters of the string to leave the original variable name
@@ -375,7 +393,7 @@ def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
         if var_str == 'FH_cumul':
             return ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
         else:
-            return 'Cluster average '+ str_lowercase(ax_labels_no_units[var_str]) + get_units_strs(var_str)[0]
+            return 'Layer average '+ str_lowercase(ax_labels_no_units[var_str]) + get_units_strs(var_str)[0]
     # Check for cluster span variables
     elif 'cs_' in var_key:
         # Take out the first 3 characters of the string to leave the original variable name
@@ -938,7 +956,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 split_var = x_key.split('_', 1)
                 prefix = split_var[0]
                 var_str = split_var[1]
-                if prefix == 'ca':
+                if prefix == 'ca' and 'FH' not in var_str:
                     x_err_key = 'csd_'+var_str
                 elif prefix == 'nzca':
                     x_err_key = 'nzcsd_'+var_str
@@ -955,7 +973,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 split_var = y_key.split('_', 1)
                 prefix = split_var[0]
                 var_str = split_var[1]
-                if prefix == 'ca':
+                if prefix == 'ca' and 'FH' not in var_str:
                     y_err_key = 'csd_'+var_str
                 elif prefix == 'trd':
                     y_err_key = 'trdsd_'+var_str
@@ -992,9 +1010,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     yerr_data = np.array(df[df['out_'+x_key]==False][y_err_key].values, dtype=np.float64)
                 # Print the median of the non-outlier data in x and y
                 print('\t- Non-outlier data in x:')
-                print(x_data)
+                print(list(x_data))
                 print('\t- Non-outlier data in y:')
-                print(y_data)
+                print(list(y_data))
                 print('\t- Median of non-outlier data in x:',np.median(x_data))
                 print('\t- Mean of non-outlier data in x:',np.mean(x_data))
                 print('\t- Std dev of non-outlier data in x:',np.std(x_data))
@@ -2072,7 +2090,7 @@ x_lims_dict = {
 plot_slopes = 'OLS'
 add_legend = False
 # if False:
-for this_clr_map in ['clr_all_same']:#, 'cluster']:
+for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
     this_ca_var = 'ca_SA'
@@ -2091,7 +2109,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
             lgnd = True
         else:
             lgnd = add_legend
-        pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=['ca_SA'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
+        pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
         # Make the subplot groups
         groups_to_plot.append(Analysis_Group2([df], pp_ca_plot, plot_title=''))
     # Add in plots of trends over time
@@ -2132,7 +2150,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
         #
         pp_sig_trends = ahf.Plot_Parameters(x_vars=['trd_sigma-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True, 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
-        pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':False}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
+        pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         #
         pp_FH_cumul = ahf.Plot_Parameters(x_vars=['ca_FH_cumul'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=add_legend, ax_lims={'y_lims':these_y_lims})
         # 
@@ -2143,7 +2161,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
                 these_x_lims = [0,8]
             elif this_clr_map == 'cluster':
                 these_x_lims = [0,20]
-        # Load the per-profile data (only needed if using nzdf_per_pf, which I haven't calculated for the SA-divs yet)
+        # Load the per-profile data
         if False:
             df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
             # Find outliers in df
@@ -2195,25 +2213,6 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
     make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
-    exit(0)
-    f5_groups = [
-                    Analysis_Group2([df], pp_press_trends, plot_title=''),
-                    Analysis_Group2([df], pp_CT_trends, plot_title=''),
-                    # Analysis_Group2([df], pp_sig_trends, plot_title=''),
-                    ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),
-                    # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA_map, plot_title=this_cluster_title),
-                    ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_map, plot_title=this_cluster_title),
-                    Analysis_Group2([df], pp_FH, plot_title=''),
-                    Analysis_Group2([df], pp_FH_cumul, plot_title=''),
-                    # Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''),
-                    Analysis_Group2([df], pp_SA_trends, plot_title=''),
-                    Analysis_Group2([df], pp_ca_nzpcs, plot_title=''),
-                    Analysis_Group2([df], pp_trd_nzpcs, plot_title=''),
-    ]
-    # Make the figure
-    # row_col_list=[1,4, 0.3, 1.03])
-    # make_figure(f5_groups, filename='f5_results_full_summary_w_clrmap_'+this_clr_map+'.png')
-    these_ax_lims = None
 ################################################################################
 
 exit(0)
