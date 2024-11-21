@@ -7162,14 +7162,15 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         # Set rows of 'out_'+x_key to True if either 'out_cRL', 'out_nir_SA', or 'out_ends' is True
         df.loc[df['out_cRL']==True, 'out_'+x_key] = True
         df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
-        df.loc[df['out_ends']==True, 'out_'+x_key] = True
         # Plot the outliers in 'cRL', 'nir_SA', and 'ends' in different colors
         cRL_x_data = np.array(df[df['out_cRL']==True][x_key].values, dtype=np.float64)
         cRL_y_data = np.array(df[df['out_cRL']==True][y_key].values, dtype=np.float64)
         nir_x_data = np.array(df[df['out_nir_SA']==True][x_key].values, dtype=np.float64)
         nir_y_data = np.array(df[df['out_nir_SA']==True][y_key].values, dtype=np.float64)
-        end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
-        end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
+        if mrk_outliers == 'ends':
+            df.loc[df['out_ends']==True, 'out_'+x_key] = True
+            end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
+            end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
         if x_key in ['ca_FH_cumul']:
             # Don't plot the outliers
             foo = 2
@@ -7178,11 +7179,13 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
                 # Plot over the outliers in a different color
                 ax.scatter(cRL_x_data, cRL_y_data, color=out_clr_RL, s=mk_size, marker='x', alpha=mrk_alpha, zorder=4, label=r'$R_L$ outlier')
                 ax.scatter(nir_x_data, nir_y_data, color=out_clr_IR, s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
-                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
+                if mrk_outliers == 'ends':
+                    ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
             else:
                 ax.scatter(cRL_x_data, cRL_y_data, edgecolors=out_clr_RL, s=mk_size*5, marker='o', facecolors='none', zorder=2)
                 ax.scatter(nir_x_data, nir_y_data, edgecolors=out_clr_IR, s=mk_size*6, marker='o', facecolors='none', zorder=2)
-                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
+                if mrk_outliers == 'ends':
+                    ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
@@ -7190,6 +7193,10 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         print('\t- Marking outliers in',x_key)
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, [x_key], mrk_outliers, threshold)
+        if mrk_outliers == 'ends':
+            end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
+            end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
+        # Find the marker color
         if x_key == 'cRL':
             mrk_clr = out_clr_RL
         elif x_key == 'nir_SA':
@@ -7203,8 +7210,14 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         if clr_map == 'clr_all_same':
             # Plot over the outliers in a different color
             ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
+            if mrk_outliers == 'ends':
+                df.loc[df['out_ends']==True, 'out_'+x_key] = True
+                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
         else:
             ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+            if mrk_outliers == 'ends':
+                df.loc[df['out_ends']==True, 'out_'+x_key] = True
+                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
     # Print the outliers
     if len(x_data) == 0:
         print('No outliers found')
@@ -7597,8 +7610,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Add line at nir_var = -1
             print('\t- Adding line at '+x_key+' = 1')
             ax.axvline(1, color=std_clr, alpha=0.5, linestyle='-')
-            anno_x = 1+x_span/8
-            anno_y = min(y_bnds)+y_span/2
+            # anno_x = 1+x_span/8
+            # anno_y = min(y_bnds)+y_span/2
+            anno_x = min(x_bnds) + (2/5)*x_span
+            anno_y = min(y_bnds) + 4*y_span/5
             print('\t\t- Annotating at',anno_x,anno_y)
             anno_text = ax.annotate(r'$\mathbf{IR_{S_A}=1}$', xy=(anno_x,anno_y), xycoords='data', color=std_clr, fontweight='bold', alpha=0.5, bbox=anno_bbox, zorder=12)
             anno_text.set_fontsize(font_size_lgnd)
@@ -7654,12 +7669,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # Plot the fit
                 ax.plot(x_fit(y_arr), y_arr, color=alt_std_clr)
                 # Add annotation to say what the line is
-                line_label = r"$\mathbf{R_L = " + format_sci_notation(z[0]) + " p^2 + " + format_sci_notation(z[1])+ "p " + format_sci_notation(z[2])+"}$"
-                anno_x = x_mean+0.5*x_stdv
-                anno_x = min(x_bnds) + (1/3)*x_span
-                anno_y = y_span/3+min(y_bnds)
-                anno_x = min(x_bnds) + 2*x_span/4
-                anno_y = min(y_bnds)+y_span/2
+                line_label = r"$\mathbf{R_L = " + format_sci_notation(z[0]) + " p^2 " + format_sci_notation(z[1])+ "p + " + format_sci_notation(z[2])+"}$"
+                # anno_x = x_mean+0.5*x_stdv
+                anno_x = min(x_bnds) + (2/5)*x_span
+                anno_y = min(y_bnds) + 4*y_span/5
+                # anno_x = min(x_bnds) + 2*x_span/4
+                # anno_y = min(y_bnds)+y_span/2
                 anno_text = ax.annotate(line_label, xy=(anno_x,anno_y), xycoords='data', color=alt_std_clr, fontweight='bold', bbox=anno_bbox, zorder=12)
                 anno_text.set_fontsize(font_size_lgnd)
                 # Limit the y axis
