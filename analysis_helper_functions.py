@@ -5156,6 +5156,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             separate_periods = extra_args['separate_periods']
         except:
             separate_periods = False
+        try:
+            add_inset = extra_args['add_inset']
+        except:
+            add_inset = None
     else:
         plt_noise = True
         shift_pfs = True
@@ -5310,6 +5314,46 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         print('\t- Done plotting profiles separately by period, i =',i)
     else:
         ret_dict = add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
+        if not isinstance(add_inset, type(None)):
+            print('Adding inset to axis in the range '+str(add_inset[0])+' to '+str(add_inset[1]))
+            # Highlight the inset range on the main axis
+            ax.axhspan(add_inset[0], add_inset[1], color=std_clr, alpha=0.1)
+            # Import needed packages
+            import matplotlib.ticker as ticker
+            import mpl_toolkits.axes_grid.inset_locator as plt_inset
+            # Set inset position, fractions of x and y spans: 
+            #   [left=x_ax_min+frac*x_span, bottom=y_ax_min+frac*y_span, right=left+frac*x_span, top=bottom+frac*y_span]
+            inset_pos = [[0.1, 0.1, 0.3, 0.4]]
+            # Create inset axes using provided position
+            ax_in = ax.inset_axes(inset_pos[0], zorder=10)
+            # If needed, create a twin axis for the inset
+            try:
+                tw_x_key = pp.x_vars[1]
+                in_tw_ax_y  = ax_in.twiny()
+                # Set ticklabel format for twin axis
+                in_tw_ax_y.ticklabel_format(style='sci', scilimits=sci_lims, useMathText=True)
+                # Change color of the axis label on the twin axis
+                in_tw_ax_y.xaxis.label.set_color(tw_clr)
+                # Change color of the ticks on the twin axis
+                in_tw_ax_y.tick_params(axis='x', colors=tw_clr)
+            except:
+                tw_x_key = None
+                in_tw_ax_y  = None
+            # Go through the profile_dfs and narrow to just the specified inset range
+            for pf_df in profile_dfs:
+                pf_df.drop(pf_df[pf_df[y_key] < min(add_inset)].index, inplace=True)
+                pf_df.drop(pf_df[pf_df[y_key] > max(add_inset)].index, inplace=True)
+            # Make sure it doesn't try to mark the thermocline
+            TC_max_key = False
+            TC_min_key = False
+            tw_TC_max_key = False
+            tw_TC_min_key = False
+            # Plot on the inset axis
+            add_profiles(ax_in, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, in_tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
+            # Adjust the vertical axis limits
+            ax_in.set_ylim(add_inset)
+            # Something seems a bit weird with trying to get the inset axis on top of the original one
+            # ax_in.set_zorder(10)
     # Adjust twin axes, if specified
     if not isinstance(tw_x_key, type(None)):
         # Adjust bounds on axes
@@ -5611,9 +5655,6 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
                 # ax.scatter(TC_min, press_TC_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
                 # Plot the partially filled in triangle
                 ax.plot(TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
-            # Highlight range between the two
-            if TC_max_key and TC_min_key:
-                ax.axhspan(press_TC_max, press_TC_min, color=std_clr, alpha=0.1)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
@@ -5629,11 +5670,13 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
                     # tw_ax_y.scatter(tw_TC_max, press_TC_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
                     # Plot the partially filled in triangle
                     tw_ax_y.plot(tw_TC_max, press_TC_max, color=AW_clr, markersize=pf_mrk_size*2, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=4)
+                    tw_ax_y.axhline(press_TC_max, color=AW_facealtclr, linestyle='--', zorder=3)
                 if TC_min_key:
                     print('\t- Plotting tw_TC_min:',tw_TC_min,'press_TC_min:',press_TC_min)
                     # tw_ax_y.scatter(tw_TC_min, press_TC_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
                     # Plot the partially filled in triangle
                     tw_ax_y.plot(tw_TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
+                    tw_ax_y.axhline(press_TC_min, color=LHW_facealtclr, linestyle='--', zorder=3)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
