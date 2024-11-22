@@ -1213,7 +1213,7 @@ if False:
     # Make the figure
     ahf.make_figure([group_lat_lon_hist], row_col_list=[1,1, 0.45, 1.4])
 # Selecting the example area
-if True:
+if False:
     print('')
     print('- Creating a map showing the example area')
     # Make the Plot Parameters
@@ -1650,7 +1650,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
 #**# Map of all profiles by date, plus map of fit to one cluster
-if False:
+if True:
     this_cluster_id = 27
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     print('')
@@ -1664,14 +1664,15 @@ if False:
     pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic'}, legend=True)
     pp_map_one_cluster = ahf.Plot_Parameters(plot_type='map', clr_map='press', extra_args={'map_extent':'Western_Arctic', 'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'c_lims':clstr_ranges_dict['press_lims']}, legend=False)
     pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic'}, legend=False)#, add_grid=False)
-    pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True, 'shift_pfs':True}, legend=True)
+    pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_thermocline':True, 'shift_pfs':False}, ax_lims={'y_lims':[770, 0]}, legend=True)
     # Make the subplot groups
-    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='All profiles')
-    group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Cluster '+str(this_cluster_id)+' fit')
-    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
+    # group_map_by_date = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_map_by_date, plot_title='All profiles')
+    # group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Layer '+str(this_cluster_id)+' fit')
+    # group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
     # Make the figure
-    ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic, group_example_profiles1], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
+    ahf.make_figure([group_example_profiles1], row_col_list=[1,1, 0.8, 1.4], filename='f1_test_ex_prof.png')
+    # ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic, group_example_profiles1], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
 # Example profile plot, CT and SA
 if False:
     print('')

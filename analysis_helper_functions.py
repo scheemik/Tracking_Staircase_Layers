@@ -5304,12 +5304,12 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             n_pfs = len(sep_periods_dfs_dict[this_period])
             print('\t- Plotting',n_pfs,'profiles for',this_period,'with x_span_avg =',x_span_avg)
             if n_pfs > 0:
-                ret_dict = add_profiles(ax, a_group, n_pfs, sep_periods_dfs_dict[this_period], x_key, y_key, clr_map, std_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, 0, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods, x_span_avg)
+                ret_dict = add_profiles(ax, a_group, pp, n_pfs, sep_periods_dfs_dict[this_period], x_key, y_key, clr_map, std_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, 0, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods, x_span_avg)
                 x_span_avg += ret_dict['xv_span_avg']
             i += 1
         print('\t- Done plotting profiles separately by period, i =',i)
     else:
-        ret_dict = add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
+        ret_dict = add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
     # Adjust twin axes, if specified
     if not isinstance(tw_x_key, type(None)):
         # Adjust bounds on axes
@@ -5371,12 +5371,13 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
 ################################################################################
 
 # Plot each profile
-def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False, x_span_avg=0.0):
+def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False, x_span_avg=0.0):
     """
     Adds the profiles to the plot
 
     ax              The axis on which to make the plot
     a_group         An Analysis_Group object containing the info to create this subplot
+    pp              The Plot Parameters
     n_pfs           The number of profiles to plot
     profile_dfs     A list of pandas dataframes, each containing the data for a profile
     x_key           A string of the column header to plot on the x-axis
@@ -5600,11 +5601,19 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
             if TC_max_key:
                 press_TC_max = np.unique(np.array(pf_df['press_TC_max'].values))
                 print('\t- Plotting TC_max:',TC_max,'press_TC_max:',press_TC_max)
-                ax.scatter(TC_max, press_TC_max, color=var_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                # ax.scatter(TC_max, press_TC_max, color=var_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                # Plot the partially filled in triangle
+                ax.plot(TC_max, press_TC_max, color=AW_clr, markersize=pf_mrk_size*2, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=4)
+            # Plot minimum
             if TC_min_key:
                 press_TC_min = np.unique(np.array(pf_df['press_TC_min'].values))
                 print('\t- Plotting TC_min:',TC_min,'press_TC_min:',press_TC_min)
-                ax.scatter(TC_min, press_TC_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+                # ax.scatter(TC_min, press_TC_min, color=var_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+                # Plot the partially filled in triangle
+                ax.plot(TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
+            # Highlight range between the two
+            if TC_max_key and TC_min_key:
+                ax.axhspan(press_TC_max, press_TC_min, color=std_clr, alpha=0.1)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
@@ -5617,10 +5626,14 @@ def add_profiles(ax, a_group, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr
                     tw_ax_y.scatter(tvar, pf_df[y_key], color=tw_clr, s=pf_mrk_size, marker=mkr, alpha=mrk_alpha)
                 if TC_max_key:
                     print('\t- Plotting tw_TC_max:',tw_TC_max,'press_TC_max:',press_TC_max)
-                    tw_ax_y.scatter(tw_TC_max, press_TC_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                    # tw_ax_y.scatter(tw_TC_max, press_TC_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
+                    # Plot the partially filled in triangle
+                    tw_ax_y.plot(tw_TC_max, press_TC_max, color=AW_clr, markersize=pf_mrk_size*2, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=4)
                 if TC_min_key:
                     print('\t- Plotting tw_TC_min:',tw_TC_min,'press_TC_min:',press_TC_min)
-                    tw_ax_y.scatter(tw_TC_min, press_TC_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+                    # tw_ax_y.scatter(tw_TC_min, press_TC_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
+                    # Plot the partially filled in triangle
+                    tw_ax_y.plot(tw_TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
