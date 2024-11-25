@@ -4257,7 +4257,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     tax         Twin x axis
     clstr_dict  A dictionary of clustering values: m_pts, rel_val
     """
-    print('in plot_histogram()')
+    print('\t- Plotting a histogram')
     # print(df)
     # Find the histogram parameters, if given
     if not isinstance(pp.extra_args, type(None)):
@@ -4265,6 +4265,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             n_h_bins = pp.extra_args['n_h_bins']
         except:
             n_h_bins = None
+        try:
+            bin_size = pp.extra_args['bin_size']
+        except:
+            bin_size = None
         try:
             plt_hist_lines = pp.extra_args['plt_hist_lines']
         except:
@@ -4331,7 +4335,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         if plt_noise == False:
             df = df[df.cluster!=-1]
         # Get histogram parameters
-        h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
+        h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins, bin_size)
         # Plot the histogram
         if pdf_hist:
             # Get the histogram
@@ -4458,7 +4462,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             if tw_clr == std_clr:
                 tw_clr = alt_std_clr
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(df, tw_var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(df, tw_var_key, n_h_bins, bin_size)
             # Plot the histogram
             tw_ax.hist(h_var, bins=res_bins, color=tw_clr, alpha=hist_alpha, orientation=orientation)
             if orientation == 'vertical':
@@ -4533,7 +4537,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Get the data for just this source
             this_df = df[df['source'] == source]
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins, bin_size)
             # Plot the histogram
             ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
             # Check whether to plot lines for mean and standard deviation
@@ -4605,7 +4609,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins, bin_size)
             # Plot the histogram
             if pdf_hist:
                 # Get the histogram
@@ -4711,7 +4715,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # my_clr = period_clrs[i%len(period_clrs)]
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins, bin_size)
             ## Plot the histogram
             # Get the histogram
             this_hist, these_bin_edges = np.histogram(h_var, bins=res_bins)
@@ -4770,7 +4774,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Decide on the color, don't go off the end of the array
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins, bin_size)
             # Plot the histogram
             ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
             # Add legend handle to report the total number of points for this dataset
@@ -4816,7 +4820,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Get the data for just this instrmt
             this_df = df[df['source-instrmt'] == instrmt]
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins, bin_size)
             # Plot the histogram
             ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation)
             # Check whether to plot lines for mean and standard deviation
@@ -4889,7 +4893,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             h_data = this_clstr_df[var_key]
             h_mean = np.mean(h_data)
             # Get histogram parameters
-            h_var, res_bins, median, mean, std_dev = get_hist_params(this_clstr_df, var_key, n_h_bins)
+            h_var, res_bins, median, mean, std_dev = get_hist_params(this_clstr_df, var_key, n_h_bins, bin_size)
             # Plot the histogram
             n, bins, patches = ax.hist(h_var, bins=res_bins, color=my_clr, alpha=hist_alpha, orientation=orientation, zorder=5)
             # Find the maximum value for this histogram
@@ -4911,9 +4915,9 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Plot noise points
         if plt_noise and len(df_noise) > 0:
             # Get histogram parameters
-            if isinstance(n_h_bins, type(None)):
-                n_h_bins = 25
-            h_var, res_bins, median, mean, std_dev = get_hist_params(df_noise, var_key, n_h_bins*n_clusters)
+            # if isinstance(n_h_bins, type(None)):
+            #     n_h_bins = 25
+            h_var, res_bins, median, mean, std_dev = get_hist_params(df_noise, var_key, n_h_bins*n_clusters, bin_size)
             # Plot the noise histogram on a twin axis
             if orientation == 'vertical':
                 tw_ax = ax.twinx()
@@ -4958,16 +4962,29 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
 
 ################################################################################
 
-def get_hist_params(df, h_key, n_h_bins=50):
+def get_hist_params(df, h_key, n_h_bins=None, bin_size=None):
     """
     Returns the needed information to make a histogram
 
     df          A pandas data frame of the data to plot
     h_key       A string of the column header to plot
     n_h_bins    The number of histogram bins to use
+    bin_size    The size of bin to use
+                    Note: can only specify either n_h_bins or bin_size, not both
     """
+    # Check whether n_h_bins or bin_size was specified
     if isinstance(n_h_bins, type(None)):
-        n_h_bins = 50
+        if isinstance(bin_size, type(None)):
+            n_h_bins = 50
+            use_n_h_bins = True
+        else:
+            use_n_h_bins = False
+    else:
+        if isinstance(bin_size, type(None)):
+            use_n_h_bins = True
+        else:
+            print('Error: cannot specify both `n_h_bins` and `bin_size`')
+            exit(0)
     # Pull out the variable to plot, removing null values
     try:
         h_var = np.array(df[df[h_key].notnull()][h_key])
@@ -4978,16 +4995,18 @@ def get_hist_params(df, h_key, n_h_bins=50):
     median  = np.median(h_var)
     mean    = np.mean(h_var)
     std_dev = np.std(h_var)
-    # Define the bins to use in the histogram, np.arange(start, stop, step)
-    if False:
-        start = mean - 3*std_dev
-        stop  = mean + 3*std_dev
-        step  = std_dev / n_h_bins
+    # Define the bins to use in the histogram, np.arange(start, stop, bin_size)
+    start = min(h_var)
+    stop  = max(h_var)
+    # start = mean - 3*std_dev
+    # stop  = mean + 3*std_dev
+    if use_n_h_bins:
+        bin_size  = (stop - start) / n_h_bins
+        # bin_size  = std_dev / n_h_bins
     else:
-        start = min(h_var)
-        stop  = max(h_var)
-        step  = (stop - start) / n_h_bins
-    res_bins = np.arange(start, stop, step)
+        n_h_bins = int((stop - start) / bin_size)
+    res_bins = np.arange(start, stop, bin_size)
+    print('\t\t- Using '+str(n_h_bins)+' bins with start: '+str(start)+', stop: '+str(stop)+', bin_size: '+str(bin_size))
     return h_var, res_bins, median, mean, std_dev
 
 ################################################################################
