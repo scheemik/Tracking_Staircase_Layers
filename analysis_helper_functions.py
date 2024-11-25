@@ -3627,22 +3627,22 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-                # Add a polygon patch
-                # The coordinates need to be listed in counter-clockwise order
-                lat_corners = np.array([73, 73, 81.5, 81.5])
-                lon_corners = np.array([-160, -130, -130, -160])
-                # The above makes a box, below curves the top and bottom along latitude lines
-                top_lons = np.linspace(-130, -160, bb_res)
-                bot_lons = np.linspace(-160, -130, bb_res)
-                top_lats = np.zeros((len(top_lons)), np.float64) + 81.5
-                bot_lats = np.zeros((len(bot_lons)), np.float64) + 73.0
-                lon_corners = np.concatenate([top_lons, bot_lons])
-                lat_corners = np.concatenate([top_lats, bot_lats])
-                poly_corners = np.zeros((len(lat_corners), 2), np.float64)
-                poly_corners[:,0] = lon_corners
-                poly_corners[:,1] = lat_corners
-                poly_patch = plt.Polygon(poly_corners, closed=True, ec='r', fill=True, lw=0.5, fc='r', transform=ccrs.Geodetic(), zorder=bb_zorder)
-                ax.add_patch(poly_patch)
+                # # Add a polygon patch
+                # # The coordinates need to be listed in counter-clockwise order
+                # lat_corners = np.array([73, 73, 81.5, 81.5])
+                # lon_corners = np.array([-160, -130, -130, -160])
+                # # The above makes a box, below curves the top and bottom along latitude lines
+                # top_lons = np.linspace(-130, -160, bb_res)
+                # bot_lons = np.linspace(-160, -130, bb_res)
+                # top_lats = np.zeros((len(top_lons)), np.float64) + 81.5
+                # bot_lats = np.zeros((len(bot_lons)), np.float64) + 73.0
+                # lon_corners = np.concatenate([top_lons, bot_lons])
+                # lat_corners = np.concatenate([top_lats, bot_lats])
+                # poly_corners = np.zeros((len(lat_corners), 2), np.float64)
+                # poly_corners[:,0] = lon_corners
+                # poly_corners[:,1] = lat_corners
+                # poly_patch = plt.Polygon(poly_corners, closed=True, ec='r', fill=True, lw=0.5, fc='r', transform=ccrs.Geodetic(), zorder=bb_zorder)
+                # ax.add_patch(poly_patch)
             elif bbox == 'CB':
                 CB_lons = np.linspace(-130, -155, 50)
                 ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
@@ -7593,8 +7593,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR0506_start = mpl.dates.date2num(datetime.fromisoformat('2005-08-15'))
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
             # for i in cluster_numbers:
+            for i in [0, 27, 35, 49]:
             # Just the clusters that appear in BGR0506
-            for i in range(0, 148):# 80):
+            # for i in range(0, 148):# 80):
             # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
@@ -7611,6 +7612,23 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # This will plot the cluster number on the left-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
+                # Check whether to plot symbols for the LHW and AW
+                if mark_LHW_AW:
+                    # Parse the bounds keys
+                    x_LHW_key, y_LHW_key, x_AW_key, y_AW_key = parse_LHW_AW_keys(x_key, y_key)
+                    # Load the bounds data
+                    this_BGR = 'BGR_all'
+                    # this_BGR = 'BGR1516'
+                    bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
+                    # Find the mean y values for the LHW and AW
+                    y_LHW_data = bnds_df[y_LHW_key]
+                    y_LHW_mean = np.mean(y_LHW_data)
+                    y_AW_data = bnds_df[y_AW_key]
+                    y_AW_mean = np.mean(y_AW_data)
+                    # Plot the LHW and AW
+                    this_mrk_size = np.sqrt(cent_mrk_size)
+                    ax.plot(x_place, y_LHW_mean, color=LHW_clr, markersize=this_mrk_size, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=10)
+                    ax.plot(x_place, y_AW_mean, color=AW_clr, markersize=this_mrk_size, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=10)
             # print('Cluster numbers:',these_clst_ids)
             # Select date on which to place the cluster numbers on the right-hand side
             x_place = mpl.dates.date2num(datetime.fromisoformat('2022-10-01'))
@@ -7619,8 +7637,9 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR2122_start = mpl.dates.date2num(datetime.fromisoformat('2021-08-15'))
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
             # for i in cluster_numbers:
+            for i in [0, 27, 35, 49]:
             # Just the clusters that appear in BGR2122
-            for i in range(0, 137):# 65):
+            # for i in range(0, 137):# 65):
             # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
@@ -7637,6 +7656,11 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 # This will plot the cluster number on the right-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
+                # Check whether to plot symbols for the LHW and AW
+                if mark_LHW_AW:
+                    # Plot the LHW and AW
+                    ax.plot(x_place, y_LHW_mean, color=LHW_clr, markersize=this_mrk_size, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=10)
+                    ax.plot(x_place, y_AW_mean, color=AW_clr, markersize=this_mrk_size, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=10)
             # print('Cluster numbers:',these_clst_ids)
         # Add a line at nir_var = 1, if plotting nir
         if 'nir_' in x_key:
