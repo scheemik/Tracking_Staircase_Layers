@@ -29,6 +29,26 @@ test_S_range = [34.4, 34.6]
 lon_BGR = [-160,-130]
 lat_BGR = [73,81.5]
 
+# Ranges for the LHW and AW
+LHW_plt_ranges = {
+    'press_lims':[312,150],
+    'CT_lims':[-0.78, -1.43],
+    'SA_lims':[34.13, 34.09]
+}
+AW_plt_ranges = {
+    'press_lims':[564,336],
+    'CT_lims':[1.0, 0.5],
+    'SA_lims':[35.05, 34.95]
+}
+# Add fit ranges to BGR_all_clstr_plt_ranges
+var_lims = ['press_lims', 'CT_lims', 'SA_lims']
+var_fit_lims = ['press-fit_lims', 'CT-fit_lims', 'SA-fit_lims']
+for dict in [LHW_plt_ranges, AW_plt_ranges]:
+    for i in range(len(var_lims)):
+        # Find range of var lims
+        var_lim_range = abs(dict[var_lims[i]][1] - dict[var_lims[i]][0])
+        dict[var_fit_lims[i]] = [var_lim_range/2, -var_lim_range/2]
+
 # Example area, chosen to have a few profiles from all time periods
 # lon_ex_area = [-141.19, -140.27] # [-143.8,-139.8]
 # lat_ex_area = [76.66, 77.33] # [76.6,77.6]
@@ -715,38 +735,38 @@ BGR_HPC_SA_divs = [34.1590168476106, 34.179234064102346, 34.19485645866415, 34.2
 # From SA divs:
 BGR_all_clstr_plt_ranges = {
     3:{
-        'press_lims':[350,200],
+        'press_lims':[300,155],
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.72,-1.38],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.21139781761194, 34.19485645866415],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     9:{
-        'press_lims':[350,200],
+        'press_lims':[300,165],
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.62,-1.28],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.29686150550886, 34.28307703971903],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     18:{
-        'press_lims':[350,200],
+        'press_lims':[320,180],
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.43,-0.95],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.44297684288101, 34.43103030586316],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     22:{
-        'press_lims':[350,200],
+        'press_lims':[330,190],
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.38,-0.75],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.50362849235624, 34.48892506218043],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
@@ -755,43 +775,43 @@ BGR_all_clstr_plt_ranges = {
         'pcs_press_lims':[0,3],
         'CT_lims':[-0.20,-0.5],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.587254251481184, 34.57346978569136],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     36:{
-        'press_lims':[350,200],
+        'press_lims':[360,235],
         'pcs_press_lims':[0,3],
         'CT_lims':[0.16,-0.07],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.74072130394124, 34.72142305183549],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     39:{
-        'press_lims':[350,200],
+        'press_lims':[370,250],
         'pcs_press_lims':[0,3],
         'CT_lims':[0.33,0.07],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.79861606025851, 34.78299366569671],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     42:{
-        'press_lims':[350,200],
+        'press_lims':[380,260],
         'pcs_press_lims':[0,3],
         'CT_lims':[0.48,0.18],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.847321172715894, 34.82618499183816],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
     47:{
-        'press_lims':[350,200],
+        'press_lims':[440,275],
         'pcs_press_lims':[0,3],
         'CT_lims':[0.7,0.4],
         'pcs_CT_lims':[0,0.035],
-        'SA_lims':[34.588,34.570],
+        'SA_lims':[34.92910900306886, 34.91072971534909],
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
@@ -804,7 +824,7 @@ for key in BGR_all_clstr_plt_ranges.keys():
     for i in range(len(var_lims)):
         # Find range of var lims
         var_lim_range = abs(BGR_all_clstr_plt_ranges[key][var_lims[i]][1] - BGR_all_clstr_plt_ranges[key][var_lims[i]][0])
-        BGR_all_clstr_plt_ranges[key][var_fit_lims[i]] = [-var_lim_range/2, var_lim_range/2]
+        BGR_all_clstr_plt_ranges[key][var_fit_lims[i]] = [var_lim_range/2, -var_lim_range/2]
 
 
 

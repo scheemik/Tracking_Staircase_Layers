@@ -130,8 +130,8 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-    # clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
-    clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]]
+    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
+    # clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]] # For ITP vs time plot
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
@@ -347,6 +347,20 @@ class Analysis_Group:
         setattr(self, key, value)
     def __getitem__(self, key):
         return getattr(self, key)
+
+class Analysis_Group2:
+    """
+    Takes in a list of xarray datasets and applies filters to individual profiles
+    Returns a list of pandas dataframes, one for each source
+
+    data_frames            A list of pandas dataframes
+    plt_params          A custom Plot_Parameters object
+    plot_title          A string to use as the title for this subplot
+    """
+    def __init__(self, data_frames, plt_params, plot_title=None):
+        self.data_frames = data_frames
+        self.plt_params = get_axis_labels2(plt_params)
+        self.plot_title = plot_title
 
 ################################################################################
 
@@ -746,8 +760,9 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                             vars_to_keep.append('iT')
                 # If adding variables over which to run polyfit2d
                 if key == 'fit_vars':
-                    for var in pp.extra_args[key]:
-                        vars_to_keep.append(var)
+                    if not isinstance(pp.extra_args[key], type(False)):
+                        for var in pp.extra_args[key]:
+                            vars_to_keep.append(var)
                     #
                 # If adding extra variables to keep
                 if key == 'extra_vars_to_keep':
@@ -1603,6 +1618,343 @@ def get_axis_labels(pp, var_attr_dicts):
 
 ################################################################################
 
+def get_axis_labels2(pp):
+    """
+    Adds in the x and y labels based on the plot variables in the 
+    Plot_Parameters object
+
+    pp              A custom Plot_Parameters object
+    """
+    # Build dictionary of axis labels
+    ax_labels = {
+                 'instrmt':r'Instrument',
+                 'dt_start':r'Datetime of profile start',
+                 'dt_end':r'Datetime of profile end',
+                 'lat':r'Latitude ($^\circ$N)',
+                 'lon':r'Longitude ($^\circ$E+)',
+                 'hist':r'Occurrences',
+                 'press':r'Pressure (dbar)',
+                 'press_TC_max':r'$p(\Theta_{max})$ (dbar)',
+                 'press_TC_min':r'$p(S_A\approx34.1)$ (dbar)',
+                 'SA_TC_max':r'$S_A(\Theta_{max})$ (g/kg)',
+                 'SA_TC_min':r'$S_A\approx34.1$ (g/kg)',
+                 'CT_TC_max':r'$\Theta_{max}$ ($^\circ$C)',
+                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$ ($^\circ$C)',
+                 'SA':r'$S_A$ (g/kg)',
+                 'CT':r'$\Theta$ ($^\circ$C)',
+                 'sigma':r'$\sigma_1$ (kg/m$^3$)',
+                 'rho':r'$\rho$ (kg/m$^3$)',
+                 'cp':r'$C_p$ (J kg$^{-1}$ K$^{-1}$)',
+                 'FH':r'Heat Flux (W/m$^2$)',
+                 'FH_cumul':r'Cumulative Heat Flux (W/m$^2$)',
+                 'alpha':r'$\alpha$ (1/$^\circ$C)',
+                 'beta':r'$\beta$ (kg/g)',
+                 'aiT':r'$\alpha T$',
+                 'aCT':r'$\alpha \Theta$',
+                 'aPT':r'$\alpha \theta$',
+                 'BSP':r'$\beta S_P$',
+                 'BSt':r'$\beta_{PT} S_P$',
+                 'BSA':r'$\beta S_A$',
+                 'distance':r'Along-path distance (km)',
+                 'm_pts':r'Minimum density threshold $m_{pts}$',
+                 'DBCV':'Relative validity measure (DBCV)',
+                 'n_clusters':'Number of clusters',
+                 'cRL':r'Lateral density ratio $R_L$',
+                 'cRl':r'Lateral density ratio $R_L$ with $\theta$',
+                 'n_points':'Number of points in cluster',
+                }
+    # Build dictionary of axis labels without units
+    ax_labels_no_units = {
+                 'instrmt':r'Instrument',
+                 'dt_start':r'Datetime of profile start',
+                 'dt_end':r'Datetime of profile end',
+                 'lat':r'Latitude',
+                 'lon':r'Longitude',
+                 'hist':r'Occurrences',
+                 'press':r'Pressure',
+                 'press_TC_max':r'$p(\Theta_{max})$',
+                 'press_TC_min':r'$p(S_A\approx34.1)$',
+                 'SA_TC_max':r'$S_A(\Theta_{max})$',
+                 'SA_TC_min':r'$S_A\approx34.1$',
+                 'CT_TC_max':r'$\Theta_{max}$',
+                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$',
+                 'SA':r'$S_A$',
+                 'CT':r'$\Theta$',
+                 'sigma':r'$\sigma_1$',
+                 'rho':r'$\rho$',
+                 'cp':r'$C_p$',
+                 'FH':r'Heat Flux',
+                 'FH_cumul':r'Cumulative Heat Flux',
+                 'alpha':r'$\alpha$',
+                 'beta':r'$\beta$',
+                 'aiT':r'$\alpha T$',
+                 'aCT':r'$\alpha \Theta$',
+                 'aPT':r'$\alpha \theta$',
+                 'BSP':r'$\beta S_P$',
+                 'BSt':r'$\beta_{PT} S_P$',
+                 'BSA':r'$\beta S_A$',
+                 'distance':r'Along-path distance',
+                 'm_pts':r'Minimum density threshold $m_{pts}$',
+                 'DBCV':'Relative validity measure (DBCV)',
+                 'n_clusters':'Number of clusters',
+                 'cRL':r'Lateral density ratio $R_L$',
+                 'cRl':r'Lateral density ratio $R_L$ with $\theta$',
+                 'n_points':'Number of points in cluster',
+                }
+    # Build dictionary of axis labels
+    ax_labels_units = {
+                 'instrmt':r'',
+                 'dt_start':r'',
+                 'dt_end':r'',
+                 'lat':r'$^\circ$N',
+                 'lon':r'$^\circ$E+',
+                 'hist':r'',
+                 'press':r'dbar',
+                 'press_TC_max':r'dbar',
+                 'press_TC_min':r'dbar',
+                 'SA_TC_max':r'g/kg',
+                 'SA_TC_min':r'g/kg',
+                 'CT_TC_max':r'$^\circ$C',
+                 'CT_TC_min':r'$^\circ$C',
+                 'SA':r'g/kg',
+                 'CT':r'$^\circ$C',
+                 'sigma':r'kg/m$^3$',
+                 'rho':r'kg/m$^3$',
+                 'cp':r'J kg$^{-1}$ K$^{-1}$',
+                 'FH':r'W/m$^2$',
+                 'FH_cumul':r'W/m$^2$',
+                 'alpha':r'1/$^\circ$C',
+                 'beta':r'kg/g',
+                 'aiT':r'',
+                 'aCT':r'',
+                 'aPT':r'',
+                 'BSP':r'',
+                 'BSt':r'',
+                 'BSA':r'',
+                 'distance':r'km',
+                 'm_pts':r'',
+                 'DBCV':'',
+                 'n_clusters':'',
+                 'cRL':r'',
+                 'cRl':r'',
+                 'n_points':'',
+                }
+    # Get x axis labels
+    if not isinstance(pp.x_vars, type(None)):
+        for i in range(len(pp.x_vars)):
+            pp.xlabels[i] = make_var_label(pp.x_vars[i], ax_labels_units, ax_labels_no_units)
+    else:
+        pp.xlabels[0] = None
+        pp.xlabels[1] = None
+    # Get y axis labels
+    if not isinstance(pp.y_vars, type(None)):
+        for i in range(len(pp.y_vars)):
+            pp.ylabels[i] = make_var_label(pp.y_vars[i], ax_labels_units, ax_labels_no_units)
+    else:
+        pp.ylabels[0] = None
+        pp.ylabels[1] = None
+    # Get colormap label
+    if not isinstance(pp.clr_map, type(None)):
+        try:
+            pp.clabel = var_attr_dicts[0][pp.clr_map]['label']
+        except:
+            pp.clabel = make_var_label(pp.clr_map, ax_labels_units, ax_labels_no_units)
+    #
+    return pp
+
+def str_lowercase(this_str):
+    """
+    Takes in a string and returns a version that is lower case only when the string 
+    contains only letters a-z, which avoids changing the case of greek letters
+
+    this_str        The string to be converted
+    """
+    # print('CHECKING:',this_str)
+    # Check to make sure this_str is a string
+    if isinstance(this_str, type('')) and len(this_str) > 0:
+        # print('YES THIS IS A STRING')
+        if all(x.isalpha() or x.isspace() for x in this_str):
+            return this_str.lower()
+        return this_str
+    else:
+        print('Warning: attempted use of str_lowercase() on datatype',type(this_str))
+        return this_str
+
+def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
+    """
+    Takes in a variable key and returns the corresponding label
+
+    var_key             A string of the variable key
+    ax_labels_units     A dictionary of variable keys and their units
+    ax_labels_no_units  A dictionary of variable keys and their labels
+    """
+    def get_units_strs(var_str):
+        if len(ax_labels_units[var_str]) > 0:
+            units_str = ' (' + ax_labels_units[var_str] + ')'
+            units_str_per_year = ' (' + ax_labels_units[var_str] + '/year)'
+        else:
+            units_str = ''
+            units_str_per_year = ' / year'
+        return [units_str, units_str_per_year]
+    polyfit2d_str = 'fit' # 'polyfit2d'
+    # Check for certain modifications to variables,
+    #   check longer strings first to avoid mismatching percnztrd_pcs_press
+    # Check for percent non-zero trend in profile cluster span variables
+    if 'percnztrd_pcs_' in var_key:
+        # Take out the first 13 characters of the string to leave the original variable name
+        var_str = var_key[13:]
+        # return 'Percent non-zero trend in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        return 'Layer thickness trend (\%/year)'
+    # Check for non-zero cluster average of profile cluster span variables
+    if 'nzca_pcs_' in var_key:
+        # Take out the first 9 characters of the string to leave the original variable name
+        var_str = var_key[9:]
+        # return 'NZCA/CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        # return 'Cluster average thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        return 'Layer average thickness' + get_units_strs(var_str)[0]
+    # Check for cluster average of profile cluster span variables
+    if 'ca_pcs_' in var_key:
+        # Take out the first 7 characters of the string to leave the original variable name
+        var_str = var_key[7:]
+        # return 'Profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        return 'CA/CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for non-zero trend in profile cluster span variables
+    if 'nztrd_pcs_' in var_key:
+        # Take out the first 10 characters of the string to leave the original variable name
+        var_str = var_key[10:]
+        # return 'NZ Trend in CS/P '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
+        return 'Trend in layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
+    # Check for trend in profile cluster span variables
+    if 'trd_pcs_' in var_key:
+        # Take out the first 8 characters of the string to leave the original variable name
+        var_str = var_key[8:]
+        return 'Trend in CS/P '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
+    # Check for profile cluster average variables
+    if 'pca_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'CA/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        # return 'Profile cluster average of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for non-zero profile cluster span variables
+    if 'nzpcs_' in var_key:
+        # Take out the first 6 characters of the string to leave the original variable name
+        var_str = var_key[6:]
+        # Check for variables normalized by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the first 3 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return 'NZCS/P of '+ ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
+        elif 'mean' in var_str:
+            # Take out the last 5 characters of the string to leave the original variable name
+            var_str = var_str[:-5]
+            return 'Mean layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        else:
+            # return 'NZCS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+            return 'Layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        # return 'Non-zero profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for profile cluster span variables
+    if 'pcs_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        # Check for variables normalized by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the first 3 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return 'CS/P of '+ ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
+        else:
+            # return 'Profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+            return 'CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for cluster mean-centered variables
+    elif 'cmc_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Cluster mean-centered '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for local anomaly variables
+    elif 'la_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[3:]
+        return r"$\Theta'$ ($^\circ$C)"
+        # return 'Local anomaly of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for local anomaly variables
+    elif 'max_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Maximum '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for local anomaly variables
+    elif 'min_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Minimum '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for cluster average variables
+    elif 'ca_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[3:]
+        if var_str == 'FH_cumul':
+            return ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+        else:
+            return 'Layer average '+ str_lowercase(ax_labels_no_units[var_str]) + get_units_strs(var_str)[0]
+    # Check for cluster span variables
+    elif 'cs_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[3:]
+        return 'Cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for cluster standard deviation variables
+    elif 'csd_' in var_key:
+        # Take out the first 4 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Cluster standard deviation of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for cluster min/max variables
+    elif 'cmm_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return 'Cluster min/max of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for normalized inter-cluster range variables
+    elif 'nir_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        if 'press' in var_str:
+            return r'Normalized inter-cluster range $IR_{press}$'
+        elif 'SA' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_A}$'
+        elif 'SP' in var_str:
+            return r'Normalized inter-cluster range $IR_{S_P}$'
+        elif 'iT' in var_str:
+            return r'Normalized inter-cluster range $IR_{T}$'
+        elif 'CT' in var_str:
+            return r'Normalized inter-cluster range $IR_{\Theta}$'
+        if 'sigma' in var_str:
+            return r'Normalized inter-cluster range $IR_{\sigma}$'
+        # return r'Normalized inter-cluster range $IR$ of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
+    # Check for trend variables
+    elif 'trd_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        # Check whether also normalizing by subtracting a polyfit2d
+        if '-fit' in var_str:
+            # Take out the first 3 characters of the string to leave the original variable name
+            var_str = var_str[:-4]
+            return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str + ' trend' + get_units_strs(var_str)[1]
+        else:  
+            return ''+ ax_labels[var_str] + get_units_strs(var_str)[1]
+    # Check for the polyfit2d of a variable
+    elif 'fit_' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[4:]
+        return polyfit2d_str + ' of ' + ax_labels[var_str]
+    # Check for variables normalized by subtracting a polyfit2d
+    elif '-fit' in var_key:
+        # Take out the first 3 characters of the string to leave the original variable name
+        var_str = var_key[:-4]
+        return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
+    else:
+        var_str = var_key
+    if var_key in ax_labels_no_units.keys():
+        return ax_labels_no_units[var_key] + get_units_strs(var_str)[0]
+    else:
+        return 'None'
+
+################################################################################
+
 def get_axis_label(var_key, var_attr_dicts):
     """
     Takes in a variable name and returns a nicely formatted string for an axis label
@@ -1950,55 +2302,76 @@ def find_max_distance(groups_to_analyze):
 # Admin stats functions ########################################################
 ################################################################################
 
-def cluster_stats(groups_to_summarize, stat_vars=['SA'], filename=None):
+def cluster_stats(group_to_summarize, stat_vars=['SA'], filename=None):
     """
     Takes in a list of Analysis_Group objects. Analyzes and outputs summary info
     for each one.
 
-    groups_to_plot      A list of Analysis_Group objects
-    stat_vars           A list of variables on which to compute the stats
-    filename            The file to write the output to. If none, it will print
-                            the output to the console
+    group_to_summarize      An Analysis_Group object
+    stat_vars               A list of variables for which to compute the stats
+    filename                The file to write the output to. If none, it will print
+                                the output to the console
     """
     # Import statistics
     from scipy import stats
     import csv
-    # Loop over all Analysis_Group objects
-    i = 0
+    # Remove `cluster` from stat_vars
+    stat_vars.remove('cluster')
     lines = []
-    for a_group in groups_to_summarize:
-        i += 1
-        df_labels = [*a_group.data_set.sources_dict.keys()]
-        # Find the dataframes
-        dfs = a_group.data_frames
-        if len(dfs) != 2 or len(df_labels) != 2:
-            print('Error: can only perform t-Tests between 2 datasets')
-            exit(0)
-        # Put all of the lines together
-        lines.append("Group "+str(i)+": "+str(df_labels))
+    # Find the dataframes
+    df = pd.concat(group_to_summarize.data_frames)
+    # Check for cluster based variables
+    new_cl_vars = []
+    for var in stat_vars:
+        if var in clstr_vars:
+            new_cl_vars.append(var)
+            stat_vars.remove(var)
+    # Check for fit variables
+    new_fit_vars = []
+    for var in stat_vars:
+        if 'fit' in var:
+            new_fit_vars.append(var)
+            stat_vars.remove(var)
+    #
+    print('stat_vars:',stat_vars)
+    print('new_cl_vars:',new_cl_vars)
+    print('new_fit_vars:',new_fit_vars)
+    exit(0)
+    # Create the header row
+    header_str = 'cluster,len'
+    for var in stat_vars:
+        # header_str += ','+var+'_mean,'+var+'_std'
+        header_str += ','+var+'_mean'
+    if len(new_cl_vars) > 0:
+        for var in new_cl_vars:
+            header_str += ','+var
+    lines.append(header_str)
+    # Find the cluster labels that exist in the dataframe
+    cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+    #   Delete the noise point label "-1"
+    cluster_numbers = np.delete(cluster_numbers, np.where(cluster_numbers == -1))
+    # Calculate new cluster variables
+    if len(new_cl_vars) > 0:
+        df = calc_extra_cl_vars(df, new_cl_vars)
+    # Loop across all clusters
+    for i in cluster_numbers:
+        # Add the cluster ID
+        this_line = str(i)
+        # Find the data from this cluster
+        df_this_cluster = df[df['cluster']==i]
+        # Add the number of points in this cluster
+        this_line += ','+str(len(df_this_cluster))
+        # Check whether to calculate fit variables
+        if len(new_fit_vars) > 0:
+            df_this_cluster = ahf.calc_fit_vars(df_this_cluster, new_fit_vars, ['lon','lat'])
+        # Add mean and standard deviation of each var
         for var in stat_vars:
-            lines.append('\tStat variable: '+str(var))
-            stat_var_arrs = []
-            for i in range(2):
-                # Find the data for this variable for this df
-                stat_var_arrs.append(dfs[i][var].values)
-                lines.append('\t\t'+df_labels[i])
-                lines.append('\t\t\tNumber of points: '+str(len(stat_var_arrs[i])))
-                lines.append('\t\t\tMean: '+str(np.mean(stat_var_arrs[i])))
-                lines.append('\t\t\tStandard deviation: '+str(np.std(stat_var_arrs[i])))
-                # Write to file
-                with open('test'+str(i)+'.csv', 'w') as f:
-                    write = csv.writer(f)
-                    write.writerow(stat_var_arrs[i])
+            this_line += ','+str(df_this_cluster[var].mean())#+','+str(df_this_cluster[var].std())
             #
-            lines.append('\t\tt-Test')
-            var_stats = stats.ttest_ind(stat_var_arrs[0], stat_var_arrs[1])
-            lines.append('\t\t\tt-statistic: '+str(var_stats.statistic))
-            lines.append('\t\t\tp-value: '+str(var_stats.pvalue))
-            # lines.append('\t\t\tdegs of freedom: '+str(var_stats.df))
-        #
+        lines.append(this_line)
     #
     if filename != None:
+        filename = 'outputs/' + filename
         print('Writing summary file to',filename)
         with open(filename, 'w') as f:
             f.write('\n'.join(lines))
@@ -2554,7 +2927,8 @@ def format_datetime_axes(add_grid, x_key, y_key, ax, tw_x_key=None, tw_ax_y=None
         # Add vertical lines
         if add_grid:
             for aug_15 in all_08_15s:
-                ax.axvline(aug_15, color='r', linestyle='--', alpha=0.7, zorder=aug_zorder)
+                ax.axvline(aug_15, color=bg_clr, linestyle='-', alpha=1, zorder=aug_zorder)
+                ax.axvline(aug_15, color=std_clr, linestyle='--', alpha=0.7, zorder=aug_zorder+1)
     if y_key in ['dt_start', 'dt_end']:
         ax.yaxis.set_major_locator(loc)
         ax.yaxis.set_major_formatter(mpl.dates.ConciseDateFormatter(loc))
@@ -2570,13 +2944,15 @@ def format_datetime_axes(add_grid, x_key, y_key, ax, tw_x_key=None, tw_ax_y=None
 
 ################################################################################
 
-def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
+def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None, condense=False):
     """
     Formats a number into scientific notation
 
-    x       The number to format
-    ndp     The number of decimal places
-    pm_val  The uncertainty value to put after a $\pm$ symbol
+    x           The number to format
+    ndp         The number of decimal places
+    sci_lims    The limits on powers of 10 between which scientific notation will not be used
+    pm_val      The uncertainty value to put after a $\pm$ symbol
+    condense    True/False whether to remove spaces around `\pm` and `\times` operators
     """
     # Check to make sure x is not None or nan
     if isinstance(x, type(None)) or np.isnan(x):
@@ -2591,7 +2967,10 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
             return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'{m:s}\times10^{{{e:d}}}'.format(m=m, e=int(e))
+            if condense:
+                return r'{m:s}{{\times}}10^{{{e:d}}}'.format(m=m, e=int(e))
+            else:
+                return r'{m:s}\times10^{{{e:d}}}'.format(m=m, e=int(e))
         else:
             return r'{x:0.{ndp:d}f}'.format(x=x, ndp=ndp)
     else:
@@ -2601,7 +2980,10 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
             m, e = s.split('e')
         except:
             print('Warning: could not format',x,'with',ndp,'decimal places and pm_val:',pm_val)
-            return r'{x:0.{ndp:d}f}\pm{pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
+            if condense:
+                return r'{x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
+            else:
+                return r'{x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}'.format(x=x, ndp=ndp, pm_val=pm_val)
         # Find magnitude and base 10 exponent for pm_val
         pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
         pm_m, pm_e = pm_s.split('e')
@@ -2614,9 +2996,9 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None):
         pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'({m:s}\pm{pm_m:s})\times 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
+            return r'({m:s}{{\pm}}{pm_m:s}){{\times}} 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
         else:
-            return r'{x:0.{ndp:d}f}\pm{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+            return r'{x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
 ################################################################################
 
@@ -3471,6 +3853,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         else:
             # Did not provide a valid clr_map
             print('Colormap',clr_map,'not valid')
+            print('df.columns:',np.array(df.columns))
             exit(0)
         #
     #
@@ -4436,12 +4819,12 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                         if hist_df_between['diff'].max() < 0:
                             # Find the minimum of 'this_hist' between these points
                             min_this_hist = hist_df_between['this_hist'].min()
-                            # print('\tmin_this_hist:',min_this_hist)
+                            print('\tmin_this_hist:',min_this_hist)
                             min_x = hist_df_between['bin_centers'][hist_df_between['this_hist'] == min_this_hist].values[0]
                             # print('\tmin_x:',min_x)
                             min_x_arr.append(min_x)
                             # Plot vertical lines at the minimums between intersection points
-                            ax.axvline(min_x, color='b', linestyle='--')
+                            ax.axvline(min_x, color=alt_std_clr, linestyle='--')
                         #
                     #
                 print('\t- Found',len(min_x_arr),'minimums between intersection points')
@@ -4696,14 +5079,11 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         y_label = ''
         # Get the number of data_frames in a_group
         n_dfs = len(a_group.data_frames)
-        # Make a set of sequential colors to choose from
-        # period_cmap = cm.batlow
-        # period_clrs = period_cmap(np.linspace(0, 1, n_dfs))
         # Loop through each dataframe 
         #   which correspond to the datasets input to the Data_Set object's sources_dict
         for this_df in a_group.data_frames:
             # Trim df_label
-            df_labels[i] = df_labels[i][7:11]
+            df_labels[i] = df_labels[i][7:9] # use 7:11 for four digit period labels (ex: 0506)
             tick_vals.append(int(i))
             # Check whether to remove noise points
             if plt_noise == False:
@@ -4712,7 +5092,6 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 # print('after removing noise points:',len(df))
                 this_df = this_df[this_df.cluster!=-1]
             # Decide on the color, don't go off the end of the array
-            # my_clr = period_clrs[i%len(period_clrs)]
             my_clr = distinct_clrs[i%len(distinct_clrs)]
             # Get histogram parameters
             h_var, res_bins, median, mean, std_dev = get_hist_params(this_df, var_key, n_h_bins, bin_size)
@@ -6313,6 +6692,7 @@ def calc_fit_vars(df, plt_vars, fit_vars, kx=3, ky=3, order=3):
         # Get the z data based on the key
         z_data = df[var_str]
         # Find the solution to the polyfit
+        #   Note: residuals will be empty because this is not an over-determined problem
         soln, residuals, rank, s = polyfit2d(x_data, y_data, z_data, kx, ky, order)
         # Use the solution to calculate the fitted z values
         fitted_z, eq_string = reco_polyfit2d(x_data, y_data, soln, kx, ky, order)
@@ -7612,7 +7992,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR0506_start = mpl.dates.date2num(datetime.fromisoformat('2005-08-15'))
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
             # for i in cluster_numbers:
-            for i in [0, 27, 35, 49]:
+            # for i in [0, 27, 49]:
+            for i in [0, 3, 9, 18, 22, 27, 36, 39, 42, 47, 49]:
             # Just the clusters that appear in BGR0506
             # for i in range(0, 148):# 80):
             # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
@@ -7656,7 +8037,8 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR2122_start = mpl.dates.date2num(datetime.fromisoformat('2021-08-15'))
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
             # for i in cluster_numbers:
-            for i in [0, 27, 35, 49]:
+            # for i in [0, 27, 49]:
+            for i in [0, 3, 9, 18, 22, 27, 36, 39, 42, 47, 49]:
             # Just the clusters that appear in BGR2122
             # for i in range(0, 137):# 65):
             # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:

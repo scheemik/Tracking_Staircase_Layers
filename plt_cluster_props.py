@@ -67,6 +67,10 @@ grid_alpha    = 0.3
 # Define array of linestyles to cycle through
 l_styles = ['-', '--', '-.', ':']
 
+# Beaufort Gyre Region (BGR), see Shibley2022
+lon_BGR = bps.lon_BGR
+lat_BGR = bps.lat_BGR
+
 ################################################################################
 
 # Unpickle the data frames from file
@@ -79,6 +83,7 @@ bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
 
 # print('df.columns:')
 # print(list(df.columns))
+# print(df.press_fit_eq)
 # exit(0)
 
 # # Sort df by ca_SA
@@ -159,347 +164,142 @@ def props_stats_summary(df, props_list, mrk_outliers):
         this_stdev = np.nanstd(this_array)
         print('\tStdev: ' + str(this_stdev))
 
-# props_stats_summary(df, ['cRL', 'delta_press', 'cs_press', 'csd_press', 'delta_SA', 'cs_SA', 'csd_SA', 'delta_CT', 'cs_CT', 'csd_CT', 'delta_sigma', 'cs_sigma', 'csd_sigma'], 'ends')
-# 
-# exit(0)
+# props_stats_summary(df, ['cRL', 'delta_press', 'cs_press', 'csd_press', 'delta_SA', 'cs_SA', 'csd_SA', 'delta_CT', 'cs_CT', 'csd_CT', 'nzca_pcs_press', 'nzcsd_pcs_press'], 'ends')
+
+def format_sci_notation2(x, ndp=1):
+    """
+    Formats a number into scientific notation
+
+    x       The number to format
+    """
+    sci_lims_f = (-3,3) # ahf.sci_lims
+    pm_val = None
+    # Check to make sure x is not None or nan
+    if isinstance(x, type(None)) or np.isnan(x):
+        print('Warning: could not format',x,'into scientific notation')
+        return r'N/A'
+    if isinstance(pm_val, type(None)):
+        try:
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places')
+            return r'${x:0.{ndp:d}f}$'.format(x=x, ndp=ndp)
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'${m:s}{{\times}}10^{{{e:d}}}$'.format(m=m, e=int(e))
+        else:
+            return r'${x:0.{ndp:d}f}$'.format(x=x, ndp=ndp)
+    else:
+        try:
+            # Find magnitude and base 10 exponent for x
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places and pm_val:',pm_val)
+            return r'${x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}$'.format(x=x, ndp=ndp, pm_val=pm_val)
+        # Find magnitude and base 10 exponent for pm_val
+        pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
+        pm_m, pm_e = pm_s.split('e')
+        # Find difference between exponents to use as new number of decimal places
+        new_ndp = max(2, int(e)-int(pm_e))
+        # Reformat x
+        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=new_ndp)
+        m, e = s.split('e')
+        # Shift value of pm_val to correct exponent
+        pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'$({m:s}{{\pm}}{pm_m:s}){{\times}} 10^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
+        else:
+            return r'${x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}$'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+
+def layer_stats(df, var_list):
+    """
+    A function that will calculate and output a csv table of the given variables
+    for each layer in the given dataframe
+
+    df          The dataset with which to calculate properties
+    var_list    The list of variables of which to summarize
+    """
+    # print('df.columns:')
+    # print(list(df.columns))
+    lines = []
+    # Make sure 'cluster' is the first column
+    var_list = ['cluster'] + var_list
+    # Remove duplicates, preserving order
+    var_list = list(dict.fromkeys(var_list))
+    # Get just those variable's columns from the dataframe
+    if 'SA_min' in var_list:
+        import copy
+        this_var_list = copy.deepcopy(var_list)
+        this_var_list.remove('SA_min')
+        this_df = df[this_var_list]
+    else:
+        this_df = df[var_list]
+    # Sort this dataframe by `cluster`
+    this_df = this_df.sort_values(by=['cluster'])
+    # Make a list of columns to remove
+    remove_these_cols = []
+    # Format all the values into scientific notation
+    for var in var_list:# list(this_df.columns):
+        # sci_lims_these = ahf.sci_lims
+        sci_lims_these = (-1,3)
+        # Add a column for the salinity divisions
+        if var == 'SA_min':
+            # Get the SA divisions from file
+            SA_divs = bps.BGR_HPC_SA_divs
+            # Add in the minimum salinity boundary to match the length (49 up to 50)
+            SA_mins = [min(bps.S_range_LHW_AW)] + SA_divs
+            this_df[var] = np.vectorize(format_sci_notation2)(SA_mins, ndp=3)
+            var_csd = False
+        # If the column is independent
+        if var in ['cRL','nir_SA'] or 'R2' in var:
+            this_df[var] = this_df[var].map(format_sci_notation2)
+            var_csd = False
+        # If the column is a cluster average
+        elif 'nzca_' in var:
+            # Find the corresponding string for the cluster standard deviation
+            var_csd = 'nzcsd_'+var[5:]
+        elif 'ca_' in var:
+            # Find the corresponding string for the cluster standard deviation
+            var_csd = 'csd_'+var[3:]
+            sci_lims_these = (-3,3)
+        # If the column is a cluster trend
+        elif 'nztrd_' in var:
+            # Find the corresponding string for the cluster standard error
+            var_csd = 'nztrdsd_'+var[6:]
+            # sci_lims_these = (-2,3)
+        elif 'trd_' in var:
+            # Find the corresponding string for the cluster standard error
+            var_csd = 'trdsd_'+var[4:]
+            # sci_lims_these = (-2,3)
+        else:
+            var_csd = False
+        if var_csd:
+            # print(var,'and',var_csd)
+            # Enter the formatted values row by row
+            for i in range(len(this_df)):
+                var_val = this_df.iloc[i, this_df.columns.get_loc(var)]
+                var_csd_val = this_df.iloc[i, this_df.columns.get_loc(var_csd)]
+                # print(var_val,'and',var_csd_val)
+                val_formatted = ahf.format_sci_notation(var_val, ndp=1, sci_lims_f=sci_lims_these, pm_val=var_csd_val, condense=True)
+                this_df.iloc[i, this_df.columns.get_loc(var)] = r'$'+val_formatted+'$'
+            remove_these_cols.append(var_csd)
+    # Remove unneeded columns
+    this_df.drop(columns=remove_these_cols, inplace=True)
+    # Format cluster ids as integers
+    this_df['cluster'] = pd.to_numeric(this_df['cluster'], downcast='integer')
+    # Write this out to a csv
+    print('Writing to outputs/layer_properties.csv')
+    this_df.to_csv('outputs/layer_properties.csv', index=False)
+
+layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press'])
+
+exit(0)
 ################################################################################
 # Plotting functions ###########################################################
 ################################################################################
-
-def get_axis_labels(pp):
-    """
-    Adds in the x and y labels based on the plot variables in the 
-    Plot_Parameters object
-
-    pp              A custom Plot_Parameters object
-    """
-    # Build dictionary of axis labels
-    ax_labels = {
-                 'instrmt':r'Instrument',
-                 'dt_start':r'Datetime of profile start',
-                 'dt_end':r'Datetime of profile end',
-                 'lat':r'Latitude ($^\circ$N)',
-                 'lon':r'Longitude ($^\circ$E+)',
-                 'hist':r'Occurrences',
-                 'press':r'Pressure (dbar)',
-                 'press_TC_max':r'$p(\Theta_{max})$ (dbar)',
-                 'press_TC_min':r'$p(S_A\approx34.1)$ (dbar)',
-                 'SA_TC_max':r'$S_A(\Theta_{max})$ (g/kg)',
-                 'SA_TC_min':r'$S_A\approx34.1$ (g/kg)',
-                 'CT_TC_max':r'$\Theta_{max}$ ($^\circ$C)',
-                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$ ($^\circ$C)',
-                 'SA':r'$S_A$ (g/kg)',
-                 'CT':r'$\Theta$ ($^\circ$C)',
-                 'sigma':r'$\sigma_1$ (kg/m$^3$)',
-                 'rho':r'$\rho$ (kg/m$^3$)',
-                 'cp':r'$C_p$ (J kg$^{-1}$ K$^{-1}$)',
-                 'FH':r'Heat Flux (W/m$^2$)',
-                 'FH_cumul':r'Cumulative Heat Flux (W/m$^2$)',
-                 'alpha':r'$\alpha$ (1/$^\circ$C)',
-                 'beta':r'$\beta$ (kg/g)',
-                 'aiT':r'$\alpha T$',
-                 'aCT':r'$\alpha \Theta$',
-                 'aPT':r'$\alpha \theta$',
-                 'BSP':r'$\beta S_P$',
-                 'BSt':r'$\beta_{PT} S_P$',
-                 'BSA':r'$\beta S_A$',
-                 'distance':r'Along-path distance (km)',
-                 'm_pts':r'Minimum density threshold $m_{pts}$',
-                 'DBCV':'Relative validity measure (DBCV)',
-                 'n_clusters':'Number of clusters',
-                 'cRL':r'Lateral density ratio $R_L$',
-                 'cRl':r'Lateral density ratio $R_L$ with $\theta$',
-                 'n_points':'Number of points in cluster',
-                }
-    # Build dictionary of axis labels without units
-    ax_labels_no_units = {
-                 'instrmt':r'Instrument',
-                 'dt_start':r'Datetime of profile start',
-                 'dt_end':r'Datetime of profile end',
-                 'lat':r'Latitude',
-                 'lon':r'Longitude',
-                 'hist':r'Occurrences',
-                 'press':r'Pressure',
-                 'press_TC_max':r'$p(\Theta_{max})$',
-                 'press_TC_min':r'$p(S_A\approx34.1)$',
-                 'SA_TC_max':r'$S_A(\Theta_{max})$',
-                 'SA_TC_min':r'$S_A\approx34.1$',
-                 'CT_TC_max':r'$\Theta_{max}$',
-                 'CT_TC_min':r'$\Theta(S_A\approx34.1)$',
-                 'SA':r'$S_A$',
-                 'CT':r'$\Theta$',
-                 'sigma':r'$\sigma_1$',
-                 'rho':r'$\rho$',
-                 'cp':r'$C_p$',
-                 'FH':r'Heat Flux',
-                 'FH_cumul':r'Cumulative Heat Flux',
-                 'alpha':r'$\alpha$',
-                 'beta':r'$\beta$',
-                 'aiT':r'$\alpha T$',
-                 'aCT':r'$\alpha \Theta$',
-                 'aPT':r'$\alpha \theta$',
-                 'BSP':r'$\beta S_P$',
-                 'BSt':r'$\beta_{PT} S_P$',
-                 'BSA':r'$\beta S_A$',
-                 'distance':r'Along-path distance',
-                 'm_pts':r'Minimum density threshold $m_{pts}$',
-                 'DBCV':'Relative validity measure (DBCV)',
-                 'n_clusters':'Number of clusters',
-                 'cRL':r'Lateral density ratio $R_L$',
-                 'cRl':r'Lateral density ratio $R_L$ with $\theta$',
-                 'n_points':'Number of points in cluster',
-                }
-    # Build dictionary of axis labels
-    ax_labels_units = {
-                 'instrmt':r'',
-                 'dt_start':r'',
-                 'dt_end':r'',
-                 'lat':r'$^\circ$N',
-                 'lon':r'$^\circ$E+',
-                 'hist':r'',
-                 'press':r'dbar',
-                 'press_TC_max':r'dbar',
-                 'press_TC_min':r'dbar',
-                 'SA_TC_max':r'g/kg',
-                 'SA_TC_min':r'g/kg',
-                 'CT_TC_max':r'$^\circ$C',
-                 'CT_TC_min':r'$^\circ$C',
-                 'SA':r'g/kg',
-                 'CT':r'$^\circ$C',
-                 'sigma':r'kg/m$^3$',
-                 'rho':r'kg/m$^3$',
-                 'cp':r'J kg$^{-1}$ K$^{-1}$',
-                 'FH':r'W/m$^2$',
-                 'FH_cumul':r'W/m$^2$',
-                 'alpha':r'1/$^\circ$C',
-                 'beta':r'kg/g',
-                 'aiT':r'',
-                 'aCT':r'',
-                 'aPT':r'',
-                 'BSP':r'',
-                 'BSt':r'',
-                 'BSA':r'',
-                 'distance':r'km',
-                 'm_pts':r'',
-                 'DBCV':'',
-                 'n_clusters':'',
-                 'cRL':r'',
-                 'cRl':r'',
-                 'n_points':'',
-                }
-    # Get x axis labels
-    if not isinstance(pp.x_vars, type(None)):
-        for i in range(len(pp.x_vars)):
-            pp.xlabels[i] = make_var_label(pp.x_vars[i], ax_labels_units, ax_labels_no_units)
-    else:
-        pp.xlabels[0] = None
-        pp.xlabels[1] = None
-    # Get y axis labels
-    if not isinstance(pp.y_vars, type(None)):
-        for i in range(len(pp.y_vars)):
-            pp.ylabels[i] = make_var_label(pp.y_vars[i], ax_labels_units, ax_labels_no_units)
-    else:
-        pp.ylabels[0] = None
-        pp.ylabels[1] = None
-    # Get colormap label
-    if not isinstance(pp.clr_map, type(None)):
-        try:
-            pp.clabel = var_attr_dicts[0][pp.clr_map]['label']
-        except:
-            pp.clabel = make_var_label(pp.clr_map, ax_labels_units, ax_labels_no_units)
-
-    return pp
-
-def str_lowercase(this_str):
-    """
-    Takes in a string and returns a version that is lower case only when the string 
-    contains only letters a-z, which avoids changing the case of greek letters
-
-    this_str        The string to be converted
-    """
-    # print('CHECKING:',this_str)
-    # Check to make sure this_str is a string
-    if isinstance(this_str, type('')) and len(this_str) > 0:
-        # print('YES THIS IS A STRING')
-        if all(x.isalpha() or x.isspace() for x in this_str):
-            return this_str.lower()
-        return this_str
-    else:
-        print('Warning: attempted use of str_lowercase() on datatype',type(this_str))
-        return this_str
-
-def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
-    """
-    Takes in a variable key and returns the corresponding label
-
-    var_key             A string of the variable key
-    ax_labels_units     A dictionary of variable keys and their units
-    ax_labels_no_units  A dictionary of variable keys and their labels
-    """
-    def get_units_strs(var_str):
-        if len(ax_labels_units[var_str]) > 0:
-            units_str = ' (' + ax_labels_units[var_str] + ')'
-            units_str_per_year = ' (' + ax_labels_units[var_str] + '/year)'
-        else:
-            units_str = ''
-            units_str_per_year = ' / year'
-        return [units_str, units_str_per_year]
-    polyfit2d_str = 'fit' # 'polyfit2d'
-    # Check for certain modifications to variables,
-    #   check longer strings first to avoid mismatching percnztrd_pcs_press
-    # Check for percent non-zero trend in profile cluster span variables
-    if 'percnztrd_pcs_' in var_key:
-        # Take out the first 13 characters of the string to leave the original variable name
-        var_str = var_key[13:]
-        # return 'Percent non-zero trend in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        return 'Layer thickness trend (\%/year)'
-    # Check for non-zero cluster average of profile cluster span variables
-    if 'nzca_pcs_' in var_key:
-        # Take out the first 9 characters of the string to leave the original variable name
-        var_str = var_key[9:]
-        # return 'NZCA/CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        # return 'Cluster average thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        return 'Layer average thickness' + get_units_strs(var_str)[0]
-    # Check for cluster average of profile cluster span variables
-    if 'ca_pcs_' in var_key:
-        # Take out the first 7 characters of the string to leave the original variable name
-        var_str = var_key[7:]
-        # return 'Profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        return 'CA/CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for non-zero trend in profile cluster span variables
-    if 'nztrd_pcs_' in var_key:
-        # Take out the first 10 characters of the string to leave the original variable name
-        var_str = var_key[10:]
-        # return 'NZ Trend in CS/P '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
-        return 'Trend in layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
-    # Check for trend in profile cluster span variables
-    if 'trd_pcs_' in var_key:
-        # Take out the first 8 characters of the string to leave the original variable name
-        var_str = var_key[8:]
-        return 'Trend in CS/P '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[1]
-    # Check for profile cluster average variables
-    if 'pca_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'CA/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        # return 'Profile cluster average of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for non-zero profile cluster span variables
-    if 'nzpcs_' in var_key:
-        # Take out the first 6 characters of the string to leave the original variable name
-        var_str = var_key[6:]
-        # Check for variables normalized by subtracting a polyfit2d
-        if '-fit' in var_str:
-            # Take out the first 3 characters of the string to leave the original variable name
-            var_str = var_str[:-4]
-            return 'NZCS/P of '+ ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
-        elif 'mean' in var_str:
-            # Take out the last 5 characters of the string to leave the original variable name
-            var_str = var_str[:-5]
-            return 'Mean layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        else:
-            # return 'NZCS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-            return 'Layer thickness in '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        # return 'Non-zero profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for profile cluster span variables
-    if 'pcs_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        # Check for variables normalized by subtracting a polyfit2d
-        if '-fit' in var_str:
-            # Take out the first 3 characters of the string to leave the original variable name
-            var_str = var_str[:-4]
-            return 'CS/P of '+ ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
-        else:
-            # return 'Profile cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-            return 'CS/P of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for cluster mean-centered variables
-    elif 'cmc_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'Cluster mean-centered '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for local anomaly variables
-    elif 'la_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[3:]
-        return r"$\Theta'$ ($^\circ$C)"
-        # return 'Local anomaly of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for local anomaly variables
-    elif 'max_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'Maximum '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for local anomaly variables
-    elif 'min_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'Minimum '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for cluster average variables
-    elif 'ca_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[3:]
-        if var_str == 'FH_cumul':
-            return ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-        else:
-            return 'Layer average '+ str_lowercase(ax_labels_no_units[var_str]) + get_units_strs(var_str)[0]
-    # Check for cluster span variables
-    elif 'cs_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[3:]
-        return 'Cluster span of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for cluster standard deviation variables
-    elif 'csd_' in var_key:
-        # Take out the first 4 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'Cluster standard deviation of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for cluster min/max variables
-    elif 'cmm_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return 'Cluster min/max of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for normalized inter-cluster range variables
-    elif 'nir_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        if 'press' in var_str:
-            return r'Normalized inter-cluster range $IR_{press}$'
-        elif 'SA' in var_str:
-            return r'Normalized inter-cluster range $IR_{S_A}$'
-        elif 'SP' in var_str:
-            return r'Normalized inter-cluster range $IR_{S_P}$'
-        elif 'iT' in var_str:
-            return r'Normalized inter-cluster range $IR_{T}$'
-        elif 'CT' in var_str:
-            return r'Normalized inter-cluster range $IR_{\Theta}$'
-        if 'sigma' in var_str:
-            return r'Normalized inter-cluster range $IR_{\sigma}$'
-        # return r'Normalized inter-cluster range $IR$ of '+ ax_labels_no_units[var_str] + get_units_strs(var_str)[0]
-    # Check for trend variables
-    elif 'trd_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        # Check whether also normalizing by subtracting a polyfit2d
-        if '-fit' in var_str:
-            # Take out the first 3 characters of the string to leave the original variable name
-            var_str = var_str[:-4]
-            return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str + ' trend' + get_units_strs(var_str)[1]
-        else:  
-            return ''+ ax_labels[var_str] + get_units_strs(var_str)[1]
-    # Check for the polyfit2d of a variable
-    elif 'fit_' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[4:]
-        return polyfit2d_str + ' of ' + ax_labels[var_str]
-    # Check for variables normalized by subtracting a polyfit2d
-    elif '-fit' in var_key:
-        # Take out the first 3 characters of the string to leave the original variable name
-        var_str = var_key[:-4]
-        return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str
-    else:
-        var_str = var_key
-    if var_key in ax_labels_no_units.keys():
-        return ax_labels_no_units[var_key] + get_units_strs(var_str)[0]
-    else:
-        return 'None'
 
 def mark_the_LHW_and_AW(ax, x_key, y_key):
     """
@@ -520,20 +320,6 @@ def mark_the_LHW_and_AW(ax, x_key, y_key):
     s_to_markersize = np.sqrt(100)
     ax.plot(x_LHW, y_LHW, color=ahf.LHW_clr, markersize=s_to_markersize, marker=ahf.LHW_mrk, fillstyle='bottom', markerfacecoloralt=ahf.LHW_facealtclr, markeredgecolor=ahf.LHW_edgeclr, linewidth=0, zorder=10)
     ax.plot(x_AW, y_AW, color=ahf.AW_clr, markersize=s_to_markersize, marker=ahf.AW_mrk, fillstyle='top', markerfacecoloralt=ahf.AW_facealtclr, markeredgecolor=ahf.AW_edgeclr, linewidth=0, zorder=10)
-
-class Analysis_Group2:
-    """
-    Takes in a list of xarray datasets and applies filters to individual profiles
-    Returns a list of pandas dataframes, one for each source
-
-    data_frames            A list of pandas dataframes
-    plt_params          A custom Plot_Parameters object
-    plot_title          A string to use as the title for this subplot
-    """
-    def __init__(self, data_frames, plt_params, plot_title=None):
-        self.data_frames = data_frames
-        self.plt_params = get_axis_labels(plt_params)
-        self.plot_title = plot_title
 
 def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_axis=None, row_col_list=None):
     """
@@ -1819,12 +1605,12 @@ if False:
     pp_LHW_CT_map = ahf.Plot_Parameters(plot_type='map', clr_map='CT_TC_min', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':CT_lims_LHW}, legend=LHW_AW_legend)
     pp_AW_CT_map = ahf.Plot_Parameters(plot_type='map', clr_map='CT_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':CT_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
-    group_LHW_map = Analysis_Group2([bnds_df], pp_LHW_map, plot_title=r'LHW core')
-    group_AW_map = Analysis_Group2([bnds_df], pp_AW_map, plot_title=r'AW core')
-    # group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core')
-    # group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core')
+    group_LHW_map = ahf.Analysis_Group2([bnds_df], pp_LHW_map, plot_title=r'LHW core')
+    group_AW_map = ahf.Analysis_Group2([bnds_df], pp_AW_map, plot_title=r'AW core')
+    # group_LHW_CT_map = ahf.Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core')
+    # group_AW_CT_map = ahf.Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core')
     # Make the figure
-    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.6], filename='f2_LHW_and_AW_press_maps.png')
+    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.6], filename='s_LHW_and_AW_press_maps.png')
     # make_figure([group_LHW_map, group_AW_map, group_LHW_CT_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='LHW_and_AW_press_maps.pdf')
 #*# Maps of LHW and AW cores in SA and CT
 if False:
@@ -1836,12 +1622,28 @@ if False:
     pp_AW_SA_map = ahf.Plot_Parameters(plot_type='map', clr_map='SA_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':SA_lims_AW}, legend=LHW_AW_legend)
     pp_AW_CT_map = ahf.Plot_Parameters(plot_type='map', clr_map='CT_TC_max', extra_args={'map_extent':'Western_Arctic'}, ax_lims={'c_lims':CT_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
-    group_LHW_SA_map = Analysis_Group2([bnds_df], pp_LHW_SA_map, plot_title=r'LHW core, $S_A$')
-    group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core, $\Theta$')
-    group_AW_SA_map = Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
-    group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
+    group_LHW_SA_map = ahf.Analysis_Group2([bnds_df], pp_LHW_SA_map, plot_title=r'LHW core, $S_A$')
+    group_LHW_CT_map = ahf.Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core, $\Theta$')
+    group_AW_SA_map = ahf.Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
+    group_AW_CT_map = ahf.Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
     # Make the figure
-    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='C2_LHW_AW_maps_SA_CT.png')
+    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='s_LHW_AW_maps_SA_CT.png')
+#*# Lat-Lon plots of LHW and AW cores in SA and CT
+if False:
+    print('')
+    print('- Creating lat-lon plots of LHW and AW cores in SA and CT')
+    # Make the Plot Parameters
+    pp_LHW_SA_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT_TC_min', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':SA_lims_LHW})
+    pp_LHW_CT_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT_TC_min', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':CT_lims_LHW})
+    pp_AW_SA_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='SA_TC_max', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':SA_lims_AW})
+    pp_AW_CT_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT_TC_max', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':CT_lims_AW})
+    # Make the subplot groups
+    group_LHW_SA_map = ahf.Analysis_Group2([bnds_df], pp_LHW_SA_map, plot_title=r'LHW core, $S_A$')
+    group_LHW_CT_map = ahf.Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core, $\Theta$')
+    group_AW_SA_map = ahf.Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
+    group_AW_CT_map = ahf.Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
+    # Make the figure
+    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='s_LHW_AW_lat-lon_plots_SA_CT.png')
 #*# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
 if False:
     print('')
@@ -1858,14 +1660,14 @@ if False:
     pp_AW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
     pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
-    group_LHW_hist = Analysis_Group2([bnds_df], pp_LHW_hist, plot_title=r'LHW core')#, $p(S_A\approx34.1)$')
-    group_LHW_fit_map = Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'$p(S_A\approx34.1)$ and polyfit2d')
-    group_LHW_res_map = Analysis_Group2([bnds_df], pp_LHW_res_map, plot_title=r'Residuals')
-    group_LHW_res_hist = Analysis_Group2([bnds_df], pp_LHW_res_hist, plot_title=r'Residuals')
-    group_AW_hist = Analysis_Group2([bnds_df], pp_AW_hist, plot_title=r'AW core')#, $p(\Theta_{max})$')
-    group_AW_fit_map = Analysis_Group2([bnds_df], pp_AW_fit_map, plot_title=r'$p(\Theta_{max})$ and  polyfit2d')
-    group_AW_res_map = Analysis_Group2([bnds_df], pp_AW_res_map, plot_title=r'Residuals')
-    group_AW_res_hist = Analysis_Group2([bnds_df], pp_AW_res_hist, plot_title=r'Residuals')
+    group_LHW_hist = ahf.Analysis_Group2([bnds_df], pp_LHW_hist, plot_title=r'LHW core')#, $p(S_A\approx34.1)$')
+    group_LHW_fit_map = ahf.Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'$p(S_A\approx34.1)$ and polyfit2d')
+    group_LHW_res_map = ahf.Analysis_Group2([bnds_df], pp_LHW_res_map, plot_title=r'Residuals')
+    group_LHW_res_hist = ahf.Analysis_Group2([bnds_df], pp_LHW_res_hist, plot_title=r'Residuals')
+    group_AW_hist = ahf.Analysis_Group2([bnds_df], pp_AW_hist, plot_title=r'AW core')#, $p(\Theta_{max})$')
+    group_AW_fit_map = ahf.Analysis_Group2([bnds_df], pp_AW_fit_map, plot_title=r'$p(\Theta_{max})$ and  polyfit2d')
+    group_AW_res_map = ahf.Analysis_Group2([bnds_df], pp_AW_res_map, plot_title=r'Residuals')
+    group_AW_res_hist = ahf.Analysis_Group2([bnds_df], pp_AW_res_hist, plot_title=r'Residuals')
     # Make the figure
     make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.5, 1.6], filename='f3_LHW_and_AW_hists_and_polyfits.pdf')
 #*# Tracking LHW and AW cores over time
@@ -1879,10 +1681,10 @@ if False:
     pp_AW = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D'}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_lims_AW})
     pp_AW_fit = ahf.Plot_Parameters(x_vars=[across_x_var], y_vars=['press_TC_max-fit'], legend=LHW_AW_legend, extra_args={'plot_slopes':'OLS', 'mv_avg':'30D', 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.date_range_dict[this_BGR], 'y_lims':press_fit_lims_AW},)
     # Make the subplot groups
-    group_LHW = Analysis_Group2([bnds_df], pp_LHW, plot_title=r'LHW core, $p(S_A\approx34.1)$')
-    group_LHW_fit = Analysis_Group2([bnds_df], pp_LHW_fit, plot_title=r'$p(S_A\approx34.1)$ - polyfit2d')
-    group_AW = Analysis_Group2([bnds_df], pp_AW, plot_title=r'AW core, $p(\Theta_{max})$')
-    group_AW_fit = Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
+    group_LHW = ahf.Analysis_Group2([bnds_df], pp_LHW, plot_title=r'LHW core, $p(S_A\approx34.1)$')
+    group_LHW_fit = ahf.Analysis_Group2([bnds_df], pp_LHW_fit, plot_title=r'$p(S_A\approx34.1)$ - polyfit2d')
+    group_AW = ahf.Analysis_Group2([bnds_df], pp_AW, plot_title=r'AW core, $p(\Theta_{max})$')
+    group_AW_fit = ahf.Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
     # Make the figure
     make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='f4_LHW_and_AW_trends_in_time.pdf')
 ################################################################################
@@ -1896,14 +1698,14 @@ if False:
     # Make the plot parameters
     pp_ca_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=[this_ca_var], first_dfs=[False,True], extra_args={'n_h_bins':50, 're_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=True)#, ax_lims={'x_lims':[-100,100], 'y_lims':these_y_lims})
     # Make the subplot groups
-    group_ca_hist = Analysis_Group2([df], pp_ca_hist, plot_title='')#this_BGR)
+    group_ca_hist = ahf.Analysis_Group2([df], pp_ca_hist, plot_title='')#this_BGR)
     # Make the figure
     make_figure([group_ca_hist])
 ################################################################################
 ################################################################################
 # Evaluating the clusters
-#*# Plot of nir_SA and cRL for all clusters
-if True:
+#**# Plot of nir_SA and cRL for all clusters (Supplementary Materials)
+if False:
     this_ca_var = 'ca_press'
     these_y_lims = [423,200]
     # this_ca_var = 'ca_SA'
@@ -1912,8 +1714,8 @@ if True:
     pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[0,1.75], 'y_lims':these_y_lims}) # 'x_lims':[-5,160]
     pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-57,0], 'y_lims':these_y_lims}) # 'x_lims':[-100,100]
     # Make the subplot groups
-    group_nir = Analysis_Group2([df], pp_nir, plot_title='')#this_BGR)
-    group_cRL = Analysis_Group2([df], pp_cRL, plot_title='')#this_BGR)
+    group_nir = ahf.Analysis_Group2([df], pp_nir, plot_title='')#this_BGR)
+    group_cRL = ahf.Analysis_Group2([df], pp_cRL, plot_title='')#this_BGR)
     # Make the figure
     make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='f7-1_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.png')
 ################################################################################
@@ -1931,10 +1733,10 @@ if False:
         pp_CT = ahf.Plot_Parameters(x_vars=[this_prefix+'CT'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
         pp_sig = ahf.Plot_Parameters(x_vars=[this_prefix+'sigma'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
         # Make the subplot groups
-        group_press = Analysis_Group2([df], pp_press)
-        group_SA = Analysis_Group2([df], pp_SA)
-        group_CT = Analysis_Group2([df], pp_CT)
-        group_sig = Analysis_Group2([df], pp_sig)
+        group_press = ahf.Analysis_Group2([df], pp_press)
+        group_SA = ahf.Analysis_Group2([df], pp_SA)
+        group_CT = ahf.Analysis_Group2([df], pp_CT)
+        group_sig = ahf.Analysis_Group2([df], pp_sig)
         # Make the figure
         make_figure([group_press, group_SA, group_CT, group_sig], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
@@ -1953,10 +1755,10 @@ if False:
         pp_CT_trends = ahf.Plot_Parameters(x_vars=['ca_CT'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
         pp_sig_trends = ahf.Plot_Parameters(x_vars=['ca_sigma'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, legend=False)
         # Make the subplot groups
-        group_press_trends = Analysis_Group2([df], pp_press_trends)
-        group_SA_trends = Analysis_Group2([df], pp_SA_trends)
-        group_CT_trends = Analysis_Group2([df], pp_CT_trends)
-        group_sig_trends = Analysis_Group2([df], pp_sig_trends)
+        group_press_trends = ahf.Analysis_Group2([df], pp_press_trends)
+        group_SA_trends = ahf.Analysis_Group2([df], pp_SA_trends)
+        group_CT_trends = ahf.Analysis_Group2([df], pp_CT_trends)
+        group_sig_trends = ahf.Analysis_Group2([df], pp_sig_trends)
         # Make the figure
         make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03], filename='ca_vars_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
@@ -1964,15 +1766,15 @@ if False:
 ################################################################################
 # Thicknesses of the layers
 # Plot of pcs_press for all profiles against this_ca_var
-# this_clr_map = 'clr_all_same'
-this_clr_map = 'cluster'
+this_clr_map = 'clr_all_same'
+# this_clr_map = 'cluster'
 # this_ca_var = 'ca_press'
 # this_vert_var = 'press'
 this_ca_var = 'ca_SA'
 this_vert_var = 'SA'
-if False:
+if True:
     # Load the per-profile data
-    df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+    df_per_pf = pl.load(open('outputs/'+this_BGR+'_SA_divs_pf_cluster_properties.pickle', 'rb'))
     # To compare to Shibley et al. 2019 Figure 6b: 
     #   Use only ITP13 between August 2007 - August 2008 (ITP13 has data in this time period only)
     plot_Shibley2019_fig6b = False
@@ -2000,10 +1802,11 @@ if False:
                 these_x_lims = [0,20]
         this_plt_title = ''
     # Find outliers in df
-    df = ahf.find_outliers(df, ['cRL', 'nir_SA'])
+    df = ahf.find_outliers(df, ['cRL', 'nir_SA'], mrk_outliers='ends')
     # Based on df, get values of 'cRL' and 'nir_SA' for df_per_pf
     df_per_pf['out_cRL'] = None
     df_per_pf['out_nir_SA'] = None
+    df_per_pf['out_ends'] = None
     # Check columns of df
     # print('df columns:',df.columns)
     # print('df_per_pf columns:',df_per_pf.columns)
@@ -2013,8 +1816,9 @@ if False:
             # Mark the cluster as an outlier if it is an outlier in the original dataframe
             df_per_pf.loc[df_per_pf['cluster'] == i, 'out_cRL'] = df.loc[df['cluster'] == i, 'out_cRL'].values[0]
             df_per_pf.loc[df_per_pf['cluster'] == i, 'out_nir_SA'] = df.loc[df['cluster'] == i, 'out_nir_SA'].values[0]
+            df_per_pf.loc[df_per_pf['cluster'] == i, 'out_ends'] = df.loc[df['cluster'] == i, 'out_ends'].values[0]
     # Remove all rows with 'cRL' or 'nir_SA' outliers
-    df_per_pf = df_per_pf[(df_per_pf['out_cRL'] == False) & (df_per_pf['out_nir_SA'] == False)]
+    df_per_pf = df_per_pf[(df_per_pf['out_cRL'] == False) & (df_per_pf['out_nir_SA'] == False) & (df_per_pf['out_ends'] == False)]
     # Make a copy of the dataframe
     nzdf_per_pf = df_per_pf.copy()
     # Make a column in the dataframe of pcs_press without zeros
@@ -2036,7 +1840,7 @@ if False:
         pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=[this_vert_var], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         # pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=['press'], clr_map='cluster', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         # Make the subplot groups
-        group_nzpcs = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=this_plt_title)
+        group_nzpcs = ahf.Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=this_plt_title)
         # Make the figure
         make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1], filename='C10_ITP13_compare_to_Shibley2019fig6b.pdf')
 
@@ -2046,27 +1850,27 @@ if False:
         pp_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=True)
         pp_pcs = ahf.Plot_Parameters(x_vars=['trd_pcs_press'], y_vars=[this_ca_var], clr_map='clr_all_same', extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=True)#, ax_lims={'x_lims':[0.5,4.5], 'y_lims':[300,170]})
         # Make the subplot groups
-        group_nzpcs = Analysis_Group2([df], pp_nzpcs, plot_title=this_BGR)
-        group_pcs   = Analysis_Group2([df], pp_pcs, plot_title=this_BGR)
+        group_nzpcs = ahf.Analysis_Group2([df], pp_nzpcs, plot_title=this_BGR)
+        group_pcs   = ahf.Analysis_Group2([df], pp_pcs, plot_title=this_BGR)
         # Make the figure
         make_figure([group_nzpcs, group_pcs])#, group_nzpcs_fit])#, row_col_list=[1,1, 0.8, 1.25])
     
     #*# Plots of thicknesses all layers, cluster average thickness, and trends in thickness
-    if True:
+    if False:
         # Make the plot parameters
         """
         Note to myself: I've already taken out the outlier clusters in nzdf_per_pf
         """
         pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=[this_vert_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'plot_centroid':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
-        pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
-        # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-2,2], 'y_lims':these_y_lims})
-        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-40,40], 'y_lims':these_y_lims})
+        pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
+        # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-2,2], 'y_lims':these_y_lims})
+        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':[-40,40], 'y_lims':these_y_lims})
         # Make the subplot groups
-        group_nzpcs    = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title='')
-        group_ca_nzpcs = Analysis_Group2([df], pp_ca_nzpcs, plot_title='')
-        group_trd_nzpcs= Analysis_Group2([df], pp_trd_nzpcs, plot_title='')
+        group_nzpcs    = ahf.Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title='')
+        group_ca_nzpcs = ahf.Analysis_Group2([df], pp_ca_nzpcs, plot_title='')
+        group_trd_nzpcs= ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title='')
         # Make the figure
-        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='f10_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
+        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='s_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
     
     # Plot of thickness for just one cluster
     this_clstr_id = 5
@@ -2076,7 +1880,7 @@ if False:
         # Make the plot parameters
         pp_nzpcs = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['nzpcs_press'], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':False, 'plot_centroid':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False)#, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         # Make the subplot groups
-        group_nzpcs = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title='Cluster '+str(this_clstr_id))
+        group_nzpcs = ahf.Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title='Cluster '+str(this_clstr_id))
         # Make the figure
         make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1])
 
@@ -2093,8 +1897,8 @@ if False:
         pp_pcs_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='nzpcs_press_mean', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':[0,3]}, legend=False)
         pp_pcs_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['nzpcs_press_mean'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':[0,3]}, legend=False)
         # Make the subplot groups
-        group_pcs_map = Analysis_Group2([nzdf_per_pf], pp_pcs_map, plot_title='')
-        group_pcs_hist = Analysis_Group2([nzdf_per_pf], pp_pcs_hist, plot_title='')
+        group_pcs_map = ahf.Analysis_Group2([nzdf_per_pf], pp_pcs_map, plot_title='')
+        group_pcs_hist = ahf.Analysis_Group2([nzdf_per_pf], pp_pcs_hist, plot_title='')
         # Make the figure
         make_figure([group_pcs_map, group_pcs_hist], filename='C11_BGR_all_nzpcs_press_mean_per_pf.pdf')
 ################################################################################
@@ -2110,10 +1914,10 @@ if False:
     pp_trd_CT = ahf.Plot_Parameters(x_vars=['trd_CT-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     pp_rho = ahf.Plot_Parameters(x_vars=['ca_rho'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     # Make the subplot groups
-    group_height = Analysis_Group2([df], pp_height, plot_title='')
-    group_cp = Analysis_Group2([df], pp_cp, plot_title='')
-    group_trd_CT = Analysis_Group2([df], pp_trd_CT, plot_title='')
-    group_rho = Analysis_Group2([df], pp_rho, plot_title='')
+    group_height = ahf.Analysis_Group2([df], pp_height, plot_title='')
+    group_cp = ahf.Analysis_Group2([df], pp_cp, plot_title='')
+    group_trd_CT = ahf.Analysis_Group2([df], pp_trd_CT, plot_title='')
+    group_rho = ahf.Analysis_Group2([df], pp_rho, plot_title='')
     # Make the figure
     # make_figure([group_height, group_cp])
     make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6], filename='C12_BGR_all_FH_comps_vs_SA.pdf')
@@ -2123,8 +1927,8 @@ if False:
     pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     pp_FH_cumul = ahf.Plot_Parameters(x_vars=['ca_FH_cumul'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     # Make the subplot groups
-    group_FH = Analysis_Group2([df], pp_FH, plot_title='')
-    group_FH_cumul = Analysis_Group2([df], pp_FH_cumul, plot_title='')
+    group_FH = ahf.Analysis_Group2([df], pp_FH, plot_title='')
+    group_FH_cumul = ahf.Analysis_Group2([df], pp_FH_cumul, plot_title='')
     # Make the figure
     make_figure([group_FH, group_FH_cumul], filename='f11_FH_and_cumul_vs_SA.pdf')#, row_col_list=[1,1, 0.3, 1.04])
 ################################################################################
@@ -2143,13 +1947,13 @@ if False:
 # for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
-    this_ca_var = 'ca_SA'
+    this_ca_var = 'ca_press'
     if this_ca_var == 'ca_press':
         these_y_lims = [355,190]
     elif this_ca_var == 'ca_SA':
         these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
-    if False:
-    # for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
+    # if False:
+    for this_plt_var in ['ca_CT', 'ca_press', 'nzca_pcs_press']:# 'ca_SA']:
         # Make the Plot Parameters
         if this_plt_var == 'nzca_pcs_press':
             mrk_LHW_AW = False
@@ -2161,10 +1965,10 @@ if False:
             lgnd = add_legend
         pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
         # Make the subplot groups
-        groups_to_plot.append(Analysis_Group2([df], pp_ca_plot, plot_title=''))
+        groups_to_plot.append(ahf.Analysis_Group2([df], pp_ca_plot, plot_title=''))
     # Add in plots of trends over time
     # if False:
-    for this_ca_var in ['ca_SA']:#, 'ca_press']:#, 'ca_SA', 'ca_CT', 'ca_sigma']:
+    for this_ca_var in ['ca_press']:#, 'ca_press']:#, 'ca_SA', 'ca_CT', 'ca_sigma']:
         # Make the Plot Parameters
         ## Just one cluster, maps (og and fit) of press, SA, or CT
         if False:
@@ -2186,7 +1990,7 @@ if False:
             #
             pp_CT_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['CT', 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['CT_lims']})
         if this_ca_var == 'ca_press':
-            these_y_lims = [375,200]
+            these_y_lims = [400,190]
             legend_for_press_plot = True
         elif this_ca_var == 'ca_SA':
             these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
@@ -2243,22 +2047,22 @@ if False:
         #
         pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         #
-        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':[-0.5,0.5], 'y_lims':these_y_lims})
-        # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'y_lims':these_y_lims})
+        # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':[-0.5,0.5], 'y_lims':these_y_lims})
+        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'y_lims':these_y_lims})
         #
         # Make the subplot groups
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_SA_map, plot_title=this_cluster_title),
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_CT_map, plot_title=this_cluster_title),
-        # groups_to_plot.append(Analysis_Group2([df], pp_SA_trends, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_CT_trends, plot_title=''))           #**
-        # groups_to_plot.append(Analysis_Group2([df], pp_FH, plot_title=''))
-        # groups_to_plot.append(Analysis_Group2([df], pp_FH_cumul, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
-        # groups_to_plot.append(Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''))
-        # groups_to_plot.append(Analysis_Group2([df], pp_ca_nzpcs, plot_title=''))
-        groups_to_plot.append(Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**
-        # Analysis_Group2([df], pp_sig_trends, plot_title=''),
+        # groups_to_plot.append(ahf.Analysis_Group2([df], pp_SA_trends, plot_title=''))
+        groups_to_plot.append(ahf.Analysis_Group2([df], pp_CT_trends, plot_title=''))           #**
+        # groups_to_plot.append(ahf.Analysis_Group2([df], pp_FH, plot_title=''))
+        # groups_to_plot.append(ahf.Analysis_Group2([df], pp_FH_cumul, plot_title=''))
+        groups_to_plot.append(ahf.Analysis_Group2([df], pp_press_trends, plot_title=''))        #**
+        # groups_to_plot.append(ahf.Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=''))
+        # groups_to_plot.append(ahf.Analysis_Group2([df], pp_ca_nzpcs, plot_title=''))
+        groups_to_plot.append(ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title=''))           #**
+        # ahf.Analysis_Group2([df], pp_sig_trends, plot_title=''),
     # Make the figure
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
@@ -2276,9 +2080,9 @@ for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
     pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
     pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
     # Make the subplot groups
-    group_press_trends = Analysis_Group2([df], pp_press_trends)
-    group_SA_trends = Analysis_Group2([df], pp_SA_trends)
-    group_CT_trends = Analysis_Group2([df], pp_CT_trends)
+    group_press_trends = ahf.Analysis_Group2([df], pp_press_trends)
+    group_SA_trends = ahf.Analysis_Group2([df], pp_SA_trends)
+    group_CT_trends = ahf.Analysis_Group2([df], pp_CT_trends)
     # Make the figure
     make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.02], filename=filename_prefix+'fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
 # Make plots of the trends in the cluster properties
@@ -2289,9 +2093,9 @@ for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
     pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
     pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
     # Make the subplot groups
-    group_press_trends = Analysis_Group2([df], pp_press_trends)
-    group_SA_trends = Analysis_Group2([df], pp_SA_trends)
-    group_CT_trends = Analysis_Group2([df], pp_CT_trends)
+    group_press_trends = ahf.Analysis_Group2([df], pp_press_trends)
+    group_SA_trends = ahf.Analysis_Group2([df], pp_SA_trends)
+    group_CT_trends = ahf.Analysis_Group2([df], pp_CT_trends)
     # Make the figure
     make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.02], filename=filename_prefix+'trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
 
