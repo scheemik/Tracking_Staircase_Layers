@@ -1680,8 +1680,8 @@ if False:
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
 #***# Map of all profiles by date, plus map of fit to one cluster
-if False:
-    this_cluster_id = 27
+if True:
+    this_cluster_id = 35 # 27
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     print('')
     print('- Creating a map of profiles by date and a map of cluster',this_cluster_id)
@@ -1733,9 +1733,10 @@ if False:
 if False:
 # for this_cluster_id in [63]:
 # for this_cluster_id in [27]:
+# for this_cluster_id in [35]:
     # Make title and file name prefix
-    this_cluster_title = 'Cluster '+str(this_cluster_id)
-    filename_prefix = file_date+this_BGR+'_clstr_'+str(this_cluster_id)
+    this_cluster_title = 'Layer '+str(this_cluster_id)
+    filename_prefix = file_date+this_BGR+'_layer_'+str(this_cluster_id)
     # Get the cluster ranges dictionary
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     # Make the profile filters for this cluster
@@ -2307,10 +2308,10 @@ if False:
     print('')
     print('- Creating lat-lon plots for many clusters temperature polyfit2d') 
     if plot_LHW_AW:
-        plt_these_clstrs = [3, 9, 18, 27, 36, 39, 47]
+        plt_these_clstrs = [3, 9, 18, 27, 35, 39, 47]
         bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
     else:
-        plt_these_clstrs = [3, 9, 18, 22, 27, 36, 39, 42, 47]
+        plt_these_clstrs = [3, 9, 18, 22, 27, 35, 39, 42, 47]
     # filename_prefix = file_date+this_BGR
     filename_prefix = 's7_'+this_BGR
     # Loop across the variables for which to make the figures
@@ -2357,39 +2358,6 @@ if False:
         # Make the figures
         ahf.make_figure(groups_to_plot_hist, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_layers_'+var+'_hist.png')
         ahf.make_figure(groups_to_plot_map, use_same_y_axis=True, use_same_x_axis=True, filename=filename_prefix+'_many_layers_'+var+'_map.png')
-    exit(0)
-    # Make a list for the subplot groups
-    groups_to_plot_hist_CT = []
-    groups_to_plot_map_CT = []
-    groups_to_plot_hist_press = []
-    groups_to_plot_map_press = []
-    groups_to_plot_hist_press_fit = []
-    groups_to_plot_map_press_fit = []
-    for i in plt_these_clstrs:
-        # Get the cluster ranges dictionary
-        clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[i]
-        # Make the profile filters
-        pfs_clstr = ahf.Profile_Filters(clstrs_to_plot=[i])
-        # Make the Plot Parameters
-        # pp_hist_CT = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['CT'], legend=True, extra_args={'n_h_bins':100, 'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['press', 'SA','cluster']}, ax_lims={'y_lims':clstr_ranges_dict['CT_lims']})
-        # pp_map_CT = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster','press']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['CT_lims']})
-        # pp_hist_press = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press'], legend=True, extra_args={'n_h_bins':100, 'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['press', 'SA','cluster']}, ax_lims={'y_lims':clstr_ranges_dict['press_lims']})
-        pp_map_press = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['press_lims']})
-        # pp_hist_press_fit = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press-fit'], legend=True, extra_args={'n_h_bins':100, 'sort_clstrs':False, 'plot_slopes':False, 'extra_vars_to_keep':['press', 'SA','cluster']}, ax_lims={'y_lims':clstr_ranges_dict['press-fit_lims']})
-        # pp_map_press_fit = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press-fit', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':False, 'fit_vars':['lon','lat'], 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['press-fit_lims']})
-        # Make the subplot group
-        # groups_to_plot_hist_CT.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_hist_CT, plot_title='Layer '+str(i)))
-        # groups_to_plot_map_CT.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_map_CT, plot_title='Layer '+str(i)))
-        # groups_to_plot_hist_press.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_hist_press, plot_title='Layer '+str(i)))
-        groups_to_plot_map_press.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_map_press, plot_title='Layer '+str(i)))
-        # groups_to_plot_hist_press_fit.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_hist_press_fit, plot_title='Layer '+str(i)))
-        # groups_to_plot_map_press_fit.append(ahf.Analysis_Group(ds_this_BGR, pfs_clstr, pp_map_press_fit, plot_title='Layer '+str(i)))
-    # ahf.make_figure(groups_to_plot_hist_CT, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_layers_CT_hist.png')
-    # ahf.make_figure(groups_to_plot_map_CT, use_same_y_axis=True, use_same_x_axis=True, filename=filename_prefix+'_many_layers_CT_map.png')
-    # ahf.make_figure(groups_to_plot_hist_press, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_layers_press_hist.png')
-    ahf.make_figure(groups_to_plot_map_press, use_same_y_axis=True, use_same_x_axis=True, filename=filename_prefix+'_many_layers_press_map.png')
-    # ahf.make_figure(groups_to_plot_hist_press_fit, use_same_y_axis=False, use_same_x_axis=False, filename=filename_prefix+'_many_layers_press-fit_hist.png')
-    # ahf.make_figure(groups_to_plot_map_press_fit, use_same_y_axis=True, use_same_x_axis=True, filename=filename_prefix+'_many_layers_press-fit_map.png')
 
 ################################################################################
 ## Pre-clustered comparing multiple clusters across time periods

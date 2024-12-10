@@ -2996,9 +2996,15 @@ def format_sci_notation(x, ndp=2, sci_lims_f=sci_lims, pm_val=None, condense=Fal
         pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
         # Check to see whether it's outside the scientific notation exponent limits
         if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
-            return r'({m:s}{{\pm}}{pm_m:s}){{\times}} 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
+            if condense:
+                return r'({m:s}{{\pm}}{pm_m:s}){{\times}} 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
+            else:
+                return r'({m:s}\pm{pm_m:s})\times 10^{{{e:d}}}'.format(m=m, pm_m=pm_m, e=int(e))
         else:
-            return r'{x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+            if condense:
+                return r'{x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+            else:
+                return r'{x:0.{ndp:d}f}\pm{pm_val:0.{ndp:d}f}'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
 ################################################################################
 
@@ -7993,7 +7999,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
             # for i in cluster_numbers:
             # for i in [0, 27, 49]:
-            for i in [0, 3, 9, 18, 22, 27, 36, 39, 42, 47, 49]:
+            for i in [0, 3, 9, 18, 27, 35, 39, 47, 49]:
             # Just the clusters that appear in BGR0506
             # for i in range(0, 148):# 80):
             # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
@@ -8038,7 +8044,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
             # for i in cluster_numbers:
             # for i in [0, 27, 49]:
-            for i in [0, 3, 9, 18, 22, 27, 36, 39, 42, 47, 49]:
+            for i in [0, 3, 9, 18, 27, 35, 39, 47, 49]:
             # Just the clusters that appear in BGR2122
             # for i in range(0, 137):# 65):
             # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:

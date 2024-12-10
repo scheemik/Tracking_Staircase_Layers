@@ -779,6 +779,15 @@ BGR_all_clstr_plt_ranges = {
         'pcs_SA_lims':[0,0.01],
         'sig_lims':[32.4,32.36]
         },
+    35:{
+        'press_lims':[370,230],
+        'pcs_press_lims':[0,3],
+        'CT_lims':[0.1,-0.1],
+        'pcs_CT_lims':[0,0.035],
+        'SA_lims':[34.74072130394124, 34.72142305183549], # incorrect
+        'pcs_SA_lims':[0,0.01],
+        'sig_lims':[32.4,32.36]
+        },
     36:{
         'press_lims':[360,235],
         'pcs_press_lims':[0,3],
