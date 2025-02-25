@@ -7997,12 +7997,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Define the date bounds for BGR0506
             BGR0506_start = mpl.dates.date2num(datetime.fromisoformat('2005-08-15'))
             BGR0506_end = mpl.dates.date2num(datetime.fromisoformat('2006-08-15'))
-            # for i in cluster_numbers:
-            # for i in [0, 27, 49]:
-            for i in [0, 3, 9, 18, 27, 35, 39, 47, 49]:
+            # List layers to mark
+            mark_these_ones = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 49]
+            # mark_these_ones = [0, 3, 9, 18, 27, 35, 39, 47, 49]
             # Just the clusters that appear in BGR0506
-            # for i in range(0, 148):# 80):
-            # for i in [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]:
+            # mark_these_ones = [0, 4, 6, 7, 10, 13, 15, 17, 19, 22, 23, 26, 30, 31, 32, 34, 37, 39, 42, 44, 46, 50, 52, 54, 57, 58, 60, 62, 63, 64, 67, 69, 70, 72, 75, 76, 77, 78, 79, 81, 83, 84, 86, 88, 90, 94, 96, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147]
+            # for i in cluster_numbers:
+            for i in mark_these_ones:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
                 # Get data just between 2005-08-15 and 2006-08-15
@@ -8042,12 +8043,10 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             # Define the date bounds for BGR2122
             BGR2122_start = mpl.dates.date2num(datetime.fromisoformat('2021-08-15'))
             BGR2122_end = mpl.dates.date2num(datetime.fromisoformat('2022-08-15'))
-            # for i in cluster_numbers:
-            # for i in [0, 27, 49]:
-            for i in [0, 3, 9, 18, 27, 35, 39, 47, 49]:
             # Just the clusters that appear in BGR2122
-            # for i in range(0, 137):# 65):
-            # for i in [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]:
+            # mark_these_ones = [6, 7, 10, 14, 17, 19, 23, 24, 29, 31, 32, 35, 37, 40, 44, 46, 47, 52, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72, 73, 76, 77, 78, 79, 80, 81, 83, 85, 88, 90, 92, 94, 96, 97, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137]
+            # for i in cluster_numbers:
+            for i in mark_these_ones:
                 # Find the data from this cluster
                 df_this_cluster = df[df['cluster']==i]
                 # Get data just between 2005-08-15 and 2006-08-15
