@@ -1,4 +1,4 @@
-# Staircase Clustering Detection Algorithm
+# Tracking Arctic Ocean Staircase Layers
 
 Written by Mikhail Schee for:
 (in preparation) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2025) "17 years of thermohaline staircase evolution in the Arctic Ocean's Canada Basin"
