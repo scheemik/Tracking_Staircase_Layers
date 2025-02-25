@@ -1,7 +1,7 @@
 # Staircase Clustering Detection Algorithm
 
 Written by Mikhail Schee for:
-Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2023) "Unsupervised Clustering Identifies Thermohaline Staircases in the Canada Basin of the Arctic Ocean"
+(in preparation) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2025) "17 years of thermohaline staircase evolution in the Arctic Ocean's Canada Basin"
 
 ## License
 
@@ -19,12 +19,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 ## Contact
 
 * Corresponding Author: Mikhail Schee (he/him)
-* Email: [mikhail.schee@mail.utoronto.ca](mailto:mikhail.schee@mail.utoronto.ca)
-* GitHub: https://github.com/scheemik/Staircase_Clustering_Detection_Algorithm
+* Email: [mikhail.schee@alumni.utoronto.ca](mailto:mikhail.schee@alumni.utoronto.ca)
+* GitHub: https://github.com/scheemik/Tracking_Staircase_Layers
 
 ## Summary
 
-This repository contains the code used by the above study to apply the Hierarchical Density-Based Spatial Clustering of Applications with Noise (HDBSCAN) clustering algorithm to data from Ice Tethered Profilers.
+This repository contains the code used by the above study to apply the Hierarchical Density-Based Spatial Clustering of Applications with Noise (HDBSCAN) clustering algorithm to data from Ice Tethered Profilers. This is a follow-up to the study by Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2024) "Unsupervised Clustering Identifies Thermohaline Staircases in the Canada Basin of the Arctic Ocean," Environmental Data Science, 3:e13, 1-19, doi:10.1017/eds.2024.13, the code for which can be found at https://github.com/scheemik/Staircase_Clustering_Detection_Algorithm and serves as a basis for his project.
 
 A detailed explanation of how the code was used to make each plot in the study can be found in the accompanying Jupyter notebook `Create_Figures.ipynb`.
 
