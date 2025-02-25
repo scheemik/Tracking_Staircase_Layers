@@ -2,6 +2,13 @@
 Author: Mikhail Schee
 Created: 2023-03-06
 
+Usage:
+    HPC_cluster_data.py THIS_BGR THIS_MPTS
+
+Options:
+    THIS_BGR        # string of the BGR time period to cluster (ex: 'BGR0506')
+    THIS_MPTS       # integer of the number of points to cluster (ex: 500)
+
 This script is set up to run the HDBSCAN clustering algorithm on a set of ITP 
 data given certain inputs. It will fill in values in the 'cluster' and 
 'clst_prob' columns, as well as for the global attributes:
@@ -24,6 +31,13 @@ Disclaimer
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+# Parse input parameters
+from docopt import docopt
+args = docopt(__doc__)
+this_BGR   = str(args['THIS_BGR'])
+this_m_pts = str(args['THIS_MPTS'])
+print('BGR:', this_BGR,', m_pts:', this_m_pts)
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -39,6 +53,15 @@ import analysis_helper_functions as ahf
 import BGR_params as bps
 # For common BGR objects
 import BGR_objects as bob
+
+################################################################################
+# Defining parameters
+################################################################################
+
+# Define prefix for netcdf file name
+file_prefix = 'test_'
+# Define the clustering dictionary
+this_BGR_clstr_dict = bob.build_clustering_dict(file_prefix, this_BGR, m_pts=this_m_pts, relab_these=bps.BGR_HPC_relab_dict[this_BGR])
 
 ################################################################################
 # Main execution

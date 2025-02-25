@@ -251,10 +251,6 @@ print('- Creating data sets')
 this_BGR = 'BGR_all'
 # ds_this_BGR_unclstrd = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs1_BGR_dict[this_BGR])
 
-# ds_this_BGR = ahf.Data_Set(BGRITPs0506, dfs1_BGR0506)
-# this_BGR = 'BGR0511'
-# ds_this_BGR = ahf.Data_Set(bps.BGRITPs0511, bob.dfs1_BGR0511)
-
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, bob.dfs1)
 
 # Data Sets without filtering based on TC_max
@@ -318,11 +314,10 @@ pfs_CB1 = ahf.Profile_Filters(lon_range=lon_CB,lat_range=lat_CB, p_range=[1000,5
 # Beaufort Gyre Region (BGR), see Shibley2022
 lon_BGR = bps.lon_BGR
 lat_BGR = bps.lat_BGR
-pfs_BGR = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR)
 pfs_BGR1 = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True)
 pfs_BGR1_n = ahf.Profile_Filters(lon_range=lon_BGR,lat_range=lat_BGR, p_range=[1000,5], SA_range=test_S_range, lt_pTC_max=True, every_nth_row=12)
 
-pfs_BGR_test = bob.pfs_BGR_test
+pfs_BGR = bob.pfs_BGR
 
 pfs_test = ahf.Profile_Filters(every_nth_row=4)
 
@@ -342,7 +337,7 @@ pfs_ell_150 = ahf.Profile_Filters(p_range=test_p_range, m_avg_win=150)
 
 # Use these things
 pfs_this_BGR = pfs_0
-# pfs_this_BGR = pfs_BGR_test
+# pfs_this_BGR = pfs_BGR
 # pfs_this_BGR = pfs_BGR1_n
 # pfs_this_BGR = pfs_test
 
@@ -1090,7 +1085,7 @@ if False:
     pp_pfs_zoom = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['press'], plot_type='profiles', extra_args={'plot_pts':False})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # Make the Analysis Groups
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
-    group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
+    group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR, pp_pfs_zoom, plot_title='')
     # Make the figure
     ahf.make_figure([group_example_profiles1, group_example_profiles2], use_same_y_axis=False, row_col_list=[2,1, 0.45, 1.4])
 # Example profile plot, CT and SA, full and zoomed
@@ -1212,8 +1207,8 @@ if False:
     # pp_pfs_map  = ahf.Plot_Parameters(plot_type='map', clr_map='instrmt', extra_args={'map_extent':'Western_Arctic'})#, ax_lims={'y_lims':ex_pfs1_zoom_range})
     # # Make the Analysis Groups
     # group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs_full, plot_title='')
-    # group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_zoom, plot_title='')
-    # group_example_profiles3 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR_test, pp_pfs_map, plot_title='')
+    # group_example_profiles2 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR, pp_pfs_zoom, plot_title='')
+    # group_example_profiles3 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_BGR, pp_pfs_map, plot_title='')
     # # Make the figure
     # ahf.make_figure([group_example_profiles1, group_example_profiles2, group_example_profiles3], use_same_y_axis=False)
 

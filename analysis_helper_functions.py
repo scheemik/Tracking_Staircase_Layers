@@ -313,8 +313,8 @@ class Data_Filters:
         self.keep_black_list = keep_black_list
         self.cast_direction = cast_direction
         self.geo_extent = geo_extent
-        self.lon_range = lon_range
-        self.lat_range = lat_range
+        # self.lon_range = lon_range
+        # self.lat_range = lat_range
         self.date_range = date_range
         self.min_press = min_press
         self.press_TC_max_range = press_TC_max_range
@@ -499,7 +499,7 @@ class Plot_Parameters:
                         where the array should be 3 long with entries True/False for 
                         whether to put the x, y, or z axes (in that order) on a log scale
     """
-    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SP'], y_vars=['CT'], z_vars=[None], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
+    def __init__(self, plot_type='xy', plot_scale='by_vert', x_vars=['SA'], y_vars=['CT'], z_vars=[None], clr_map='clr_all_same', first_dfs=[False, False], finit_dfs=[False, False], legend=True, add_grid=True, ax_lims=None, extra_args=None):
         # Add all the input parameters to the object
         self.plot_type = plot_type
         self.plot_scale = plot_scale
@@ -1322,12 +1322,16 @@ def take_m_avg(df, m_avg_win, vars_available):
     vars_available      A list of variables available in the dataframe
     """
     print('\tIn take_m_avg(), m_avg_win:',m_avg_win)
+    # Vertical resolution of the data
+    res = 0.25
+    # The number of data points across which to average
+    c3 = int(m_avg_win/res)
     # Use the pandas `rolling` function to get the moving average
     #   center=True makes the first and last window/2 of the profiles are masked
     #   win_type='boxcar' uses a rectangular window shape
     #   on='press' means it will take `press` as the index column
     #   .mean() takes the average of the rolling
-    df1 = df.rolling(window=int(m_avg_win), center=True, win_type='boxcar', on='press').mean()
+    df1 = df.rolling(window=int(c3), center=True, win_type='boxcar', on='press').mean()
     # Put the moving average profiles for temperature, salinity, and density into the dataset
     for var in vars_available:
         if var in ['iT','ma_iT','la_iT']:

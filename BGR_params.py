@@ -476,12 +476,6 @@ BGRITPs_dict = {'BGR04':BGRITPs04,
                 'BGR_all':BGRITPsAll,
                 }
 
-
-
-## Subsets of ITPs in the BGR
-BGRITPs0508 = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708}
-BGRITPs0511  = {**BGRITPs0506, **BGRITPs0607, **BGRITPs0708, **BGRITPs0809, **BGRITPs0910, **BGRITPs1011}
-
 ## Pre-clustered files
 # From HPC
 BGR_HPC_clstrd_dict = { 'BGR04':{'HPC_BGR04_clstrd':'all'},

@@ -35,7 +35,7 @@ import gsw
 m_avg_win = 2.5
 # Vertical resolution of the data
 res = 0.25
-# Value of the moving average window term
+# The number of data points across which to average
 c3 = int(m_avg_win/res)
 
 ################################################################################
@@ -202,8 +202,8 @@ for my_nc in ncs_to_modify:
 
     # Update the global variables:
     ds.attrs['Last modified'] = str(datetime.now())
-    ds.attrs['Last modification'] = 'Added moving averages with '+str(c3)+' dbar window'
-    ds.attrs['Moving average window'] = str(c3)+' dbar'
+    ds.attrs['Last modification'] = 'Added moving averages with '+str(m_avg_win)+' dbar window'
+    ds.attrs['Moving average window'] = str(m_avg_win)+' dbar'
 
     # Write out to netcdf
     print('Writing data to',my_nc)

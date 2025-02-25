@@ -29,7 +29,7 @@ import BGR_params as bps
 pfs_LHW_and_AW = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR)
 
 # The profile filters I'm using for this study
-pfs_BGR_test = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
+pfs_BGR = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 
 # The profile filters to narrow down to an example area
 pfs_ex_area = ahf.Profile_Filters(lon_range=bps.lon_ex_area, lat_range=bps.lat_ex_area, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
@@ -77,7 +77,7 @@ dfs1_BGR0508 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/1
 dfs1_BGR0511 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2011/08/15 00:00:00'])
 
 # Build a clustering dictionary
-def build_clustering_dict(file_prefix, BGR_name, pfs_object=pfs_BGR_test, cl_x_var='SA', cl_y_var='la_CT', cl_z_var='None', m_pts='auto', m_cls='auto', relab_these={}):
+def build_clustering_dict(file_prefix, BGR_name, pfs_object=pfs_BGR, cl_x_var='SA', cl_y_var='la_CT', cl_z_var='None', m_pts='auto', m_cls='auto', relab_these={}):
     """
     Build a dictionary for the BGR_name to cluster that data
 
