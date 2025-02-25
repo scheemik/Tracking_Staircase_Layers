@@ -38,8 +38,10 @@ import BGR_objects as bob
 this_BGR = 'BGR_all'
 
 # Specify which connection method to use
-connect_by = 'SA_divs'
-# connect_by = 'manual'
+# connect_by = 'SA_divs'
+connect_by = 'manual'
+
+filename = this_BGR+'_'+connect_by
 
 ################################################################################
 # Declare variables for plotting
@@ -74,11 +76,12 @@ lat_BGR = bps.lat_BGR
 ################################################################################
 
 # Unpickle the data frames from file
-if connect_by == 'SA_divs':
+# if connect_by == 'SA_divs':
     # df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties_og.pickle', 'rb')) # before 2024-11-13
-    df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb'))
-elif connect_by == 'manual':    
-    df = pl.load(open('outputs/'+this_BGR+'_cluster_properties.pickle', 'rb'))
+    # df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb')) # before 2025-02-11
+df = pl.load(open('outputs/'+filename+'_layer_properties.pickle', 'rb'))
+# elif connect_by == 'manual':    
+#     df = pl.load(open('outputs/'+this_BGR+'_layer_properties.pickle', 'rb'))
 bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
 
 # print('df.columns:')
@@ -291,8 +294,8 @@ def layer_stats(df, var_list):
     # Format cluster ids as integers
     this_df['cluster'] = pd.to_numeric(this_df['cluster'], downcast='integer')
     # Write this out to a csv
-    print('Writing to outputs/layer_properties.csv')
-    this_df.to_csv('outputs/layer_properties.csv', index=False)
+    print('Writing to outputs/'+filename+'_layer_properties.csv')
+    this_df.to_csv('outputs/'+filename+'_layer_properties.csv', index=False)
 
 # layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press'])
 # 
@@ -1777,9 +1780,9 @@ this_clr_map = 'clr_all_same'
 # this_vert_var = 'press'
 this_ca_var = 'ca_SA'
 this_vert_var = 'SA'
-if True:
+if False:
     # Load the per-profile data
-    df_per_pf = pl.load(open('outputs/'+this_BGR+'_SA_divs_pf_cluster_properties.pickle', 'rb'))
+    df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
     # To compare to Shibley et al. 2019 Figure 6b: 
     #   Use only ITP13 between August 2007 - August 2008 (ITP13 has data in this time period only)
     plot_Shibley2019_fig6b = False
@@ -1982,11 +1985,12 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-if False:
-# for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
+# if False:
+for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
-    this_ca_var = 'ca_press'
+    # this_ca_var = 'ca_press'
+    this_ca_var = 'ca_SA'
     if this_ca_var == 'ca_press':
         these_y_lims = [355,190]
     elif this_ca_var == 'ca_SA':
@@ -1999,7 +2003,7 @@ if False:
         else:
             mrk_LHW_AW = True
         if this_plt_var == 'ca_press':
-            lgnd = True
+            lgnd = False #True
         else:
             lgnd = add_legend
         pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
@@ -2007,7 +2011,7 @@ if False:
         groups_to_plot.append(ahf.Analysis_Group2([df], pp_ca_plot, plot_title=''))
     # Add in plots of trends over time
     # if False:
-    for this_ca_var in ['ca_press']:#, 'ca_press']:#, 'ca_SA', 'ca_CT', 'ca_sigma']:
+    for this_ca_var in ['ca_SA']:#, 'ca_press']:#, 'ca_SA', 'ca_CT', 'ca_sigma']:
         # Make the Plot Parameters
         ## Just one cluster, maps (og and fit) of press, SA, or CT
         if False:
@@ -2056,7 +2060,7 @@ if False:
                 these_x_lims = [0,20]
         # Load the per-profile data
         if False:
-            df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+            df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
             # Find outliers in df
             df = ahf.find_outliers(df, ['cRL', 'nir_SA'])
             # Based on df, get values of 'cRL' and 'nir_SA' for df_per_pf
@@ -2105,7 +2109,8 @@ if False:
     # Make the figure
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
-    make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
+    # make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
+    make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
 ################################################################################
 
 exit(0)

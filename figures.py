@@ -1417,7 +1417,7 @@ for this_dt in bps.date_range_dict[this_BGR]:
     dt_this_BGR_x_lims.append(this_year+'/'+this_month+'/'+this_dt[8:])
     up_or_dn = abs(up_or_dn)
 #***# Salinity vs. time
-if False:
+if True:
     print('')
     print('- Creating plot of salinity vs time')
     # Make the Plot Parameters
@@ -1436,7 +1436,7 @@ if False:
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s2_'+this_BGR+'_SA_vs_dt.png')
-#**# Temperature vs. time (Supplementary Materials)
+#**# Temperature vs. time 
 if False:
     print('')
     print('- Creating plot of temperature vs time')
@@ -1445,8 +1445,8 @@ if False:
     # Make the subplot groups
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s3_'+this_BGR+'_CT_vs_dt.png')
-#**# Pressure vs. time (Supplementary Materials)
+    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s5_'+this_BGR+'_CT_vs_dt.png')
+#**# Pressure vs. time 
 if False:
     print('')
     print('- Creating plot of pressure vs time')
@@ -1455,7 +1455,7 @@ if False:
     # Make the subplot groups
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s3_'+this_BGR+'_press_vs_dt.png')
+    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s5_'+this_BGR+'_press_vs_dt.png')
 #*# Density anomaly vs. time
 if False:
     print('')
@@ -1478,7 +1478,7 @@ if False:
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s4_'+this_BGR+'_CT_and_press_vs_dt.png')
+    ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
 
 ################################################################################
 ## Salinity histograms
@@ -1680,7 +1680,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
 #***# Map of all profiles by date, plus map of fit to one cluster
-if True:
+if False:
     this_cluster_id = 35 # 27
     clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     print('')
@@ -1702,7 +1702,7 @@ if True:
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
     # Make the figure
     # ahf.make_figure([group_example_profiles1], row_col_list=[1,1, 0.8, 1.4], filename='f1_test_ex_prof.png')
-    ahf.make_figure([group_map_by_date, group_map_one_cluster, group_map_full_Arctic, group_example_profiles1], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
+    ahf.make_figure([group_example_profiles1, group_map_full_Arctic, group_map_by_date, group_map_one_cluster], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_map_and_cluster_'+str(this_cluster_id)+'_map.png')
 # Example profile plot, CT and SA
 if False:
     print('')
@@ -2302,20 +2302,21 @@ if False:
 ## Pre-clustered maps of many different clusters
 ################################################################################
 # plt_these_clstrs = [6, 23, 35, 52, 63, 69, 79, 90, 96]
+# plt_these_clstrs = [3, 9, 18, 22, 27, 35, 39, 42, 47]
 plot_LHW_AW = True
 #**# Plotting across lat-lon many clusters' temperature polyfit2d (Supplementary Materials)
 if False:
     print('')
     print('- Creating lat-lon plots for many clusters temperature polyfit2d') 
     if plot_LHW_AW:
-        plt_these_clstrs = [3, 9, 18, 27, 35, 39, 47]
+        plt_these_clstrs = [5, 10, 20, 25, 35, 40, 47]
         bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
     else:
-        plt_these_clstrs = [3, 9, 18, 22, 27, 35, 39, 42, 47]
+        plt_these_clstrs = [0, 5, 10, 20, 25, 35, 40, 47, 49]
     # filename_prefix = file_date+this_BGR
     filename_prefix = 's7_'+this_BGR
     # Loop across the variables for which to make the figures
-    for var in ['CT', 'press', 'press-fit']:
+    for var in ['CT', 'press', 'press-fit', 'SA']:
         # Check whether the variable has 'fit' in it
         if 'fit' in var:
             plt_these_slopes = False

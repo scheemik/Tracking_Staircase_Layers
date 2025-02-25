@@ -34,6 +34,10 @@ import BGR_objects as bob
 # this_BGR = 'BGR1516'
 this_BGR = 'BGR_all'
 
+# Specify which connection method to use
+# connect_by = 'SA_divs'
+connect_by = 'manual'
+
 ################################################################################
 # Declare variables for plotting
 ################################################################################
@@ -63,9 +67,11 @@ l_styles = ['-', '--', '-.', ':']
 ################################################################################
 
 # Make the data set
-# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
-ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
-filename = this_BGR+'_SA_divs'
+if connect_by == 'SA_divs':
+    ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+elif connect_by == 'manual':
+    ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
+filename = this_BGR+'_'+connect_by
 # Make the profile filters
 pfs_0 = ahf.Profile_Filters()
 # Make the plot parameters
@@ -79,7 +85,7 @@ df = pd.concat(group_.data_frames)
 # NOTE: Enabling `calc_pcs_vars` will make this script take very long to run
 #       It took several days on my laptop. It could be parallelized, but I
 #       never got around to implementing that. Load from the file when possible.
-calc_pcs_vars = False
+calc_pcs_vars = True
 if calc_pcs_vars:
     # Make a deep copy of the data frame to calculate cluster properties per profile
     df_copy = df.copy(deep=True)
@@ -99,8 +105,8 @@ if calc_pcs_vars:
     print(df_per_pf.columns)
 
     # Pickle the data frame to a file
-    print('Pickling to outputs/'+filename+'_pf_cluster_properties.pickle')
-    pl.dump(df_per_pf, open('outputs/'+filename+'_pf_cluster_properties.pickle', 'wb'))
+    print('Pickling to outputs/'+filename+'_pf_layer_properties.pickle')
+    pl.dump(df_per_pf, open('outputs/'+filename+'_pf_layer_properties.pickle', 'wb'))
 else:
     # Load in temp file
     print('Loading from to outputs/'+filename+'_pf_cluster_properties.pickle')
@@ -178,4 +184,4 @@ print(df)
 print(df.columns)
 
 # Pickle the data frame to a file
-pl.dump(df, open('outputs/'+filename+'_cluster_properties.pickle', 'wb'))
+pl.dump(df, open('outputs/'+filename+'_layer_properties.pickle', 'wb'))
