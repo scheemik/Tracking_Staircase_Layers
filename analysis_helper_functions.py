@@ -2233,10 +2233,10 @@ def print_global_variables(Dataset):
             # print('\t'+str(attr)+': '+str(ds.attrs[attr]))
             if attr in ['Source', 'Instrument']:
                 lines = lines+'\t'+str(attr)+': '+str(ds.attrs[attr])+'\n'
-            # if attr in ['Creation date', 'Last modified', 'Last modification', 'Sub-sample scheme']:
-            #     print('\t'+attr+': '+ds.attrs[attr])
-            # else:
-            #     lines = lines+'\t'+attr+': '+ds.attrs[attr]+'\n'
+            elif attr in ['Creation date', 'Last modified', 'Last modification', 'Sub-sample scheme']:
+                print('\t'+attr+': '+ds.attrs[attr])
+            else:
+                lines = lines+'\t'+attr+': '+ds.attrs[attr]+'\n'
     return lines
 
 ################################################################################

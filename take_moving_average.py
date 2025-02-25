@@ -32,7 +32,11 @@ from scipy import interpolate
 import gsw
 
 # The moving average window in dbar
-c3 = 10
+m_avg_win = 2.5
+# Vertical resolution of the data
+res = 0.25
+# Value of the moving average window term
+c3 = int(m_avg_win/res)
 
 ################################################################################
 # Main execution

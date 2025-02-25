@@ -1463,7 +1463,7 @@ def find_geo_region(lon, lat):
 ################################################################################
 
 ## Read instrument makes a netcdf for just the given instrument
-if False:
+if True:
     read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
     read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc') # Not in time period
     read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
@@ -1683,11 +1683,6 @@ if False:
     read_instrmt('ITP', '125', science_data_file_path+'ITPs/itp125/itp125cormat', 'netcdfs/ITP_125.nc')
     read_instrmt('ITP', '128', science_data_file_path+'ITPs/itp128/itp128cormat', 'netcdfs/ITP_128.nc')
 
-## This will make just one netcdf for ITP
-# read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
-# read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc')
-# read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
-
 ## This will make all the netcdfs for ITPs (takes a long time)
 # make_all_ITP_netcdfs(science_data_file_path)
 
@@ -1696,9 +1691,9 @@ if False:
 
 ## This will make all the netcdfs for AIDJEX
 # make_all_AIDJEX_netcdfs(science_data_file_path)
-# read_instrmt('AIDJEX', 'BigBear', science_data_file_path+'AIDJEX/AIDJEX/BigBear', 'netcdfs/AIDJEX_BigBear.nc')
 
-exit(0)
+## This will make just one netcdf for one of the AIDJEX sites
+# read_instrmt('AIDJEX', 'BigBear', science_data_file_path+'AIDJEX/AIDJEX/BigBear', 'netcdfs/AIDJEX_BigBear.nc')
 
 ## Tests for how the netcdfs turned out
 
