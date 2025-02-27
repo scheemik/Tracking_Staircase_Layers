@@ -3878,6 +3878,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
         except:
             map_extent = None
         print('\t- Map extent:',map_extent)
+        try:
+            bbox = map_dict['bbox']
+        except:
+            bbox = None
+        bb_zorder = 11
+        print('\t- Map extent:',map_extent)
         #   Set latitude and longitude extents
         #   I found these values by guess-and-check, there really isn't a good way
         #       to know beforehand what you'll actually get
@@ -3955,12 +3961,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
         gl.ylabel_style = {'size':font_size_lgnd, 'color':clr_lines, 'zorder':7}
         #   Plotting the coastlines takes a really long time
         # ax.coastlines()
-        # Add bounding box
-        bbox = 'BGR' # for Beaufort Gyre Region
-        # bbox = 'CB' # for Canada Basin
-        # bbox = 'AOA' # for AIDJEX Operation Area
-        # bbox = 'None'
-        bb_zorder = 11
         #   Don't plot outside the extent chosen
         if map_extent == 'Canada_Basin':
             # Add bathymetry features
@@ -3971,19 +3971,19 @@ def make_subplot(ax, a_group, fig, ax_pos):
         elif map_extent == 'Western_Arctic':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=False, add_lines=True)
-            if bbox == 'BGR':
+            if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-            elif bbox == 'CB':
+            elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
                 ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-            elif bbox == 'AOA':
+            elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
                 ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
@@ -3992,19 +3992,19 @@ def make_subplot(ax, a_group, fig, ax_pos):
         elif map_extent == 'AIDJEX_focus':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
-            if bbox == 'BGR':
+            if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-            elif bbox == 'CB':
+            elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
                 # Northern boundary does not appear
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-            elif bbox == 'AOA':
+            elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
                 ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
@@ -4014,7 +4014,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
             bb_res = 50
-            if bbox == 'BGR':
+            if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
                 ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
@@ -4036,13 +4036,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # poly_corners[:,1] = lat_corners
                 # poly_patch = plt.Polygon(poly_corners, closed=True, ec='r', fill=True, lw=0.5, fc='r', transform=ccrs.Geodetic(), zorder=bb_zorder)
                 # ax.add_patch(poly_patch)
-            elif bbox == 'CB':
+            elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
                 ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
                 ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
                 ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
-            elif bbox == 'AOA':
+            elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
                 ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
                 ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
