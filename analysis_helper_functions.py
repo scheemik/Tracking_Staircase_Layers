@@ -484,7 +484,7 @@ class Plot_Parameters:
                     If running a parameter sweep in parallel, add the following:
                         {'mpi_run':True}. This will suppress any graphical output
                     To mark the top and bottom of the thermocline in profiles, add
-                        {'mark_thermocline':True}. Can also have the value be 'max' or
+                        {'mark_LHW_AW':True}. Can also have the value be 'max' or
                         'min' to mark just the top or bottom
                     To plot isopycnal contour lines add {'isopycnals':X} where X is the 
                         value in dbar to which the isopycnals are referenced or True 
@@ -728,7 +728,7 @@ def find_vars_to_keep(pp, profile_filters, vars_available):
                         # Make sure the parameter sweeps run correctly 
                         vars_to_keep.append('press')
                 # If marking the bounds of the thermocline
-                if key == 'mark_thermocline':
+                if key == 'mark_LHW_AW':
                     if pp.extra_args[key] == True:
                         vars_to_keep.append('CT_TC_max')
                         vars_to_keep.append('press_TC_max')
@@ -5361,6 +5361,9 @@ def get_hist_params(df, h_key, n_h_bins=None, bin_size=None):
     bin_size    The size of bin to use
                     Note: can only specify either n_h_bins or bin_size, not both
     """
+    # print('\t\t- in get_hist_params')
+    # print('\t\t\t- n_h_bins:',n_h_bins)
+    # print('\t\t\t- bin_size:',bin_size)
     # Check whether n_h_bins or bin_size was specified
     if isinstance(n_h_bins, type(None)):
         if isinstance(bin_size, type(None)):
@@ -5557,9 +5560,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         except:
             clstrs_to_plot = []
         try:
-            mark_thermocline = extra_args['mark_thermocline']
+            mark_LHW_AW = extra_args['mark_LHW_AW']
         except:
-            mark_thermocline = False
+            mark_LHW_AW = False
         try:
             separate_periods = extra_args['separate_periods']
         except:
@@ -5574,7 +5577,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         sort_clstrs = True
         plot_pts = True
         clstrs_to_plot = []
-        mark_thermocline = False
+        mark_LHW_AW = False
         separate_periods = False
     # Re-order the cluster labels, if specified
     if sort_clstrs:
@@ -5663,9 +5666,9 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     TC_min_key = False
     tw_TC_max_key = False
     tw_TC_min_key = False
-    if mark_thermocline:
+    if mark_LHW_AW:
         print('\t- Marking thermocline')
-        if mark_thermocline in [True, 'max']:
+        if mark_LHW_AW in [True, 'max']:
             if x_key == 'CT':
                 TC_max_key = 'CT_TC_max'
             elif x_key == 'SA':
@@ -5678,7 +5681,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 tw_TC_max_key = 'SA_TC_max'
             elif tw_x_key == 'sigma':
                 tw_TC_max_key = 'sigma_TC_max'
-        if mark_thermocline in [True, 'min']:
+        if mark_LHW_AW in [True, 'min']:
             if x_key == 'CT':
                 TC_min_key = 'CT_TC_min'
             elif x_key == 'SA':

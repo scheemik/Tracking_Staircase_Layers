@@ -1412,7 +1412,7 @@ for this_dt in bps.date_range_dict[this_BGR]:
     dt_this_BGR_x_lims.append(this_year+'/'+this_month+'/'+this_dt[8:])
     up_or_dn = abs(up_or_dn)
 #***# Salinity vs. time
-if True:
+if False:
     print('')
     print('- Creating plot of salinity vs time')
     # Make the Plot Parameters
@@ -1538,7 +1538,7 @@ if False:
     # ahf.make_figure([group_stacked_SA_hist])
     ahf.make_figure([group_SA_hist, group_stacked_SA_hist], row_col_list=[2,1, 0.5, 1.8], use_same_y_axis=False)#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 #**# Salinity histogram of non-noise points for all periods (Supplementary Materials)
-if False:
+if True:
     print('')
     print('- Creating a histogram of salinity for all time periods')
     # Make the Plot Parameters 
