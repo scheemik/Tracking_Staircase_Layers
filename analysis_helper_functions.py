@@ -471,7 +471,7 @@ class Plot_Parameters:
                         variables can be any that work for an 'xy' plot
                         Optional 'b_a_w_plt':True/False for box and whisker plots,
                         'm_pts':90 / 'm_cls':90 to specify m_pts or m_cls,
-                        'plot_slopes' as OLS or TLS to plot lines showing the 
+                        'plot_slopes' as True, 'OLS' or 'TLS' to plot lines showing the 
                         ordinary or least squares slope of each cluster, 
                         'clstrs_to_plot':[0,1,2] to plot just specific clusters
                     If doing a parameter sweep of clustering, expects the following:
@@ -4487,10 +4487,14 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #   If there are x_lims and y_lims provided, use those
     try:
         x_bnds = pp.ax_lims['x_lims']
+        if isinstance(x_bnds, type(None)):
+            x_bnds = ax.get_xbound()
     except:
         x_bnds = ax.get_xbound()
     try:
         y_bnds = pp.ax_lims['y_lims']
+        if isinstance(y_bnds, type(None)):
+            y_bnds = ax.get_ybound()
     except:
         y_bnds = ax.get_ybound()
     # Check whether to convert the x_bnds from strings to numbers
@@ -4498,6 +4502,7 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         # Replace the '/'s with '-'s in x_bnds
         x_bnds = [x_bnds[0].replace('/','-'), x_bnds[1].replace('/','-')]
         x_bnds = mpl.dates.date2num(x_bnds)
+    print('\t\t- x_bnds:',x_bnds)
     x_span = abs(x_bnds[1] - x_bnds[0])
     y_span = abs(y_bnds[1] - y_bnds[0])
     # Add annotation to say what the slope is

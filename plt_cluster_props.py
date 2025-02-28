@@ -624,7 +624,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if 're_run_clstr' in extra_args.keys():
             re_run_clstr = extra_args['re_run_clstr']
         else:
-            re_run_clstr = True
+            re_run_clstr = False
         if 'mark_LHW_AW' in extra_args.keys():
             mark_LHW_AW = extra_args['mark_LHW_AW']
         else:
@@ -1985,8 +1985,8 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-# if False:
-for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
+if False:
+# for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
     # this_ca_var = 'ca_press'
@@ -2112,35 +2112,3 @@ for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     # make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
     make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
 ################################################################################
-
-exit(0)
-
-plot_slopes = 'OLS'
-filename_prefix = '2024-05-13_'
-# Make plots of the polyfit2d trends in the cluster properties
-for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
-    # Make the Plot Parameters
-    pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    # Make the subplot groups
-    group_press_trends = ahf.Analysis_Group2([df], pp_press_trends)
-    group_SA_trends = ahf.Analysis_Group2([df], pp_SA_trends)
-    group_CT_trends = ahf.Analysis_Group2([df], pp_CT_trends)
-    # Make the figure
-    make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.02], filename=filename_prefix+'fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-# Make plots of the trends in the cluster properties
-# if False:
-for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT']:
-    # Make the Plot Parameters
-    pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    pp_SA_trends = ahf.Plot_Parameters(x_vars=['trd_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    pp_CT_trends = ahf.Plot_Parameters(x_vars=['trd_CT'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA']}, legend=False)
-    # Make the subplot groups
-    group_press_trends = ahf.Analysis_Group2([df], pp_press_trends)
-    group_SA_trends = ahf.Analysis_Group2([df], pp_SA_trends)
-    group_CT_trends = ahf.Analysis_Group2([df], pp_CT_trends)
-    # Make the figure
-    make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.02], filename=filename_prefix+'trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-
-
