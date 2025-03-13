@@ -33,17 +33,17 @@ import BGR_params as bps
 import BGR_objects as bob
 
 # Try to load the specified csvs
-these_dfs = []
-labels = []
-for my_csv in ['ps_files/BGR1415_ps.csv', 'ps_files/BGR1516_ps.csv']:
-    print('- Loading '+my_csv)
-    try:
-        these_dfs.append(pd.read_csv(my_csv, header=2))
-        split_name = my_csv.split('.', 1)
-        labels.append(split_name[0].split('/',1)[1])
-    except:
-        print('Could not load '+my_csv)
-        exit(0)
+# these_dfs = []
+# labels = []
+# for my_csv in ['ps_files/BGR1415_ps.csv', 'ps_files/BGR1516_ps.csv']:
+#     print('- Loading '+my_csv)
+#     try:
+#         these_dfs.append(pd.read_csv(my_csv, header=2))
+#         split_name = my_csv.split('.', 1)
+#         labels.append(split_name[0].split('/',1)[1])
+#     except:
+#         print('Could not load '+my_csv)
+#         exit(0)
 
 ################################################################################
 # Declare variables for plotting
@@ -409,18 +409,18 @@ def plot_clstr_param_sweep(ax, tw_ax_x, dfs, pp, plt_titles=None):
 
 # plt_title = 'BGR'
 
-pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'label'}, legend=False, ax_lims={'x_lims':[0, 2500]})
-
-group_param_sweep1 = Analysis_Group([these_dfs[0]], pp_ps_m_pts, plot_title='BGR1415 Parameter Sweep')
-group_param_sweep2 = Analysis_Group([these_dfs[1]], pp_ps_m_pts, plot_title='BGR1516 Parameter Sweep')
-
-
-ds_BGR1415 = ahf.Data_Set({'HPC_BGR1415_clstrd_unrelab':'all'}, bob.dfs_all)
-ds_BGR1516 = ahf.Data_Set({'HPC_BGR1516_clstrd_unrelab':'all'}, bob.dfs_all)
-pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'z_var':'label', 'plot_centroid':False}, legend=False, ax_lims={'x_lims':[34.1, 35.02], 'y_lims':[-0.02, 0.02]})
-# Make the subplot groups
-pfs_0 = ahf.Profile_Filters()
-group_clstr_BGR1415 = ahf.Analysis_Group(ds_BGR1415, pfs_0, pp_pre_clstrd, plot_title='BGR1415 Clusters')
-group_clstr_BGR1516 = ahf.Analysis_Group(ds_BGR1516, pfs_0, pp_pre_clstrd, plot_title='BGR1516 Clusters')
-# Plot the figure
-make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='f5_BGR1415-1516_ps_and_clstrs.png')
+# pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'label'}, legend=False, ax_lims={'x_lims':[0, 2500]})
+# 
+# group_param_sweep1 = Analysis_Group([these_dfs[0]], pp_ps_m_pts, plot_title='BGR1415 Parameter Sweep')
+# group_param_sweep2 = Analysis_Group([these_dfs[1]], pp_ps_m_pts, plot_title='BGR1516 Parameter Sweep')
+# 
+# 
+# ds_BGR1415 = ahf.Data_Set({'HPC_BGR1415_clstrd_unrelab':'all'}, bob.dfs_all)
+# ds_BGR1516 = ahf.Data_Set({'HPC_BGR1516_clstrd_unrelab':'all'}, bob.dfs_all)
+# pp_pre_clstrd = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['la_CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'b_a_w_plt':False, 'z_var':'label', 'plot_centroid':False}, legend=False, ax_lims={'x_lims':[34.1, 35.02], 'y_lims':[-0.02, 0.02]})
+# # Make the subplot groups
+# pfs_0 = ahf.Profile_Filters()
+# group_clstr_BGR1415 = ahf.Analysis_Group(ds_BGR1415, pfs_0, pp_pre_clstrd, plot_title='BGR1415 Clusters')
+# group_clstr_BGR1516 = ahf.Analysis_Group(ds_BGR1516, pfs_0, pp_pre_clstrd, plot_title='BGR1516 Clusters')
+# # Plot the figure
+# make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='f5_BGR1415-1516_ps_and_clstrs.png')

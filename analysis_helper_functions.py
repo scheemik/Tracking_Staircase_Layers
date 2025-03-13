@@ -4834,7 +4834,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                         if hist_df_between['diff'].max() < 0:
                             # Find the minimum of 'this_hist' between these points
                             min_this_hist = hist_df_between['this_hist'].min()
-                            print('\tmin_this_hist:',min_this_hist)
+                            # print('\tmin_this_hist:',min_this_hist)
                             min_x = hist_df_between['bin_centers'][hist_df_between['this_hist'] == min_this_hist].values[0]
                             # print('\tmin_x:',min_x)
                             min_x_arr.append(min_x)

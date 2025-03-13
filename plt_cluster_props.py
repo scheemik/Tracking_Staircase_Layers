@@ -38,8 +38,8 @@ import BGR_objects as bob
 this_BGR = 'BGR_all'
 
 # Specify which connection method to use
-# connect_by = 'SA_divs'
-connect_by = 'manual'
+connect_by = 'SA_divs'
+# connect_by = 'manual'
 
 filename = this_BGR+'_'+connect_by
 
@@ -1775,7 +1775,7 @@ if False:
 # Thicknesses of the layers
 # Plot of pcs_press for all profiles against this_ca_var
 this_clr_map = 'clr_all_same'
-# this_clr_map = 'cluster'
+this_clr_map = 'cluster'
 # this_ca_var = 'ca_press'
 # this_vert_var = 'press'
 this_ca_var = 'ca_SA'
@@ -1931,7 +1931,7 @@ if False:
 #**# Plots of cluster averages of components of the heat flux (Supplementary Materials)
 #   height, isobaric heat capacity, temperature trend in time, density
 this_ca_var = 'ca_SA'
-this_clr_map = 'clr_all_same'
+# this_clr_map = 'clr_all_same'
 if False:
     # Make the Plot Parameters
     pp_height = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
@@ -1986,7 +1986,7 @@ x_lims_dict = {
 plot_slopes = 'OLS'
 add_legend = False
 if False:
-# for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
+# for this_clr_map in ['cluster']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
     # this_ca_var = 'ca_press'
