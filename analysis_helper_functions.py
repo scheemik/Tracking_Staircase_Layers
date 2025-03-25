@@ -74,7 +74,8 @@ try:
 except:
     print('Warning: could not import the cartopy package')
 
-science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
+# science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
+science_data_file_path = '/Volumes/The_Abyss/Personal/Research/Science_Data/'
 
 # This list gets filled in with the names of all the available columns for the
 #   given data during the `apply_data_filters()` function
@@ -2534,8 +2535,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
             # Find the plot type
             plot_type = groups_to_plot[i].plt_params.plot_type
             if use_same_x_axis:
-                # If on the top row
-                if i < cols:# == 0:
+                # If more than one row and on the top row
+                if rows > 1 and i < cols:# == 0:
                     subplot_label_y = -0.1
                     tight_layout_h_pad = -0.5
                     ax.set_title(plt_title)
@@ -2562,8 +2563,8 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                         tight_layout_h_pad = 2.0
             ax.set_title(plt_title)
             if use_same_y_axis:
-                # If in the far left column
-                if i%cols == 0:
+                # If in the far left column or just one column
+                if i%cols == 0 or cols == 1:
                     tight_layout_w_pad = -1
                     ax.set_ylabel(ylabel)
                 # Invert y-axis if specified
@@ -3621,14 +3622,13 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 clr_ext = 'max'        # adds arrow indicating values go past the bounds
                 #                       #   use 'min', 'max', or 'both'
                 xy_bins = 250
-            
             # Check whether to change the colorbar axis to log scale
             cbar_scale = None
             if len(log_axes) == 3:
                 if log_axes[2]:
                     cbar_scale = mpl.colors.LogNorm()
-                    if clr_min < 0:
-                        clr_min = None
+                    # if clr_min < 0:
+                    #     clr_min = None
                     # clr_min = None
                     # clr_max = 100
             # Make the 2D histogram, the number of bins really changes the outcome

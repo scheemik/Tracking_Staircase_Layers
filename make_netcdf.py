@@ -56,7 +56,8 @@ import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 
 # Define attribute strings
-science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
+# science_data_file_path = '/Users/Grey/Documents/Research/Science_Data/'
+science_data_file_path = '/Volumes/The_Abyss/Personal/Research/Science_Data/'
 me_string = 'Mikhail Schee, University of Toronto'
 doi = 'https://doi.org/10.5281/zenodo.14925731'
 
