@@ -877,9 +877,10 @@ BGR_all_clstr_plt_ranges = {
 }
 
 # Add fit ranges to BGR_all_clstr_plt_ranges
-var_lims = ['press_lims', 'CT_lims', 'SA_lims', 'sig_lims']
-var_fit_lims = ['press-fit_lims', 'CT-fit_lims', 'SA-fit_lims', 'sig-fit_lims']
+var_lims = ['press_lims', 'depth_lims', 'CT_lims', 'SA_lims', 'sig_lims']
+var_fit_lims = ['press-fit_lims', 'depth-fit_lims', 'CT-fit_lims', 'SA-fit_lims', 'sig-fit_lims']
 for key in BGR_all_clstr_plt_ranges.keys():
+    BGR_all_clstr_plt_ranges[key]['depth_lims'] = BGR_all_clstr_plt_ranges[key]['press_lims']
     for i in range(len(var_lims)):
         # Find range of var lims
         var_lim_range = abs(BGR_all_clstr_plt_ranges[key][var_lims[i]][1] - BGR_all_clstr_plt_ranges[key][var_lims[i]][0])

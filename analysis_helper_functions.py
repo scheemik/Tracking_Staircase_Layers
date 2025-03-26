@@ -547,7 +547,7 @@ def list_xarrays(sources_dict):
     xarrays = []
     var_attr_dicts = []
     for source in sources_dict.keys():
-        print('- Loading data from netcdfs/'+source+'.nc')
+        print('\t- Loading data from netcdfs/'+source+'.nc')
         ds = xr.load_dataset('netcdfs/'+source+'.nc')
         # Build the dictionary of netcdf attributes, variables, units, etc.
         var_attrs = {}
@@ -927,6 +927,7 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
     """
     print('- Applying profile filters')
     plot_scale = pp.plot_scale
+    # print('plot_scale:',plot_scale)
     # Add all the plotting variables
     plot_vars = pp.x_vars+pp.y_vars+[pp.clr_map]
     if not isinstance(pp.extra_args, type(None)):
@@ -977,6 +978,10 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 if var in vars_to_keep and var not in ['distance']:
                     # print('\t\t- for:',var)
                     df = df[df[var].notnull()]
+                if var == 'depth':
+                    # Multiply all depth values by -1 to make them positive
+                    df[var] = df[var] * -1
+                    # print('\t- Multiplying all depth values by -1')
             # Add source and instrument columns if applicable
             if not 'source' in list(df):
                 df['source'] = ds.Source
@@ -1211,6 +1216,10 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                 df['instrmt'] = ds.Instrument
             # Calculate extra variables, as needed
             for var in plot_vars:
+                if var == 'depth':
+                    # Multiply all depth values by -1 to make them positive
+                    df[var] = df[var] * -1
+                    # print('\t- Multiplying all depth values by -1')
                 if 'max' in var and not 'TC_max' in var:
                     # Split the prefix from the original variable (assumes an underscore split)
                     split_var = var.split('_', 1)
@@ -1235,8 +1244,18 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
                     #   different instruments together, which would give the incorrect result
                     df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
                     instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
+                    n_profiles = len(instrmt_pf_nos)
+                    if n_profiles > 0:
+                        digits = int(np.log10(n_profiles))+1
+                    else:
+                        digits = 1
                     # Loop over each profile
+                    i = 0
                     for pf in instrmt_pf_nos:
+                        # Print a progress counter, padding the number with spaces to digits
+                        ## Note, the `end="\r"` argument makes the console output dynamically update
+                        i += 1
+                        print('\t\t- Calculating R_rho for profile '+str(i).rjust(digits)+' of '+str(n_profiles), end="\r")
                         # Find the data from just this profile
                         df_this_pf = df[df['instrmt-prof_no']==pf]
                         # Get aCT and BSA values for this profile
@@ -4069,7 +4088,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Determine the color mapping to be used
         if clr_map == 'clr_all_same':
             # If not plotting very many points, increase the marker size
-            print('len(df):',len(df))
+            # print('len(df):',len(df))
             if len(df) < 10:
                 mrk_s = big_map_mrkr
                 mrk_a = mrk_alpha
@@ -4079,8 +4098,8 @@ def make_subplot(ax, a_group, fig, ax_pos):
             else:
                 mrk_s = map_mrk_size
                 mrk_a = mrk_alpha3
-            print('mrk_s:',mrk_s)
-            print('mrk_a:',mrk_a)
+            # print('mrk_s:',mrk_s)
+            # print('mrk_a:',mrk_a)
             # Plot every point the same color, size, and marker
             ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=0, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Add a standard legend
@@ -4745,9 +4764,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 pdf_x_arr = bin_centers
                 pdf_y_arr = this_hist
                 # Add vertical lines at all the salinity divisions and the moving average line
-                if True:
-                    for SA_div in bps.BGR_HPC_SA_divs:
-                        ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                for SA_div in bps.BGR_HPC_SA_divs:
+                    ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                # Add moving average line from the csv file
+                if plt_noise == False:
                     # Load the data from the csv
                     hist_df = pd.read_csv('outputs/SA_divs_mv_avg_line.csv')
                     # Remove rows where 'this_hist_mv_avg' is null
@@ -5661,11 +5681,21 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         print('You are trying to plot',len(pfs_in_this_df),'profiles')
         print('That is too many. Try to plot less than 15')
         exit(0)
+    elif len(pfs_in_this_df) < 1:
+        print('No profiles to plot')
     else:
         print('\t- Plotting',len(pfs_in_this_df),'profiles')
         if separate_periods==False:
             print('\t- Profiles to plot:',pfs_in_this_df)
         # 
+    # Check to see whether any profiles were actually loaded
+    n_pfs = len(profile_dfs)
+    if n_pfs < 1:
+        print('No profiles loaded')
+        # Add a standard title
+        plt_title = add_std_title(a_group)
+        return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, invert_y_axis
+    # 
     # Set the keys for CT max markers
     TC_max_key = False
     TC_min_key = False
@@ -5702,14 +5732,6 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             #
         #
     #
-    # Check to see whether any profiles were actually loaded
-    n_pfs = len(profile_dfs)
-    if n_pfs < 1:
-        print('No profiles loaded')
-        # Add a standard title
-        plt_title = add_std_title(a_group)
-        return pp.xlabels[0], pp.ylabels[0], plt_title, ax, invert_y_axis
-    # 
     # Plot each profile
     if separate_periods:
         print('\t- Plotting profiles separately by period')
@@ -5731,7 +5753,7 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
     else:
         ret_dict = add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
         if not isinstance(add_inset, type(None)):
-            print('Adding inset to axis in the range '+str(add_inset[0])+' to '+str(add_inset[1]))
+            print('\t- Adding inset to axis in the range '+str(add_inset[0])+' to '+str(add_inset[1]))
             # Highlight the inset range on the main axis
             ax.axhspan(add_inset[0], add_inset[1], color=std_clr, alpha=0.1)
             # Import needed packages
@@ -6776,7 +6798,7 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
     # print('y_data.shape:',y_data.shape)
     # print('z_data.shape:',z_data.shape)
     # Prepare axis transform, if necessary
-    print('plot_type:',plot_type)
+    # print('plot_type:',plot_type)
     if plot_type == 'map':
         this_transform = ccrs.PlateCarree()
     else:
@@ -6812,8 +6834,8 @@ def plot_polyfit2d(ax, pp, x_data, y_data, z_data, kx=3, ky=3, order=3, n_grid_p
         max_y = y_grid.flatten()[max_idx]
         print('\t- Minimum value of',min_val,'at x:',min_x,'y:',min_y)
         print('\t- Maximum value of',max_val,'at x:',max_x,'y:',max_y)
-        # Plot a marker at the maximum value, but only if the fit was to pressure
-        if pp.clr_map == 'press' or pp.clr_map == 'press_TC_max' or pp.clr_map == 'press_TC_min':
+        # Plot a marker at the maximum value, but only if the fit was to pressure or depth
+        if pp.clr_map == 'depth' or pp.clr_map == 'press' or pp.clr_map == 'press_TC_max' or pp.clr_map == 'press_TC_min':
             ax.plot(max_x, max_y, 'r*', markersize=10, zorder=15, transform=this_transform)
 
 ################################################################################
@@ -7102,12 +7124,17 @@ def calc_extra_cl_vars(df, new_cl_vars):
             #   different instruments together, which would give the incorrect result
             df['instrmt-prof_no'] = df.instrmt.map(str) + ' ' + df.prof_no.map(str)
             instrmt_pf_nos = np.unique(np.array(df['instrmt-prof_no'].values))
-            print('\t\t\t\tCalculating',this_var,'for',len(instrmt_pf_nos),'profiles')
+            n_profiles = len(instrmt_pf_nos)
+            if n_profiles > 0:
+                digits = int(np.log10(n_profiles))+1
+            else:
+                digits = 1
+            print('\t\t\t\tCalculating',this_var,'for',n_profiles,'profiles')
             j = 0
             # Loop over each profile
             for pf in instrmt_pf_nos:
                 j += 1
-                print('\t\t\t\tCalculating',this_var,'for profile',pf,'(',j,'/',len(instrmt_pf_nos),')')
+                print('\t\t\t\tCalculating',this_var,'for profile',pf,'('+str(j).rjust(digits),'/',str(n_profiles)+')', end="\r")
                 # Find the data from just this profile
                 df_this_pf = df[df['instrmt-prof_no']==pf]
                 # Get a list of clusters in this profile
