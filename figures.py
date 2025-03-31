@@ -42,13 +42,18 @@ import numpy as np
 from datetime import datetime
 # For unpickling pickle files
 import dill as pl
+# For importing custom functions from files
+import importlib
 # For custom analysis functions
-import analysis_helper_functions as ahf
+ahf = importlib.import_module('0_helper_files.analysis_helper_functions')
+# import analysis_helper_functions as ahf
 # For common BGR parameters
-import BGR_params as bps
+bps = importlib.import_module('0_helper_files.BGR_params')
+# import BGR_params as bps
 # For common BGR objects
-import BGR_objects as bob
-
+bob = importlib.import_module('0_helper_files.BGR_objects')
+# import BGR_objects as bob
+exit(0)
 # Parameters
 test_S_range = bps.test_S_range
 
@@ -251,7 +256,7 @@ print('- Creating data sets')
 this_BGR = 'BGR_all'
 
 # Unclustered, directly from ITP netcdfs
-ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)# bob.dfs1_BGR_dict[this_BGR])
+# ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)# bob.dfs1_BGR_dict[this_BGR])
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, bob.dfs1)
 
@@ -295,7 +300,7 @@ ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)# bob.dfs1_BGR_d
 
 
 # Relabeled based on SA dividers
-# ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
 
 ################################################################################
 # Create profile filtering objects
@@ -1723,8 +1728,8 @@ if True:
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
     group_TS_all_data = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='')
     # Make the figure
-    # ahf.make_figure([group_map_full_Arctic, group_map_by_date, group_example_profiles1, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_maps_ex_pf_and_TS.png')
-    ahf.make_figure([group_map_by_date, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')
+    ahf.make_figure([group_map_full_Arctic, group_map_by_date, group_example_profiles1, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_maps_ex_pf_and_TS.png')
+    # ahf.make_figure([group_map_by_date, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')
 # Example profile plot, CT and SA
 if False:
     print('')

@@ -26,8 +26,6 @@ where the `-np` flag denotes the number of processes
 import numpy as np
 # For formatting data into dataframes
 import pandas as pd
-# For custom analysis functions
-import analysis_helper_functions as ahf
 # For running in parallel
 from mpi4py import MPI
 # For formatting date objects
@@ -35,7 +33,13 @@ from datetime import datetime
 
 # Change the matplotlib configure directory to somewhere writable to avoid warnings
 import os
-os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'
+os.environ['MPLCONFIGDIR'] = 'scratch/n/ngrisoua/mschee/.config/matplotlib'# For importing custom functions from files, need to add `.` and `..` to path
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import importlib
+# For custom analysis functions
+ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()

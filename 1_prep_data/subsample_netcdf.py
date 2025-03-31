@@ -18,11 +18,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 """
 
 import numpy as np
+# For formatting data into dataframes
 import pandas as pd
-import xarray as xr
+# For formatting date objects
 from datetime import datetime
-
+# For reading netcdf files
+import xarray as xr
+# For taking moving averages
 import scipy.ndimage as ndimage
+# For interpolating
 from scipy import interpolate
 
 ################################################################################

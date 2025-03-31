@@ -35,9 +35,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 """
 
 import numpy as np
+# For formatting data into dataframes
 import pandas as pd
-import xarray as xr
+# For matching regular expressions
+import re
+# For formatting date objects
 from datetime import datetime
+# For reading netcdf files
+import xarray as xr
 # For searching and listing directories
 import os
 # For reading the ITP `cormat` files
@@ -45,8 +50,6 @@ import mat73
 from scipy import io
 # For reading netcdf files
 import netCDF4 as netcdf
-# For matching regular expressions
-import re
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 # For converting from depth to pressure
 import gsw

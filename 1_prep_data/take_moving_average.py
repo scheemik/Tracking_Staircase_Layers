@@ -20,13 +20,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 
 import os
 import numpy as np
+# For formatting data into dataframes
 import pandas as pd
-import xarray as xr
+# For formatting date objects
 from datetime import datetime
-
+# For reading netcdf files
+import xarray as xr
+# For taking moving averages
 import scipy.ndimage as ndimage
+# For interpolating
 from scipy import interpolate
-
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 # For calculating density anomaly
 import gsw
@@ -174,7 +177,7 @@ for my_nc in ncs_to_modify:
     # See the variables before
     for attr in gattrs_to_print:
         print('\t',attr+':',ds.attrs[attr])
-
+    
     print('making changes')
 
     ## Get the moving average profiles

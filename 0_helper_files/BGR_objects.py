@@ -20,10 +20,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 import importlib
 # For custom analysis functions
 ahf = importlib.import_module('0_helper_files.analysis_helper_functions')
-# from a_helper_files import analysis_helper_functions as ahf
 # For common BGR parameters
 bps = importlib.import_module('0_helper_files.BGR_params')
-# from a_helper_files import BGR_params as bps
 
 ################################################################################
 ## Profile filter objects

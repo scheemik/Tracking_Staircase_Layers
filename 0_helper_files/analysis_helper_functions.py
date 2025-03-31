@@ -49,8 +49,6 @@ from scipy import stats
 import hdbscan
 # For calculating the distance between pairs of (latitude, longitude)
 from geopy.distance import geodesic
-# For calculating Orthogonal Distance Regression for Total Least Squares
-from orthoregress import orthoregress
 # For a style that matches scientific papers
 import scienceplots
 # For special colormaps
@@ -62,7 +60,8 @@ except:
 import importlib
 # For common BGR parameters
 bps = importlib.import_module('0_helper_files.BGR_params')
-# from a_helper_files import BGR_params as bps
+# For calculating Orthogonal Distance Regression for Total Least Squares
+orthoregress = importlib.import_module('0_helper_files.orthoregress').orthoregress
 
 """
 To install Cartopy and its dependencies, follow:

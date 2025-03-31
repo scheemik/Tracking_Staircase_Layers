@@ -19,19 +19,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+# For storing figure objects in files (can use `pickle` instead if need be)
+import dill as pl
+# For formatting data into dataframes
 import pandas as pd
 # For adding subplot labels a, b, c, ...
 import string
-import analysis_helper_functions as ahf
-import dill as pl
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 # For finding density and heat capacity
 import gsw
 
+# For importing custom functions from files, need to add `.` and `..` to path
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import importlib
+# For custom analysis functions
+ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-import BGR_params as bps
+ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-import BGR_objects as bob
+ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 # Specify which BGR data set to use
 # this_BGR = 'BGR1516'

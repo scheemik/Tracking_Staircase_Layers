@@ -39,20 +39,27 @@ this_m_pts = str(args['THIS_MPTS'])
 print('BGR:', this_BGR,', m_pts:', this_m_pts)
 
 import numpy as np
+# For formatting data into dataframes
 import pandas as pd
-import xarray as xr
+# For formatting date objects
 from datetime import datetime
-
+# For reading netcdf files
+import xarray as xr
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 # For converting from depth to pressure
 import gsw
 
+# For importing custom functions from files, need to add `.` and `..` to path
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import importlib
 # For custom analysis functions
-import analysis_helper_functions as ahf
+ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-import BGR_params as bps
+ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-import BGR_objects as bob
+ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 ################################################################################
 # Defining parameters

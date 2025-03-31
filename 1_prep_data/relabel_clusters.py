@@ -18,13 +18,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 """
 
 import numpy as np
-import pandas as pd
-import xarray as xr
-from datetime import datetime
-
-import analysis_helper_functions as ahf
-import BGR_params as bps
 import matplotlib.pyplot as plt
+# For formatting data into dataframes
+import pandas as pd
+# For formatting date objects
+from datetime import datetime
+# For reading netcdf files
+import xarray as xr
+
+# For importing custom functions from files, need to add `.` and `..` to path
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import importlib
+# For custom analysis functions
+ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
+# For common BGR parameters
+ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 
 ################################################################################
 
