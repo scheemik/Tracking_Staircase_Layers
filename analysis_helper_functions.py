@@ -633,7 +633,7 @@ def apply_data_filters(xarrays, data_filters):
                 ds = ds.sel(Time=slice(start_date_range, end_date_range))
                 # print('\t- Filtering to the period',start_date_range,end_date_range)
             except:
-                print('ERROR: cannot take time slice for')
+                print('WARNING: cannot take time slice for')
                 print('\t',ds.attrs['Source'],ds.attrs['Instrument'])
                 # exit(0)
         #   Only keep profiles where press_max is deeper than min_press
@@ -2700,7 +2700,7 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
         print('\tSet share_x_axis to', share_x_axis)
     # Set ratios by passing dictionary as 'gridspec_kw', and share y axis
     fig, axes = plt.subplots(figsize=(w*fig_size,h*fig_size), nrows=rows, ncols=cols, gridspec_kw=plot_ratios, sharex=share_x_axis, sharey=share_y_axis, subplot_kw=dict(projection=prjctn))
-    if True:#rows != 1 or cols != 1:
+    if rows != 1 or cols != 1:
         fixed_width = 16
         fig.set_size_inches(fixed_width, fixed_width*h/w)
     # Set ticklabel format for all axes
@@ -3153,6 +3153,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
             plt_noise = extra_args['plt_noise']
         except:
             plt_noise = True
+        try:
+            invert_y_axis = extra_args['invert_y_axis']
+        except:
+            invert_y_axis = None
     else:
         extra_args = False
         plot_slopes = False
@@ -3162,8 +3166,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
     # Concatonate all the pandas data frames together
     # print('\t- Concatenating data frames')
     df = pd.concat(a_group.data_frames)
-    # Set variable as to whether to invert the y axis
-    invert_y_axis = False
     # print('plot_type:',plot_type)
     # Decide on a plot type
     if plot_type == 'xy':
@@ -3173,6 +3175,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
         y_key = pp.y_vars[0]
         z_key = pp.z_vars[0]
         # print('test print of plot vars 1:',x_key, y_key, z_key, clr_map)
+        # Check whether to invert y-axis
+        if isinstance(invert_y_axis, type(None)):
+            if y_key in y_invert_vars:
+                invert_y_axis = True
+            else:
+                invert_y_axis = False
         # Check for histogram
         if x_key == 'hist' or y_key == 'hist':
             plot_hist = True
@@ -3420,9 +3428,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # Add legend to report the total number of points for this instrmt
                 lgnd_label = source+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
             # notes_string = ''.join(this_df.notes.unique())
             notes_string = ''
             # Only add the notes_string if it contains something
@@ -3517,9 +3522,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 lgnd_label = df_labels[i]+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
                 i += 1
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
             # notes_string = ''.join(this_df.notes.unique())
             notes_string = ''
             # Only add the notes_string if it contains something
@@ -3578,9 +3580,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 lgnd_label = instrmt+': '+str(len(this_df[x_key]))+' points'
                 lgnd_hndls.append(mpl.patches.Patch(color=my_clr, label=lgnd_label))
                 notes_string = ''.join(this_df.notes.unique())
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
             # Only add the notes_string if it contains something
             if len(notes_string) > 1:
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
@@ -3641,23 +3640,39 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 clr_ext = 'max'        # adds arrow indicating values go past the bounds
                 #                       #   use 'min', 'max', or 'both'
                 xy_bins = 250
+            # Use either `hist2d` or `hexbin` to make the density histogram
+            # dhist_type = 'hist2d'
+            dhist_type = 'hexbin'
             # Check whether to change the colorbar axis to log scale
             cbar_scale = None
             if len(log_axes) == 3:
                 if log_axes[2]:
-                    cbar_scale = mpl.colors.LogNorm()
-                    # if clr_min < 0:
-                    #     clr_min = None
+                    if dhist_type == 'hist2d':
+                        cbar_scale = mpl.colors.LogNorm()
+                    elif dhist_type == 'hexbin':
+                        cbar_scale = 'log'
+                    if clr_min <= 0:
+                        clr_min = 1
                     # clr_min = None
                     # clr_max = 100
             # Make the 2D histogram, the number of bins really changes the outcome
-            heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
-            # `hist2d` returns a tuple, the index 3 of which is the mappable for a colorbar
-            cbar = plt.colorbar(heatmap[3], ax=ax, extend=clr_ext)
-            cbar.set_label('points per pixel')
+            if dhist_type == 'hist2d':
+                heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
+                # `hist2d` returns a tuple, the index 3 of which is the mappable for a colorbar
+                cbar = plt.colorbar(heatmap[3], ax=ax, extend=clr_ext)
+                cbar.set_label('points per pixel')
+            elif dhist_type == 'hexbin':
+                # Note: extent expects (xmin, xmax, ymin, ymax)
+                hb_extent = None
+                # Check whether to adjust the twin axes limits
+                if not isinstance(pp.ax_lims, type(None)):
+                    if 'x_lims' in pp.ax_lims.keys() and 'y_lims' in pp.ax_lims.keys():
+                        hb_extent = (pp.ax_lims['x_lims'][0], pp.ax_lims['x_lims'][1], pp.ax_lims['y_lims'][0], pp.ax_lims['y_lims'][1])
+                        print('\t- Set hexbin extent to',hb_extent)
+                heatmap = ax.hexbin(df[x_key], df[y_key], gridsize=xy_bins*3, cmap=get_color_map(clr_map), bins=cbar_scale, extent=hb_extent)
+                heatmap.set_clim(clr_min, clr_max)
+                cbar = plt.colorbar(heatmap, ax=ax, extend=clr_ext)
+                cbar.set_label('points per pixel')
             # Add legend to report the total number of points and pixels on the plot
             n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
             pixel_patch  = mpl.patches.Patch(color='none', label=str(xy_bins)+'x'+str(xy_bins)+' pixels')
@@ -3795,9 +3810,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 else:
                     # Plot the scatter
                     heatmap = ax.scatter(df[x_key], df[y_key], c=cmap_data, cmap=this_cmap, s=m_size, marker=std_marker, zorder=5)
-            # Invert y-axis if specified
-            if y_key in y_invert_vars:
-                invert_y_axis = True
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
                 tw_clr = get_var_color(tw_x_key)
