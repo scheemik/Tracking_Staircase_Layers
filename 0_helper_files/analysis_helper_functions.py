@@ -58,8 +58,11 @@ try:
     from cmcrameri import cm
 except:
     foo = 2
+# For importing custom functions from files
+import importlib
 # For common BGR parameters
-import BGR_params as bps
+bps = importlib.import_module('0_helper_files.BGR_params')
+# from a_helper_files import BGR_params as bps
 
 """
 To install Cartopy and its dependencies, follow:
