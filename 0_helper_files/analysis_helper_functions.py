@@ -3262,7 +3262,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if mark_LHW_AW:
             mark_the_LHW_AW(ax, x_key, y_key)
         # Check whether to remove noise points
-        if plt_noise == False:
+        if plt_noise == 'both':
+            # Make a deep copy of the data frame
+            df_with_noise = df.copy()
+        if plt_noise == False or plt_noise == 'both':
             print('\t- Removing noise points')
             print('before removing noise points:',len(df))
             df = df[df.cluster!=-1]
@@ -3273,7 +3276,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         if clr_map == 'clr_all_same':
             # Check for histogram
             if plot_hist:
-                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x)
+                return plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=pp.legend, txk=tw_x_key, tay=tw_ax_y, tyk=tw_y_key, tax=tw_ax_x, df_w_noise=df_with_noise)
             # Set whether to plot in 3D
             if isinstance(z_key, type(None)):
                 df_z_key = 0
@@ -4668,7 +4671,7 @@ def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=
 
 ################################################################################
 
-def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=None, tay=None, tyk=None, tax=None, clstr_dict=None):
+def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=None, tay=None, tyk=None, tax=None, clstr_dict=None, df_w_noise=None):
     """
     Takes in an Analysis_Group object which has the data and plotting parameters
     to produce a subplot of individual profiles. Returns the x and y labels and
@@ -4687,6 +4690,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     tyk         Twin y variable key
     tax         Twin x axis
     clstr_dict  A dictionary of clustering values: m_pts, rel_val
+    df_w_noise  A pandas dataframe that includes the noise points
     """
     print('\t- Plotting a histogram')
     # print(df)
@@ -4763,8 +4767,15 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
     # Determine the color mapping to be used
     if clr_map in ['clr_all_same', 'fnn', 'bnn']:
         # Check whether to remove noise points
-        if plt_noise == False:
+        if plt_noise == False or plt_noise == 'both':
             df = df[df.cluster!=-1]
+        if plt_noise == 'both':
+            # Get histogram parameters for the dataframe that includes noise points
+            wn_h_var, wn_res_bins, wn_median, wn_mean, wn_std_dev = get_hist_params(df_w_noise, var_key, n_h_bins, bin_size)
+            # Set label of the line where noise points have been removed
+            no_noise_label = 'Clustered points'
+        else:
+            no_noise_label = None
         # Get histogram parameters
         h_var, res_bins, median, mean, std_dev = get_hist_params(df, var_key, n_h_bins, bin_size)
         # Plot the histogram
@@ -4781,7 +4792,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 for SA_div in bps.BGR_HPC_SA_divs:
                     ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
                 # Add moving average line from the csv file
-                if plt_noise == False:
+                if plt_noise == False or plt_noise == 'both':
                     # Load the data from the csv
                     hist_df = pd.read_csv('outputs/SA_divs_mv_avg_line.csv')
                     # Remove rows where 'this_hist_mv_avg' is null
@@ -4790,11 +4801,25 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                     hist_df = hist_df[hist_df['bin_centers'] > min(pdf_x_arr)]
                     hist_df = hist_df[hist_df['bin_centers'] < max(pdf_x_arr)]
                     # Plot the line
-                    ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line)
+                    ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line, label='Moving average')
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
-            ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle='-')
+            ax.plot(pdf_x_arr, pdf_y_arr, color=std_clr, linestyle='-', label=no_noise_label)
+            if plt_noise == 'both':
+                # Get the histogram
+                wn_this_hist, wn_these_bin_edges = np.histogram(wn_h_var, bins=wn_res_bins)
+                # Estimate the (non-normalized) PDF from the histogram by
+                #   plotting line through the bin centers
+                wn_bin_centers = 0.5*(wn_these_bin_edges[1:]+wn_these_bin_edges[:-1])
+                if orientation == 'vertical':
+                    wn_pdf_x_arr = wn_bin_centers
+                    wn_pdf_y_arr = wn_this_hist
+                else:
+                    wn_pdf_x_arr = wn_this_hist
+                    wn_pdf_y_arr = wn_bin_centers
+                # Plot the line of the histogram
+                ax.plot(wn_pdf_x_arr, wn_pdf_y_arr, color=std_clr, alpha=0.5, linestyle='--', label='All points')
         else:
             ax.hist(h_var, bins=res_bins, color=std_clr, orientation=orientation)
         # Invert y-axis if specified
@@ -4811,7 +4836,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 ax.axhline(mean-2*std_dev, color='r', linestyle='--')
                 ax.axhline(mean+2*std_dev, color='r', linestyle='--')
         # Take the moving average across a histogram
-        if mv_avg and pdf_hist:
+        if False:# mv_avg and pdf_hist:
             # Make a new pandas dataframe with columns for bin_centers and this_hist
             hist_df = pd.DataFrame({'bin_centers':bin_centers, 'this_hist':this_hist})
             # Find the spacing between the bin centers (assuming np.histogram does evenly spaced bins)
@@ -4941,7 +4966,9 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             tw_hndls = []
         # Only add the notes_string if it contains something
         if legend:
-            if len(notes_string) > 1:
+            if plt_noise == 'both':
+                ax.legend()
+            elif len(notes_string) > 1:
                 notes_patch  = mpl.patches.Patch(color='none', label=notes_string)
                 ax.legend(handles=hndls+notes_patch+tw_hndls)
             else:

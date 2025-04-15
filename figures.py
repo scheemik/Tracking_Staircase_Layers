@@ -46,14 +46,11 @@ import dill as pl
 import importlib
 # For custom analysis functions
 ahf = importlib.import_module('0_helper_files.analysis_helper_functions')
-# import analysis_helper_functions as ahf
 # For common BGR parameters
 bps = importlib.import_module('0_helper_files.BGR_params')
-# import BGR_params as bps
 # For common BGR objects
 bob = importlib.import_module('0_helper_files.BGR_objects')
-# import BGR_objects as bob
-exit(0)
+
 # Parameters
 test_S_range = bps.test_S_range
 
@@ -257,6 +254,7 @@ this_BGR = 'BGR_all'
 
 # Unclustered, directly from ITP netcdfs
 # ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)# bob.dfs1_BGR_dict[this_BGR])
+# ds_all_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, bob.dfs1)
 
@@ -1539,8 +1537,12 @@ if False:
         # Make the profile filters
         pfs_SA0 = ahf.Profile_Filters(SA_range=this_S_range)
         if add_total_pdf:
+            if i == 0:
+                make_legend = True
+            else:
+                make_legend = False
             # Make the Plot Parameters 
-            p_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'bin_size':bin_size, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=False)
+            p_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'bin_size':bin_size, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':this_S_range}, legend=make_legend)
             # Make the subplot group
             groups_to_plot2.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, p_SA_hist, plot_title=''))
         # Make the Plot Parameters
@@ -1549,10 +1551,10 @@ if False:
         groups_to_plot.append(ahf.Analysis_Group(ds_this_BGR, pfs_SA0, pp_stacked_SA_hist, plot_title=''))
     # Make the figure
     if add_total_pdf:
-        # ahf.make_figure(groups_to_plot2, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f3_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
-        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f3_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
+        # ahf.make_figure(groups_to_plot2, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
+        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
     else:
-        ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, filename='f3_'+this_BGR+'_SA_hists_stacked.png')
+        ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked.png')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other, compared to total histogram of all periods
 if False:
     print('')
@@ -1571,14 +1573,16 @@ if False:
     print('')
     print('- Creating a histogram of salinity for all time periods')
     # Make the Plot Parameters 
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':0.1, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':0.1, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=True)
     # pp_SA_vs_dt2 = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], extra_args={'n_h_bins':n_bins, 'pdf_hist':False, 'sort_clstrs':False, 'plt_noise':True, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'y_lims':[35.05, 34.085]}, legend=False)
+    pp_stacked_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='stacked', extra_args={'bin_size':bin_size, 'pdf_hist':True, 'sort_clstrs':False, 'plt_noise':False, 'log_axes':[False,False,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt2, plot_title='')
+    group_SA_vs_dt2 = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_stacked_SA_hist, plot_title='')
     # Make the figure
-    # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.3, 1.8], filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
+    ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2], row_col_list=[2,1, 0.45, 1.8], use_same_y_axis=False, filename='s1_'+this_BGR+'_SA_total_hist_and_stacked.png')
+    # ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.3, 1.8], filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
 
 ################################################################################
 # Cluster average pressure vs cluster average salinity
@@ -1704,7 +1708,7 @@ if False:
     # # Make the figure
     ahf.make_figure([group_these_clstrs])
 #***# Figure 1: Map of all profiles by date, plus map of fit to one cluster
-if True:
+if False:
     # this_cluster_id = 35 # 27
     # clstr_ranges_dict = bps.BGR_all_clstr_plt_ranges[this_cluster_id]
     print('')
@@ -1722,11 +1726,11 @@ if True:
     pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['depth'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_LHW_AW':True, 'shift_pfs':False, 'add_inset':[300,270]}, ax_lims={'y_lims':[770, 0]}, legend=True)
     pp_TS_all_data = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'sort_clstrs':False, 'invert_y_axis':False, 'clr_min':0, 'clr_max':700, 'clr_ext':'max', 'xy_bins':250, 'log_axes':[False,False,True]}, legend=False, ax_lims={'x_lims':bps.S_range_LHW_AW, 'y_lims':[-1.7,1.4]})
     # Make the subplot groups
-    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='')
-    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='All profiles')
+    group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='Beaufort Gyre Region')
+    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='Analyzed profiles')
     # group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Layer '+str(this_cluster_id)+' fit')
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
-    group_TS_all_data = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='')
+    group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='All BGR data')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map_by_date, group_example_profiles1, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_maps_ex_pf_and_TS.png')
     # ahf.make_figure([group_map_by_date, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')
