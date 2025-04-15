@@ -1659,6 +1659,7 @@ def get_axis_labels2(pp):
                  'lat':r'Latitude ($^\circ$N)',
                  'lon':r'Longitude ($^\circ$E+)',
                  'hist':r'Occurrences',
+                 'depth':r'Depth (m)',
                  'press':r'Pressure (dbar)',
                  'press_TC_max':r'$p(\Theta_{max})$ (dbar)',
                  'press_TC_min':r'$p(S_A\approx34.1)$ (dbar)',
@@ -1697,6 +1698,7 @@ def get_axis_labels2(pp):
                  'lat':r'Latitude',
                  'lon':r'Longitude',
                  'hist':r'Occurrences',
+                 'depth':r'Depth',
                  'press':r'Pressure',
                  'press_TC_max':r'$p(\Theta_{max})$',
                  'press_TC_min':r'$p(S_A\approx34.1)$',
@@ -1735,6 +1737,7 @@ def get_axis_labels2(pp):
                  'lat':r'$^\circ$N',
                  'lon':r'$^\circ$E+',
                  'hist':r'',
+                 'depth':r'm',
                  'press':r'dbar',
                  'press_TC_max':r'dbar',
                  'press_TC_min':r'dbar',
@@ -2756,13 +2759,16 @@ def add_std_title(a_group):
 
 ################################################################################
 
-def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False):
+def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False, lgd_loc=None):
     """
     Adds in standard information to this subplot's legend, as appropriate
 
     ax          The axis on which to add the legend
     data        A pandas data frame which is plotted on this axis
     x_key       The string of the column name for the x data from the dataframe
+    lgd_str     A string to append to the legend label
+    mark_LHW_AW A boolean to indicate whether to add LHW and AW markers
+    lgd_loc     The location of the legend, taking the value of `legend` from the Plot_Parameters
     """
     lgnd_hndls = []
     # Add legend to report the total number of points and notes on the data
@@ -2784,7 +2790,11 @@ def add_std_legend(ax, data, x_key, lgd_str=' points', mark_LHW_AW=False):
         # Add in old labels
         for hndl in old_hndls:
             lgnd_hndls.append(hndl)
-    lgnd = ax.legend(handles=lgnd_hndls)
+    if isinstance(lgd_loc, type('string')):
+        print('\t- Adding standard legend in:',lgd_loc)
+        lgnd = ax.legend(handles=lgnd_hndls, loc=lgd_loc)
+    else:
+        lgnd = ax.legend(handles=lgnd_hndls)
 
 ################################################################################
 
@@ -3390,7 +3400,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                         print('\t- Set tw_y_lims to',pp.ax_lims['tw_y_lims'])
             # Add a standard legend
             if pp.legend:
-                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
+                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW, lgd_loc=pp.legend)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x, aug_zorder=4)
             # Check whether to plot isopycnals
@@ -3665,7 +3675,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
                 # `hist2d` returns a tuple, the index 3 of which is the mappable for a colorbar
                 cbar = plt.colorbar(heatmap[3], ax=ax, extend=clr_ext)
-                cbar.set_label('points per pixel')
+                cbar.set_label('Points per pixel')
             elif dhist_type == 'hexbin':
                 # Note: extent expects (xmin, xmax, ymin, ymax)
                 hb_extent = None
@@ -3677,7 +3687,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 heatmap = ax.hexbin(df[x_key], df[y_key], gridsize=xy_bins*3, cmap=get_color_map(clr_map), bins=cbar_scale, extent=hb_extent)
                 heatmap.set_clim(clr_min, clr_max)
                 cbar = plt.colorbar(heatmap, ax=ax, extend=clr_ext)
-                cbar.set_label('points per pixel')
+                cbar.set_label('Points per pixel')
             # Add legend to report the total number of points and pixels on the plot
             n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
             pixel_patch  = mpl.patches.Patch(color='none', label=str(xy_bins)+'x'+str(xy_bins)+' pixels')
@@ -3879,7 +3889,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             cbar.set_label(pp.clabel)
             # Add a standard legend
             if pp.legend:
-                add_std_legend(ax, df, x_key)
+                add_std_legend(ax, df, x_key, lgd_loc=pp.legend)
             # Format the axes for datetimes, if necessary
             format_datetime_axes(pp.add_grid, x_key, y_key, ax, tw_x_key, tw_ax_y, tw_y_key, tw_ax_x)
             # Check whether to plot isopycnals
@@ -4121,7 +4131,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             ax.scatter(df['lon'], df['lat'], color=std_clr, s=mrk_s, marker=map_marker, alpha=0, linewidths=map_ln_wid, transform=ccrs.PlateCarree(), zorder=10)
             # Add a standard legend
             if pp.legend:
-                add_std_legend(ax, df, 'lon', lgd_str=' profiles')
+                add_std_legend(ax, df, 'lon', lgd_str=' profiles', lgd_loc=pp.legend)
             # Create the colorbar for the bathymetry
             if map_extent == 'Full_Arctic':
                 cbar = plt.colorbar(bathy_smap, ax=ax, extend='min', shrink=0.7, pad=0.15)# fraction=0.05)
@@ -4166,7 +4176,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 lgnd_hndls.append(notes_patch)
             # Add legend with custom handles
             if pp.legend:
-                lgnd = ax.legend(handles=lgnd_hndls)
+                if isinstance(pp.legend, type('string')):
+                    lgnd = ax.legend(handles=lgnd_hndls, loc=pp.legend)
+                else:   
+                    lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -4218,7 +4231,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
             lgnd_hndls.append(mpl.lines.Line2D([],[],color=std_clr, label='Stop', marker='s', linewidth=0))
             # Add legend with custom handles
             if pp.legend:
-                lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
+                if isinstance(pp.legend, type('string')):
+                    lgnd = ax.legend(handles=lgnd_hndls, loc=pp.legend)
+                else:   
+                    lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
             # Create the colorbar for the bathymetry
             if map_extent == 'Full_Arctic':
                 cbar = plt.colorbar(bathy_smap, ax=ax, extend='min', shrink=0.7, pad=0.15)# fraction=0.05)
@@ -4277,7 +4293,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 lgnd_hndls.append(notes_patch)
             # Add legend with custom handles
             if pp.legend:
-                lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
+                if isinstance(pp.legend, type('string')):
+                    lgnd = ax.legend(handles=lgnd_hndls, loc=pp.legend)
+                else:   
+                    lgnd = ax.legend(handles=lgnd_hndls, loc='lower left')
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -4346,7 +4365,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
             cbar.set_label(pp.clabel)
             # Add a standard legend
             if pp.legend:
-                add_std_legend(ax, df, 'lon', lgd_str=' profiles')
+                add_std_legend(ax, df, 'lon', lgd_str=' profiles', lgd_loc=pp.legend)
             # Add a standard title
             plt_title = add_std_title(a_group)
             return pp.xlabels[0], pp.ylabels[0], None, plt_title, ax, False
@@ -4773,7 +4792,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Get histogram parameters for the dataframe that includes noise points
             wn_h_var, wn_res_bins, wn_median, wn_mean, wn_std_dev = get_hist_params(df_w_noise, var_key, n_h_bins, bin_size)
             # Set label of the line where noise points have been removed
-            no_noise_label = 'Clustered points'
+            no_noise_label = 'Stage 3'
         else:
             no_noise_label = None
         # Get histogram parameters
@@ -4819,7 +4838,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                     wn_pdf_x_arr = wn_this_hist
                     wn_pdf_y_arr = wn_bin_centers
                 # Plot the line of the histogram
-                ax.plot(wn_pdf_x_arr, wn_pdf_y_arr, color=std_clr, alpha=0.5, linestyle='--', label='All points')
+                ax.plot(wn_pdf_x_arr, wn_pdf_y_arr, color=std_clr, alpha=0.5, linestyle='--', label='Stage 2')
         else:
             ax.hist(h_var, bins=res_bins, color=std_clr, orientation=orientation)
         # Invert y-axis if specified
@@ -8253,7 +8272,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         if legend:
             if mark_LHW_AW:
                 # Add standard legend
-                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW)
+                add_std_legend(ax, df, x_key, mark_LHW_AW=mark_LHW_AW, lgd_loc=legend)
             else:
                 n_pts_patch   = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
                 m_pts_patch = mpl.patches.Patch(color='none', label=r'$m_{pts}$: '+str(m_pts) + r', $\ell$: '+str(ell))

@@ -1721,16 +1721,16 @@ if False:
     # pfs_these_clstrs = ahf.Profile_Filters(clstrs_to_plot=[this_cluster_id])
     # Make the Plot Parameters
     pp_map_full_Arctic = ahf.Plot_Parameters(plot_type='map', clr_map='clr_all_same', extra_args={'map_extent':'Full_Arctic', 'bbox':'BGR'}, legend=False)#, add_grid=False)
-    pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic', 'bbox':'BGR'}, legend=True)
+    pp_map_by_date = ahf.Plot_Parameters(plot_type='map', clr_map='dt_start', extra_args={'map_extent':'Western_Arctic', 'bbox':'BGR'}, legend='lower right')
     # pp_map_one_cluster = ahf.Plot_Parameters(plot_type='map', clr_map='depth', extra_args={'map_extent':'Western_Arctic', 'bbox':'BGR', 'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['SA','cluster']}, ax_lims={'c_lims':clstr_ranges_dict['depth_lims']},  legend=False)
     pp_pfs1 = ahf.Plot_Parameters(x_vars=['CT','SA'], y_vars=['depth'], plot_type='profiles', extra_args={'plot_pts':False, 'mark_LHW_AW':True, 'shift_pfs':False, 'add_inset':[300,270]}, ax_lims={'y_lims':[770, 0]}, legend=True)
     pp_TS_all_data = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'sort_clstrs':False, 'invert_y_axis':False, 'clr_min':0, 'clr_max':700, 'clr_ext':'max', 'xy_bins':250, 'log_axes':[False,False,True]}, legend=False, ax_lims={'x_lims':bps.S_range_LHW_AW, 'y_lims':[-1.7,1.4]})
     # Make the subplot groups
     group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='Beaufort Gyre Region')
-    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='Analyzed profiles')
+    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='Stage 2 profiles')
     # group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Layer '+str(this_cluster_id)+' fit')
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
-    group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='All BGR data')
+    group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='Stage 1 data')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map_by_date, group_example_profiles1, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_maps_ex_pf_and_TS.png')
     # ahf.make_figure([group_map_by_date, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')

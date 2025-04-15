@@ -37,9 +37,9 @@ import importlib
 # For custom analysis functions
 ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
+bps = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
+bob = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 # Specify which BGR data set to use
 # this_BGR = 'BGR1516'
@@ -1988,13 +1988,14 @@ if False:
 #***# Make plots of the polyfit2d trends in the cluster properties 
 x_lims_dict = {
                 'ca_press':[200,450],
+                'ca_depth':[200,450],
                 'ca_CT':[-1.2,0.9],
                 'nzca_pcs_press':[-0.2,7]
 }
 plot_slopes = 'OLS'
 add_legend = False
 if False:
-# for this_clr_map in ['cluster']:#, 'clr_all_same', 'cluster']:
+# for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
     # this_ca_var = 'ca_press'
