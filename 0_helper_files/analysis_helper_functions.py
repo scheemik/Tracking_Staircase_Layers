@@ -195,6 +195,7 @@ map_marker = '.' #'x'
 map_ln_wid = 0.5
 l_cap_size = 3.0
 anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.75)
+map_bbox  = dict(clr='red', lw=2, ls='-', alpha=1.0)
 
 # Plotting parameters for the LHW and AW
 LHW_mrk = 'v'
@@ -4014,59 +4015,60 @@ def make_subplot(ax, a_group, fig, ax_pos):
             add_bathy_features(ax, add_colors=True, add_lines=True)
             if bbox == 'CB':
                 # Only the Eastern boundary appears in this extent
-                ax.plot([-130,-130], [73.7, 78.15], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-130,-130], [73.7, 78.15], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
         elif map_extent == 'Western_Arctic':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=False, add_lines=True)
             if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
-                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 84], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         elif map_extent == 'AIDJEX_focus':
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
             if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
                 # Northern boundary does not appear
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-155,-155], [72, 80.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 80.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 80.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         else:
             # Add bathymetry features
             add_bathy_features(ax, add_colors=True, add_lines=False)
             bb_res = 50
             if bbox == 'BGR': # Beaufort Gyre Region
                 CB_lons = np.linspace(-130, -160, 50)
-                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-160,-160], [73, 81.5], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                # map_bbox  = dict(clr='red', lw=2, ls='-', alpha=1.0)
+                ax.plot(CB_lons, 81.5*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 73*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-160,-160], [73, 81.5], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
                 # # Add a polygon patch
                 # # The coordinates need to be listed in counter-clockwise order
                 # lat_corners = np.array([73, 73, 81.5, 81.5])
@@ -4085,16 +4087,16 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 # ax.add_patch(poly_patch)
             elif bbox == 'CB': # Canada Basin
                 CB_lons = np.linspace(-130, -155, 50)
-                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
-                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-130,-130], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-155,-155], [72, 84], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(CB_lons, 84*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Northern boundary
+                ax.plot(CB_lons, 72*np.ones(len(CB_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-130,-130], [72, 84], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-155,-155], [72, 84], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
             elif bbox == 'AOA': # AIDJEX Operation Area
                 AJ_lons = np.linspace(-133.7, -152.9, 50)
-                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
-                ax.plot([-133.7,-133.7], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
-                ax.plot([-152.9,-152.9], [72.6, 77.4], color='red', linewidth=1, linestyle='-', transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
+                ax.plot(AJ_lons, 77.4*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot(AJ_lons, 72.6*np.ones(len(AJ_lons)), color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Southern boundary
+                ax.plot([-133.7,-133.7], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Eastern boundary
+                ax.plot([-152.9,-152.9], [72.6, 77.4], color=map_bbox['clr'], linewidth=map_bbox['lw'], linestyle=map_bbox['ls'], transform=ccrs.Geodetic(), zorder=bb_zorder) # Western boundary
         # Concatonate all the pandas data frames together
         df = pd.concat(a_group.data_frames)
         # Check for cluster-based variables
