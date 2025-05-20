@@ -841,16 +841,12 @@ def make_subplot(ax, a_group, fig, ax_pos):
         # Check whether to mark outliers
         print('\t- Marking outliers:',mrk_outliers)
         if mrk_outliers:
-            # if 'trd_' in x_key:
-            #     other_out_vars = ['cRL', 'nir_SA']
-            # else:
-            #     other_out_vars = []
-            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
             if x_key != 'cRL' and x_key != 'nir_SA':
-                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=['cRL', 'nir_SA'])
+                other_out_vars = ['cRL', 'nir_SA']
+                other_out_vars = []
             else:
-                ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers)
-            # ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
+                other_out_vars = []
+            ahf.mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
             # Get data without outliers
             if True: #plot_slopes:
                 x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
@@ -1994,8 +1990,8 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-if False:
-# for this_clr_map in ['clr_all_same']:#, 'clr_all_same', 'cluster']:
+# if True:
+for this_clr_map in ['clr_all_same', 'cluster']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Add in plots of cluster averages
     # this_ca_var = 'ca_press'
@@ -2119,5 +2115,5 @@ if False:
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
     # make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
-    make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
+    make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'_v2.png')
 ################################################################################
