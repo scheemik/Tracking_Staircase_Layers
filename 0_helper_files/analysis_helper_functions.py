@@ -3346,6 +3346,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if mrk_outliers:
                     if 'trd_' in x_key:
                         other_out_vars = ['cRL', 'nir_SA']
+                        other_out_vars = []
                     else:
                         other_out_vars = []
                     mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
@@ -4808,19 +4809,21 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 pdf_x_arr = bin_centers
                 pdf_y_arr = this_hist
                 # Add vertical lines at all the salinity divisions and the moving average line
-                for SA_div in bps.BGR_HPC_SA_divs:
-                    ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                if var_key == 'SA':
+                    for SA_div in bps.BGR_HPC_SA_divs:
+                        ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
                 # Add moving average line from the csv file
                 if plt_noise == False or plt_noise == 'both':
-                    # Load the data from the csv
-                    hist_df = pd.read_csv('outputs/SA_divs_mv_avg_line.csv')
-                    # Remove rows where 'this_hist_mv_avg' is null
-                    hist_df = hist_df[hist_df['this_hist_mv_avg'].notnull()]
-                    # Narrow range to just what is within this histograms bin centers
-                    hist_df = hist_df[hist_df['bin_centers'] > min(pdf_x_arr)]
-                    hist_df = hist_df[hist_df['bin_centers'] < max(pdf_x_arr)]
-                    # Plot the line
-                    ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line, label='Moving average')
+                    if not isinstance(mv_avg, type(None)):
+                        # Load the data from the csv
+                        hist_df = pd.read_csv('outputs/SA_divs_mv_avg_line.csv')
+                        # Remove rows where 'this_hist_mv_avg' is null
+                        hist_df = hist_df[hist_df['this_hist_mv_avg'].notnull()]
+                        # Narrow range to just what is within this histograms bin centers
+                        hist_df = hist_df[hist_df['bin_centers'] > min(pdf_x_arr)]
+                        hist_df = hist_df[hist_df['bin_centers'] < max(pdf_x_arr)]
+                        # Plot the line
+                        ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line, label='Moving average')
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
@@ -7627,7 +7630,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
 
 ################################################################################
 
-def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'zscore'):
+def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'):
     """
     Finds any outliers in the dataframe with respect to the x and y keys
 
@@ -7637,8 +7640,7 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'zscor
     mrk_outliers    Either True, or 'ends' (to mask out first and last cluster ids before calculations)
     threshold       The threshold zscore for which to consider an outlier
     """
-    outlier_type = 'MZS'        # Modified Z-Score
-    if outlier_type == 'MZS':
+    if outlier_type == 'MZS':        # Modified Z-Score
         threshold = 3.5 # recommended by Iglewicz and Hoaglin 1993
     for v_key in var_keys:
         # Get the values of the variable for this key
@@ -7682,6 +7684,9 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'zscor
             df['mzs_'+ v_key] = v_MZSs
             # Make a column of True/False whether that row is an outlier
             df['out_'+v_key] = (df['mzs_'+v_key] > threshold) | (df['mzs_'+v_key] < -threshold)
+        elif outlier_type == 'None':
+            # Make a column where all values are False
+            df['out_'+v_key] = False
         # Set the clusters with ids 120 or higher to True in outlier column
         df['out_'+v_key].loc[df['cluster']>=120] = True
         # Set the first and last clusters to True in outlier column
@@ -7764,6 +7769,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         else:
             mrk_clr = 'r'
         # Get data with outliers
+        print('\t- Marking outliers in',x_key)
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
         # Mark the outliers
@@ -7977,7 +7983,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     # Recalculate the cumulative heat flux without outliers
     if 'ca_FH_cumul' in x_key:
         # Mark outliers
-        mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=['cRL', 'nir_SA'])
+        mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=[])#['cRL', 'nir_SA'])
         # Remove the outliers from the df
         df = df[df['out_'+x_key]==False]
         # Sort the cluster average heat flux by the y_key variable
@@ -8083,6 +8089,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Mark outliers, if specified
         if x_key != 'cRL' and x_key != 'nir_SA':
             other_out_vars = ['cRL', 'nir_SA']
+            other_out_vars = []
         else:
             other_out_vars = []
         if mrk_outliers:
