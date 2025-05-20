@@ -4528,11 +4528,17 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
         print('\t\t- Intercept is',c)
         print('\t\t- R^2 value is',rvalue)
+        # Add annotation to say what the slope is
+        annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
+        R2_string = 'R^2 = '+format_sci_notation(rvalue, sci_lims_f=(-2,1))
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
         print('\t\t- Intercept is',c,'+/-',sd_c)
+        # Add annotation to say what the slope is
+        annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
+        R2_string = ''
     # Find mean and standard deviation of x and y data
     # x_mean = df.loc[:,x_key].mean()
     # y_mean = df.loc[:,y_key].mean()
@@ -4564,8 +4570,6 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     print('\t\t- x_bnds:',x_bnds)
     x_span = abs(x_bnds[1] - x_bnds[0])
     y_span = abs(y_bnds[1] - y_bnds[0])
-    # Add annotation to say what the slope is
-    annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
     if switch_xy:
         # Annotate the inverse of the slope
         # annotation_string = r'1/ '+annotation_string
@@ -4580,8 +4584,11 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #   programatically with multiple subplots, this only works if you aren't otherwise
     #   adding a legend. If you try to use add_artist, you'll get this error:
     #   ValueError: Can not reset the axes. You are probably trying to re-use an artist in more than one Axes which is not supported
-    temp_lgnd = ax.legend(handles=[mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
-                                   mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0)], fontsize="12")
+    temp_lgnd = ax.legend(handles=[
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+R2_string+'}$', marker=None, linewidth=0)], 
+                        fontsize="12")
     # Set color of legend text
     for lgnd_line, lgnd_text in zip(temp_lgnd.get_lines(), temp_lgnd.get_texts()):
         lgnd_text.set_color(linear_clr)
