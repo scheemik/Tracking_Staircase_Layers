@@ -193,6 +193,7 @@ pf_mrk_size   = 5 #15
 std_marker = '.'
 map_marker = '.' #'x'
 map_ln_wid = 0.5
+pf_line_width = 2
 l_cap_size = 3.0
 anno_bbox = dict(boxstyle="round,pad=0.3", fc=bg_clr, ec=std_clr, lw=0.72, alpha=0.75)
 map_bbox  = dict(clr='red', lw=2, ls='-', alpha=1.0)
@@ -6102,14 +6103,14 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
             else:
                 cmap_data = pf_df[clr_map]
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, zorder=1)
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linewidth=pf_line_width, linestyle=l_style, label=pf_label, zorder=1)
             # Get the colormap
             this_cmap = get_color_map(clr_map)
             # Plot the points as a heatmap
             heatmap = ax.scatter(xvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, zorder=1)
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linewidth=pf_line_width, linestyle=l_style, zorder=1)
                 tw_ax_y.scatter(tvar, pf_df[y_key], c=cmap_data, cmap=this_cmap, s=pf_mrk_size, marker=mkr)
                 # Check whether to adjust the twin axes limits
                 if not isinstance(pp.ax_lims, type(None)):
@@ -6140,7 +6141,7 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
         if clr_map == 'clr_all_same':
             mrk_alpha = 0.9
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linewidth=pf_line_width, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
             if plot_pts:
                 # Plot every point the same color, size, and marker
                 ax.scatter(xvar, pf_df[y_key], color=var_clr, s=pf_mrk_size, marker=mkr, alpha=pf_mrk_alpha)
@@ -6160,7 +6161,7 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
                 ax.plot(TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linewidth=pf_line_width, linestyle=l_style, alpha=pf_line_alpha, zorder=1)
                 # Check whether to adjust the twin axes limits
                 if not isinstance(pp.ax_lims, type(None)):
                     if 'tw_x_lims' in pp.ax_lims.keys():
@@ -6183,7 +6184,7 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
-            ax.plot(xvar, pf_df[y_key], color=var_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
+            ax.plot(xvar, pf_df[y_key], color=var_clr, linewidth=pf_line_width, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
             # Make a dataframe with adjusted xvar and tvar
             df_clstrs = pd.DataFrame({x_key:xvar, tw_x_key:tvar, y_key:pf_df[y_key], 'cluster':pf_df['cluster'], 'clst_prob':pf_df['clst_prob']})
             # Get a list of unique cluster numbers, but delete the noise point label "-1"
@@ -6196,7 +6197,7 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
                 ax.scatter(df_clstrs[df_clstrs.cluster==-1][x_key], df_clstrs[df_clstrs.cluster==-1][y_key], color=std_clr, s=pf_mrk_size, marker=std_marker, alpha=pf_alpha, zorder=1)
             # Plot on twin axes, if specified
             if not isinstance(tw_x_key, type(None)):
-                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
+                tw_ax_y.plot(tvar, pf_df[y_key], color=tw_clr, linewidth=pf_line_width, linestyle=l_style, label=pf_label, alpha=pf_line_alpha, zorder=1)
                 # Check whether to adjust the twin axes limits
                 if not isinstance(pp.ax_lims, type(None)):
                     if 'tw_x_lims' in pp.ax_lims.keys():
