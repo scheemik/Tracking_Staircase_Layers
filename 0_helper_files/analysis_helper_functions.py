@@ -3348,7 +3348,6 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 if mrk_outliers:
                     if 'trd_' in x_key:
                         other_out_vars = ['cRL', 'nir_SA']
-                        other_out_vars = []
                     else:
                         other_out_vars = []
                     mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mrk_for_other_vars=other_out_vars)
@@ -4574,10 +4573,10 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         # Annotate the inverse of the slope
         # annotation_string = r'1/ '+annotation_string
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, linewidth=2, zorder=6)
+        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, linewidth=2, zorder=4, alpha=0.7)
     else:
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=6)
+        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=4, alpha=0.7)
     
     # Add an auxiliary legend to note the slope
     #   Note: because of a really annoying limitation on not being able to use add_artist
@@ -4585,8 +4584,8 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #   adding a legend. If you try to use add_artist, you'll get this error:
     #   ValueError: Can not reset the axes. You are probably trying to re-use an artist in more than one Axes which is not supported
     temp_lgnd = ax.legend(handles=[
-                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
-                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
+                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
+                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
                             mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+R2_string+'}$', marker=None, linewidth=0)], 
                         fontsize="12")
     # Set color of legend text
@@ -7640,7 +7639,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
 
 ################################################################################
 
-def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'):
+def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'MZS'):
     """
     Finds any outliers in the dataframe with respect to the x and y keys
 
@@ -7650,8 +7649,11 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
     mrk_outliers    Either True, or 'ends' (to mask out first and last cluster ids before calculations)
     threshold       The threshold zscore for which to consider an outlier
     """
+    # print('find_outliers() for',var_keys,'with mrk_outliers:',mrk_outliers)
     if outlier_type == 'MZS':        # Modified Z-Score
         threshold = 3.5 # recommended by Iglewicz and Hoaglin 1993
+    # An array to gather columns to print
+    cols_to_print = ['cluster']
     for v_key in var_keys:
         # Get the values of the variable for this key
         # v_values = np.array(df[df['cluster']<=120][v_key].values, dtype=np.float64)
@@ -7661,7 +7663,7 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
         v_cids = np.array(df['cluster'].values, dtype=np.int64)
         # Mask out cluster ids 120 or higher
         v_cids = np.ma.masked_where(v_cids>=120, v_cids)
-        if mrk_outliers == 'ends':
+        if mrk_outliers == 'ends' or mrk_outliers == 'all':
             # print('before')
             # print('v_cids:',v_cids)
             # Mask out the first and last cluster
@@ -7672,6 +7674,7 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
             # print('v_cids:',v_cids)
             # Make a column to specify those end points should be considered outliers
             df['out_ends'] = (df['cluster'] == cid_min) | (df['cluster'] == cid_max)
+            cols_to_print.append('out_ends')
         else:
             df['out_ends'] = False
         # Apply the mask to the values
@@ -7685,6 +7688,8 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
             # print('v_zscores:',v_zscores)
             # Make a column of True/False whether that row is an outlier
             df['out_'+v_key] = (df['zs_'+v_key] > threshold) | (df['zs_'+v_key] < -threshold)
+            cols_to_print.append('out_'+v_key)
+            cols_to_print.append('zs_'+v_key)
         elif outlier_type == 'MZS':
             # Find the MADs (median absolute deviation) in a vector
             v_MADs = np.ma.median(np.abs(v_values - np.ma.median(v_values)))
@@ -7694,6 +7699,8 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
             df['mzs_'+ v_key] = v_MZSs
             # Make a column of True/False whether that row is an outlier
             df['out_'+v_key] = (df['mzs_'+v_key] > threshold) | (df['mzs_'+v_key] < -threshold)
+            cols_to_print.append('out_'+v_key)
+            cols_to_print.append('mzs_'+v_key)
         elif outlier_type == 'None':
             # Make a column where all values are False
             df['out_'+v_key] = False
@@ -7703,7 +7710,8 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'None'
         #   This is because they were not divided correctly due to the rolling average
         # df['out_'+v_key].loc[df['cluster']==cid_min] = True
         # df['out_'+v_key].loc[df['cluster']==cid_max] = True
-    # print(df)
+    # Print the relevant columnts of df
+    # print(df[cols_to_print])
     # exit(0)
     return df
 
@@ -7719,16 +7727,24 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
     x_key           A string of the variable from df to use on the x axis
     y_key           A string of the variable from df to use on the y axis
     clr_map         A string of the color map to use
-    mrk_outliers    True/False as whether to mark the outliers (or 'pre-calced', or 'ends')
+    mrk_outliers    True/False as whether to mark the outliers (or 'pre-calced', 'ends', or 'all')
     find_all        True/False as whether to find outliers in both cRL and nir_SP
     threshold       The threshold zscore for which to consider an outlier
     mrk_clr         The color in which to mark the outliers
     mk_size         The size of the marker to use to mark the outliers
     mrk_for_other_vars
     """
+    # print('mrk_outliers:',mrk_outliers)
+    # Decide what variables to find outliers for
+    if mrk_outliers == 'ends':
+        mrk_for_other_vars = []
+    elif mrk_outliers == 'all':
+        mrk_for_other_vars = ['cRL', 'nir_SA']
+    # print('mrk_for_other_vars:',mrk_for_other_vars)
     # Find outliers
     if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
         print('\t- Marking outliers in cRL and nir_SA')
+        out_vars = 'cRL and nir_SA'
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, ['cRL', 'nir_SA'], mrk_outliers, threshold)
         # Set the values of all rows for 'out_'+x_key to False
@@ -7742,7 +7758,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         cRL_y_data = np.array(df[df['out_cRL']==True][y_key].values, dtype=np.float64)
         nir_x_data = np.array(df[df['out_nir_SA']==True][x_key].values, dtype=np.float64)
         nir_y_data = np.array(df[df['out_nir_SA']==True][y_key].values, dtype=np.float64)
-        if mrk_outliers == 'ends':
+        if mrk_outliers == 'ends' or mrk_outliers == 'all':
             df.loc[df['out_ends']==True, 'out_'+x_key] = True
             end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
             end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
@@ -7754,21 +7770,22 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
                 # Plot over the outliers in a different color
                 ax.scatter(cRL_x_data, cRL_y_data, color=out_clr_RL, s=mk_size, marker='x', alpha=mrk_alpha, zorder=4, label=r'$R_L$ outlier')
                 ax.scatter(nir_x_data, nir_y_data, color=out_clr_IR, s=mk_size, marker='+', alpha=mrk_alpha, zorder=4)
-                if mrk_outliers == 'ends':
+                if mrk_outliers == 'ends' or mrk_outliers == 'all':
                     ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
             else:
                 ax.scatter(cRL_x_data, cRL_y_data, edgecolors=out_clr_RL, s=mk_size*5, marker='o', facecolors='none', zorder=2)
                 ax.scatter(nir_x_data, nir_y_data, edgecolors=out_clr_IR, s=mk_size*6, marker='o', facecolors='none', zorder=2)
-                if mrk_outliers == 'ends':
+                if mrk_outliers == 'ends' or mrk_outliers == 'all':
                     ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Get data with outliers
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
     else:
         print('\t- Marking outliers in',x_key)
+        out_vars = x_key
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, [x_key], mrk_outliers, threshold)
-        if mrk_outliers == 'ends':
+        if mrk_outliers == 'ends' or mrk_outliers == 'all':
             end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
             end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
         # Find the marker color
@@ -7786,26 +7803,30 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         if clr_map == 'clr_all_same':
             # Plot over the outliers in a different color
             ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
-            if mrk_outliers == 'ends':
+            if mrk_outliers == 'ends' or mrk_outliers == 'all':
                 df.loc[df['out_ends']==True, 'out_'+x_key] = True
                 ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
         else:
             ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
-            if mrk_outliers == 'ends':
+            if mrk_outliers == 'ends' or mrk_outliers == 'all':
                 df.loc[df['out_ends']==True, 'out_'+x_key] = True
                 ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
+    # Report number of outliers found
+    print('\t- Found',len(x_data),'outliers in',out_vars)
+    if mrk_outliers == 'ends' or mrk_outliers == 'all':
+        print('\t- Removed',len(end_x_data),'endpoints')
     # Print the outliers
-    if len(x_data) == 0:
-        print('No outliers found')
-        return
-    else:
-        print('Found outliers:')
-        print(x_data)
-        print(y_data)
+    # if len(x_data) == 0:
+    #     print('No outliers found')
+    #     return
+    # else:
+    #     print('Found outliers:')
+    #     print(x_data)
+    #     print(y_data)
     # Run it again
     # if mrk_clr == 'r':
     if False:
-        mark_outliers(ax, df.loc[df['out_'+x_key]==False], x_key, y_key, clr_map, mrk_outliers, find_all, threshold, mrk_clr='b', mk_size=mk_size)
+        mark_outliers(ax, df.loc[df['out_'+x_key]==False], x_key, y_key, clr_map, mrk_outliers, find_all, threshold, mrk_clr='b', mk_size=mk_size, mrk_for_other_vars=mrk_for_other_vars)
 
 ################################################################################
 
@@ -7993,7 +8014,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     # Recalculate the cumulative heat flux without outliers
     if 'ca_FH_cumul' in x_key:
         # Mark outliers
-        mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=[])#['cRL', 'nir_SA'])
+        mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=['cRL', 'nir_SA'])
         # Remove the outliers from the df
         df = df[df['out_'+x_key]==False]
         # Sort the cluster average heat flux by the y_key variable
@@ -8099,7 +8120,6 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Mark outliers, if specified
         if x_key != 'cRL' and x_key != 'nir_SA':
             other_out_vars = ['cRL', 'nir_SA']
-            other_out_vars = []
         else:
             other_out_vars = []
         if mrk_outliers:
