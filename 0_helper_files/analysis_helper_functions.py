@@ -1964,7 +1964,8 @@ def make_var_label(var_key, ax_labels_units, ax_labels_no_units):
         if '-fit' in var_str:
             # Take out the first 3 characters of the string to leave the original variable name
             var_str = var_str[:-4]
-            return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str + ' trend' + get_units_strs(var_str)[1]
+            # return ax_labels_no_units[var_str] + ' $-$ ' + polyfit2d_str + ' trend' + get_units_strs(var_str)[1]
+            return ax_labels_no_units[var_str] + ' trend' + get_units_strs(var_str)[1]
         else:  
             return ''+ ax_labels[var_str] + get_units_strs(var_str)[1]
     # Check for the polyfit2d of a variable
@@ -7781,13 +7782,17 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
         x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
         y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
     else:
-        print('\t- Marking outliers in',x_key)
         out_vars = x_key
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, [x_key], mrk_outliers, threshold)
         if mrk_outliers == 'ends' or mrk_outliers == 'all':
+            print('\t- Marking endpoints')
             end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
             end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
+            if clr_map == 'clr_all_same':
+                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
+            else:
+                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Find the marker color
         if x_key == 'cRL':
             mrk_clr = out_clr_RL
@@ -7795,26 +7800,23 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
             mrk_clr = out_clr_IR
         else:
             mrk_clr = 'r'
-        # Get data with outliers
-        print('\t- Marking outliers in',x_key)
-        x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
-        y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
-        # Mark the outliers
-        if clr_map == 'clr_all_same':
-            # Plot over the outliers in a different color
-            ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
-            if mrk_outliers == 'ends' or mrk_outliers == 'all':
-                df.loc[df['out_ends']==True, 'out_'+x_key] = True
-                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
-        else:
-            ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
-            if mrk_outliers == 'ends' or mrk_outliers == 'all':
-                df.loc[df['out_ends']==True, 'out_'+x_key] = True
-                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
-    # Report number of outliers found
-    print('\t- Found',len(x_data),'outliers in',out_vars)
+        if not mrk_outliers == 'ends':
+            # Get data with outliers
+            print('\t- Marking outliers in',x_key)
+            x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
+            y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
+            # Mark the outliers
+            if clr_map == 'clr_all_same':
+                # Plot over the outliers in a different color
+                ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
+            else:
+                # Circle the outliers in a different color
+                ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+            # Report number of outliers found
+            print('\t- Found',len(x_data),'outliers in',out_vars)
     if mrk_outliers == 'ends' or mrk_outliers == 'all':
         print('\t- Removed',len(end_x_data),'endpoints')
+        df.loc[df['out_ends']==True, 'out_'+x_key] = True
     # Print the outliers
     # if len(x_data) == 0:
     #     print('No outliers found')
