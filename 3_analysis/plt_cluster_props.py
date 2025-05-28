@@ -238,6 +238,11 @@ def layer_stats(df, var_list):
     lines = []
     # Make sure 'cluster' is the first column
     var_list = ['cluster'] + var_list
+    if 'percnztrd_pcs_press' in var_list and 'nztrd_pcs_press' in list(df.columns) and 'nzca_pcs_press' in list(df.columns):
+        var_list.append('percnztrdsd_pcs_press')
+        # Calculate the percent trend in non-zero thickness
+        df['percnztrd_pcs_press'] = df['nztrd_pcs_press']/df['nzca_pcs_press']*100
+        df['percnztrdsd_pcs_press'] = df['nztrdsd_pcs_press']/df['nzca_pcs_press']*100
     # Remove duplicates, preserving order
     var_list = list(dict.fromkeys(var_list))
     # Get just those variable's columns from the dataframe
@@ -250,6 +255,8 @@ def layer_stats(df, var_list):
         this_df = df[var_list]
     # Sort this dataframe by `cluster`
     this_df = this_df.sort_values(by=['cluster'])
+    # Make a deep copy to format into scientific notation
+    sci_df = this_df.copy(deep=True)
     # Make a list of columns to remove
     remove_these_cols = []
     # Format all the values into scientific notation
@@ -262,11 +269,12 @@ def layer_stats(df, var_list):
             SA_divs = bps.BGR_HPC_SA_divs
             # Add in the minimum salinity boundary to match the length (49 up to 50)
             SA_mins = [min(bps.S_range_LHW_AW)] + SA_divs
-            this_df[var] = np.vectorize(format_sci_notation2)(SA_mins, ndp=3)
+            sci_df[var] = np.vectorize(format_sci_notation2)(SA_mins, ndp=3)
+            this_df[var] = SA_mins
             var_csd = False
         # If the column is independent
         if var in ['cRL','nir_SA'] or 'R2' in var:
-            this_df[var] = this_df[var].map(format_sci_notation2)
+            sci_df[var] = this_df[var].map(format_sci_notation2)
             var_csd = False
         # If the column is a cluster average
         elif 'nzca_' in var:
@@ -277,6 +285,10 @@ def layer_stats(df, var_list):
             var_csd = 'csd_'+var[3:]
             sci_lims_these = (-3,3)
         # If the column is a cluster trend
+        elif 'percnztrd_' in var:
+            # Find the corresponding string for the cluster standard error
+            var_csd = 'percnztrdsd_'+var[10:]
+            # sci_lims_these = (-2,3)
         elif 'nztrd_' in var:
             # Find the corresponding string for the cluster standard error
             var_csd = 'nztrdsd_'+var[6:]
@@ -295,17 +307,20 @@ def layer_stats(df, var_list):
                 var_csd_val = this_df.iloc[i, this_df.columns.get_loc(var_csd)]
                 # print(var_val,'and',var_csd_val)
                 val_formatted = ahf.format_sci_notation(var_val, ndp=1, sci_lims_f=sci_lims_these, pm_val=var_csd_val, condense=True)
-                this_df.iloc[i, this_df.columns.get_loc(var)] = r'$'+val_formatted+'$'
+                sci_df.iloc[i, sci_df.columns.get_loc(var)] = r'$'+val_formatted+'$'
             remove_these_cols.append(var_csd)
     # Remove unneeded columns
     this_df.drop(columns=remove_these_cols, inplace=True)
+    sci_df.drop(columns=remove_these_cols, inplace=True)
     # Format cluster ids as integers
     this_df['cluster'] = pd.to_numeric(this_df['cluster'], downcast='integer')
+    sci_df['cluster'] = pd.to_numeric(sci_df['cluster'], downcast='integer')
     # Write this out to a csv
     print('Writing to outputs/'+filename+'_layer_properties.csv')
     this_df.to_csv('outputs/'+filename+'_layer_properties.csv', index=False)
+    sci_df.to_csv('outputs/'+filename+'_layer_properties_sci_not.csv', index=False)
 
-# layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press'])
+layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press', 'percnztrd_pcs_press'])
 # 
 # exit(0)
 ################################################################################
@@ -856,11 +871,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     yerr_data = np.array(df[df['out_'+x_key]==False][y_err_key].values, dtype=np.float64)
                 # Report the number of outliers
                 print('\t- Found',len(x_data),'non-outliers')
+                print('\t- Non-outlier data in x:')
+                print(list(x_data))
+                print('\t- Non-outlier data in y:')
+                print(list(y_data))
                 # Print the median of the non-outlier data in x and y
-                # print('\t- Non-outlier data in x:')
-                # print(list(x_data))
-                # print('\t- Non-outlier data in y:')
-                # print(list(y_data))
                 print('\t- Median of non-outlier data in x:',np.median(x_data))
                 print('\t- Mean of non-outlier data in x:',np.mean(x_data))
                 print('\t- Std dev of non-outlier data in x:',np.std(x_data))
@@ -1991,12 +2006,13 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-# if False:
-for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
+if False:
+# for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Decide whether to mark outliers and end points, or just end points
     # mrk_these_outliers = 'all'
     mrk_these_outliers = 'ends'
+    # mrk_these_outliers = True
     # Add in plots of cluster averages
     # this_ca_var = 'ca_press'
     this_ca_var = 'ca_SA'
@@ -2100,7 +2116,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']
         pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         #
         # pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':[-0.5,0.5], 'y_lims':these_y_lims})
-        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'y_lims':these_y_lims})
+        pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['percnztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':[-10,10], 'y_lims':these_y_lims})
         #
         # Make the subplot groups
         # ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_press_map, plot_title=this_cluster_title),
