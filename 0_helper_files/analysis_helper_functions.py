@@ -7745,6 +7745,11 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
     elif mrk_outliers == 'all':
         mrk_for_other_vars = ['cRL', 'nir_SA']
     # print('mrk_for_other_vars:',mrk_for_other_vars)
+    if x_key in ['ca_FH_cumul']:
+        # Don't plot the outliers
+        plt_outliers = False
+    else:
+        plt_outliers = True
     # Set the values of all rows for 'out_'+x_key to False
     ## If I don't do this, then the values not set to True below are NaN
     df['out_'+x_key] = False
@@ -7766,10 +7771,7 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
             df.loc[df['out_ends']==True, 'out_'+x_key] = True
             end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
             end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
-        if x_key in ['ca_FH_cumul']:
-            # Don't plot the outliers
-            foo = 2
-        else:
+        if plt_outliers:
             if clr_map == 'clr_all_same':
                 # Plot over the outliers in a different color
                 ax.scatter(cRL_x_data, cRL_y_data, color=out_clr_RL, s=mk_size, marker='x', alpha=mrk_alpha, zorder=4, label=r'$R_L$ outlier')
@@ -7792,10 +7794,11 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
             print('\t- Marking endpoints')
             end_x_data = np.array(df[df['out_ends']==True][x_key].values, dtype=np.float64)
             end_y_data = np.array(df[df['out_ends']==True][y_key].values, dtype=np.float64)
-            if clr_map == 'clr_all_same':
-                ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
-            else:
-                ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
+            if plt_outliers:
+                if clr_map == 'clr_all_same':
+                    ax.scatter(end_x_data, end_y_data, color=out_clr_end, s=mk_size, marker='o', alpha=mrk_alpha, zorder=4, label=r'Endpoint')
+                else:
+                    ax.scatter(end_x_data, end_y_data, edgecolors=out_clr_end, s=mk_size*6, marker='o', facecolors='none', zorder=2)
         # Find the marker color
         if x_key == 'cRL':
             mrk_clr = out_clr_RL
@@ -7809,12 +7812,13 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
             x_data = np.array(df[df['out_'+x_key]==True][x_key].values, dtype=np.float64)
             y_data = np.array(df[df['out_'+x_key]==True][y_key].values, dtype=np.float64)
             # Mark the outliers
-            if clr_map == 'clr_all_same':
-                # Plot over the outliers in a different color
-                ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
-            else:
-                # Circle the outliers in a different color
-                ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
+            if plt_outliers:
+                if clr_map == 'clr_all_same':
+                    # Plot over the outliers in a different color
+                    ax.scatter(x_data, y_data, color=mrk_clr, s=mk_size, marker=mrk_shape, zorder=4)
+                else:
+                    # Circle the outliers in a different color
+                    ax.scatter(x_data, y_data, edgecolors=mrk_clr, s=mk_size*5, marker='o', facecolors='none', zorder=2)
             # Report number of outliers found
             print('\t- Found',len(x_data),'outliers in',out_vars)
     if mrk_outliers == 'ends' or mrk_outliers == 'all':
