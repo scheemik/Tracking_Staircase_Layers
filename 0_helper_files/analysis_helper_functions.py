@@ -4574,10 +4574,10 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         # Annotate the inverse of the slope
         # annotation_string = r'1/ '+annotation_string
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, linewidth=2, zorder=4, alpha=0.7)
+        ax.axline((x_mean, y_mean), slope=1/m, color=linear_clr, linewidth=2, zorder=4, alpha=0.5)
     else:
         # Plot the least-squares fit line for this cluster through the centroid
-        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=4, alpha=0.7)
+        ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=4, alpha=0.5)
     
     # Add an auxiliary legend to note the slope
     #   Note: because of a really annoying limitation on not being able to use add_artist
@@ -7650,6 +7650,9 @@ def find_outliers(df, var_keys, mrk_outliers, threshold=2, outlier_type = 'MZS')
     mrk_outliers    Either True, or 'ends' (to mask out first and last cluster ids before calculations)
     threshold       The threshold zscore for which to consider an outlier
     """
+    # If using 'ends', then don't mark any outliers in the given var_keys
+    if mrk_outliers == 'ends':
+        outlier_type = 'None'
     # print('find_outliers() for',var_keys,'with mrk_outliers:',mrk_outliers)
     if outlier_type == 'MZS':        # Modified Z-Score
         threshold = 3.5 # recommended by Iglewicz and Hoaglin 1993
@@ -7742,15 +7745,15 @@ def mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, find_all=False, t
     elif mrk_outliers == 'all':
         mrk_for_other_vars = ['cRL', 'nir_SA']
     # print('mrk_for_other_vars:',mrk_for_other_vars)
+    # Set the values of all rows for 'out_'+x_key to False
+    ## If I don't do this, then the values not set to True below are NaN
+    df['out_'+x_key] = False
     # Find outliers
     if 'cRL' in mrk_for_other_vars and 'nir_SA' in mrk_for_other_vars:
         print('\t- Marking outliers in cRL and nir_SA')
         out_vars = 'cRL and nir_SA'
         if mrk_outliers != 'pre-calced':
             df = find_outliers(df, ['cRL', 'nir_SA'], mrk_outliers, threshold)
-        # Set the values of all rows for 'out_'+x_key to False
-        ## If I don't do this, then the values not set to True below are NaN
-        df['out_'+x_key] = False
         # Set rows of 'out_'+x_key to True if either 'out_cRL', 'out_nir_SA', or 'out_ends' is True
         df.loc[df['out_cRL']==True, 'out_'+x_key] = True
         df.loc[df['out_nir_SA']==True, 'out_'+x_key] = True
