@@ -320,7 +320,7 @@ def layer_stats(df, var_list):
     this_df.to_csv('outputs/'+filename+'_layer_properties.csv', index=False)
     sci_df.to_csv('outputs/'+filename+'_layer_properties_sci_not.csv', index=False)
 
-layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press', 'percnztrd_pcs_press'])
+# layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press', 'percnztrd_pcs_press'])
 # 
 # exit(0)
 ################################################################################
@@ -871,10 +871,10 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     yerr_data = np.array(df[df['out_'+x_key]==False][y_err_key].values, dtype=np.float64)
                 # Report the number of outliers
                 print('\t- Found',len(x_data),'non-outliers')
-                print('\t- Non-outlier data in x:')
-                print(list(x_data))
-                print('\t- Non-outlier data in y:')
-                print(list(y_data))
+                # print('\t- Non-outlier data in x:')
+                # print(list(x_data))
+                # print('\t- Non-outlier data in y:')
+                # print(list(y_data))
                 # Print the median of the non-outlier data in x and y
                 print('\t- Median of non-outlier data in x:',np.median(x_data))
                 print('\t- Mean of non-outlier data in x:',np.mean(x_data))
@@ -889,6 +889,15 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     df = df.sort_values(by=y_key)
                     # Calculate the cumulative heat flux, starting with the lowest value of y_key
                     df['ca_FH_cumul'] = df['ca_FH'].cumsum()
+                    x_data = np.array(df[df['out_'+x_key]==False][x_key].values, dtype=np.float64)
+                    y_data = np.array(df[df['out_'+x_key]==False][y_key].values, dtype=np.float64)
+                    # Print out relevant information about the cumulative heat flux
+                    print('\t- Cumulative heat flux without outliers:')
+                    print('\t\t- First:',x_key,'=',df[x_key].iloc[0],',',y_key,'=',df[y_key].iloc[0])
+                    print('\t\t- Last:',x_key,'=',df[x_key].iloc[-1],',',y_key,'=',df[y_key].iloc[-1])
+                    print('\t\t- Second last:',x_key,'=',df[x_key].iloc[-2],',',y_key,'=',df[y_key].iloc[-2])
+                    # Plot the last point of cumulative heat flux as a different color
+                    ax.scatter(x_data[-1], y_data[-1], color='r', s=m_size*2, marker=ahf.std_marker, alpha=m_alpha, zorder=6)
         else:
             # Get data
             if True: #plot_slopes:
@@ -1951,8 +1960,8 @@ if False:
 #**# Plots of cluster averages of components of the heat flux (Supplementary Materials)
 #   height, isobaric heat capacity, temperature trend in time, density
 this_ca_var = 'ca_SA'
-# this_clr_map = 'clr_all_same'
-if False:
+this_clr_map = 'clr_all_same'
+if True:
     # Make the Plot Parameters
     pp_height = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     pp_cp = ahf.Plot_Parameters(x_vars=['ca_cp'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'mark_zero':False, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
@@ -2136,4 +2145,5 @@ if False:
     # , row_col_list=[2,2, 0.8, 1.03]
     # make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
     make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
+    # make_figure([ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title='')])
 ################################################################################
