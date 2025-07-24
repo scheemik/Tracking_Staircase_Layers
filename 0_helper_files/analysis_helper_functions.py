@@ -4480,6 +4480,8 @@ def get_display_unit_string(var_key):
         return r'(g/kg)/yr'
     elif var_key == 'trd_CT-fit':
         return r' ^\circ C/yr'
+    elif var_key == 'nztrd_pcs_press':
+        return r' dbar/yr'
     elif var_key == 'percnztrd_pcs_press':
         return r' \%/yr'
     else:
@@ -4585,8 +4587,8 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #   adding a legend. If you try to use add_artist, you'll get this error:
     #   ValueError: Can not reset the axes. You are probably trying to re-use an artist in more than one Axes which is not supported
     temp_lgnd = ax.legend(handles=[
-                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
-                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
                             mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+R2_string+'}$', marker=None, linewidth=0)], 
                         fontsize="12")
     # Set color of legend text
