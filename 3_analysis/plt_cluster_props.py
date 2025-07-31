@@ -246,10 +246,13 @@ def layer_stats(df, var_list):
     # Remove duplicates, preserving order
     var_list = list(dict.fromkeys(var_list))
     # Get just those variable's columns from the dataframe
-    if 'SA_min' in var_list:
+    if 'SA_min' in var_list or 'ca_FH' in var_list:
         import copy
         this_var_list = copy.deepcopy(var_list)
-        this_var_list.remove('SA_min')
+        if 'SA_min' in var_list:
+            this_var_list.remove('SA_min')
+        if 'ca_FH' in var_list:
+            this_var_list.remove('ca_FH')
         this_df = df[this_var_list]
     else:
         this_df = df[var_list]
@@ -272,15 +275,39 @@ def layer_stats(df, var_list):
             sci_df[var] = np.vectorize(format_sci_notation2)(SA_mins, ndp=3)
             this_df[var] = SA_mins
             var_csd = False
+        # Add columns for heat flux components
+        if var == 'ca_FH':
+            print('Calculating cluster average heat flux components')
+            ## Calculating the heat flux, need to calculate the components first
+            # First, calculate the exact temperature
+            this_df['ca_iT'] = gsw.t_from_CT(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
+            sci_df['ca_iT'] = np.vectorize(format_sci_notation2)(this_df['ca_iT'], ndp=3)
+            # Calculate the cluster average heat capacity
+            this_df['ca_cp'] = gsw.cp_t_exact(df['ca_SA'].values, this_df['ca_iT'].values, df['ca_press'].values)
+            sci_df['ca_cp'] = np.vectorize(format_sci_notation2)(this_df['ca_cp'], ndp=3)
+            # Calculate the cluster average density
+            this_df['ca_rho'] = gsw.rho(df['ca_SA'].values, df['ca_CT'].values, df['ca_press'].values)
+            sci_df['ca_rho'] = np.vectorize(format_sci_notation2)(this_df['ca_rho'], ndp=3)
+            # Calculate the conversion factor to change year to seconds
+            yr_to_s = 365.25*24*60*60
+            # Calculate the heat flux
+            this_df['ca_FH'] = df['nzca_pcs_press']*this_df['ca_cp']*this_df['ca_rho']*df['trd_CT-fit']/yr_to_s
+            sci_df['ca_FH'] = np.vectorize(format_sci_notation2)(this_df['ca_FH'], ndp=3)
+            # Sort the dataframe by ca_SA
+            this_df = this_df.sort_values(by='ca_SA')
+            # Calculate the cumulative heat flux, starting with the lowest value of ca_SA but skipping clusters 0 and 49
+            this_df['ca_FH_cumul'] = np.zeros(len(this_df), dtype=np.float64)
+            this_df['ca_FH_cumul'].iloc[1:-1] = this_df['ca_FH'].iloc[1:-1].cumsum()
+            sci_df['ca_FH_cumul'] = np.vectorize(format_sci_notation2)(this_df['ca_FH_cumul'], ndp=3)
         # If the column is independent
-        if var in ['cRL','nir_SA'] or 'R2' in var:
+        if var in ['cRL','nir_SA', 'nir_CT', 'nir_press'] or 'R2' in var:
             sci_df[var] = this_df[var].map(format_sci_notation2)
             var_csd = False
         # If the column is a cluster average
         elif 'nzca_' in var:
             # Find the corresponding string for the cluster standard deviation
             var_csd = 'nzcsd_'+var[5:]
-        elif 'ca_' in var:
+        elif 'ca_' in var and var not in ['ca_FH', 'ca_iT', 'ca_cp', 'ca_rho']:
             # Find the corresponding string for the cluster standard deviation
             var_csd = 'csd_'+var[3:]
             sci_lims_these = (-3,3)
@@ -310,7 +337,7 @@ def layer_stats(df, var_list):
                 sci_df.iloc[i, sci_df.columns.get_loc(var)] = r'$'+val_formatted+'$'
             remove_these_cols.append(var_csd)
     # Remove unneeded columns
-    this_df.drop(columns=remove_these_cols, inplace=True)
+    # this_df.drop(columns=remove_these_cols, inplace=True)
     sci_df.drop(columns=remove_these_cols, inplace=True)
     # Format cluster ids as integers
     this_df['cluster'] = pd.to_numeric(this_df['cluster'], downcast='integer')
@@ -320,9 +347,9 @@ def layer_stats(df, var_list):
     this_df.to_csv('outputs/'+filename+'_layer_properties.csv', index=False)
     sci_df.to_csv('outputs/'+filename+'_layer_properties_sci_not.csv', index=False)
 
-# layer_stats(df, ['cRL', 'nir_SA', 'SA_min', 'ca_SA', 'csd_SA', 'ca_CT', 'csd_CT', 'ca_press', 'csd_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press', 'percnztrd_pcs_press'])
-# 
-# exit(0)
+layer_stats(df, ['cRL', 'nir_SA', 'nir_CT', 'nir_press', 'SA_min', 'ca_SA', 'csd_SA', 'cs_SA', 'ca_CT', 'csd_CT', 'cs_CT', 'ca_press', 'csd_press', 'cs_press', 'nzca_pcs_press', 'nzcsd_pcs_press', 'trd_CT', 'trdsd_CT', 'trdR2_CT', 'trd_CT-fit', 'trdsd_CT-fit', 'trdR2_CT-fit', 'trd_press', 'trdsd_press', 'trdR2_press', 'trd_press-fit', 'trdsd_press-fit', 'trdR2_press-fit', 'nztrd_pcs_press', 'nztrdsd_pcs_press', 'nztrdR2_pcs_press', 'percnztrd_pcs_press', 'ca_FH'])
+
+exit(0)
 ################################################################################
 # Plotting functions ###########################################################
 ################################################################################
@@ -1804,14 +1831,14 @@ if False:
 # Thicknesses of the layers
 # Plot of pcs_press for all profiles against this_ca_var
 this_clr_map = 'clr_all_same'
-this_clr_map = 'cluster'
+# this_clr_map = 'cluster'
 # this_ca_var = 'ca_press'
 # this_vert_var = 'press'
 this_ca_var = 'ca_SA'
 this_vert_var = 'SA'
 if False:
     # Load the per-profile data
-    df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
+    df_per_pf = pl.load(open('outputs/'+filename+'_pf_layer_properties.pickle', 'rb'))
     # To compare to Shibley et al. 2019 Figure 6b: 
     #   Use only ITP13 between August 2007 - August 2008 (ITP13 has data in this time period only)
     plot_Shibley2019_fig6b = False
@@ -1961,7 +1988,7 @@ if False:
 #   height, isobaric heat capacity, temperature trend in time, density
 this_ca_var = 'ca_SA'
 this_clr_map = 'clr_all_same'
-if True:
+if False:
     # Make the Plot Parameters
     pp_height = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     pp_cp = ahf.Plot_Parameters(x_vars=['ca_cp'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'mark_zero':False, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
@@ -2015,8 +2042,8 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-if False:
-# for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
+# if False:
+for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Decide whether to mark outliers and end points, or just end points
     # mrk_these_outliers = 'all'
@@ -2037,7 +2064,7 @@ if False:
         else:
             mrk_LHW_AW = True
         if this_plt_var == 'ca_press':
-            lgnd = add_legend #True
+            lgnd = True
         else:
             lgnd = add_legend
         pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
@@ -2068,7 +2095,7 @@ if False:
             pp_CT_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='CT', legend=False, extra_args={'sort_clstrs':False, 'plot_slopes':True, 'extra_vars_to_keep':['CT', 'SA','cluster']}, ax_lims={'x_lims':lon_BGR, 'y_lims':lat_BGR, 'c_lims':clstr_ranges_dict['CT_lims']})
         if this_ca_var == 'ca_press':
             these_y_lims = [400,190]
-            legend_for_press_plot = True
+            legend_for_press_plot = False
         elif this_ca_var == 'ca_SA':
             these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
             legend_for_press_plot = False
@@ -2143,7 +2170,7 @@ if False:
     # Make the figure
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
-    # make_figure(groups_to_plot, filename='f5_results_summary_w_clrmap_'+this_clr_map+'.png')
+    # make_figure(groups_to_plot, filename='s15_results_'+filename+'_'+this_ca_var+'_'+this_clr_map+'.png')
     make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
     # make_figure([ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title='')])
 ################################################################################
