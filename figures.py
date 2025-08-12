@@ -430,6 +430,23 @@ if False:
     group_test = ahf.Analysis_Group(ds_this_BGR, pfs_this_BGR, pp_test)
     ahf.cluster_stats(group_test, stat_vars=reg_vars+trd_fit_vars, filename='test.csv')
 
+# Period stats
+if True: 
+    # Make the Plot Parameters
+    pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start','cluster']})
+    # Load all year-long periods
+    groups = []
+    for some_BGR in bps.BGR_HPC_clstrd_dict.keys():
+        if some_BGR in ['BGR04', 'BGR2223', 'BGR_all']:
+            print(f'Skipping {some_BGR} because it is not a year-long period')
+        else:
+            # Make the Data Set
+            ds_some_BGR = ahf.Data_Set(bps.BGR_HPC_clstrd_dict[some_BGR], bob.dfs_all)
+            # Make the Analysis Group
+            groups.append(ahf.Analysis_Group(ds_some_BGR, pfs_this_BGR, pp_test))
+    # Make the csv of group stats
+    ahf.period_stats(groups)
+
 ################################################################################
 ## Maps and distances
 ################################################################################

@@ -2266,9 +2266,9 @@ def print_global_variables(Dataset):
             if attr in ['Source', 'Instrument']:
                 lines = lines+'\t'+str(attr)+': '+str(ds.attrs[attr])+'\n'
             elif attr in ['Creation date', 'Last modified', 'Last modification', 'Sub-sample scheme']:
-                print('\t'+attr+': '+ds.attrs[attr])
+                print('\t'+str(attr)+': '+str(ds.attrs[attr]))
             else:
-                lines = lines+'\t'+attr+': '+ds.attrs[attr]+'\n'
+                lines = lines+'\t'+str(attr)+': '+str(ds.attrs[attr])+'\n'
     return lines
 
 ################################################################################
@@ -2410,6 +2410,70 @@ def cluster_stats(group_to_summarize, stat_vars=['SA'], filename=None):
     else:
         for line in lines:
             print(line)
+
+################################################################################
+
+def period_stats(period_groups, filename='period_stats.csv'):
+    """
+    A function that will calculate and output a csv table of the given variables
+    for each year-long period in the given list of Analysis_Group objects
+
+    period_groups   A list of Analysis_Group objects, each containing dataframes
+                        Expecting list of ahf.Data_Set(bps.BGR_HPC_clstrd_dict[this_BGR], bob.dfs_all)
+    filename        The file to which to write the output
+    """
+    import csv
+    # Create a pandas dataframe which will be output as a csv
+    column_names = ['Period', 'ITPs present', 'Number of ITPs', 'Profiles used', 'Total points', 'Noise points', r'$m_{pts}$', 'Number of clusters', 'DBCV', r'Number of clusters ($34.152<S_A<34.970$)']
+    n_periods = len(period_groups)
+    # Use the above column names and add rows equal to the number of period groups
+    output_df = pd.DataFrame(index=range(n_periods), columns=column_names)
+    # Loop over all Analysis_Group objects
+    i = 0
+    lines = []
+    for a_group in period_groups:
+        # Concatonate all the pandas data frames together
+        df = pd.concat(a_group.data_frames)
+        # Find the name of the year-long period, the start year
+        period_num = int(df['dt_start'].values[0][2:4])
+        period_name = 'BGR{0:02d}'.format(period_num) + '{0:02d}'.format(period_num+1)
+        # Set the period name in the output dataframe row i
+        output_df.at[i, 'Period'] = period_name
+        # Find the unique ITP numbers
+        itp_nos = np.unique(np.array(df['instrmt'].values))
+        output_df.at[i, 'ITPs present'] = ', '.join(itp_nos)
+        output_df.at[i, 'Number of ITPs'] = len(itp_nos)
+        # Find the total number of profiles
+        df['prof_no-dt_start'] = df['instrmt'].astype(str)+' '+df['prof_no'].astype(str)
+        n_profs = len(np.unique(np.array(df['prof_no-dt_start'], dtype=type(''))))
+        output_df.at[i, 'Profiles used'] = n_profs
+        # Find the total number of data points
+        output_df.at[i, 'Total points'] = len(df)
+        # Find the number of noise points
+        noise_points = len(df[df['cluster'] == -1])
+        output_df.at[i, 'Noise points'] = noise_points
+        # Find the minimum density threshold
+        m_pts = a_group.data_set.xarrs[0].attrs['Clustering m_pts']
+        output_df.at[i, r'$m_{pts}$'] = m_pts
+        # Find the number of clusters
+        n_clusters = len(np.unique(np.array(df['cluster'].values, dtype=int)))-1 # -1 for the noise points
+        output_df.at[i, 'Number of clusters'] = n_clusters
+        # Find the DBCV
+        dbcv = a_group.data_set.xarrs[0].attrs['Clustering DBCV']
+        output_df.at[i, 'DBCV'] = '{:.4f}'.format(dbcv)
+        # Find the number of clusters where 34.152<S_A<34.970
+        n_clusters_SA = len(np.unique(np.array(df[(df['SA'] > 34.152) & (df['SA'] < 34.970)]['cluster'].values, dtype=int)))-1 # -1 for the noise points
+        output_df.at[i, r'Number of clusters ($34.152<S_A<34.970$)'] = n_clusters_SA
+        #
+        i += 1
+    # Write the output dataframe to a csv file
+    if filename != None:
+        filename = 'outputs/' + filename
+        print('Writing summary file to',filename)
+        output_df.to_csv(filename, index=False)
+    else:
+        print('No filename given, not writing output to a file')
+        print(output_df)
 
 ################################################################################
 # Admin plotting functions #####################################################
@@ -4805,7 +4869,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             # Get histogram parameters for the dataframe that includes noise points
             wn_h_var, wn_res_bins, wn_median, wn_mean, wn_std_dev = get_hist_params(df_w_noise, var_key, n_h_bins, bin_size)
             # Set label of the line where noise points have been removed
-            no_noise_label = 'Stage 3'
+            no_noise_label = 'Clustered' # 'Stage 3'
         else:
             no_noise_label = None
         # Get histogram parameters
@@ -4853,7 +4917,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                     wn_pdf_x_arr = wn_this_hist
                     wn_pdf_y_arr = wn_bin_centers
                 # Plot the line of the histogram
-                ax.plot(wn_pdf_x_arr, wn_pdf_y_arr, color=std_clr, alpha=0.5, linestyle='--', label='Stage 2')
+                ax.plot(wn_pdf_x_arr, wn_pdf_y_arr, color=std_clr, alpha=0.5, linestyle='--', label='Staircase Range')# label='Stage 2')
         else:
             ax.hist(h_var, bins=res_bins, color=std_clr, orientation=orientation)
         # Invert y-axis if specified
