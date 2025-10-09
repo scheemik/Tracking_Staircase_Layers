@@ -4595,13 +4595,14 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         # m, c = np.linalg.lstsq(np.array([x_data, np.ones(len(x_data))]).T, y_data, rcond=None)[0]
         # sd_m, sd_c = 0, 0
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
-        # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
+        # Get the R^2 value
+        r2 = rvalue**2
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
         print('\t\t- Intercept is',c)
-        print('\t\t- R^2 value is',rvalue)
+        print('\t\t- R^2 value is',r2)
         # Add annotation to say what the slope is
         annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
-        R2_string = 'R^2 = '+format_sci_notation(rvalue, sci_lims_f=(-2,1))
+        R2_string = 'R^2 = '+format_sci_notation(r2, sci_lims_f=(-2,1))
     else:
         # Find the slope of the total least-squares of the points for this cluster
         m, c, sd_m, sd_c = orthoregress(x_data_, y_data_)
@@ -7567,10 +7568,12 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 if plot_slopes == 'OLS':
                     # Find the slope of the ordinary least-squares of the points for this cluster
                     m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # Get the R^2 value
+                    r2 = rvalue**2
                     # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
                     print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
-                    print('\t\t- R^2 value is',rvalue)
-                    df.loc[df['cluster']==i, 'trdR2_'+var] = rvalue
+                    print('\t\t- R^2 value is',r2)
+                    df.loc[df['cluster']==i, 'trdR2_'+var] = r2
                 else:
                     # Find the slope of the total least-squares of the points for this cluster
                     m, c, sd_m, sd_c = orthoregress(x_data, y_data)
@@ -7602,10 +7605,12 @@ def calc_extra_cl_vars(df, new_cl_vars):
             if plot_slopes == 'OLS':
                 # Find the slope of the ordinary least-squares of the points
                 m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                # Get the R^2 value
+                r2 = rvalue**2
                 # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
                 print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
-                print('\t\t- R^2 value is',rvalue)
-                df['trdR2_'+var] = rvalue
+                print('\t\t- R^2 value is',r2)
+                df['trdR2_'+var] = r2
             else:
                 # Find the slope of the total least-squares of the points
                 m, c, sd_m, sd_c = orthoregress(x_data, y_data)
@@ -7642,9 +7647,11 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 if plot_slopes == 'OLS':
                     # Find the slope of the ordinary least-squares of the points for this cluster
                     m, c, rvalue, pvalue, sd_m = stats.linregress(x_data, y_data)
+                    # Get the R^2 value
+                    r2 = rvalue**2
                     # m, c, sd_m, sd_c = reg.slope, reg.intercept, reg.stderr, reg.intercept_stderr
                     print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,per_unit) # Note, units for dt_start are in days, so use adjustment_factor to get years
-                    print('\t\t- R^2 value is',rvalue)
+                    print('\t\t- R^2 value is',r2)
                 else:
                     # Find the slope of the total least-squares of the points for this cluster
                     m, c, sd_m, sd_c = orthoregress(x_data, y_data)
@@ -7652,7 +7659,7 @@ def calc_extra_cl_vars(df, new_cl_vars):
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = m*adjustment_factor
                 df.loc[df['cluster']==i, 'nztrdsd_'+var] = sd_m*adjustment_factor
-                df.loc[df['cluster']==i, 'nztrdR2_'+var] = rvalue
+                df.loc[df['cluster']==i, 'nztrdR2_'+var] = r2
                 # print('cluster '+str(i)+', '+str(m))
             #
             # Make sure that I've calculated cRL and nir_SA as well
