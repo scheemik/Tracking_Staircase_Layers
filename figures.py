@@ -254,7 +254,7 @@ this_BGR = 'BGR_all'
 
 # Unclustered, directly from ITP netcdfs
 # ds_this_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)# bob.dfs1_BGR_dict[this_BGR])
-# ds_all_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2)
+# ds_all_BGR = ahf.Data_Set(bps.BGRITPs_dict[this_BGR], bob.dfs2) 
 
 # ds_this_BGR = ahf.Data_Set(BGRITPsAll, bob.dfs1)
 
@@ -431,7 +431,7 @@ if False:
     ahf.cluster_stats(group_test, stat_vars=reg_vars+trd_fit_vars, filename='test.csv')
 
 # Period stats
-if True: 
+if False: 
     # Make the Plot Parameters
     pp_test = ahf.Plot_Parameters(extra_args={'extra_vars_to_keep':['dt_start','cluster']})
     # Load all year-long periods
@@ -1506,18 +1506,21 @@ if False:
     # Make the figure
     ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='C6_BGR_all_sigma_vs_dt.pickle')
 
-#**# Temperature vs. time and pressure vs. time (Supplementary Materials)
+#**# Salinity, Temperature, and Pressure vs. time (Supplementary Materials)
 if False:
     print('')
-    print('- Creating plots of temperature and pressure vs time')
+    print('- Creating plots of layer salinity, temperature, and pressure vs time')
     # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
     pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[1.09,-1.48]}, legend=False)
     pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[565,144]}, legend=False)
     # Make the subplot groups
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
+    ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8], filename='s5_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
+    # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
 
 ################################################################################
 ## Salinity histograms
@@ -1538,10 +1541,10 @@ if False:
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
 #***# Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other
-if True:
+if False:
     print('')
     print('- Creating stacked "waterfall" histogram of salinity for each time period')
-    var_to_plot = 'CT'
+    var_to_plot = 'SA'
     if var_to_plot == 'SA':
         range_min = bps.S_range_LHW_AW[0]
         range_max = bps.S_range_LHW_AW[1]
@@ -1566,7 +1569,7 @@ if True:
         elif var_to_plot == 'CT':
             pfs_SA0 = ahf.Profile_Filters(CT_range=this_S_range)
         if add_total_pdf:
-            if i == 0:
+            if i == 3:
                 make_legend = True
             else:
                 make_legend = False
@@ -1581,7 +1584,7 @@ if True:
     # Make the figure
     if add_total_pdf:
         # ahf.make_figure(groups_to_plot2, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
-        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False)#, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
+        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
     else:
         ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, filename='f2_'+this_BGR+'_'+var_to_plot+'_hists_stacked.png')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other, compared to total histogram of all periods
@@ -1617,15 +1620,15 @@ if False:
     print('')
     print('- Creating histograms of salinity and temperature for all time periods')
     # Make the Plot Parameters 
-    pp_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':0.1, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=True)
+    pp_SA_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':None, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':bps.S_range_LHW_AW}, legend=True)
     temp_lims = [-1.7,1.4] # full range
     temp_lims = [-1.4,0.95] # zoomed in
-    pp_CT_hist = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':None, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':temp_lims}, legend=True)
+    pp_CT_hist = ahf.Plot_Parameters(x_vars=['CT'], y_vars=['hist'], clr_map='clr_all_same', extra_args={'n_h_bins':n_bins, 'pdf_hist':True, 'mv_avg':None, 'sort_clstrs':False, 'plt_noise':'both', 'log_axes':[False,True,False], 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':temp_lims, 'y_lims':[30, 130000]}, legend=True)
     # Make the subplot groups 
     group_SA_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_hist, plot_title='')
     group_CT_hist = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_hist, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_hist, group_CT_hist], row_col_list=[2,1, 0.5, 1.8], use_same_y_axis=False)#, filename='s1_'+this_BGR+'_SA_CT_total_hists.png')
+    ahf.make_figure([group_SA_hist, group_CT_hist], row_col_list=[2,1, 0.5, 1.8], use_same_y_axis=False, filename='s1_'+this_BGR+'_SA_CT_total_hists.png')
     # ahf.make_figure([group_CT_hist], row_col_list=[1,1, 0.3, 1.8])#, filename='s1_'+this_BGR+'_SA_hist_no_noise_mins_marked.png')
 
 ################################################################################
@@ -1771,13 +1774,13 @@ if False:
     pp_TS_all_data = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'sort_clstrs':False, 'invert_y_axis':False, 'clr_min':0, 'clr_max':700, 'clr_ext':'max', 'xy_bins':250, 'log_axes':[False,False,True]}, legend=False, ax_lims={'x_lims':bps.S_range_LHW_AW, 'y_lims':[-1.7,1.4]})
     # Make the subplot groups
     group_map_full_Arctic = ahf.Analysis_Group(ds_this_BGR, bob.pfs_ex_area, pp_map_full_Arctic, plot_title='Beaufort Gyre Region')
-    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='Stage 2 profiles')
+    group_map_by_date = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_map_by_date, plot_title='Staircase Range profiles')# plot_title='Stage 2 profiles')
     # group_map_one_cluster = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_map_one_cluster, plot_title='Layer '+str(this_cluster_id)+' fit')
     group_example_profiles1 = ahf.Analysis_Group(ds_ITP_ex_pfs, pfs_0, pp_pfs1, plot_title='')
-    group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='Stage 1 data')
+    group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_all_data, plot_title='All BGR data')# plot_title='Stage 1 data')
     # Make the figure
     ahf.make_figure([group_map_full_Arctic, group_map_by_date, group_example_profiles1, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.4], filename='f1_BGR_all_maps_ex_pf_and_TS.png')
-    # ahf.make_figure([group_map_by_date, group_TS_all_data], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')
+    # ahf.make_figure([group_map_full_Arctic, group_example_profiles1], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.4], filename='f1_BGR_all_map_and_TS.png')
 #**# TS plots of density histogram and colored by cluster (Supplementary Materials)
 if False:
     print('')
@@ -1787,11 +1790,11 @@ if False:
     pp_TS_dens_hist = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='density_hist', extra_args={'sort_clstrs':False, 'invert_y_axis':False, 'clr_min':0, 'clr_max':700, 'clr_ext':'max', 'xy_bins':250, 'log_axes':[False,False,True]}, legend=False, ax_lims={'x_lims':bps.S_range_LHW_AW, 'y_lims':[-1.7,1.4]})
     pp_TS_clusters = ahf.Plot_Parameters(x_vars=['SA'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'invert_y_axis':False, 'plot_noise':True}, legend=False, ax_lims={'x_lims':bps.S_range_LHW_AW, 'y_lims':[-1.7,1.4]})
     # Make the subplot groups
-    # group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_dens_hist, plot_title='Stage 1 data')
-    group_TS_dens_hist = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_dens_hist, plot_title='Stage 2 data')
-    group_TS_clusters = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_clusters, plot_title='Stage 2/3 data')
+    # group_TS_all_data = ahf.Analysis_Group(ds_all_BGR, bob.pfs_LHW_and_AW, pp_TS_dens_hist, plot_title='All BGR data')# plot_title='Stage 1 data')
+    group_TS_dens_hist = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_dens_hist, plot_title='Staircase Range data')# plot_title='Stage 2 data')
+    group_TS_clusters = ahf.Analysis_Group(ds_this_BGR, bob.pfs_LHW_and_AW, pp_TS_clusters, plot_title='Staircase Range / Clustered data')# plot_title='Stage 2/3 data')
     # Make the figure
-    ahf.make_figure([group_TS_dens_hist, group_TS_clusters], row_col_list=[1,2, 0.45, 1.4])#, filename='f1_BGR_all_map_and_TS.png')
+    ahf.make_figure([group_TS_dens_hist, group_TS_clusters], row_col_list=[1,2, 0.45, 1.4], filename='s_BGR_dens_hist_and_cluster.png')
 # Example profile plot, CT and SA
 if False:
     print('')
