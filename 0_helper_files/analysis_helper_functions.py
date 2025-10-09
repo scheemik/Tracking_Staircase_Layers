@@ -210,6 +210,11 @@ AW_edgeclr = jackson_clr[3]
 # For SA divs
 SA_divs_clr = alt_std_clr
 SA_divs_line = '-'
+SA_divs_alpha = 0.5
+# For moving average
+mv_avg_clr = alt_std_clr
+mv_avg_line = '-'
+mv_avg_alpha = 0.5
 # Colors to mark outliers
 out_clr_RL = 'b'
 out_clr_IR = 'r'
@@ -3403,7 +3408,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Convert the original dataframe's dt_start back to numbers for plotting
                     time_df.reset_index(level=x_key, inplace=True)
                     time_df[x_key] = mpl.dates.date2num(time_df[x_key])
-                    ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', zorder=6)
+                    ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', linestyle=mv_avg_line, alpha=mv_avg_alpha, zorder=6)
             else:
                 # Plot in 3D
                 ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
@@ -4887,7 +4892,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                 # Add vertical lines at all the salinity divisions and the moving average line
                 if var_key == 'SA':
                     for SA_div in bps.BGR_HPC_SA_divs:
-                        ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                        ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line, alpha=SA_divs_alpha)
+                    # Mark the first and last SA_div with orange lines
+                    for SA_div in [bps.BGR_HPC_SA_divs[0], bps.BGR_HPC_SA_divs[-1]]:
+                        ax.axvline(SA_div, color=out_clr_end, linestyle=SA_divs_line, alpha=SA_divs_alpha)
                 # Add moving average line from the csv file
                 if plt_noise == False or plt_noise == 'both':
                     if not isinstance(mv_avg, type(None)):
@@ -4899,7 +4907,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
                         hist_df = hist_df[hist_df['bin_centers'] > min(pdf_x_arr)]
                         hist_df = hist_df[hist_df['bin_centers'] < max(pdf_x_arr)]
                         # Plot the line
-                        ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=SA_divs_clr, linestyle=SA_divs_line, label='Moving average')
+                        ax.plot(hist_df['bin_centers'], hist_df['this_hist_mv_avg'], color=mv_avg_clr, linestyle=mv_avg_line, alpha=mv_avg_alpha, label='Moving average')
             else:
                 pdf_x_arr = this_hist
                 pdf_y_arr = bin_centers
@@ -4950,7 +4958,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
             else:
                 mv_avg_x_key = 'this_hist_mv_avg'
                 mv_avg_y_key = 'bin_centers'
-            ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color=SA_divs_clr, linestyle=SA_divs_line)
+            ax.plot(hist_df[mv_avg_x_key], hist_df[mv_avg_y_key], color=mv_avg_clr, linestyle=mv_avg_line, alpha=mv_avg_alpha)
             # Save this line to a csv
             hist_df.to_csv('outputs/SA_divs_mv_avg_line.csv')
             # Find the intersection points of the moving average with the histogram
@@ -5289,7 +5297,10 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Add vertical lines at all the salinity divisions
         if True:
             for SA_div in bps.BGR_HPC_SA_divs:
-                ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line)
+                ax.axvline(SA_div, color=SA_divs_clr, linestyle=SA_divs_line, alpha=SA_divs_alpha)
+            # Mark the first and last SA_div with orange lines
+            for SA_div in [bps.BGR_HPC_SA_divs[0], bps.BGR_HPC_SA_divs[-1]]:
+                ax.axvline(SA_div, color=out_clr_end, linestyle=SA_divs_line, alpha=SA_divs_alpha)
         # Invert y-axis if specified
         if y_key in y_invert_vars:
             invert_y_axis = True
