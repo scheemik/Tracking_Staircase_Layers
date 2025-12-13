@@ -5930,6 +5930,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
                 in_tw_ax_y.xaxis.label.set_color(tw_clr)
                 # Change color of the ticks on the twin axis
                 in_tw_ax_y.tick_params(axis='x', colors=tw_clr)
+                # Change color of the axis label on the twin axis
+                ax_in.xaxis.label.set_color(var_clr)
+                # Change color of the ticks on the twin axis
+                ax_in.tick_params(axis='x', colors=var_clr)
             except:
                 tw_x_key = None
                 in_tw_ax_y  = None
@@ -5961,6 +5965,10 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
         tw_ax_y.xaxis.label.set_color(tw_clr)
         # Change color of the ticks on the twin axis
         tw_ax_y.tick_params(axis='x', colors=tw_clr)
+        # Change color of the axis label on the main axis
+        ax.xaxis.label.set_color(var_clr)
+        # Change color of the ticks on the main axis
+        ax.tick_params(axis='x', colors=var_clr)
         # Add a grid
         tw_ax_y.grid(color=tw_clr, linestyle='--', alpha=grid_alpha+0.2, axis='x')
         if invert_tw_y_axis:
