@@ -33,6 +33,9 @@ pfs_LHW_and_AW = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BG
 # The profile filters I'm using for this study
 pfs_BGR = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 
+# The profile filters I'm using for "All BGR" data
+pfs_All_BGR = ahf.Profile_Filters(lon_range=bps.lon_BGR, lat_range=bps.lat_BGR, SA_range=bps.S_range_All_BGR)
+
 # The profile filters to narrow down to an example area
 pfs_ex_area = ahf.Profile_Filters(lon_range=bps.lon_ex_area, lat_range=bps.lat_ex_area, p_range=[1000,5], SA_range=bps.S_range_LHW_AW, lt_pTC_max=True)
 
@@ -48,8 +51,10 @@ dfs0 = ahf.Data_Filters()
 dfs_all = ahf.Data_Filters(keep_black_list=True, cast_direction='any', press_TC_max_range=None)
 # Data filter object that limits the minimum pressure
 dfs1 = ahf.Data_Filters(min_press=this_min_press, date_range=['2005/08/15 00:00:00','2022/08/15 00:00:00'])
-# Data filter object that limits the minimum pressure
+# Data filter object that selects all data within the time period
 dfs2 = ahf.Data_Filters(date_range=['2005/08/15 00:00:00','2022/08/15 00:00:00'])
+# Data filter object that selects all data within the time period
+dfs3 = ahf.Data_Filters(date_range=['2005/08/15 00:00:00','2022/08/15 00:00:00'])
 
 # Beaufort Gyre Region
 ## Data filter objects for different time periods
