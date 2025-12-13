@@ -3408,7 +3408,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # Convert the original dataframe's dt_start back to numbers for plotting
                     time_df.reset_index(level=x_key, inplace=True)
                     time_df[x_key] = mpl.dates.date2num(time_df[x_key])
-                    ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', linestyle=mv_avg_line, alpha=mv_avg_alpha, zorder=6)
+                    ax.plot(time_df[x_key], time_df[y_key+'_mv_avg'], color='b', linestyle=mv_avg_line, linewidth=2, alpha=mv_avg_alpha, zorder=6)
             else:
                 # Plot in 3D
                 ax.scatter(df[x_key], df[y_key], zs=df_z_key, color=std_clr, s=m_size, marker=std_marker, alpha=m_alpha, zorder=5)
