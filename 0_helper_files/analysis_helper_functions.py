@@ -6275,13 +6275,15 @@ def add_profiles(ax, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var
                     # tw_ax_y.scatter(tw_TC_max, press_TC_max, color=tw_clr, s=pf_mrk_size*5, marker='^', zorder=5)
                     # Plot the partially filled in triangle
                     tw_ax_y.plot(tw_TC_max, press_TC_max, color=AW_clr, markersize=pf_mrk_size*2, marker=AW_mrk, fillstyle='top', markerfacecoloralt=AW_facealtclr, markeredgecolor=AW_edgeclr, linewidth=0, zorder=4)
-                    tw_ax_y.axhline(press_TC_max, color=AW_facealtclr, linestyle='--', zorder=3)
+                    # Add horizontal line to the main axis so that it goes behind the inset
+                    ax.axhline(press_TC_max, color=AW_facealtclr, linestyle='--', zorder=3)
                 if TC_min_key:
                     print('\t- Plotting tw_TC_min:',tw_TC_min,'press_TC_min:',press_TC_min)
                     # tw_ax_y.scatter(tw_TC_min, press_TC_min, color=tw_clr, s=pf_mrk_size*5, marker='v', zorder=5)
                     # Plot the partially filled in triangle
                     tw_ax_y.plot(tw_TC_min, press_TC_min, color=LHW_clr, markersize=pf_mrk_size*2, marker=LHW_mrk, fillstyle='bottom', markerfacecoloralt=LHW_facealtclr, markeredgecolor=LHW_edgeclr, linewidth=0, zorder=4)
-                    tw_ax_y.axhline(press_TC_min, color=LHW_facealtclr, linestyle='--', zorder=3)
+                    # Add horizontal line to the main axis so that it goes behind the inset
+                    ax.axhline(press_TC_min, color=LHW_facealtclr, linestyle='--', zorder=3)
             #
         if clr_map == 'cluster':
             # Plot a background line for each profile
