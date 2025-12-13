@@ -3760,6 +3760,11 @@ def make_subplot(ax, a_group, fig, ax_pos):
                 heatmap.set_clim(clr_min, clr_max)
                 cbar = plt.colorbar(heatmap, ax=ax, extend=clr_ext)
                 cbar.set_label('Points per pixel')
+            # Add vertical lines at outer salinity divisions if x-axis is salinity
+            if x_key == 'SA':
+                # Mark the first and last SA_div with orange lines
+                for SA_div in [bps.BGR_HPC_SA_divs[0], bps.BGR_HPC_SA_divs[-1]]:
+                    ax.axvline(SA_div, color=out_clr_end, linestyle=SA_divs_line, alpha=SA_divs_alpha)
             # Add legend to report the total number of points and pixels on the plot
             n_pts_patch  = mpl.patches.Patch(color='none', label=str(len(df[x_key]))+' points')
             pixel_patch  = mpl.patches.Patch(color='none', label=str(xy_bins)+'x'+str(xy_bins)+' pixels')
