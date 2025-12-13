@@ -4074,9 +4074,9 @@ def make_subplot(ax, a_group, fig, ax_pos):
         #   Add gridlines to show longitude and latitude
         gl = ax.gridlines(draw_labels=True, color=clr_lines, alpha=grid_alpha, linestyle='--', zorder=7)
         #       x is actually all labels around the edge
-        gl.xlabel_style = {'size':font_size_lgnd, 'color':clr_lines, 'zorder':7}
+        gl.xlabel_style = {'size':font_size_lgnd-2, 'color':clr_lines, 'zorder':7}
         #       y is actually all labels within map
-        gl.ylabel_style = {'size':font_size_lgnd, 'color':clr_lines, 'zorder':7}
+        gl.ylabel_style = {'size':font_size_lgnd-2, 'color':clr_lines, 'zorder':7}
         #   Plotting the coastlines takes a really long time
         # ax.coastlines()
         #   Don't plot outside the extent chosen
