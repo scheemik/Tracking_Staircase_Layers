@@ -3744,7 +3744,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     # clr_max = 100
             # Make the 2D histogram, the number of bins really changes the outcome
             if dhist_type == 'hist2d':
-                heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale)
+                heatmap = ax.hist2d(df[x_key], df[y_key], bins=xy_bins, cmap=get_color_map(clr_map), cmin=clr_min, cmax=clr_max, norm=cbar_scale, zorder=5)
                 # `hist2d` returns a tuple, the index 3 of which is the mappable for a colorbar
                 cbar = plt.colorbar(heatmap[3], ax=ax, extend=clr_ext)
                 cbar.set_label('Points per pixel')
@@ -3756,7 +3756,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
                     if 'x_lims' in pp.ax_lims.keys() and 'y_lims' in pp.ax_lims.keys():
                         hb_extent = (pp.ax_lims['x_lims'][0], pp.ax_lims['x_lims'][1], pp.ax_lims['y_lims'][0], pp.ax_lims['y_lims'][1])
                         print('\t- Set hexbin extent to',hb_extent)
-                heatmap = ax.hexbin(df[x_key], df[y_key], gridsize=xy_bins*3, cmap=get_color_map(clr_map), bins=cbar_scale, extent=hb_extent)
+                heatmap = ax.hexbin(df[x_key], df[y_key], gridsize=xy_bins*3, cmap=get_color_map(clr_map), bins=cbar_scale, extent=hb_extent, zorder=5)
                 heatmap.set_clim(clr_min, clr_max)
                 cbar = plt.colorbar(heatmap, ax=ax, extend=clr_ext)
                 cbar.set_label('Points per pixel')
