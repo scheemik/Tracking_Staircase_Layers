@@ -5947,15 +5947,18 @@ def plot_profiles(ax, a_group, pp, clr_map=None):
             tw_TC_max_key = False
             tw_TC_min_key = False
             # Plot on the inset axis
-            add_profiles(ax_in, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, in_tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
+            in_ret_dict = add_profiles(ax_in, a_group, pp, n_pfs, profile_dfs, x_key, y_key, clr_map, var_clr, distinct_clrs, mpl_mrks, l_styles, plot_pts, shift_pfs, TC_max_key, TC_min_key, in_tw_ax_y, tw_clr, tw_x_key, tw_TC_max_key, tw_TC_min_key, plt_noise, separate_periods=False)
             # Adjust the vertical axis limits
             ax_in.set_ylim(add_inset)
-            # Something seems a bit weird with trying to get the inset axis on top of the original one
-            # ax_in.set_zorder(10)
+            # Adjust twin inset axis, if specified
+            if not isinstance(tw_x_key, type(None)):
+                # Adjust bounds on axes
+                in_tw_ax_y.set_xlim([in_ret_dict['tw_left_bound']-in_ret_dict['tw_x_pad'], in_ret_dict['twin_high']+in_ret_dict['tw_x_pad']])
+                # ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
+                ax_in.set_xlim([in_ret_dict['left_bound']-in_ret_dict['x_pad'], in_ret_dict['right_bound']+in_ret_dict['x_pad']])
     # Adjust twin axes, if specified
     if not isinstance(tw_x_key, type(None)):
         # Adjust bounds on axes
-        # tw_ax_y.set_xlim([tw_left_bound-tw_x_pad, twin_high+tw_x_pad])
         tw_ax_y.set_xlim([ret_dict['tw_left_bound']-ret_dict['tw_x_pad'], ret_dict['twin_high']+ret_dict['tw_x_pad']])
         # ax.set_xlim([left_bound-x_pad, right_bound+x_pad])
         ax.set_xlim([ret_dict['left_bound']-ret_dict['x_pad'], ret_dict['right_bound']+ret_dict['x_pad']])
