@@ -154,10 +154,10 @@ bathy_smap.set_array([])
 
 # Set some plotting styles
 if fixed_width_image:
-    font_size_plt = 19
-    font_size_labels = 21
-    font_size_ticks = 15
-    font_size_lgnd = 14
+    font_size_plt = 25
+    font_size_labels = 27
+    font_size_ticks = 21
+    font_size_lgnd = 20 # tick marks on map is this number minus 2
     big_map_mrkr  = 120
     cent_mrk_size = 55
 else:
