@@ -4597,8 +4597,13 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
         m, c, rvalue, pvalue, sd_m = stats.linregress(x_data_, y_data_)
         # Get the R^2 value
         r2 = rvalue**2
+        # Calculate standard error for intercept (available from linregress for scipy >= 1.6)
+        xmean = np.mean(x_data_, None)
+        ssxm, ssxym, _, ssym = np.cov(x_data_, y_data_, bias=1).flat
+        sd_c = sd_m * np.sqrt(ssxm + xmean**2)
+        # Print regression information
         print('\t\t- Slope is',m*adjustment_factor,'+/-',sd_m*adjustment_factor,unit_str+per_unit,'for',len(x_data_),'points')
-        print('\t\t- Intercept is',c)
+        print('\t\t- Intercept is',c,'+/-',sd_c)
         print('\t\t- R^2 value is',r2)
         # Add annotation to say what the slope is
         annotation_string = format_sci_notation(m*adjustment_factor, pm_val=sd_m*adjustment_factor, sci_lims_f=(0,3))
