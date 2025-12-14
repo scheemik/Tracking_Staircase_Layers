@@ -3256,6 +3256,7 @@ def make_subplot(ax, a_group, fig, ax_pos):
         mv_avg = False
         mark_LHW_AW = False
         plt_noise = True
+        invert_y_axis = None
     # Concatonate all the pandas data frames together
     # print('\t- Concatenating data frames')
     df = pd.concat(a_group.data_frames)
