@@ -5483,7 +5483,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         # Loop through each cluster
         for i in clstr_ids:
             # Decide on the color and symbol, don't go off the end of the arrays
-            my_clr = distinct_clrs[i%len(distinct_clrs)]
+            my_clr = clstr_clrs[i%len(clstr_clrs)]
             my_mkr = mpl_mrks[i%len(mpl_mrks)]
             # Get relevant data
             this_clstr_df = df[df.cluster == i]
@@ -6694,7 +6694,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
             # Loop through each cluster
             for i in cluster_numbers:
                 # Decide on the color and symbol, don't go off the end of the arrays
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = clstr_clrs[i%len(clstr_clrs)]
                 my_mkr = mpl_mrks[i%len(mpl_mrks)]
                 # print('\t\tcluster:',i,'my_clr:',my_clr,'my_mkr:',my_mkr)
                 # Get relevant data
@@ -8173,7 +8173,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # Loop through each cluster
         for i in cluster_numbers:
             # Decide on the color and symbol, don't go off the end of the arrays
-            my_clr = distinct_clrs[i%len(distinct_clrs)]
+            my_clr = clstr_clrs[i%len(clstr_clrs)]
             if m_size == cent_mrk_size:
                 my_mkr = r"${}$".format(str(i))
                 m_alpha = 1
@@ -8289,7 +8289,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_data = df_this_cluster[y_key] 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = clstr_clrs[i%len(clstr_clrs)]
                 # Plot a backing circle for the cluster number if it's a light color
                 if my_clr in [jackson_clr[13], jackson_clr[14]]:
                     ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
@@ -8332,7 +8332,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_data = df_this_cluster[y_key] 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
-                my_clr = distinct_clrs[i%len(distinct_clrs)]
+                my_clr = clstr_clrs[i%len(clstr_clrs)]
                 # Plot a backing circle for the cluster number if it's a light color
                 if my_clr in [jackson_clr[13], jackson_clr[14]]:
                     ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
