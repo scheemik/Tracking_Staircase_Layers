@@ -8038,7 +8038,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         try:
             mark_left_right_clusters = pp.extra_args['mark_LR']
         except:
-            mark_left_right_clusters = True
+            mark_left_right_clusters = False
     else:
         plt_noise = True
         sort_clstrs = True
@@ -8049,7 +8049,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         fit_vars = False
         mark_LHW_AW = False
         use_raster = False
-        mark_left_right_clusters = True
+        mark_left_right_clusters = False
     # Decide whether to plot the centroid or not
     if isinstance(plot_centroid, type(None)):
         if x_key in pf_vars or y_key in pf_vars or z_key in pf_vars:
