@@ -8269,7 +8269,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
             other_out_vars = ['cRL', 'nir_SA']
         else:
             other_out_vars = []
-        if mrk_outliers:
+        if mrk_outliers and mrk_outliers != 'no_ends':
             mark_outliers(ax, df, x_key, y_key, clr_map, mrk_outliers, mk_size=m_size, mrk_clr='red', mrk_for_other_vars=other_out_vars)
         # Add cluster markers on left and right-hand sides if plotting vs time
         # if x_key in ['dt_start', 'dt_end'] and m_size != cent_mrk_size:
