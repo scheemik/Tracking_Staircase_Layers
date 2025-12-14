@@ -88,6 +88,7 @@ available_variables_list = []
 ################################################################################
 dark_mode = False
 fixed_width_image = True
+smaller_fonts = False
 png_dpi = 100 # Setting the dpi higher causes lat and lon labels to disappear on maps. This is solved in more recent versions of cartopy and matplotlib
 transparent_figures = False
 plt.style.use('science')
@@ -158,6 +159,14 @@ if fixed_width_image:
     font_size_labels = 27
     font_size_ticks = 21
     font_size_lgnd = 20 # tick marks on map is this number minus 2
+    big_map_mrkr  = 120
+    cent_mrk_size = 55
+elif smaller_fonts:
+    # Set font sizes to be smaller
+    font_size_plt = 19
+    font_size_labels = 21
+    font_size_ticks = 15
+    font_size_lgnd = 14
     big_map_mrkr  = 120
     cent_mrk_size = 55
 else:
@@ -6384,6 +6393,7 @@ def plot_waterfall(ax, a_group, fig, ax_pos, pp, clr_map=None):
     clr_map         A string to determine what color map to use in the plot
     """
     print('in plot_waterfall()')
+    # Set parameters
     legend = pp.legend
     scale = pp.plot_scale
     ax_lims = pp.ax_lims
