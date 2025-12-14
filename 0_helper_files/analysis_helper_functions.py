@@ -4769,12 +4769,16 @@ def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=
     if p_ref==True:
         press_s = df.loc[:, 'press']
         p_ref = press_s.median()
-    print('\t- Adding isopycnals referenced to:',p_ref,'dbar')
+    # print(f'\t- Adding isopycnals referenced to: {p_ref} dbar')
+    # print(f'\t- iso_x_key: {iso_x_key}')
+    # print(f'\t- iso_y_key: {iso_y_key}')
     # Get bounds of iso keys that fit within axes bounds
     iso_x_min = df[(df[x_key] == x_var_min)].loc[:,iso_x_key].min()
     iso_x_max = df[(df[x_key] == x_var_max)].loc[:,iso_x_key].max()
     iso_y_min = df[(df[y_key] == y_var_min)].loc[:,iso_y_key].min()
     iso_y_max = df[(df[y_key] == y_var_max)].loc[:,iso_y_key].max()
+    # print(f'\t- iso_x_min: {iso_x_min}, iso_x_max: {iso_x_max}')
+    # print(f'\t- iso_y_min: {iso_y_min}, iso_y_max: {iso_y_max}')
     # Number of points for the mesh grid in both directions
     n_grid_pts = 100
     # Make meshgrid for calculating
@@ -4786,6 +4790,7 @@ def add_isopycnals(ax, df, x_key, y_key, p_ref=None, place_isos=False, tw_x_key=
     # Calculate potential density referenced to p_ref
     if iso_x_key == 'SA' and iso_y_key == 'iT':
         Z = gsw.pot_rho_t_exact(iso_X, iso_Y, P, p_ref)-1000
+        # print(f'\t- Z max: {np.max(Z)}, Z min: {np.min(Z)}')
     # Make meshgrid for plotting
     x_arr = np.arange(x_var_min, x_var_max, abs(x_var_max-x_var_min)/n_grid_pts)
     y_arr = np.arange(y_var_min, y_var_max, abs(y_var_max-y_var_min)/n_grid_pts)
