@@ -8172,6 +8172,12 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
         # clstr_stdvs = []
         # Loop through each cluster
         for i in cluster_numbers:
+            # Decide whether to skip this clusters based on mrk_outliers
+            if mrk_outliers == 'no_ends':
+                # Don't plot the first and last cluster
+                if i == 0 or i == len(cluster_numbers)-1:
+                    print(f'Skipping cluster {i}')
+                    continue
             # Decide on the color and symbol, don't go off the end of the arrays
             my_clr = clstr_clrs[i%len(clstr_clrs)]
             if m_size == cent_mrk_size:
