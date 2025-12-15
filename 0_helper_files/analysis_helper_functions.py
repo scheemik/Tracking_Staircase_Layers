@@ -96,21 +96,23 @@ plt.style.use('science')
 # Colorblind-friendly palette by Krzywinski et al. (http://mkweb.bcgsc.ca/biovis2012/)
 #   See the link below for a helpful color wheel:
 #   https://jacksonlab.agronomy.wisc.edu/2016/05/23/15-level-colorblind-friendly-palette/
-jackson_clr = np.array(["#000000",  #  0 black              #
-                        "#004949",  #  1 dark olive         # light
-                        "#009292",  #  2 teal               # light / dark
-                        "#ff6db6",  #  3 hot pink           # 
-                        "#ffb6db",  #  4 light pink         #         dark
-                        "#490092",  #  5 dark purple        # light
-                        "#006ddb",  #  6 royal blue         #         dark
-                        "#b66dff",  #  7 violet             #         dark
-                        "#6db6ff",  #  8 sky blue           #
-                        "#b6dbff",  #  9 pale blue          #         dark
-                        "#920000",  # 10 dark red           # light
-                        "#924900",  # 11 brown              #
-                        "#db6d00",  # 12 dark orange        # light
-                        "#24ff24",  # 13 neon green         # light / dark
-                        "#ffff6d"]) # 14 yellow             # light / dark
+jackson_clr = np.array([
+    "#000000",  #  0 black              #
+    "#004949",  #  1 dark olive         # light
+    "#009292",  #  2 teal               #         dark
+    "#ff6db6",  #  3 hot pink           #     AW
+    "#ffb6db",  #  4 light pink         #         dark
+    "#490092",  #  5 dark purple        # light
+    "#006ddb",  #  6 royal blue         #     LHW
+    "#b66dff",  #  7 violet             # light / dark
+    "#6db6ff",  #  8 sky blue           #
+    "#b6dbff",  #  9 pale blue          #         dark
+    "#920000",  # 10 dark red           # light / dark
+    "#924900",  # 11 brown              # light
+    "#db6d00",  # 12 dark orange        # light
+    "#24ff24",  # 13 neon green         # light / dark
+    "#ffff6d",  # 14 yellow             #         dark
+])
 
 # Enable dark mode plotting
 if dark_mode:
@@ -123,7 +125,7 @@ if dark_mode:
     clr_ocean = 'k'
     clr_land  = 'grey'
     clr_lines = 'w'
-    clstr_clrs = jackson_clr[[2,14,4,6,7,9,13]]
+    clstr_clrs = jackson_clr[[2,14,4,10,7,9,13]]
     bathy_clrs = ['#000040','k']
 else:
     std_clr = 'k'
@@ -134,8 +136,7 @@ else:
     clr_ocean = 'w'
     clr_land  = 'grey'
     clr_lines = 'k'
-    clstr_clrs = jackson_clr[[12,1,10,14,5,2,13]] # old: jackson_clr[[12,1,10,6,5,2,13]]
-    # clstr_clrs = jackson_clr[[12,1,10,6,5,2,13]] # For ITP vs time plot
+    clstr_clrs = jackson_clr[[12,1,10,2,11,5,13]]
     bathy_clrs = ['w', '#000080'] # ['w','#b6dbff']
 
 # Define bathymetry colors
