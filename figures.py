@@ -1437,7 +1437,7 @@ if False:
 ################################################################################
 # Make x-limits by adding one month to either side of the date range
 dt_this_BGR_x_lims = []
-up_or_dn = -4 # integers only
+up_or_dn = 0 # integers only
 for this_dt in bps.date_range_dict[this_BGR]:
     # Add or subtract 1 to the month in the format 'YYYY/MM/DD HH:MM:SS', padding with zeros
     this_month = str(int(this_dt[5:7])+up_or_dn).zfill(2)
@@ -1455,7 +1455,7 @@ for this_dt in bps.date_range_dict[this_BGR]:
     # Add the new date to the list
     dt_this_BGR_x_lims.append(this_year+'/'+this_month+'/'+this_dt[8:])
     up_or_dn = abs(up_or_dn)
-#***# Salinity vs. time
+# Salinity vs. time
 if False:
     print('')
     print('- Creating plot of salinity vs time')
@@ -1475,7 +1475,7 @@ if False:
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s2_'+this_BGR+'_SA_vs_dt.png')
-#**# Temperature vs. time 
+# Temperature vs. time 
 if False:
     print('')
     print('- Creating plot of temperature vs time')
@@ -1485,7 +1485,7 @@ if False:
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s5_'+this_BGR+'_CT_vs_dt.png')
-#**# Pressure vs. time 
+# Pressure vs. time 
 if False:
     print('')
     print('- Creating plot of pressure vs time')
@@ -1495,7 +1495,7 @@ if False:
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s5_'+this_BGR+'_press_vs_dt.png')
-#*# Density anomaly vs. time
+# Density anomaly vs. time
 if False:
     print('')
     print('- Creating plot of sigma vs time')
@@ -1506,20 +1506,23 @@ if False:
     # Make the figure
     ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.7, 1.8], filename='C6_BGR_all_sigma_vs_dt.pickle')
 
-#**# Salinity, Temperature, and Pressure vs. time (Supplementary Materials)
+#***# Salinity, Temperature, and Pressure vs. time (Figure 3)
 if False:
     print('')
     print('- Creating plots of layer salinity, temperature, and pressure vs time')
+    plt_noise = False
+    mark_LHW_AW = True
+    mrk_outliers = 'no_ends'
     # Make the Plot Parameters
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
-    pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[1.09,-1.48]}, legend=False)
-    pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[565,144]}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[1.09,-1.48]}, legend=False)
+    pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[565,144]}, legend=False)
     # Make the subplot groups
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8], filename='s5_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
+    ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8], filename='f3_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
     # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
 
 ################################################################################
