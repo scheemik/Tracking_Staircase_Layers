@@ -1543,7 +1543,7 @@ if False:
     # Make the figure
     # ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt2])
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.7, 1.8])#, filename='f6_'+this_BGR+'_SA_vs_dt.pickle')
-#***# Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other
+#***# Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other (Figure 2)
 if False:
     print('')
     print('- Creating stacked "waterfall" histogram of salinity for each time period')
@@ -1587,7 +1587,7 @@ if False:
     # Make the figure
     if add_total_pdf:
         # ahf.make_figure(groups_to_plot2, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
-        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.45, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
+        ahf.make_figure(groups_to_plot2+groups_to_plot, row_col_list=[2,len(groups_to_plot), 0.5, 1.8], use_same_x_axis=False, use_same_y_axis=False, filename='f2_'+this_BGR+'_SA_hists_stacked_w_total_pdf.png')
     else:
         ahf.make_figure(groups_to_plot, row_col_list=[1,len(groups_to_plot), 0.3, 1.8], use_same_x_axis=False, filename='f2_'+this_BGR+'_'+var_to_plot+'_hists_stacked.png')
 # Salinity "waterfall" histograms of non-noise points for each period, stacked on to each other, compared to total histogram of all periods
