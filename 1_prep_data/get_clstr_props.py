@@ -35,17 +35,17 @@ import importlib
 # For custom analysis functions
 ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
+bps = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
+bob = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 # Specify which BGR data set to use
 # this_BGR = 'BGR1516'
 this_BGR = 'BGR_all'
 
 # Specify which connection method to use
-# connect_by = 'SA_divs'
-connect_by = 'manual'
+connect_by = 'SA_divs'
+# connect_by = 'manual'
 
 ################################################################################
 # Declare variables for plotting
@@ -94,7 +94,7 @@ df = pd.concat(group_.data_frames)
 # NOTE: Enabling `calc_pcs_vars` will make this script take very long to run
 #       It took several days on my laptop. It could be parallelized, but I
 #       never got around to implementing that. Load from the file when possible.
-calc_pcs_vars = True
+calc_pcs_vars = False
 if calc_pcs_vars:
     # Make a deep copy of the data frame to calculate cluster properties per profile
     df_copy = df.copy(deep=True)
@@ -118,8 +118,8 @@ if calc_pcs_vars:
     pl.dump(df_per_pf, open('outputs/'+filename+'_pf_layer_properties.pickle', 'wb'))
 else:
     # Load in temp file
-    print('Loading from to outputs/'+filename+'_pf_cluster_properties.pickle')
-    df_per_pf = pl.load(open('outputs/'+filename+'_pf_cluster_properties.pickle', 'rb'))
+    print('Loading from to outputs/'+filename+'_pf_layer_properties.pickle')
+    df_per_pf = pl.load(open('outputs/'+filename+'_pf_layer_properties.pickle', 'rb'))
 
 # Make a list of variables to calculate
 calc_vars = []
@@ -193,4 +193,4 @@ print(df)
 print(df.columns)
 
 # Pickle the data frame to a file
-pl.dump(df, open('outputs/'+filename+'_layer_properties.pickle', 'wb'))
+pl.dump(df, open('outputs/'+filename+'_layer_properties0.pickle', 'wb'))

@@ -87,7 +87,7 @@ lat_BGR = bps.lat_BGR
 # if connect_by == 'SA_divs':
     # df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties_og.pickle', 'rb')) # before 2024-11-13
     # df = pl.load(open('outputs/'+this_BGR+'_SA_divs_cluster_properties.pickle', 'rb')) # before 2025-02-11
-df = pl.load(open('outputs/'+filename+'_layer_properties.pickle', 'rb'))
+df = pl.load(open('outputs/'+filename+'_layer_properties0.pickle', 'rb'))
 # elif connect_by == 'manual':    
 #     df = pl.load(open('outputs/'+this_BGR+'_layer_properties.pickle', 'rb'))
 bnds_df = pl.load(open('outputs/'+this_BGR+'_LHW_AW_properties.pickle', 'rb'))
@@ -225,6 +225,54 @@ def format_sci_notation2(x, ndp=1):
         else:
             return r'${x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}$'.format(x=x, ndp=new_ndp, pm_val=pm_val)
 
+def format_sci_notation3(x, ndp=2):
+    """
+    Formats a number into scientific notation
+
+    x       The number to format
+    """
+    sci_lims_f = (-3,3) # ahf.sci_lims
+    pm_val = None
+    # Check to make sure x is not None or nan
+    if isinstance(x, type(None)) or np.isnan(x):
+        print('Warning: could not format',x,'into scientific notation')
+        return r'N/A'
+    if isinstance(pm_val, type(None)):
+        try:
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places')
+            return r'${x:0.{ndp:d}f}$'.format(x=x, ndp=ndp)
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'${m:s}{{\times}}10^{{{e:d}}}$'.format(m=m, e=int(e))
+        else:
+            return r'${x:0.{ndp:d}f}$'.format(x=x, ndp=ndp)
+    else:
+        try:
+            # Find magnitude and base 10 exponent for x
+            s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
+            m, e = s.split('e')
+        except:
+            print('Warning: could not format',x,'with',ndp,'decimal places and pm_val:',pm_val)
+            return r'${x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}$'.format(x=x, ndp=ndp, pm_val=pm_val)
+        # Find magnitude and base 10 exponent for pm_val
+        pm_s = '{pm_val:0.{ndp:d}e}'.format(pm_val=pm_val, ndp=ndp)
+        pm_m, pm_e = pm_s.split('e')
+        # Find difference between exponents to use as new number of decimal places
+        new_ndp = max(2, int(e)-int(pm_e))
+        # Reformat x
+        s = '{x:0.{ndp:d}e}'.format(x=x, ndp=new_ndp)
+        m, e = s.split('e')
+        # Shift value of pm_val to correct exponent
+        pm_m = '{pm_val:0.{ndp:d}f}'.format(pm_val=pm_val/(10**int(e)), ndp=new_ndp)
+        # Check to see whether it's outside the scientific notation exponent limits
+        if int(e) < min(sci_lims_f) or int(e) > max(sci_lims_f):
+            return r'$({m:s}{{\pm}}{pm_m:s}){{\times}} 10^{{{e:d}}}$'.format(m=m, pm_m=pm_m, e=int(e))
+        else:
+            return r'${x:0.{ndp:d}f}{{\pm}}{pm_val:0.{ndp:d}f}$'.format(x=x, ndp=new_ndp, pm_val=pm_val)
+
 def layer_stats(df, var_list):
     """
     A function that will calculate and output a csv table of the given variables
@@ -265,7 +313,7 @@ def layer_stats(df, var_list):
     # Format all the values into scientific notation
     for var in var_list:# list(this_df.columns):
         # sci_lims_these = ahf.sci_lims
-        sci_lims_these = (-1,3)
+        sci_lims_these = (-1,2)
         # Add a column for the salinity divisions
         if var == 'SA_min':
             # Get the SA divisions from file
@@ -300,8 +348,11 @@ def layer_stats(df, var_list):
             this_df['ca_FH_cumul'].iloc[1:-1] = this_df['ca_FH'].iloc[1:-1].cumsum()
             sci_df['ca_FH_cumul'] = np.vectorize(format_sci_notation2)(this_df['ca_FH_cumul'], ndp=3)
         # If the column is independent
-        if var in ['cRL','nir_SA', 'nir_CT', 'nir_press'] or 'R2' in var:
+        if var in ['cRL','nir_SA', 'nir_CT', 'nir_press']:
             sci_df[var] = this_df[var].map(format_sci_notation2)
+            var_csd = False
+        if 'R2' in var:
+            sci_df[var] = this_df[var].map(format_sci_notation3)
             var_csd = False
         # If the column is a cluster average
         elif 'nzca_' in var:
@@ -541,11 +592,17 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                     # subplot_label_y = -0.07
                     subplot_label_x = -0.07
                     subplot_label_y = -0.1
+                    if n_subplots == 6:
+                        subplot_label_x = -0.06
+                        subplot_label_y = -0.13
                 else:
                     # subplot_label_x = -0.03
                     # subplot_label_y = -0.07
                     subplot_label_x = -0.03
                     subplot_label_y = -0.1
+                    if n_subplots == 6:
+                        subplot_label_x = -0.06
+                        subplot_label_y = -0.13
                 # Invert y-axis if specified
                 if i == 0 and invert_y_axis:
                     ax.invert_yaxis()
@@ -569,7 +626,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
                 subplot_label_x = -0.20
             # Label subplots a, b, c, ...
             print('\t- Adding subplot label with offsets:',subplot_label_x, subplot_label_y)
-            ax.text(subplot_label_x, subplot_label_y, r'\textbf{('+string.ascii_lowercase[i]+')}', transform=ax.transAxes, size=ahf.font_size_labels, fontweight='bold')
+            ax.text(subplot_label_x, subplot_label_y, r'\textbf{('+string.ascii_lowercase[i]+')}', transform=ax.transAxes, size=ahf.font_size_lgnd, fontweight='bold')
             # If axes limits given, limit axes
             this_ax_pp = groups_to_plot[i].plt_params
             if not isinstance(this_ax_pp.ax_lims, type(None)):
@@ -1936,12 +1993,9 @@ if False:
         # Make the figure
         make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='s_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
 
-    #**# Plots of thicknesses all layers, heat flux, and cumulative heat flux (Supplementary Materials)
+    #**# Plots of thicknesses all layers per profile, layers trends in thickness, percent change trends in thickness (Supplementary Materials)
     if True:
         # Make the plot parameters
-        """
-        Note to myself: I've already taken out the outlier clusters in nzdf_per_pf
-        """
         pp_nzpcs = ahf.Plot_Parameters(x_vars=['nzpcs_press'], y_vars=[this_vert_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':False, 'plot_centroid':False, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         # pp_ca_nzpcs = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False, ax_lims={'x_lims':these_x_lims, 'y_lims':these_y_lims})
         pp_trd_nzpcs = ahf.Plot_Parameters(x_vars=['nztrd_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':'ends', 'extra_vars_to_keep':['cluster', 'press', 'cRL'], 'errorbars':True}, legend=False, ax_lims={'x_lims':[-0.5,0.5], 'y_lims':these_y_lims})
@@ -1951,7 +2005,7 @@ if False:
         group_trd_nzpcs = ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title='')
         group_perctrd_nzpcs= ahf.Analysis_Group2([df], pp_perctrd_nzpcs, plot_title='')
         # Make the figure
-        make_figure([group_nzpcs, group_trd_nzpcs, group_perctrd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='s12_BGR_all_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
+        make_figure([group_nzpcs, group_trd_nzpcs, group_perctrd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='s12_BGR_all_thickness_'+this_clr_map+'_R2.png')# row_col_list=[1,2, 0.45, 1.2])
     
     # Plot of thickness for just one cluster
     this_clstr_id = 5
@@ -2006,7 +2060,7 @@ if False:
     # Make the figure
     # make_figure([group_height, group_cp])
     # make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6], filename='C12_BGR_all_FH_comps_vs_SA.pdf')
-    make_figure([group_height, group_cp, group_trd_CT, group_rho, group_FH, group_FH_cumul], row_col_list=[2,3, 0.6, 1.6], filename='s11_BGR_all_FH_comps_vs_SA.png')
+    make_figure([group_height, group_cp, group_trd_CT, group_rho, group_FH, group_FH_cumul], row_col_list=[2,3, 0.6, 1.6], filename='s11_BGR_all_FH_comps_vs_SA_R2.png')
 # Plotting net heat flux against three different vertical axes
 if False:
     # Make the Plot Parameters
@@ -2018,7 +2072,7 @@ if False:
     group_FH_CT = ahf.Analysis_Group2([df], pp_FH_v_CT, plot_title='')
     group_FH_press = ahf.Analysis_Group2([df], pp_FH_v_press, plot_title='')
     # Make the figure
-    make_figure([group_FH_SA, group_FH_CT, group_FH_press])
+    make_figure([group_FH_SA, group_FH_CT, group_FH_press], row_col_list=[1,3, 0.3, 1.02], filename='s11b_BGR_all_FH_comps_vs_SA_CT_press.png')
 # Plot of the heat flux in W/m^2
 if False:
     # Make the Plot Parameters
@@ -2042,8 +2096,8 @@ x_lims_dict = {
 }
 plot_slopes = 'OLS'
 add_legend = False
-# if False:
-for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
+if True:
+# for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']:
     groups_to_plot = []
     # Decide whether to mark outliers and end points, or just end points
     # mrk_these_outliers = 'all'
@@ -2064,7 +2118,7 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']
         else:
             mrk_LHW_AW = True
         if this_plt_var == 'ca_press':
-            lgnd = True
+            lgnd = False # Set to False to get values of the linear regressions
         else:
             lgnd = add_legend
         pp_ca_plot = ahf.Plot_Parameters(x_vars=[this_plt_var], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':mrk_these_outliers, 'extra_vars_to_keep':['cluster', 'press', 'cRL','nir_SA'], 'mark_LHW_AW':mrk_LHW_AW, 'errorbars':True}, legend=lgnd, ax_lims={'x_lims':x_lims_dict[this_plt_var], 'y_lims':these_y_lims})
@@ -2171,6 +2225,6 @@ for this_clr_map in ['clr_all_same']:#, 'cluster']:#, 'clr_all_same', 'cluster']
     # row_col_list=[1,4, 0.3, 1.03])
     # , row_col_list=[2,2, 0.8, 1.03]
     # make_figure(groups_to_plot, filename='s15_results_'+filename+'_'+this_ca_var+'_'+this_clr_map+'.png')
-    make_figure(groups_to_plot, filename='3_Results_'+filename+'_'+this_clr_map+'.png')
+    make_figure(groups_to_plot, filename='4_Results_'+filename+'_'+this_clr_map+'_R2.png')#, row_col_list=[2,3, 0.6, 1.5])
     # make_figure([ahf.Analysis_Group2([df], pp_trd_nzpcs, plot_title='')])
 ################################################################################

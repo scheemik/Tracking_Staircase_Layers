@@ -1,7 +1,7 @@
 # Tracking Arctic Ocean Staircase Layers
 
 Written by Mikhail Schee for:
-(in preparation) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2025) "17 years of thermohaline staircase evolution in the Arctic Ocean's Canada Basin"
+(submitted) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2025) "Decadal coherence of Arctic thermohaline staircases"
 
 ## License
 
@@ -34,9 +34,8 @@ The Ice-Tethered Profiler data were collected and made available by the Ice-Teth
 
 This repository includes the [orthoregress code](https://gist.github.com/robintw/d94eb527c44966fbc8b9) from [Robin Wilson](https://blog.rtwilson.com/orthogonal-distance-regression-in-python/).
 
-This research was supported in part by the National Science Foundation under Grant No. NSF PHY-1748958. 
-
 We acknowledge fruitful discussions with Maike Sonnewald and Carine van der Boog.
 
-M.S. and N.G. were supported by the Natural Sciences and Engineering Research Council of Canada (NSERC) [funding reference numbers RGPIN-2015-03684 and RGPIN-2022-04560]. J.M.L. was supported by grant number 2049521 from the Physical Oceanography program of the United States National Science Foundation.
-
+M.G.S. and N.G. acknowledge the support of the Natural Sciences and Engineering Research Council of Canada (NSERC) [RGPIN-2022-04560]. 
+E.R. acknowledges support by the NSERC Discovery Grant (funding reference number RGPIN-2024-05545). 
+J.M.L. acknowledges the support of award #2319610 from the Physical Oceanography program of the United States National Science Foundation.

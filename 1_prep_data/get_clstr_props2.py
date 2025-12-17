@@ -35,9 +35,9 @@ import importlib
 # For custom analysis functions
 ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
+bps = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
+bob = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 # Decide whether to calculate the per profile cluster properties
 calc_per_pf = False
@@ -81,11 +81,15 @@ pp_ = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=['clst_prob'], extra_args={'re_
 # Start a list of the data frames
 dfs = []
 # Loop through each period
-for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011', 'BGR1112', 'BGR1213', 'BGR1314', 'BGR1415', 'BGR1516', 'BGR1617', 'BGR1718', 'BGR1819', 'BGR1920', 'BGR2021', 'BGR2122']:
+for this_BGR in ['BGR0506', 
+    # 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011', 'BGR1112', 'BGR1213', 'BGR1314', 'BGR1415', 'BGR1516', 'BGR1617', 'BGR1718', 'BGR1819', 'BGR1920', 
+    # 'BGR2021', 
+    'BGR2122',
+    ]:
     # Make the data set
-    ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
+    # ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
     filename = 'BGR_all'
-    # ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
+    ds_this_BGR = ahf.Data_Set(bps.BGR_HPC_SA_div_dict[this_BGR], bob.dfs_all)
     # filename = 'BGR_all_SA_divs'
     # Make the subplot groups
     group_ = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_)
@@ -114,8 +118,10 @@ for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011
         print(df_per_pf.columns)
 
         # Pickle the data frame to a file
-        print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties_unrelab.pickle')
-        pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties_unrelab.pickle', 'wb'))
+        print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties_SA_div.pickle')
+        pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties_SA_div.pickle', 'wb'))
+        # print('Pickling to outputs/'+this_BGR+'_pf_cluster_properties_unrelab.pickle')
+        # pl.dump(df_per_pf, open('outputs/'+this_BGR+'_pf_cluster_properties_unrelab.pickle', 'wb'))
     # else:
     #     # Load in temp file
     #     print('Loading from to outputs/'+this_BGR+'_pf_cluster_properties_unrelab.pickle')
@@ -166,11 +172,11 @@ for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011
     calc_vars = ['n_points', 'cRL']
     # for var in ['press-fit', 'SA-fit', 'CT-fit', 'sigma-fit', 'alpha-fit', 'beta-fit']:
     #     calc_vars.append('trd_'+var)
-    for var in ['SA']:#, 'press', 'CT', 'sigma', 'alpha', 'beta']:
+    for var in ['SA', 'press', 'CT']:#, 'sigma', 'alpha', 'beta']:
         calc_vars.append('ca_'+var)
-        calc_vars.append('cs_'+var)
-        calc_vars.append('csd_'+var)
-        calc_vars.append('nir_'+var)
+        # calc_vars.append('cs_'+var)
+        # calc_vars.append('csd_'+var)
+        # calc_vars.append('nir_'+var)
         # calc_vars.append('trd_'+var)
     # Calculate new cluster variables
     print('Calculating cluster properties')
@@ -197,8 +203,12 @@ for this_BGR in ['BGR0506', 'BGR0607', 'BGR0708', 'BGR0809', 'BGR0910', 'BGR1011
     print(df.columns)
     # Add the data frame to the list
     dfs.append(df)
+    # Pickle the data frame to a file
+    print('Pickling to outputs/'+this_BGR+'_cluster_properties_SA_div.pickle')
+    pl.dump(df, open('outputs/'+this_BGR+'_cluster_properties_SA_div.pickle', 'wb'))
 
 # Concatonate all the pandas data frames together
-df = pd.concat(dfs)
+# df = pd.concat(dfs)
 # Pickle the data frame to a file
-pl.dump(df, open('outputs/'+filename+'_cluster_properties_unrelab.pickle', 'wb'))
+# pl.dump(df, open('outputs/'+filename+'_cluster_properties_SA_div.pickle', 'wb'))
+# pl.dump(df, open('outputs/'+filename+'_cluster_properties_unrelab.pickle', 'wb'))

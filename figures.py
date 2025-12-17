@@ -1525,6 +1525,40 @@ if False:
     ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8], filename='f3_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
     # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
 
+#**# Salinity vs. time, clusters initially, manually relabelde, and connecting with SA_divs (Supplementary Materials)
+if False:
+    print('')
+    print('- Creating plots of layer salinity vs time for initial clustering, manual connection, and SA division connection')
+    plt_noise = False
+    mark_LHW_AW = True
+    mrk_outliers = None
+    # Get the dataset
+    ds_initial = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt_relab = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers, 'relab_these':bps.BGR_HPC_relab_dict}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups
+    group_initial = ahf.Analysis_Group(ds_initial, pfs_0, pp_SA_vs_dt, plot_title='Clustered data')
+    group_old_relab = ahf.Analysis_Group(ds_initial, pfs_0, pp_SA_vs_dt_relab, plot_title='Manual relabeling')
+    group_SA_divs = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='Using salinity boundaries')
+    ahf.make_figure([group_initial, group_old_relab, group_SA_divs], row_col_list=[3,1, 1.1, 1.8], filename='s7_SA_vs_dt_initial_manual_SA_divs1.png')
+    # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
+
+#**# Salinity vs. time, Staircase Range data and Clustered data, all same color (Supplementary Materials)
+if True:
+    print('')
+    print('- Creating plots of layer salinity vs time for Staircase Range and Clustered data')
+    plt_noise = False
+    mark_LHW_AW = True
+    mrk_outliers = None
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_all_same', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt_no_noise = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='clr_all_same', extra_args={'sort_clstrs':False, 'plt_noise':False, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers, 'extra_vars_to_keep':['cluster']}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='Staircase Range data')
+    group_SA_vs_dt_no_noise = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt_no_noise, plot_title='Clustered data')
+    ahf.make_figure([group_SA_vs_dt, group_SA_vs_dt_no_noise], row_col_list=[2,1, 0.85, 1.8], filename='s16_SA_vs_dt_all_same_clr.png')
+
 ################################################################################
 ## Salinity histograms
 ################################################################################
@@ -2251,7 +2285,7 @@ if False:
         group_p_v_lat = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_p_v_lat, plot_title=this_cluster_title)#+'Uncorrected')
         group_minus_fit = ahf.Analysis_Group(ds_this_BGR, pfs_these_clstrs, pp_minus_fit, plot_title='')#'Corrected by lat-lon-press polyfit2d')
         # # Make the figure
-        ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4], filename='s8_'+filename_prefix+'_press_and_press-fit_vs_time.png')
+        ahf.make_figure([group_p_v_lat, group_minus_fit], row_col_list=[2,1, 0.45, 1.4], filename='s8_'+filename_prefix+'_press_and_press-fit_vs_time2.png')
         # ahf.make_figure([group_p_v_lat], row_col_list=[1,1, 0.45, 1.4])
     # Comparing plots along longitude for pressure and pressure-polyfit2d with trendlines
     if False:

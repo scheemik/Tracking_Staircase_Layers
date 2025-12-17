@@ -957,10 +957,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             sort_clstrs = pp.extra_args['sort_clstrs']
         else:
             sort_clstrs = False
+        if 'relab_these' in pp.extra_args.keys():
+            relab_these = pp.extra_args['relab_these']
+        else:
+            relab_these = False
     else:
         sort_clstrs = False
+        relab_these = False
     # Make an empty list
     output_dfs = []
+    i = 0
     # What's the plot scale?
     if plot_scale == 'by_vert':
         for ds in arr_of_ds:
@@ -969,6 +975,16 @@ def apply_profile_filters(arr_of_ds, vars_to_keep, profile_filters, pp):
             ds = calc_extra_vars(ds, vars_to_keep)
             # Convert to a pandas data frame
             df = ds[vars_to_keep].to_dataframe()
+            # Relabel the cluster IDs, if applicable
+            if relab_these:
+                i += 1
+                # Find the cluster labels that exist in the dataframe
+                cluster_numbers = np.unique(np.array(df['cluster'].values, dtype=int))
+                # get the source dict
+                this_source = list(bps.BGR_HPC_relab_dict.keys())[i]
+                print('this_source:', this_source)
+                # exit(0)
+                df, cluster_numbers = relabel_clusters(df, cluster_numbers, relab_these[this_source])
             # Add a notes column
             df['notes'] = ''
             #   If the m_avg_win is not None, take the moving average of the data
@@ -4680,6 +4696,9 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     else:
         # Plot the least-squares fit line for this cluster through the centroid
         ax.axline((x_mean, y_mean), slope=m, color=linear_clr, linewidth=2, zorder=4, alpha=0.5)
+        # if plot_slopes=='OLS':
+        #     # Plot confidence interval
+        #     plot_confidence_interval(ax, x_data_, y_data_, m, c, sd_m, clr='red', conf_lvl=0.99)
     
     # Add an auxiliary legend to note the slope
     #   Note: because of a really annoying limitation on not being able to use add_artist
@@ -4687,10 +4706,11 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #   adding a legend. If you try to use add_artist, you'll get this error:
     #   ValueError: Can not reset the axes. You are probably trying to re-use an artist in more than one Axes which is not supported
     temp_lgnd = ax.legend(handles=[
-                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
-                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
-                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+R2_string+'}$', marker=None, linewidth=0)], 
-                        fontsize="12")
+                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+anno_prefix+annotation_string+'}$', marker=None, linewidth=0),
+                            # mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+unit_str+per_unit+'}$', marker=None, linewidth=0),
+                            mpl.lines.Line2D([],[],color=linear_clr, label=r'$\mathbf{'+R2_string+'}$', marker=None, linewidth=0)
+                            ], 
+                        fontsize="18")
     # Set color of legend text
     for lgnd_line, lgnd_text in zip(temp_lgnd.get_lines(), temp_lgnd.get_texts()):
         lgnd_text.set_color(linear_clr)
@@ -4704,6 +4724,33 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     #     ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
     # else:
     #     ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
+
+################################################################################
+
+def plot_confidence_interval(ax, x_data, y_data, m, c, sd_m, clr='red', conf_lvl=0.95):
+    # Get the number of observations
+    n_obs = len(x_data)
+    if n_obs != len(y_data):
+        raise ValueError("x_data and y_data must have the same length")
+    # Get the degrees of freedom
+    dof = n_obs - 2
+    # Get the t-value for the confidence level from the percent point function
+    # First argument is q, the percent to leave in one tail (hence divide by 2)
+    t_val = stats.t.ppf((1 + conf_lvl) / 2, dof)
+    # Calculate the prediction of the function
+    y_pred = m * x_data + c
+    # Calculate the standard error of the residuals
+    s_err = np.sqrt(np.sum((y_data - y_pred)**2) / dof)
+    # Calculate the mean of x and sum of squares
+    x_mean = np.mean(x_data)
+    ssx = np.sum((x_data-x_mean)**2)
+    # Calculate the confidence interval
+    conf = t_val * s_err * np.sqrt(1/n_obs + (x_data-x_mean)**2 / ssx)
+    # Calculate upper and lower bounds of confidence interval
+    y_upper = y_pred + conf
+    y_lower = y_pred - conf
+    # Plot confidence interval on provided axis
+    ax.fill_between(x_data, y_lower, y_upper, color=clr, alpha=0.5, label=f'{conf_lvl*100}% CI', zorder=1)
 
 ################################################################################
 
@@ -7400,7 +7447,16 @@ def calc_extra_cl_vars(df, new_cl_vars):
                     clstr_mean = np.mean(df_this_cluster[var].values)
                 # Put those values back into the original dataframe
                 df.loc[df['cluster']==i, this_var] = clstr_mean
-                # print(str(i)+','+str(clstr_mean))
+                if i == 1:
+                    print(f'Cluster: {i}, Value:{clstr_mean}')
+                    start_val = clstr_mean
+                elif i == 48:
+                    print(f'Cluster: {i}, Value:{clstr_mean}')
+                    try:
+                        diff = abs(clstr_mean - start_val)
+                        print(f'\tDifference: {diff}')
+                    except:
+                        print(f'\tNo difference to calculate')
         elif prefix == 'av':
             # Calculate the average of the variable
             # Find the mean of this var for this cluster
@@ -8071,7 +8127,7 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
     if sort_clstrs:
         df = sort_clusters(df, cluster_numbers, ax)
     # Relabel clusters, if specified
-    if relab_these:
+    if False: #relab_these:
         df, cluster_numbers = relabel_clusters(df, cluster_numbers, relab_these)
     # Noise points are labeled as -1
     # Plot noise points first
