@@ -47,7 +47,7 @@ c3 = int(m_avg_win/res)
 # Select the netcdfs to modify
 ncs_to_modify = [
                  'netcdfs/ITP_001.nc',
-                 'netcdfs/ITP_002.nc', # Not in time period
+                #  'netcdfs/ITP_002.nc', # Not in time period
                  'netcdfs/ITP_003.nc',
                  'netcdfs/ITP_004.nc',
                  'netcdfs/ITP_005.nc',

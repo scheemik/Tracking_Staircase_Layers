@@ -433,8 +433,8 @@ BGR2223_minimal = bob.build_clustering_dict('minimal_', 'BGR2223', m_pts='None')
 
 xr.set_options(display_max_rows=44)
 
-for clstr_dict in [BGR04_clstr_dict]:
-# for clstr_dict in [BGR04_clstr_dict, BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict, BGR1112_clstr_dict, BGR1213_clstr_dict, BGR1314_clstr_dict, BGR1415_clstr_dict, BGR1516_clstr_dict, BGR1617_clstr_dict, BGR1718_clstr_dict, BGR1819_clstr_dict, BGR1920_clstr_dict, BGR2021_clstr_dict, BGR2122_clstr_dict, BGR2223_clstr_dict]:
+# for clstr_dict in [BGR04_clstr_dict]:
+for clstr_dict in [BGR0506_clstr_dict, BGR0607_clstr_dict, BGR0708_clstr_dict, BGR0809_clstr_dict, BGR0910_clstr_dict, BGR1011_clstr_dict, BGR1112_clstr_dict, BGR1213_clstr_dict, BGR1314_clstr_dict, BGR1415_clstr_dict, BGR1516_clstr_dict, BGR1617_clstr_dict, BGR1718_clstr_dict, BGR1819_clstr_dict, BGR1920_clstr_dict, BGR2021_clstr_dict, BGR2122_clstr_dict, BGR2223_clstr_dict]:
     gattrs_to_print =  ['Last modified',
                         'Last modification',
                         'Last clustered',

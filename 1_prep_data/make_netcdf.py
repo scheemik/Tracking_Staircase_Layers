@@ -1469,7 +1469,7 @@ def find_geo_region(lon, lat):
 ## Read instrument makes a netcdf for just the given instrument
 if True:
     read_instrmt('ITP', '1', science_data_file_path+'ITPs/itp1/itp1cormat', 'netcdfs/ITP_001.nc')
-    read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc') # Not in time period
+    # read_instrmt('ITP', '2', science_data_file_path+'ITPs/itp2/itp2cormat', 'netcdfs/ITP_002.nc') # Not in time period
     read_instrmt('ITP', '3', science_data_file_path+'ITPs/itp3/itp3cormat', 'netcdfs/ITP_003.nc')
     read_instrmt('ITP', '4', science_data_file_path+'ITPs/itp4/itp4cormat', 'netcdfs/ITP_004.nc')
     read_instrmt('ITP', '5', science_data_file_path+'ITPs/itp5/itp5cormat', 'netcdfs/ITP_005.nc')
