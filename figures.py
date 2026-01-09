@@ -1459,12 +1459,15 @@ for this_dt in bps.date_range_dict[this_BGR]:
 if False:
     print('')
     print('- Creating plot of salinity vs time')
+    plt_noise = True
+    mark_LHW_AW = True
+    mrk_outliers = 'no_ends'
     # Make the Plot Parameters
-    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':True, 'mark_LHW_AW':True, 'use_raster':False}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
     # Make the subplot groups 
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='f2-i_'+this_BGR+'_SA_vs_dt.png')
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 2.8], filename='s_'+this_BGR+'_SA_vs_dt.png')
 #**# Salinity vs. time, all the same color (Supplementary Materials)
 if False:
     print('')
@@ -1475,6 +1478,41 @@ if False:
     group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
     # Make the figure
     ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.6, 1.8], filename='s2_'+this_BGR+'_SA_vs_dt.png')
+#***# Figure 3 in parts:
+if False:
+    plt_noise = False
+    mark_LHW_AW = True
+    mrk_outliers = 'no_ends'
+    # Salinity vs. time (Figure 3a)
+    print('')
+    print('- Creating plot of layer salinity vs time')
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups
+    group_SA_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_SA_vs_dt], row_col_list=[1,1, 0.415, 2.2])
+    
+    # Temperature vs. time (Figure 3b)
+    print('')
+    print('- Creating plot of layer temperature vs time')
+    # Make the Plot Parameters
+    pp_CT_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['CT'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[1.09,-1.48]}, legend=False)
+    # Make the subplot groups
+    group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_CT_vs_dt], row_col_list=[1,1, 0.41, 2.2])
+
+    # Pressure vs. time (Figure 3c)
+    print('')
+    print('- Creating plot of layer pressure vs time')
+    # Make the Plot Parameters
+    pp_press_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['press'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[565,144]}, legend=False)
+    # Make the subplot groups
+    group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
+    # Make the figure
+    ahf.make_figure([group_press_vs_dt], row_col_list=[1,1, 0.415, 2.2])
+
 # Temperature vs. time 
 if False:
     print('')
@@ -1522,7 +1560,7 @@ if False:
     group_CT_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_CT_vs_dt, plot_title='')
     group_press_vs_dt = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_press_vs_dt, plot_title='')
     # Make the figure
-    ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8], filename='f3_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
+    ahf.make_figure([group_SA_vs_dt, group_CT_vs_dt, group_press_vs_dt], row_col_list=[3,1, 1.1, 1.8])#, filename='f3_'+this_BGR+'_SA_CT_and_press_vs_dt.png')
     # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
 
 #**# Salinity vs. time, clusters initially, manually relabelde, and connecting with SA_divs (Supplementary Materials)
@@ -1542,10 +1580,47 @@ if False:
     group_old_relab = ahf.Analysis_Group(ds_initial, pfs_0, pp_SA_vs_dt_relab, plot_title='Manual relabeling')
     group_SA_divs = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='Using salinity boundaries')
     ahf.make_figure([group_initial, group_old_relab, group_SA_divs], row_col_list=[3,1, 1.1, 1.8], filename='s7_SA_vs_dt_initial_manual_SA_divs1.png')
-    # ahf.make_figure([group_CT_vs_dt, group_press_vs_dt], row_col_list=[2,1, 0.85, 1.8], filename='s5_'+this_BGR+'_CT_and_press_vs_dt.png')
+# Same as above, but in parts:
+if False:
+    print('')
+    print('- Creating plots of layer salinity vs time for initial clustering, manual connection, and SA division connection')
+    plt_noise = False
+    mark_LHW_AW = True
+    mrk_outliers = None
+    # Initial clustering vs. time (Figure S.7a)
+    print('')
+    print('- Creating plot of initial clustering layer salinity vs time')
+    # Get the dataset
+    ds_initial = ahf.Data_Set(bps.BGR_HPC_unrelab_dict[this_BGR], bob.dfs_all)
+    # Make the Plot Parameters
+    pp_SA_vs_dt = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups
+    group_initial = ahf.Analysis_Group(ds_initial, pfs_0, pp_SA_vs_dt, plot_title='Clustered data')
+    # Make the figure
+    ahf.make_figure([group_initial], row_col_list=[1,1, 0.415, 2.2])
+    
+    # Manual connection vs. time (Figure S.7b)
+    print('')
+    print('- Creating plot of manual connection layer salinity vs time')
+    # Make the Plot Parameters
+    pp_SA_vs_dt_relab = ahf.Plot_Parameters(x_vars=['dt_start'], y_vars=['SA'], clr_map='cluster', extra_args={'sort_clstrs':False, 'plt_noise':plt_noise, 'mark_LHW_AW':mark_LHW_AW, 'mark_outliers':mrk_outliers, 'relab_these':bps.BGR_HPC_relab_dict}, ax_lims={'x_lims':dt_this_BGR_x_lims, 'y_lims':[35.05, 34.085]}, legend=False)
+    # Make the subplot groups
+    group_old_relab = ahf.Analysis_Group(ds_initial, pfs_0, pp_SA_vs_dt_relab, plot_title='Manual relabeling')
+    # Make the figure
+    ahf.make_figure([group_old_relab], row_col_list=[1,1, 0.415, 2.2])
+
+    # Salinity vs. time (Figure S7.c / 3a)
+    print('')
+    print('- Creating plot of divided layer salinity vs time')
+    # Make the Plot Parameters
+    ## done above
+    # Make the subplot groups
+    group_SA_divs = ahf.Analysis_Group(ds_this_BGR, pfs_0, pp_SA_vs_dt, plot_title='Using salinity boundaries')
+    # Make the figure
+    ahf.make_figure([group_SA_divs], row_col_list=[1,1, 0.415, 2.2])
 
 #**# Salinity vs. time, Staircase Range data and Clustered data, all same color (Supplementary Materials)
-if True:
+if False:
     print('')
     print('- Creating plots of layer salinity vs time for Staircase Range and Clustered data')
     plt_noise = False
