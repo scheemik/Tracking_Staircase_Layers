@@ -36,22 +36,22 @@ import importlib
 # For custom analysis functions
 ahf = importlib.import_module('.0_helper_files.analysis_helper_functions', package='Tracking_Staircase_Layers')
 # For common BGR parameters
-ahf = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
+bps = importlib.import_module('.0_helper_files.BGR_params', package='Tracking_Staircase_Layers')
 # For common BGR objects
-ahf = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
+bob = importlib.import_module('.0_helper_files.BGR_objects', package='Tracking_Staircase_Layers')
 
 # Try to load the specified csvs
-# these_dfs = []
-# labels = []
-# for my_csv in ['ps_files/BGR1415_ps.csv', 'ps_files/BGR1516_ps.csv']:
-#     print('- Loading '+my_csv)
-#     try:
-#         these_dfs.append(pd.read_csv(my_csv, header=2))
-#         split_name = my_csv.split('.', 1)
-#         labels.append(split_name[0].split('/',1)[1])
-#     except:
-#         print('Could not load '+my_csv)
-#         exit(0)
+these_dfs = []
+labels = []
+for my_csv in ['ps_files/BGR1415_ps.csv', 'ps_files/BGR1516_ps.csv']:
+    print('- Loading '+my_csv)
+    try:
+        these_dfs.append(pd.read_csv(my_csv, header=2))
+        split_name = my_csv.split('.', 1)
+        labels.append(split_name[0].split('/',1)[1])
+    except:
+        print('Could not load '+my_csv)
+        exit(0)
 
 ################################################################################
 # Declare variables for plotting
@@ -416,7 +416,7 @@ def plot_clstr_param_sweep(ax, tw_ax_x, dfs, pp, plt_titles=None):
 ################################################################################
 
 # plt_title = 'BGR'
-
+# 
 # pp_ps_m_pts = ahf.Plot_Parameters(x_vars=['m_pts'], y_vars=['n_clusters','DBCV'], clr_map='clr_all_same', extra_args={'z_var':'label'}, legend=False, ax_lims={'x_lims':[0, 2500]})
 # 
 # group_param_sweep1 = Analysis_Group([these_dfs[0]], pp_ps_m_pts, plot_title='BGR1415 Parameter Sweep')
@@ -430,5 +430,6 @@ def plot_clstr_param_sweep(ax, tw_ax_x, dfs, pp, plt_titles=None):
 # pfs_0 = ahf.Profile_Filters()
 # group_clstr_BGR1415 = ahf.Analysis_Group(ds_BGR1415, pfs_0, pp_pre_clstrd, plot_title='BGR1415 Clusters')
 # group_clstr_BGR1516 = ahf.Analysis_Group(ds_BGR1516, pfs_0, pp_pre_clstrd, plot_title='BGR1516 Clusters')
-# # Plot the figure
+# Plot the figure
 # make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='f5_BGR1415-1516_ps_and_clstrs.png')
+# make_figure([group_clstr_BGR1415, group_clstr_BGR1516], row_col_list=[1,2, 0.5, 1.4], filename='f5_BGR1415-1516_clstrs.png')
