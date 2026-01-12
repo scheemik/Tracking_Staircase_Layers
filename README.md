@@ -1,7 +1,7 @@
 # Tracking Arctic Ocean Staircase Layers
 
 Written by Mikhail Schee for:
-(submitted) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2025) "Decadal coherence of Arctic thermohaline staircases"
+(submitted) Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2026) "Decadal coherence of Arctic thermohaline staircases," _Geophysical Research Letters_, [doi:10.22541/essoar.176797968.81000554/v1](doi.org/10.22541/essoar.176797968.81000554/v1)
 
 ## License
 
